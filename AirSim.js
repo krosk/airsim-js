@@ -1,3 +1,5 @@
+var Nano = require('nano-ecs');
+
 (function ()
 {
     var exLog = console.log;
@@ -11,6 +13,8 @@
         }
     }
 })()
+
+var g_state = WaitingState;
 
 function OnReady()
 {
@@ -42,13 +46,11 @@ function OnReady()
     document.body.appendChild(g_stats.domElement);
 
     PIXI.loader
-        .add("Img/cityTiles_sheet.json")
+        .add("img/cityTiles_sheet.json")
         .on("progress", LoaderProgressHandler)
         .load(LoaderSetup);
     
     Resize();
-
-    g_state = WaitingState;
 
     g_app.ticker.add(Update);
     
@@ -78,7 +80,7 @@ function LoaderProgressHandler(loader, resource)
 function LoaderSetup()
 {
     console.log("image loaded, testingScene" );
-    g_state = WaitingState;
+    g_state = StartState;
 }
 
 function Resize()
@@ -94,6 +96,13 @@ function Resize()
 function WaitingState()
 {
     // do nothing, wait for loader
+}
+
+function StartState()
+{
+    console.log("Start");
+    console.log(Nano);
+    g_state = WaitingState;
 }
 
 var g_frameCounter = 0;

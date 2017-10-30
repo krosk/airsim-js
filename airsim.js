@@ -100,15 +100,17 @@ function WaitingState()
 
 function AddPaxRandom()
 {
-    var x = Math.floor(Math.random() * 300);
-    var y = Math.floor(Math.random() * 600);
+    var width = window.innerWidth;
+    var height = window.innerHeight;
+    var x = Math.floor(Math.random() * width);
+    var y = Math.floor(Math.random() * height);
     ASPAX.create(x, y);
 }
 
 function StartState()
 {
     console.log("Start");
-    for (i = 1; i < 10; i++)
+    for (i = 1; i < 1000; i++)
     {
         AddPaxRandom();
     }

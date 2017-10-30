@@ -109,6 +109,7 @@ function StartState()
 function EngineState()
 {
     ASRENDER.update(0, 0);
+    ASRANDOMMOVE.update(0, 0);
 }
 
 var g_frameCounter = 0;
@@ -146,7 +147,7 @@ var ASPIXIRENDER = (function ()
         graphics.beginFill(0xFFFF00);
 
         // set the line style to have a width of 5 and set the color to red
-        graphics.lineStyle(1, 0xFFFF00);
+        graphics.lineStyle(1, 0xFF0000);
 
         // draw a rectangle
         graphics.drawRect(0, 0, 2, 2);
@@ -229,6 +230,25 @@ var ASRENDER = (function ()
                 entity.id.id,
                 entity.position.x,
                 entity.position.y);
+        });
+    }
+    
+    return public;
+})();
+// --------------------
+var ASRANDOMMOVE = (function ()
+{
+    var public = {};
+    
+    public.update = function (dt, time)
+    {
+        var candidates = Nano.queryComponents([
+            ASCOMPONENT.Position,
+            ]);
+        candidates.forEach(function(entity)
+        {
+            entity.position.x += 1;
+            entity.position.y += 1;
         });
     }
     

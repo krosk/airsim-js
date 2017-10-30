@@ -133,6 +133,42 @@ function Update()
 
 
 // ---------------------
+var ASPIXIRENDER = (function ()
+{
+    var public = {};
+    
+    var m_sprites = {};
+    
+    function createSprite()
+    {
+        var graphics = new PIXI.Graphics();
+
+        graphics.beginFill(0xFFFF00);
+
+        // set the line style to have a width of 5 and set the color to red
+        graphics.lineStyle(1, 0xFFFF00);
+
+        // draw a rectangle
+        graphics.drawRect(0, 0, 2, 2);
+        
+        return graphics;
+    }
+    
+    public.setSpriteToPosition = function(id, x, y)
+    {
+        if (typeof m_sprites[id] == 'undefined')
+        {
+            var sprite = createSprite();
+            g_app.stage.addChild(sprite);
+            m_sprites[id] = sprite;
+        }
+        m_sprites[id].x = x;
+        m_sprites[id].y = y;
+    }
+    
+    return public;
+})();
+// ---------------------
 var ASCOMPONENT = (function ()
 {
     var public = {};
@@ -188,7 +224,11 @@ var ASRENDER = (function ()
             ]);
         candidates.forEach(function(entity)
         {
-            console.log(entity.id.id);
+            //console.log(entity.id.id);
+            ASPIXIRENDER.setSpriteToPosition(
+                entity.id.id,
+                entity.position.x,
+                entity.position.y);
         });
     }
     

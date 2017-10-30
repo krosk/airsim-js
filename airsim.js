@@ -98,11 +98,20 @@ function WaitingState()
     // do nothing, wait for loader
 }
 
+function AddPaxRandom()
+{
+    var x = Math.floor(Math.random() * 300);
+    var y = Math.floor(Math.random() * 600);
+    ASPAX.create(x, y);
+}
+
 function StartState()
 {
     console.log("Start");
-    ASPAX.create();
-    ASPAX.create();
+    for (i = 1; i < 10; i++)
+    {
+        AddPaxRandom();
+    }
     g_state = EngineState;
 }
 
@@ -199,13 +208,15 @@ var ASPAX = (function ()
 {
     var public = {};
     
-    public.create = function()
+    public.create = function(x, y)
     {
         var entity = Nano.createEntity();
         entity.
             addComponent(ASCOMPONENT.Id).
             addComponent(ASCOMPONENT.Position).
             addComponent(ASCOMPONENT.Renderable);
+        entity.position.x = x;
+        entity.position.y = y;
         return entity;
     }
     
@@ -247,8 +258,8 @@ var ASRANDOMMOVE = (function ()
             ]);
         candidates.forEach(function(entity)
         {
-            entity.position.x += 1;
-            entity.position.y += 1;
+            entity.position.x += Math.floor(Math.random() * 3) - 1;
+            entity.position.y += Math.floor(Math.random() * 3) - 1;
         });
     }
     

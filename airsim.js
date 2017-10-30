@@ -1,4 +1,4 @@
-var Nano = require('nano-ecs');
+var Nano = require('nano-ecs')();
 
 (function ()
 {
@@ -101,7 +101,8 @@ function WaitingState()
 function StartState()
 {
     console.log("Start");
-    console.log(Nano);
+    var pax = Nano.createEntity();
+    console.log(pax);
     g_state = WaitingState;
 }
 

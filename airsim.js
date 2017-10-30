@@ -101,9 +101,13 @@ function WaitingState()
 function StartState()
 {
     console.log("Start");
-    var pax = ASPAX.create();
-    console.log(pax);
-    g_state = WaitingState;
+    ASPAX.create();
+    g_state = EngineState;
+}
+
+function EngineState()
+{
+    ASRENDER.update(0, 0);
 }
 
 var g_frameCounter = 0;
@@ -160,6 +164,25 @@ var ASPAX = (function ()
             addComponent(ASCOMPONENT.Position).
             addComponent(ASCOMPONENT.Renderable);
         return entity;
+    }
+    
+    return public;
+})();
+// ---------------------
+var ASRENDER = (function ()
+{
+    var public = {};
+    
+    public.update = function (dt, time)
+    {
+        var candidates = Nano.queryComponents([
+            ASCOMPONENT.Position,
+            ASCOMPONENT.Renderable
+            ]);
+        candidates.forEach(function(entity)
+        {
+            console.log(entity.position.x);
+        });
     }
     
     return public;

@@ -102,6 +102,7 @@ function StartState()
 {
     console.log("Start");
     ASPAX.create();
+    ASPAX.create();
     g_state = EngineState;
 }
 
@@ -131,12 +132,16 @@ function Update()
 }
 
 
-
-
 // ---------------------
 var ASCOMPONENT = (function ()
 {
     var public = {};
+    var s_entityId = 0;
+    
+    public.Id = function Id()
+    {
+        this.id = s_entityId++;
+    }
     
     public.Position = function Position()
     {
@@ -161,6 +166,7 @@ var ASPAX = (function ()
     {
         var entity = Nano.createEntity();
         entity.
+            addComponent(ASCOMPONENT.Id).
             addComponent(ASCOMPONENT.Position).
             addComponent(ASCOMPONENT.Renderable);
         return entity;
@@ -176,12 +182,13 @@ var ASRENDER = (function ()
     public.update = function (dt, time)
     {
         var candidates = Nano.queryComponents([
+            ASCOMPONENT.Id,
             ASCOMPONENT.Position,
             ASCOMPONENT.Renderable
             ]);
         candidates.forEach(function(entity)
         {
-            console.log(entity.position.x);
+            console.log(entity.id.id);
         });
     }
     

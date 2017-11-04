@@ -110,7 +110,7 @@ function AddPaxRandom()
 function StartState()
 {
     console.log("Start");
-    for (i = 1; i < 1000; i++)
+    for (i = 1; i < 0xFF * 6; i++)
     {
         AddPaxRandom();
     }
@@ -119,14 +119,17 @@ function StartState()
 
 function EngineState()
 {
-    ASRENDER.update(0, 0);
-    ASRANDOMMOVE.update(0, 0);
+    ASRENDER.update(g_updateDelta, g_updateTimestamp);
+    ASRANDOMMOVE.update(g_updateDelta, g_updateTimestamp);
 }
 
 var g_frameCounter = 0;
+var g_updateTimestamp = Date.now();
+var g_updateDelta = 0;
 
 function Update()
 {
+    g_updateDelta = Date.now() - g_updateTimestamp;
     g_updateTimestamp = Date.now();
     g_stats.begin();
     g_state();
@@ -151,14 +154,45 @@ var ASPIXIRENDER = (function ()
     
     var m_sprites = {};
     
-    function createSprite()
+    function rainbowProfile(n)
+    {
+        var total = 0xFF * 6;
+        n = n % total;
+        if (n < 0xFF)
+        {
+            return n;
+        }
+        else if (n < 0xFF * 3)
+        {
+            return 0xFF;
+        }
+        else if (n < 0xFF * 4)
+        {
+            return 0xFF * 4 - n;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+    
+    function rainbowColor(n)
+    {
+        var r = rainbowProfile(n + 0xFF * 2) << 16;
+        var g = rainbowProfile(n) << 8;
+        var b = rainbowProfile(n + 0xFF * 4);
+        return r + g + b
+    }
+    
+    function createSprite(id)
     {
         var graphics = new PIXI.Graphics();
 
         graphics.beginFill(0xFFFF00);
 
         // set the line style to have a width of 5 and set the color to red
-        graphics.lineStyle(1, 0xFF0000);
+        var color = rainbowColor(id);
+        graphics.lineStyle(1, color);
 
         // draw a rectangle
         graphics.drawRect(0, 0, 2, 2);
@@ -170,12 +204,14 @@ var ASPIXIRENDER = (function ()
     {
         if (typeof m_sprites[id] == 'undefined')
         {
-            var sprite = createSprite();
+            var sprite = createSprite(id);
             g_app.stage.addChild(sprite);
             m_sprites[id] = sprite;
         }
         m_sprites[id].x = x;
         m_sprites[id].y = y;
+        //m_sprites[id].x = rainbowProfile(id);
+        //m_sprites[id].y = id / 4;
     }
     
     return public;
@@ -229,8 +265,15 @@ var ASRENDER = (function ()
 {
     var public = {};
     
+    var lastTime = 0;
+    
     public.update = function (dt, time)
     {
+        if (time - lastTime < 2000 / 1)
+        {
+            //return;
+        }
+        lastTime = time;
         var candidates = Nano.queryComponents([
             ASCOMPONENT.Id,
             ASCOMPONENT.Position,
@@ -253,8 +296,16 @@ var ASRANDOMMOVE = (function ()
 {
     var public = {};
     
+    var lastTime = 0;
+    
     public.update = function (dt, time)
     {
+        if (time - lastTime < 2000 / 1)
+        {
+            //return;
+        }
+        lastTime = time;
+        
         var candidates = Nano.queryComponents([
             ASCOMPONENT.Position,
             ]);

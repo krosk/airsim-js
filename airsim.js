@@ -305,14 +305,15 @@ var ASRANDOMMOVE = (function ()
             //return;
         }
         lastTime = time;
+        var ut = 1000 / 60;
         
         var candidates = Nano.queryComponents([
             ASCOMPONENT.Position,
             ]);
         candidates.forEach(function(entity)
         {
-            entity.position.x += Math.floor(Math.random() * 3) - 1;
-            entity.position.y += Math.floor(Math.random() * 3) - 1;
+            entity.position.x += dt/ut*(Math.floor(Math.random() * 3) - 1);
+            entity.position.y += dt/ut*(Math.floor(Math.random() * 3) - 1);
         });
     }
     

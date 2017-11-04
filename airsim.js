@@ -110,7 +110,7 @@ function AddPaxRandom()
 function StartState()
 {
     console.log("Start");
-    for (i = 1; i < 0xFF * 6; i++)
+    for (i = 1; i < 0xFF * 12; i++)
     {
         AddPaxRandom();
     }
@@ -312,8 +312,8 @@ var ASRANDOMMOVE = (function ()
             ]);
         candidates.forEach(function(entity)
         {
-            entity.position.x += dt/ut*(Math.floor(Math.random() * 3) - 1);
-            entity.position.y += dt/ut*(Math.floor(Math.random() * 3) - 1);
+            entity.position.x = (entity.position.x + dt/ut) % window.innerWidth;
+            //entity.position.y += dt/ut*(Math.floor(Math.random() * 3) - 1);
         });
     }
     

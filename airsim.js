@@ -138,7 +138,7 @@ function Update()
     var endUpdateTimestamp = Date.now() - g_updateTimestamp;
     if (endUpdateTimestamp > 1000 / 60.0)
     {
-        console.log(endUpdateTimestamp);
+        //console.log(endUpdateTimestamp);
     }
     else
     {
@@ -200,7 +200,7 @@ var ASPIXIRENDER = (function ()
         return graphics;
     }
     
-    public.setSpriteToPosition = function(id, x, y)
+    public.setSpriteToPosition = function(id, x, y, visible)
     {
         if (typeof m_sprites[id] == 'undefined')
         {
@@ -210,6 +210,7 @@ var ASPIXIRENDER = (function ()
         }
         m_sprites[id].x = x;
         m_sprites[id].y = y;
+        m_sprites[id].visible = visible;
         //m_sprites[id].x = rainbowProfile(id);
         //m_sprites[id].y = id / 4;
     }
@@ -236,7 +237,11 @@ var ASCOMPONENT = (function ()
     
     public.Renderable = function Renderable()
     {
-        this.render = true;
+        // 0 is never rendered
+        // the lower it is,
+        // the first it is
+        // to be skipped
+        this.level = ASRENDER.C_MAXLEVEL;
     }
     
     return public;
@@ -255,6 +260,7 @@ var ASPAX = (function ()
             addComponent(ASCOMPONENT.Renderable);
         entity.position.x = x;
         entity.position.y = y;
+        entity.renderable.level = entity.id.id % ASRENDER.C_MAXLEVEL;
         return entity;
     }
     
@@ -265,27 +271,46 @@ var ASRENDER = (function ()
 {
     var public = {};
     
-    var lastTime = 0;
+    var m_lastTime = 0;
+    
+    var m_renderLevel = 0;
+    
+    var C_FPS = 30;
+    public.C_MINLEVEL = 0;
+    public.C_MAXLEVEL = 100;
     
     public.update = function (dt, time)
     {
-        if (time - lastTime < 2000 / 1)
-        {
-            //return;
-        }
-        lastTime = time;
+        m_lastTime = time;
         var candidates = Nano.queryComponents([
             ASCOMPONENT.Id,
             ASCOMPONENT.Position,
             ASCOMPONENT.Renderable
             ]);
+        if (dt > 1000 / C_FPS)
+        {
+            m_renderLevel--;
+            if (m_renderLevel < public.C_MINLEVEL)
+            {
+                m_renderLevel = public.C_MINLEVEL;
+            }
+        }
+        else
+        {
+            m_renderLevel++;
+            if (m_renderLevel >= public.C_MAXLEVEL)
+            {
+                m_renderLevel = public.C_MAXLEVEL;
+            }
+        }
         candidates.forEach(function(entity)
         {
             //console.log(entity.id.id);
             ASPIXIRENDER.setSpriteToPosition(
                 entity.id.id,
                 entity.position.x,
-                entity.position.y);
+                entity.position.y,
+                entity.renderable.level < m_renderLevel);
         });
     }
     

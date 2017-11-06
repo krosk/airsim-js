@@ -271,13 +271,13 @@ var ASRENDER = (function ()
 {
     var public = {};
     
-    var m_lastTime = 0;
-    
-    var m_renderLevel = 0;
-    
-    var C_FPS = 30;
+    public.C_FPS = 30;
     public.C_MINLEVEL = 0;
     public.C_MAXLEVEL = 100;
+    
+    var m_lastTime = 0;
+    
+    var m_renderLevel = public.C_MINLEVEL;
     
     public.update = function (dt, time)
     {
@@ -287,7 +287,7 @@ var ASRENDER = (function ()
             ASCOMPONENT.Position,
             ASCOMPONENT.Renderable
             ]);
-        if (dt > 1000 / C_FPS)
+        if (dt > 1000 / public.C_FPS)
         {
             m_renderLevel--;
             if (m_renderLevel < public.C_MINLEVEL)

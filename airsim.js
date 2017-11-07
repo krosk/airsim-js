@@ -1,4 +1,5 @@
 var Nano = require('nano-ecs')();
+var PF = require('pathfinding');
 
 (function ()
 {
@@ -100,8 +101,8 @@ function WaitingState()
 
 function AddPaxRandom()
 {
-    var width = window.innerWidth;
-    var height = window.innerHeight;
+    var width = ASMAP.Width();
+    var height = ASMAP.Height();
     var x = Math.floor(Math.random() * width);
     var y = Math.floor(Math.random() * height);
     ASPAX.create(x, y);
@@ -110,6 +111,7 @@ function AddPaxRandom()
 function StartState()
 {
     console.log("Start");
+    ASMAP.initialize(300, 300);
     for (i = 1; i < 0xFF * 12; i++)
     {
         AddPaxRandom();
@@ -218,6 +220,39 @@ var ASPIXIRENDER = (function ()
     return public;
 })();
 // ---------------------
+var ASMAP = (function ()
+{
+    var public = {};
+    
+    var m_grid = {};
+    var m_width_x = 0;
+    var m_height_y = 0;
+    
+    public.initialize = function(x, y)
+    {
+        m_grid = new PF.Grid(x, y);
+        m_width_x = x;
+        m_height_y = y;
+    }
+    
+    public.Grid = function()
+    {
+        return m_grid;
+    }
+    
+    public.Width = function()
+    {
+        return m_width_x;
+    }
+    
+    public.Height = function()
+    {
+        return m_height_y;
+    }
+    
+    return public;
+})();
+// ---------------------
 var ASCOMPONENT = (function ()
 {
     var public = {};
@@ -305,7 +340,6 @@ var ASRENDER = (function ()
         }
         candidates.forEach(function(entity)
         {
-            //console.log(entity.id.id);
             ASPIXIRENDER.setSpriteToPosition(
                 entity.id.id,
                 entity.position.x,
@@ -337,7 +371,7 @@ var ASRANDOMMOVE = (function ()
             ]);
         candidates.forEach(function(entity)
         {
-            entity.position.x = (entity.position.x + dt/ut) % window.innerWidth;
+            entity.position.x = (entity.position.x + dt/ut) % ASMAP.Width();
             //entity.position.y += dt/ut*(Math.floor(Math.random() * 3) - 1);
         });
     }

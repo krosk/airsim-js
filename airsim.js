@@ -1,5 +1,6 @@
 var Nano = require('nano-ecs')();
 var PF = require('pathfinding');
+var Benchmark = require('benchmark');
 
 (function ()
 {
@@ -376,45 +377,45 @@ var ASRANDOMMOVE = (function ()
     return public;
 })();
 // ---------------------
-function tstb(id, a)
+function pfTest(IPF)
 {
-    if (!a)
-    {
-        console.log(id);
-    }
-}
-
-function BenchState()
-{
-    /*
-    ASPFGRID.initialize(50, 50);
-    tstb(1, !ASPFGRID.isInside(-1, - 1));
-    tstb(2, !ASPFGRID.isInside(0, - 1));
-    tstb(3, ASPFGRID.isInside(0, 0));
-    tstb(4, !ASPFGRID.isInside(-1, 0));
-    tstb(5, !ASPFGRID.isInside(50, 50));
-    tstb(6, !ASPFGRID.isInside(50, 49));
-    tstb(7, ASPFGRID.isInside(49, 49));
-    tstb(8, !ASPFGRID.isInside(49, 50));
-    tstb(20, !ASPFGRID.isWalkableAt(20, 20));
-    ASPFGRID.setWalkableAt(20, 20, true);
-    tstb(21, ASPFGRID.isWalkableAt(20, 20));
-    ASPFGRID.setWalkableAt(20, 20, false);
-    tstb(22, !ASPFGRID.isWalkableAt(20, 20));
-    console.log('e');?*/
-    var PFA = [PF];
-    
-    PFA.forEach(function(IPF) {
     var grid = new IPF.Grid(250, 250);
     grid.setWalkableAt(1, 1, false);
     grid.setWalkableAt(1, 0, false);
     var jpf = new IPF.JumpPointFinder();
-    var path = jpf.findPath(0, 0, 10, 0, grid);
-    
+    var path = jpf.findPath(0, 0, 200, 0, grid);
+
     //console.log(path);
-    });
+}
     
-    //console.log('end');
+function BenchState()
+{
+    var suite = new Benchmark.Suite;
+
+    // add tests
+    suite.add('PF', function ()
+    {
+        pfTest(PF);
+    })
+    .add('ASPF', function ()
+    {
+        pfTest(ASPF);
+    })
+    // add listeners
+    .on('cycle', function (event)
+    {
+        console.log(String(event.target));
+    })
+        .on('complete', function ()
+    {
+        console.log('Fastest is ' + this.filter('fastest').map('name'));
+    })
+    // run async
+    .run({async: true});
+
+    console.log('run');
+    
+    g_state = WaitingState;
 }
 
 var Heap, defaultCmp, floor, heapify, heappop, heappush, heappushpop, heapreplace, insort, min, nlargest, nsmallest, updateItem, _siftdown, _siftup;
@@ -1242,13 +1243,13 @@ var ASPF = (function ()
     public.JumpPointFinderBase.prototype.findPath = function (startX, startY, endX, endY, grid)
     {
         var openList = this.openList = new Heap(grid, function heapCmp(nodeA, nodeB)
-    {
-        return grid.nodes.f[nodeA] - grid.nodes.f[nodeB];
-    }),
+        {
+            return grid.nodes.f[nodeA] - grid.nodes.f[nodeB];
+        }),
             startNode = this.startNode = grid.getNodeAt(startX, startY),
             endNode = this.endNode = grid.getNodeAt(endX, endY),
             node;
-        
+
         this.grid = grid;
 
         var size = grid.width * grid.height;

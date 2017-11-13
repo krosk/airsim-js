@@ -1254,12 +1254,12 @@ var ASPF = (function ()
 
         var size = grid.width * grid.height;
         var nodes = grid.nodes;
-        nodes.g = new Array(size);
-        nodes.f = new Array(size);
-        nodes.h = new Array(size);
-        nodes.opened = new Array(size);
-        nodes.closed = new Array(size);
-        nodes.parent = new Array(size);
+        nodes.g = {};
+        nodes.f = {};
+        nodes.h = {};
+        nodes.opened = {};
+        nodes.closed = {};
+        nodes.parent = {};
 
         // set the `g` and `f` value of the start node to be 0
         nodes.g[startNode] = 0;

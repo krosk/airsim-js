@@ -391,14 +391,18 @@ function pfFormatGrid(grid, w, h)
 {
     for (i = 0; i < h - 3; i++)
     {
-        grid.setWalkableAt(1, i, false);
+        for (j = 1; j < w - 6; j += 6)
+        {
+            grid.setWalkableAt(j, i, false);
+            grid.setWalkableAt(j + 3, h - i - 1, false);
+        }
     }
 }
     
 function BenchState()
 {
     var suite = new Benchmark.Suite;
-    var s = 300;
+    var s = 400;
     
     var pgrid = new PF.Grid(s, s);
     pfFormatGrid(pgrid, s, s);
@@ -437,10 +441,10 @@ function BenchState()
 
 function BenchLoopState()
 {
-    var grid = new ASPF.Grid(8, 8);
-    pfFormatGrid(grid, 8, 8);
+    var grid = new ASPF.Grid(300, 300);
+    pfFormatGrid(grid, 300, 300);
     var ajpf = new ASPF.JumpPointFinder();
-    //console.log(ajpf.findPath(0, 0, 7, 0, grid));
+    //console.log(ajpf.findPath(0, 0, 290, 290, grid));
     //console.log(ajpf.findPath(0, 0, 7, 0, grid));
     //console.log('end');
 }

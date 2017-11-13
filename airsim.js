@@ -379,11 +379,11 @@ var ASRANDOMMOVE = (function ()
 // ---------------------
 function pfTest(IPF)
 {
-    var grid = new IPF.Grid(250, 250);
+    var grid = new IPF.Grid(200, 200);
     grid.setWalkableAt(1, 1, false);
     grid.setWalkableAt(1, 0, false);
     var jpf = new IPF.JumpPointFinder();
-    var path = jpf.findPath(0, 0, 200, 0, grid);
+    var path = jpf.findPath(0, 0, 190, 0, grid);
 
     //console.log(path);
 }
@@ -411,7 +411,7 @@ function BenchState()
         console.log('Fastest is ' + this.filter('fastest').map('name'));
     })
     // run async
-    .run({async: true});
+    .run({async: false});
 
     console.log('run');
     

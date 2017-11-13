@@ -377,29 +377,46 @@ var ASRANDOMMOVE = (function ()
     return public;
 })();
 // ---------------------
-function pfTest(IPF)
+function pfTest(IPF, s)
 {
-    var grid = new IPF.Grid(200, 200);
-    grid.setWalkableAt(1, 1, false);
-    grid.setWalkableAt(1, 0, false);
+    var grid = new IPF.Grid(s, s);
+    pfFormatGrid(grid, s, s);
     var jpf = new IPF.JumpPointFinder();
-    var path = jpf.findPath(0, 0, 190, 0, grid);
+    var path = jpf.findPath(0, 0, s - 10, 0, grid);
 
     //console.log(path);
+}
+
+function pfFormatGrid(grid, w, h)
+{
+    for (i = 0; i < h - 3; i++)
+    {
+        grid.setWalkableAt(1, i, false);
+    }
 }
     
 function BenchState()
 {
     var suite = new Benchmark.Suite;
+    var s = 300;
+    
+    var pgrid = new PF.Grid(s, s);
+    pfFormatGrid(pgrid, s, s);
+    var pjpf = new PF.JumpPointFinder();
+    
+    var agrid = new ASPF.Grid(s, s);
+    pfFormatGrid(agrid, s, s);
+    var ajpf = new ASPF.JumpPointFinder();
 
     // add tests
     suite.add('PF', function ()
     {
-        pfTest(PF);
+        var grid = pgrid.clone();
+        var path = pjpf.findPath(0, 0, s - 10, s - 10, grid);
     })
     .add('ASPF', function ()
     {
-        pfTest(ASPF);
+        var path = ajpf.findPath(0, 0, s - 10, s - 10, agrid);
     })
     // add listeners
     .on('cycle', function (event)
@@ -415,7 +432,17 @@ function BenchState()
 
     console.log('run');
     
-    g_state = WaitingState;
+    g_state = BenchLoopState;
+}
+
+function BenchLoopState()
+{
+    var grid = new ASPF.Grid(8, 8);
+    pfFormatGrid(grid, 8, 8);
+    var ajpf = new ASPF.JumpPointFinder();
+    //console.log(ajpf.findPath(0, 0, 7, 0, grid));
+    //console.log(ajpf.findPath(0, 0, 7, 0, grid));
+    //console.log('end');
 }
 
 var Heap, defaultCmp, floor, heapify, heappop, heappush, heappushpop, heapreplace, insort, min, nlargest, nsmallest, updateItem, _siftdown, _siftup;

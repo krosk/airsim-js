@@ -201,6 +201,29 @@ var ASPIXIRENDER = (function ()
 
         return graphics;
     }
+    
+    function drawAsGrid(grid, w, h)
+    {
+        var graphics = new PIXI.Graphics();
+
+        graphics.beginFill(0xFF0000);
+        graphics.lineStyle(1, 0xFF00FF);
+
+        // draw a rectangle
+        for (y = 0; y < h; y++)
+        {
+            for (x = 0; x < w; x++)
+            {
+                if (!grid.isWalkableAt(x, y))
+                {
+                    graphics.moveTo(x, y);
+                    graphics.lineTo(x+1, y);
+                }
+            }
+        }
+
+        return graphics;
+    }
 
     public.setSpriteToPosition = function (id, x, y, visible)
     {
@@ -213,8 +236,18 @@ var ASPIXIRENDER = (function ()
         m_sprites[id].x = x;
         m_sprites[id].y = y;
         m_sprites[id].visible = visible;
-        //m_sprites[id].x = rainbowProfile(id);
-        //m_sprites[id].y = id / 4;
+    }
+    
+    var m_grid;
+    
+    public.drawGrid = function (grid, w, h)
+    {
+        if (typeof m_grid == 'undefined')
+        {
+            var sprite = drawAsGrid(grid, w, h);
+            g_app.stage.addChild(sprite);
+            m_grid = grid;
+        }
     }
 
     return public;
@@ -441,12 +474,16 @@ function BenchState()
 
 function BenchLoopState()
 {
-    var grid = new ASPF.Grid(300, 300);
-    pfFormatGrid(grid, 300, 300);
-    var ajpf = new ASPF.JumpPointFinder();
+    var w = 400;
+    var h = 550;
+    var grid = new ASPF.Grid(w, h);
+    pfFormatGrid(grid, w, h);
+    ASPIXIRENDER.drawGrid(grid, w, h);
+    //var ajpf = new ASPF.JumpPointFinder();
     //console.log(ajpf.findPath(0, 0, 290, 290, grid));
     //console.log(ajpf.findPath(0, 0, 7, 0, grid));
     //console.log('end');
+    g_state = WaitingState;
 }
 
 var Heap, defaultCmp, floor, heapify, heappop, heappush, heappushpop, heapreplace, insort, min, nlargest, nsmallest, updateItem, _siftdown, _siftup;
@@ -1071,9 +1108,9 @@ var ASPF = (function ()
         nodes.y = new Array(height * width);
         nodes.walkable = new Array(height * width);
 
-        for (i = 0; i < height; ++i)
+        for (i = 0; i < width; ++i)
         {
-            for (j = 0; j < width; ++j)
+            for (j = 0; j < height; ++j)
             {
                 nodes.x[this.getNodeAt(i, j)] = i;
                 nodes.y[this.getNodeAt(i, j)] = j;

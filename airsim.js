@@ -257,7 +257,7 @@ var ASPIXIRENDER = (function ()
         return graphics;
     }
 
-    public.setSpriteToPosition = function (id, x, y, visible)
+    public.setSpriteToPosition = function aspixirender_setSpriteToPosition(id, x, y, visible)
     {
         if (typeof m_sprites[id] == 'undefined')
         {
@@ -291,7 +291,7 @@ var ASMAP = (function ()
 
     var m_grid = {};
 
-    public.initialize = function (w, h)
+    public.initialize = function asmap_initialize(w, h)
     {
         m_grid = new ASPF.Grid(w, h);
         MMAPDATA.initialize(w, h);
@@ -324,10 +324,10 @@ var ASMAP = (function ()
         return m_grid.isWalkableAt(x, y);
     }
     
-    public.update = function (dt, time)
+    public.update = function asmap_update(dt, time)
     {
         m_lastTime = time;
-        var changedTile = MMAPDATA.commitChangeLog;
+        var changedTile = MMAPDATA.commitChangeLog();
         MMAPRENDER.draw(changedTile);
     }
     
@@ -366,7 +366,7 @@ var MMAPDATA = (function ()
     {
         return m_mapTableSizeY;
     }
-    public.initialize = function(x, y)
+    public.initialize = function mmapdata_initialize(x, y)
     {
         m_mapTableSizeX = x;
         m_mapTableSizeY = y;
@@ -391,7 +391,7 @@ var MMAPDATA = (function ()
             m_mapChangeLog.push( tile );
         }
     }
-    public.commitChangeLog = function()
+    public.commitChangeLog = function mmapdata_commitChangeLog()
     {
         var output = [];
         for ( var i = 0; i < m_mapChangeLog.length; i++ )
@@ -409,7 +409,7 @@ var MMAPDATA = (function ()
         var index = tileX * m_mapTableSizeY + tileY;
         return m_mapTableData[ index ];
     }
-    public.isValidCoordinates = function ( tileX, tileY )
+    public.isValidCoordinates = function mmapdata_isValidCoordinates( tileX, tileY )
     {
         var isOutOfBound = tileX < 0 || 
             tileX >= public.GetMapTableSizeX() || 
@@ -443,7 +443,7 @@ var MMAPBATCH = (function ()
         return ( X + Y ) * ( X + Y + 1 ) / 2 + Y;
     }
     
-    public.initialize = function()
+    public.initialize = function mmapbatch_initialize()
     {
         m_mapLayer = new PIXI.Container();
         g_app.stage.addChild( m_mapLayer );
@@ -550,7 +550,7 @@ var MMAPBATCH = (function ()
         return !( typeof m_mapSpritePool[ poolIndex ] === 'undefined' || m_mapSpritePool[ poolIndex ] === null );
     }
     
-    public.setSprite = function( tileX, tileY, id, x, y )
+    public.setSprite = function mmapbatch_setSprite( tileX, tileY, id, x, y )
     {
         var mapIndex = getSpriteMapIndex( tileX, tileY );
         if ( !hasSprite( tileX, tileY ) )
@@ -628,14 +628,14 @@ var MMAPBATCH = (function ()
         return ( batchY + 1 ) * BATCH_SIZE_Y;
     }
     
-    public.setBatchVisible = function( batchX, batchY, flag )
+    public.setBatchVisible = function mmapbatch_setBatchVisible( batchX, batchY, flag )
     {
         var tileX = public.batchXToStartTileX( batchX );
         var tileY = public.batchYToStartTileY( batchY );
         getBatch( tileX, tileY ).visible = flag;
     }
     
-    public.setBatchPosition = function( batchX, batchY, x, y )
+    public.setBatchPosition = function mmapbatch_setBatchPosition( batchX, batchY, x, y )
     {
         var tileX = public.batchXToStartTileX( batchX );
         var tileY = public.batchYToStartTileY( batchY );
@@ -646,7 +646,7 @@ var MMAPBATCH = (function ()
         batch.pivot.y = 0;
     }
     
-    public.setBatchScale = function( batchX, batchY, scaleX, scaleY )
+    public.setBatchScale = function mmapbatch_setBatchScale( batchX, batchY, scaleX, scaleY )
     {
         var tileX = public.batchXToStartTileX( batchX );
         var tileY = public.batchYToStartTileY( batchY );
@@ -655,7 +655,7 @@ var MMAPBATCH = (function ()
         batch.scale.y = scaleY;
     }
     
-    public.setVisibilityFlagInRadius = function( flag, centerTileX, centerTileY, radius, flagValue )
+    public.setVisibilityFlagInRadius = function mmapbatch_setVisibilityFlagInRadius( flag, centerTileX, centerTileY, radius, flagValue )
     {
         var centerBatchX = public.tileXToBatchX( centerTileX );
         var centerBatchY = public.tileYToBatchY( centerTileY );
@@ -682,7 +682,7 @@ var MMAPBATCH = (function ()
         }
     }
     
-    public.setPositionFlagInRadius = function( flag, centerTileX, centerTileY, radius, flagValue )
+    public.setPositionFlagInRadius = function mmapbatch_setPositionFlagInRadius( flag, centerTileX, centerTileY, radius, flagValue )
     {
         var centerBatchX = public.tileXToBatchX( centerTileX );
         var centerBatchY = public.tileYToBatchY( centerTileY );
@@ -762,7 +762,7 @@ var MMAPRENDER = (function ()
     var TEXTURE_BASE_SIZE_X = 25;
     var TEXTURE_BASE_SIZE_Y = 11;
     
-    public.createSpritePlaceholder = function ()
+    public.createSpritePlaceholder = function mmaprender_createSpritePlaceholder()
     {
         var graphics = new PIXI.Graphics();
 
@@ -824,7 +824,7 @@ var MMAPRENDER = (function ()
     var m_startCameraMapX = 0;		
     var m_startCameraMapY = 0;
     
-    public.initialize = function()
+    public.initialize = function mmaprender_initialize()
     {
         m_cameraMapX = 0;
         m_cameraMapY = 0;
@@ -878,7 +878,7 @@ var MMAPRENDER = (function ()
         return mapToTileY( mapX, mapY );
     }
     
-    public.setTile = function ( tileX, tileY, id )
+    public.setTile = function mmaprender_setTile( tileX, tileY, id )
     {
         var x = tileToMapX( tileX, tileY );
         var y = tileToMapY( tileX, tileY ); + TEXTURE_BASE_SIZE_Y;
@@ -1161,7 +1161,7 @@ var MMAPRENDER = (function ()
     // hold cantor indicies
     var m_batchFlag = {};
     
-    public.draw = function( updatedTiles )
+    public.draw = function mmaprender_draw( updatedTiles )
     {
         // remarks: one single call to texture change
         // is likely to cause a complete refresh of the
@@ -1252,6 +1252,10 @@ var MMAPRENDER = (function ()
         var time3 = Date.now();
         
         // checking whether it is texture load
+        if ( time2 - time1 > 16)
+        {
+            console.log(time2 - time1 + 's');
+        }
         if ( time3 - time2 > 16 )
         {
             console.log(time3 - time2 + 'f');
@@ -1302,7 +1306,7 @@ var ASPAX = (function ()
 {
     var public = {};
 
-    public.create = function (x, y)
+    public.create = function aspax_create(x, y)
     {
         var entity = Nano.createEntity();
         entity.
@@ -1330,7 +1334,7 @@ var ASRENDER = (function ()
 
     var m_renderLevel = public.C_MINLEVEL;
 
-    public.update = function (dt, time)
+    public.update = function asrender_update(dt, time)
     {
         m_lastTime = time;
         var candidates = Nano.queryComponents([
@@ -1372,7 +1376,7 @@ var ASRANDOMMOVE = (function ()
 
     var m_lastTime = 0;
 
-    public.update = function (dt, time)
+    public.update = function asrandommove_update(dt, time)
     {
         if (time - m_lastTime < 1000)
         {

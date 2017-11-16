@@ -147,7 +147,7 @@ function StartState()
 function EngineState()
 {
     ASMAP.update(g_updateDelta, g_updateTimestamp);
-    ASRENDER.update(g_updateDelta, g_updateTimestamp);
+    //ASRENDER.update(g_updateDelta, g_updateTimestamp);
     ASRANDOMMOVE.update(g_updateDelta, g_updateTimestamp);
 }
 
@@ -326,9 +326,8 @@ var ASMAP = (function ()
     
     public.update = function asmap_update(dt, time)
     {
-        m_lastTime = time;
         var changedTile = MMAPDATA.commitChangeLog();
-        MMAPRENDER.draw(changedTile);
+        MMAPRENDER.update(dt, time, changedTile);
     }
     
     public.mathReverseCantorPair = function( z )
@@ -709,7 +708,7 @@ var MMAPBATCH = (function ()
         }
     }
     
-    public.setTextureFlagInNewBatch = function( flag  )
+    public.setTextureFlagInNewBatch = function mmapbatch_setTextureFlagInNewBatch( flag  )
     {
         var keys = Object.keys( flag );
         for ( var i in keys )
@@ -726,7 +725,7 @@ var MMAPBATCH = (function ()
         }
     }
     
-    public.setTextureFlagInRadiusAndUpdatedTiles = function( flag, centerTileX, centerTileY, radius, updatedTiles )
+    public.setTextureFlagInRadiusAndUpdatedTiles = function mmapbatch_setTextureFlagInRadiusAndUpdatedTiles( flag, centerTileX, centerTileY, radius, updatedTiles )
     {
         var centerBatchX = public.tileXToBatchX( centerTileX );
         var centerBatchY = public.tileYToBatchY( centerTileY );
@@ -759,7 +758,7 @@ var MMAPRENDER = (function ()
     //var TEXTURE_BASE_SIZE_X = 130;
     //var TEXTURE_BASE_SIZE_Y = 66;
     
-    var TEXTURE_BASE_SIZE_X = 25;
+    var TEXTURE_BASE_SIZE_X = 22;
     var TEXTURE_BASE_SIZE_Y = 11;
     
     public.createSpritePlaceholder = function mmaprender_createSpritePlaceholder()
@@ -1073,14 +1072,14 @@ var MMAPRENDER = (function ()
         return topLeftBatchRadius;
     }
     
-    var processBatchFlag = function( maximumDuration, batchFlag )
+    var processBatchFlag = function mmapbatch_processBatchFlag( batchPerCall, batchFlag )
     {
-        var time = Date.now();
         var keys = Object.keys( batchFlag );
         var count = 0;
+        var textureLoadCount = 0;
         // pre order
-        var firstKeys = [];
-        var otherKeys = [];
+        var loadedTextureKeys = [];
+        var toLoadTextureKeys = [];
         for ( var i in keys )
         {
             var k = keys[ i ];
@@ -1090,17 +1089,17 @@ var MMAPRENDER = (function ()
             var textureFlag = batchFlag[ k ].loadTexture;
             if ( textureFlag )
             {
-                otherKeys.push( k );
+                toLoadTextureKeys.push( k );
             }
             else
             {
-                firstKeys.push( k );
+                loadedTextureKeys.push( k );
             }
         }
-        var orderedKeys = firstKeys;
-        for ( var i in otherKeys )
+        var orderedKeys = loadedTextureKeys;
+        for ( var i in toLoadTextureKeys )
         {
-            orderedKeys.push( otherKeys[ i ] );
+            orderedKeys.push( toLoadTextureKeys[ i ] );
             break; // process only one texture load per call
         }
         for ( var i in orderedKeys )
@@ -1140,9 +1139,15 @@ var MMAPRENDER = (function ()
             }
             delete batchFlag[ k ];
             count++;
-            if ( Date.now() - time > maximumDuration)
+            if ( count == batchPerCall )
             {
-                console.log('too much ' + count + '/' + keys.length );
+                if (i < orderedKeys.length - 1)
+                {
+                    // leftovers, probably need to zoom
+                    // especially if moving batches is
+                    // already taking all computation
+                    // and leaves nothing to texture 
+                }
                 return;
             }
         }
@@ -1160,8 +1165,14 @@ var MMAPRENDER = (function ()
     
     // hold cantor indicies
     var m_batchFlag = {};
+    var m_batchPerCall = 1;
+    var m_lastTime = 0;
     
-    public.draw = function mmaprender_draw( updatedTiles )
+    public.C_FPS = 30;
+    public.C_MINBATCHPERCALL = 1;
+    public.C_MAXBATCHPERCALL = 200;
+    
+    public.update = function mmaprender_update( dt, tile, updatedTiles )
     {
         // remarks: one single call to texture change
         // is likely to cause a complete refresh of the
@@ -1197,7 +1208,24 @@ var MMAPRENDER = (function ()
         // 4/ container creation could also be in cause,
         // consider pooling?
         
-        var time1 = Date.now();
+        if (dt > 1000 / public.C_FPS)
+        {
+            m_batchPerCall--;
+            if (m_batchPerCall < public.C_MINBATCHPERCALL)
+            {
+                m_batchPerCall = public.C_MINBATCHPERCALL;
+            }
+        }
+        else
+        {
+            m_batchPerCall++;
+            if (m_batchPerCall >= public.C_MAXBATCHPERCALL)
+            {
+                m_batchPerCall = public.C_MAXBATCHPERCALL;
+            }
+        }
+        
+        var time0 = Date.now();
         
         updateCameraVelocity();
         
@@ -1227,6 +1255,8 @@ var MMAPRENDER = (function ()
             currentBatchRadius,
             true );
             
+        var time1 = Date.now();
+            
         MMAPBATCH.setTextureFlagInNewBatch(
             m_batchFlag );
         
@@ -1246,15 +1276,18 @@ var MMAPRENDER = (function ()
             
         var time2 = Date.now();
         
-        var maximumDuration = 10;
-        processBatchFlag( maximumDuration, m_batchFlag );
+        processBatchFlag( m_batchPerCall, m_batchFlag );
         
         var time3 = Date.now();
         
         // checking whether it is texture load
+        if ( time1 - time0 > 16)
+        {
+            console.log(time1 - time0 + 'p');
+        }
         if ( time2 - time1 > 16)
         {
-            console.log(time2 - time1 + 's');
+            console.log(time2 - time1 + 't');
         }
         if ( time3 - time2 > 16 )
         {

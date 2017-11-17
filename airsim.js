@@ -520,10 +520,10 @@ var MMAPBATCH = (function ()
             {
                 for (var y = cTileY; y < eTileY; y++)
                 {
-                    //var textureName = GetTextureName( 0 );
-                    //var tileTextureCache = PIXI.utils.TextureCache[ textureName ];
-                    //var sprite = new PIXI.Sprite( tileTextureCache );
-                    var sprite = MMAPRENDER.createSpritePlaceholder();
+                    var textureName = MMAPRENDER.GetTileTextureName( 0 );
+                    var tileTextureCache = PIXI.utils.TextureCache[ textureName ];
+                    var sprite = new PIXI.Sprite( tileTextureCache );
+                    //var sprite = MMAPRENDER.createSpritePlaceholder();
 
                     //sprite.x = x - sprite.width / 2;
                     //sprite.y = y - sprite.height;
@@ -571,10 +571,10 @@ var MMAPBATCH = (function ()
 
             var poolIndex = getSpritePoolIndex(tileX, tileY);
 
-            //var textureName = GetTextureName( id );
-            //var tileTextureCache = PIXI.utils.TextureCache[ textureName ];
+            var textureName = MMAPRENDER.GetTileTextureName( id );
+            var tileTextureCache = PIXI.utils.TextureCache[ textureName ];
             var sprite = m_mapSpritePool[poolIndex];
-            //sprite.setTexture( tileTextureCache );
+            sprite.setTexture( tileTextureCache );
             sprite.x = x - sprite.width / 2;
             sprite.y = y - sprite.height;
             m_mapSpriteId[mapIndex] = id;
@@ -779,6 +779,14 @@ var MMAPRENDER = (function ()
 
         return graphics;
     }
+    
+    var initializeTexture = function ()
+    {
+        var textureName = public.GetTileTextureName(0);
+        var graphics = public.createSpritePlaceholder();
+        var texture = g_app.renderer.generateTexture(graphics);
+        PIXI.utils.TextureCache[textureName] = texture;
+    }
 
     var viewWidth = function ()
     {
@@ -830,6 +838,12 @@ var MMAPRENDER = (function ()
         m_cameraMapX = 0;
         m_cameraMapY = 0;
         MMAPBATCH.initialize();
+        initializeTexture();
+    }
+    
+    public.GetTileTextureName = function mmaprender_GetTileTextureName (tileId)
+    {
+        return "mytile";
     }
 
     var tileToMapX = function (tileX, tileY)

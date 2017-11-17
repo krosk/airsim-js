@@ -204,8 +204,9 @@ var ASPIXIRENDER = (function ()
         }
     }
 
-    function rainbowColor(n)
+    public.rainbowColor = function aspixirender_rainbowColor(i, t)
     {
+        var n = (0xFF * 6 * i / t);
         var r = rainbowProfile(n + 0xFF * 2) << 16;
         var g = rainbowProfile(n) << 8;
         var b = rainbowProfile(n + 0xFF * 4);
@@ -352,6 +353,8 @@ var MMAPDATA = (function ()
     var m_mapChangeLog = [];
     var m_mapTableSizeX = 0;
     var m_mapTableSizeY = 0;
+    
+    public.C_MAXTILEID = 32;
 
     public.GetMapTableData = function ()
     {
@@ -373,7 +376,7 @@ var MMAPDATA = (function ()
         {
             for (var y = 0; y < m_mapTableSizeY; y++)
             {
-                var randomId = Math.floor(Math.random() * 128);
+                var randomId = Math.floor(Math.random() * public.C_MAXTILEID);
                 var tile =
                 {
                     x: x,
@@ -390,7 +393,7 @@ var MMAPDATA = (function ()
         {
             var x = Math.floor(m_mapTableSizeX * Math.random());
             var y = Math.floor(m_mapTableSizeY * Math.random());
-            var id = Math.floor(128 * Math.random());
+            var id = Math.floor(public.C_MAXTILEID * Math.random());
             var tile =
             {
                 x: x,
@@ -441,8 +444,8 @@ var MMAPBATCH = (function ()
     var m_mapSpritePool = [];
     var m_mapSpriteId = []; // mapIndex
 
-    var BATCH_SIZE_X = 4;
-    var BATCH_SIZE_Y = 4;
+    var BATCH_SIZE_X = 8;
+    var BATCH_SIZE_Y = 8;
 
     var mathCantor = function (X, Y)
     {
@@ -760,15 +763,17 @@ var MMAPRENDER = (function ()
     //var TEXTURE_BASE_SIZE_X = 130;
     //var TEXTURE_BASE_SIZE_Y = 66;
 
-    var TEXTURE_BASE_SIZE_X = 22;
-    var TEXTURE_BASE_SIZE_Y = 11;
+    var TEXTURE_BASE_SIZE_X = 32;
+    var TEXTURE_BASE_SIZE_Y = 16;
 
-    public.createSpritePlaceholder = function mmaprender_createSpritePlaceholder()
+    public.createTexture = function mmaprender_createTexture(id)
     {
         var graphics = new PIXI.Graphics();
 
-        graphics.beginFill(0x000000);
-        graphics.lineStyle(1, 0xFF00FF);
+        var color = ASPIXIRENDER.rainbowColor(id, MMAPDATA.C_MAXTILEID);
+        var black = 0x000000;
+        graphics.beginFill(color);
+        graphics.lineStyle(1, black);
 
         // draw a rectangle
         graphics.moveTo(TEXTURE_BASE_SIZE_X / 2, 0);
@@ -782,10 +787,13 @@ var MMAPRENDER = (function ()
     
     var initializeTexture = function ()
     {
-        var textureName = public.GetTileTextureName(0);
-        var graphics = public.createSpritePlaceholder();
-        var texture = g_app.renderer.generateTexture(graphics);
-        PIXI.utils.TextureCache[textureName] = texture;
+        for (i = 0; i < MMAPDATA.C_MAXTILEID; i++)
+        {
+            var textureName = public.GetTileTextureName(i);
+            var graphics = public.createTexture(i);
+            var texture = g_app.renderer.generateTexture(graphics);
+            PIXI.utils.TextureCache[textureName] = texture;
+        }
     }
 
     var viewWidth = function ()
@@ -843,7 +851,7 @@ var MMAPRENDER = (function ()
     
     public.GetTileTextureName = function mmaprender_GetTileTextureName (tileId)
     {
-        return "mytile";
+        return "mytile" + tileId;
     }
 
     var tileToMapX = function (tileX, tileY)

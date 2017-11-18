@@ -14,7 +14,10 @@ var Benchmark = require('benchmark');
             g_debugOverlay.innerHTML += msg + "<br>";
         }
     }
-})()
+})();
+
+// function naming conventions
+// Change state: verb
 
 var g_state = WaitingState;
 
@@ -235,6 +238,7 @@ var ASPIXIRENDER = (function ()
         return graphics;
     }
 
+    /*
     function drawAsGrid(grid, w, h)
     {
         var graphics = new PIXI.Graphics();
@@ -257,6 +261,7 @@ var ASPIXIRENDER = (function ()
 
         return graphics;
     }
+    */
 
     public.setSpriteToPosition = function aspixirender_setSpriteToPosition(id, x, y, visible)
     {
@@ -300,19 +305,14 @@ var ASMAP = (function ()
     }
 
     // pathfinding data
-    public.Grid = function ()
+    public.width = function asmap_width()
     {
-        return m_grid;
+        return MMAPDATA.mapTableSizeX();
     }
 
-    public.Width = function ()
+    public.height = function asmap_height()
     {
-        return MMAPDATA.GetMapTableSizeX();
-    }
-
-    public.Height = function ()
-    {
-        return MMAPDATA.GetMapTableSizeY();
+        return MMAPDATA.mapTableSizeY();
     }
 
     public.setWalkableAt = function (x, y, b)
@@ -320,7 +320,7 @@ var ASMAP = (function ()
         m_grid.setWalkableAt(x, y, b);
     }
 
-    public.isWalkableAt = function (x, y)
+    public.walkableAt = function (x, y)
     {
         return m_grid.isWalkableAt(x, y);
     }
@@ -355,14 +355,14 @@ var MMAPDATA = (function ()
     var m_mapChangeLog = [];
     var m_mapTableSizeX = 0;
     var m_mapTableSizeY = 0;
-    
+
     public.C_MAXTILEID = 32;
 
-    public.GetMapTableSizeX = function ()
+    public.mapTableSizeX = function ()
     {
         return m_mapTableSizeX;
     }
-    public.GetMapTableSizeY = function ()
+    public.mapTableSizeY = function ()
     {
         return m_mapTableSizeY;
     }
@@ -421,9 +421,9 @@ var MMAPDATA = (function ()
         var index = tileX * m_mapTableSizeY + tileY;
         return m_mapTableData[index];
     }
-    public.isValidCoordinates = function mmapdata_isValidCoordinates(tileX, tileY)
+    public.validCoordinates = function mmapdata_validCoordinates(tileX, tileY)
     {
-        var isOutOfBound = tileX < 0 || tileX >= public.GetMapTableSizeX() || tileY < 0 || tileY >= public.GetMapTableSizeY();
+        var isOutOfBound = tileX < 0 || tileX >= public.mapTableSizeX() || tileY < 0 || tileY >= public.mapTableSizeY();
         return !isOutOfBound;
     }
 
@@ -523,9 +523,9 @@ var MMAPBATCH = (function ()
             {
                 for (var y = cTileY; y < eTileY; y++)
                 {
-                    var textureName = MMAPRENDER.GetTileTextureName( 0 );
-                    var tileTextureCache = PIXI.utils.TextureCache[ textureName ];
-                    var sprite = new PIXI.Sprite( tileTextureCache );
+                    var textureName = MMAPRENDER.tileTextureName(0);
+                    var textureCache = PIXI.utils.TextureCache[textureName];
+                    var sprite = new PIXI.Sprite(textureCache);
                     //var sprite = MMAPRENDER.createSpritePlaceholder();
 
                     //sprite.x = x - sprite.width / 2;
@@ -574,10 +574,10 @@ var MMAPBATCH = (function ()
 
             var poolIndex = getSpritePoolIndex(tileX, tileY);
 
-            var textureName = MMAPRENDER.GetTileTextureName( id );
-            var tileTextureCache = PIXI.utils.TextureCache[ textureName ];
+            var textureName = MMAPRENDER.tileTextureName(id);
+            var textureCache = PIXI.utils.TextureCache[textureName];
             var sprite = m_mapSpritePool[poolIndex];
-            sprite.setTexture( tileTextureCache );
+            sprite.setTexture(textureCache);
             sprite.x = x - sprite.width / 2;
             sprite.y = y - sprite.height;
             m_mapSpriteId[mapIndex] = id;
@@ -676,7 +676,7 @@ var MMAPBATCH = (function ()
                 var batchY = centerBatchY + j;
                 var startTileX = public.batchXToStartTileX(batchX);
                 var startTileY = public.batchYToStartTileY(batchY);
-                if (batchX >= 0 && batchY >= 0 && MMAPDATA.isValidCoordinates(startTileX, startTileY))
+                if (batchX >= 0 && batchY >= 0 && MMAPDATA.validCoordinates(startTileX, startTileY))
                 {
                     var index = mathCantor(batchX, batchY);
                     if (typeof flag[index] === 'undefined')
@@ -701,7 +701,7 @@ var MMAPBATCH = (function ()
                 var batchY = centerBatchY + j;
                 var startTileX = public.batchXToStartTileX(batchX);
                 var startTileY = public.batchYToStartTileY(batchY);
-                if (batchX >= 0 && batchY >= 0 && MMAPDATA.isValidCoordinates(startTileX, startTileY))
+                if (batchX >= 0 && batchY >= 0 && MMAPDATA.validCoordinates(startTileX, startTileY))
                 {
                     var index = mathCantor(batchX, batchY);
                     if (typeof flag[index] === 'undefined')
@@ -784,12 +784,12 @@ var MMAPRENDER = (function ()
 
         return graphics;
     }
-    
+
     var initializeTexture = function ()
     {
         for (i = 0; i < MMAPDATA.C_MAXTILEID; i++)
         {
-            var textureName = public.GetTileTextureName(i);
+            var textureName = public.tileTextureName(i);
             var graphics = public.createTexture(i);
             var texture = g_app.renderer.generateTexture(graphics);
             PIXI.utils.TextureCache[textureName] = texture;
@@ -848,8 +848,8 @@ var MMAPRENDER = (function ()
         MMAPBATCH.initialize();
         initializeTexture();
     }
-    
-    public.GetTileTextureName = function mmaprender_GetTileTextureName (tileId)
+
+    public.tileTextureName = function mmaprender_tileTextureName(tileId)
     {
         return "mytile" + tileId;
     }
@@ -908,7 +908,7 @@ var MMAPRENDER = (function ()
         MMAPBATCH.setSprite(tileX, tileY, id, x, y);
     }
 
-    var getDistanceBetween = function (pos1, pos2)
+    var distanceBetween = function (pos1, pos2)
     {
         return Math.sqrt(Math.pow(pos2.x - pos1.x, 2) + Math.pow(pos2.y - pos1.y, 2));
     }
@@ -944,7 +944,7 @@ var MMAPRENDER = (function ()
         {
             var pos1 = m_touchData[0].getLocalPosition(_this.parent);
             var pos2 = m_touchData[1].getLocalPosition(_this.parent);
-            m_startDistance = getDistanceBetween(pos1, pos2);
+            m_startDistance = distanceBetween(pos1, pos2);
             m_zooming = true;
         }
     }
@@ -981,7 +981,7 @@ var MMAPRENDER = (function ()
         if (m_zooming)
         {
             var position2 = m_touchData[1].getLocalPosition(_this.parent);
-            var newDistance = getDistanceBetween(pointerScreen, position2);
+            var newDistance = distanceBetween(pointerScreen, position2);
             var ratio = newDistance / m_startDistance;
             var cameraScaleX = m_startScaleX * ratio;
             var cameraScaleY = m_startScaleY * ratio;
@@ -1136,7 +1136,7 @@ var MMAPRENDER = (function ()
                 {
                     for (var y = startTileY; y < endTileY; y++)
                     {
-                        if (MMAPDATA.isValidCoordinates(x, y))
+                        if (MMAPDATA.validCoordinates(x, y))
                         {
                             var tileId = MMAPDATA.tileId(x, y);
                             public.setTile(x, y, tileId);

@@ -26,7 +26,7 @@ function OnReady()
 
     g_app = new PIXI.Application(window.innerWidth, window.innerHeight);
 
-    //PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
+    PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
 
     var amount = (g_app.renderer instanceof PIXI.WebGLRenderer) ? 100 : 5;
     if (amount == 5)
@@ -135,11 +135,11 @@ function pfFormatTestGrid(grid, w, h)
 function StartState()
 {
     console.log("Start");
-    ASMAP.initialize(200, 275);
+    ASMAP.initialize(256, 256);
     pfFormatTestGrid(ASMAP.Grid, ASMAP.Width, ASMAP.Height);
     for (i = 1; i < 0xFF * 12; i++)
     {
-        AddPaxRandom();
+        //AddPaxRandom();
     }
     g_state = EngineState;
 }
@@ -299,6 +299,7 @@ var ASMAP = (function ()
         MMAPRENDER.initialize();
     }
 
+    // pathfinding data
     public.Grid = function ()
     {
         return m_grid;
@@ -317,7 +318,6 @@ var ASMAP = (function ()
     public.setWalkableAt = function (x, y, b)
     {
         m_grid.setWalkableAt(x, y, b);
-        m_tile[x + y * m_width] = b ? 0 : 1;
     }
 
     public.isWalkableAt = function (x, y)
@@ -345,6 +345,8 @@ var ASMAP = (function ()
     return public;
 })();
 // ---------------------
+// only responsible for holding tile id
+// and size
 var MMAPDATA = (function ()
 {
     var public = {};
@@ -356,10 +358,6 @@ var MMAPDATA = (function ()
     
     public.C_MAXTILEID = 32;
 
-    public.GetMapTableData = function ()
-    {
-        return m_mapTableData;
-    }
     public.GetMapTableSizeX = function ()
     {
         return m_mapTableSizeX;
@@ -377,13 +375,7 @@ var MMAPDATA = (function ()
             for (var y = 0; y < m_mapTableSizeY; y++)
             {
                 var randomId = Math.floor(Math.random() * public.C_MAXTILEID);
-                var tile =
-                {
-                    x: x,
-                    y: y,
-                    id: randomId
-                };
-                m_mapChangeLog.push(tile);
+                public.setTileId(x, y, randomId);
             }
         }
     }
@@ -394,13 +386,7 @@ var MMAPDATA = (function ()
             var x = Math.floor(m_mapTableSizeX * Math.random());
             var y = Math.floor(m_mapTableSizeY * Math.random());
             var id = Math.floor(public.C_MAXTILEID * Math.random());
-            var tile =
-            {
-                x: x,
-                y: y,
-                id: id
-            };
-            m_mapChangeLog.push(tile);
+            public.setTileId(x, y, id);
         }
     }
     public.commitChangeLog = function mmapdata_commitChangeLog()
@@ -415,6 +401,20 @@ var MMAPDATA = (function ()
         }
         m_mapChangeLog = [];
         return output;
+    }
+    public.setTileId = function mmap_setTileId(x, y, newId)
+    {
+        if (newId >= public.C_MAXTILEID)
+        {
+            newId = public.C_MAXTILEID - 1;
+        }
+        var tile =
+        {
+            x: x,
+            y: y,
+            id: newId
+        };
+        m_mapChangeLog.push(tile);
     }
     public.tileId = function (tileX, tileY)
     {

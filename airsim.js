@@ -402,7 +402,7 @@ var MMAPDATA = (function ()
         m_mapChangeLog = [];
         return output;
     }
-    public.setTileId = function mmap_setTileId(x, y, newId)
+    public.setTileId = function mmapdata_setTileId(x, y, newId)
     {
         if (newId >= public.C_MAXTILEID)
         {
@@ -416,12 +416,12 @@ var MMAPDATA = (function ()
         };
         m_mapChangeLog.push(tile);
     }
-    public.tileId = function (tileX, tileY)
+    public.getTileId = function mmapdata_getTileId(tileX, tileY)
     {
         var index = tileX * m_mapTableSizeY + tileY;
         return m_mapTableData[index];
     }
-    public.validCoordinates = function mmapdata_validCoordinates(tileX, tileY)
+    public.isValidCoordinates = function mmapdata_isValidCoordinates(tileX, tileY)
     {
         var isOutOfBound = tileX < 0 || tileX >= public.getMapTableSizeX() || tileY < 0 || tileY >= public.getMapTableSizeY();
         return !isOutOfBound;
@@ -480,8 +480,8 @@ var MMAPBATCH = (function ()
     var getSpritePoolIndex = function (tileX, tileY)
     {
         var batchMapIndex = getBatchMapIndexByTile(tileX, tileY);
-        var X = tileX - public.tileXToStartTileX(tileX);
-        var Y = tileY - public.tileYToStartTileY(tileY);
+        var X = tileX - public.getTileXToStartTileX(tileX);
+        var Y = tileY - public.getTileYToStartTileY(tileY);
         var spritePoolIndex = batchMapIndex * BATCH_SIZE_X * BATCH_SIZE_Y + X * BATCH_SIZE_Y + Y;
         return spritePoolIndex;
     }
@@ -513,12 +513,12 @@ var MMAPBATCH = (function ()
 
             m_mapSpriteBatch[mapIndex] = batch;
 
-            var cTileX = public.tileXToStartTileX(tileX);
-            var cTileY = public.tileYToStartTileY(tileY);
+            var cTileX = public.getTileXToStartTileX(tileX);
+            var cTileY = public.getTileYToStartTileY(tileY);
             //console.log('created container for ' + cTileX + ',' + cTileY + ',' + batchCount);
 
-            var eTileX = public.tileXToEndTileX(tileX);
-            var eTileY = public.tileYToEndTileY(tileY);
+            var eTileX = public.getTileXToEndTileX(tileX);
+            var eTileY = public.getTileYToEndTileY(tileY);
             for (var x = cTileX; x < eTileX; x++)
             {
                 for (var y = cTileY; y < eTileY; y++)
@@ -586,68 +586,68 @@ var MMAPBATCH = (function ()
         }
     }
 
-    public.tileXToStartTileX = function (tileX)
+    public.getTileXToStartTileX = function (tileX)
     {
-        return public.tileXToBatchX(tileX) * BATCH_SIZE_X;
+        return public.getTileXToBatchX(tileX) * BATCH_SIZE_X;
     }
 
-    public.tileYToStartTileY = function (tileY)
+    public.getTileYToStartTileY = function (tileY)
     {
-        return public.tileYToBatchY(tileY) * BATCH_SIZE_Y;
+        return public.getTileYToBatchY(tileY) * BATCH_SIZE_Y;
     }
 
     // end tile excluded
-    public.tileXToEndTileX = function (tileX)
+    public.getTileXToEndTileX = function (tileX)
     {
-        return public.tileXToStartTileX(tileX) + BATCH_SIZE_X;
+        return public.getTileXToStartTileX(tileX) + BATCH_SIZE_X;
     }
 
-    public.tileYToEndTileY = function (tileY)
+    public.getTileYToEndTileY = function (tileY)
     {
-        return public.tileYToStartTileY(tileY) + BATCH_SIZE_Y;
+        return public.getTileYToStartTileY(tileY) + BATCH_SIZE_Y;
     }
 
-    public.tileXToBatchX = function (tileX)
+    public.getTileXToBatchX = function (tileX)
     {
         return Math.floor(Math.floor(tileX) / BATCH_SIZE_X);
     }
 
-    public.tileYToBatchY = function (tileY)
+    public.getTileYToBatchY = function (tileY)
     {
         return Math.floor(Math.floor(tileY) / BATCH_SIZE_Y);
     }
 
-    public.batchXToStartTileX = function (batchX)
+    public.getBatchXToStartTileX = function (batchX)
     {
         return batchX * BATCH_SIZE_X;
     }
 
-    public.batchYToStartTileY = function (batchY)
+    public.getBatchYToStartTileY = function (batchY)
     {
         return batchY * BATCH_SIZE_Y;
     }
 
-    public.batchXToEndTileX = function (batchX)
+    public.getBatchXToEndTileX = function (batchX)
     {
         return (batchX + 1) * BATCH_SIZE_X;
     }
 
-    public.batchYToEndTileY = function (batchY)
+    public.getBatchYToEndTileY = function (batchY)
     {
         return (batchY + 1) * BATCH_SIZE_Y;
     }
 
     public.setBatchVisible = function mmapbatch_setBatchVisible(batchX, batchY, flag)
     {
-        var tileX = public.batchXToStartTileX(batchX);
-        var tileY = public.batchYToStartTileY(batchY);
+        var tileX = public.getBatchXToStartTileX(batchX);
+        var tileY = public.getBatchYToStartTileY(batchY);
         getBatch(tileX, tileY).visible = flag;
     }
 
     public.setBatchPosition = function mmapbatch_setBatchPosition(batchX, batchY, x, y)
     {
-        var tileX = public.batchXToStartTileX(batchX);
-        var tileY = public.batchYToStartTileY(batchY);
+        var tileX = public.getBatchXToStartTileX(batchX);
+        var tileY = public.getBatchYToStartTileY(batchY);
         var batch = getBatch(tileX, tileY);
         batch.x = x;
         batch.y = y;
@@ -657,8 +657,8 @@ var MMAPBATCH = (function ()
 
     public.setBatchScale = function mmapbatch_setBatchScale(batchX, batchY, scaleX, scaleY)
     {
-        var tileX = public.batchXToStartTileX(batchX);
-        var tileY = public.batchYToStartTileY(batchY);
+        var tileX = public.getBatchXToStartTileX(batchX);
+        var tileY = public.getBatchYToStartTileY(batchY);
         var batch = getBatch(tileX, tileY);
         batch.scale.x = scaleX;
         batch.scale.y = scaleY;
@@ -666,17 +666,17 @@ var MMAPBATCH = (function ()
 
     public.setVisibilityFlagInRadius = function mmapbatch_setVisibilityFlagInRadius(flag, centerTileX, centerTileY, radius, flagValue)
     {
-        var centerBatchX = public.tileXToBatchX(centerTileX);
-        var centerBatchY = public.tileYToBatchY(centerTileY);
+        var centerBatchX = public.getTileXToBatchX(centerTileX);
+        var centerBatchY = public.getTileYToBatchY(centerTileY);
         for (var i = -radius; i <= radius; i++)
         {
             for (var j = -radius; j <= radius; j++)
             {
                 var batchX = centerBatchX + i;
                 var batchY = centerBatchY + j;
-                var startTileX = public.batchXToStartTileX(batchX);
-                var startTileY = public.batchYToStartTileY(batchY);
-                if (batchX >= 0 && batchY >= 0 && MMAPDATA.validCoordinates(startTileX, startTileY))
+                var startTileX = public.getBatchXToStartTileX(batchX);
+                var startTileY = public.getBatchYToStartTileY(batchY);
+                if (batchX >= 0 && batchY >= 0 && MMAPDATA.isValidCoordinates(startTileX, startTileY))
                 {
                     var index = mathCantor(batchX, batchY);
                     if (typeof flag[index] === 'undefined')
@@ -691,17 +691,17 @@ var MMAPBATCH = (function ()
 
     public.setPositionFlagInRadius = function mmapbatch_setPositionFlagInRadius(flag, centerTileX, centerTileY, radius, flagValue)
     {
-        var centerBatchX = public.tileXToBatchX(centerTileX);
-        var centerBatchY = public.tileYToBatchY(centerTileY);
+        var centerBatchX = public.getTileXToBatchX(centerTileX);
+        var centerBatchY = public.getTileYToBatchY(centerTileY);
         for (var i = -radius; i <= radius; i++)
         {
             for (var j = -radius; j <= radius; j++)
             {
                 var batchX = centerBatchX + i;
                 var batchY = centerBatchY + j;
-                var startTileX = public.batchXToStartTileX(batchX);
-                var startTileY = public.batchYToStartTileY(batchY);
-                if (batchX >= 0 && batchY >= 0 && MMAPDATA.validCoordinates(startTileX, startTileY))
+                var startTileX = public.getBatchXToStartTileX(batchX);
+                var startTileY = public.getBatchYToStartTileY(batchY);
+                if (batchX >= 0 && batchY >= 0 && MMAPDATA.isValidCoordinates(startTileX, startTileY))
                 {
                     var index = mathCantor(batchX, batchY);
                     if (typeof flag[index] === 'undefined')
@@ -733,14 +733,14 @@ var MMAPBATCH = (function ()
 
     public.setTextureFlagInRadiusAndUpdatedTiles = function mmapbatch_setTextureFlagInRadiusAndUpdatedTiles(flag, centerTileX, centerTileY, radius, updatedTiles)
     {
-        var centerBatchX = public.tileXToBatchX(centerTileX);
-        var centerBatchY = public.tileYToBatchY(centerTileY);
+        var centerBatchX = public.getTileXToBatchX(centerTileX);
+        var centerBatchY = public.getTileYToBatchY(centerTileY);
         for (var i = 0; i < updatedTiles.length; i++)
         {
             var tileX = updatedTiles[i].x;
             var tileY = updatedTiles[i].y;
-            var batchX = public.tileXToBatchX(tileX);
-            var batchY = public.tileYToBatchY(tileY);
+            var batchX = public.getTileXToBatchX(tileX);
+            var batchY = public.getTileYToBatchY(tileY);
             if (Math.abs(batchX - centerBatchX) <= radius && Math.abs(batchY - centerBatchY) <= radius)
             {
                 var mapIndex = getBatchMapIndex(batchX, batchY);
@@ -1015,7 +1015,7 @@ var MMAPRENDER = (function ()
         var tileY = centerTileY();
         var cameraScale = Math.floor(m_cameraScaleX * 100);
 
-        g_counter.innerHTML = 'm(' + Math.floor(m_cameraMapX) + ',' + Math.floor(m_cameraMapY) + ',' + cameraScale + ') t(' + tileX + ',' + tileY + ') b(' + MMAPBATCH.tileXToBatchX(tileX) + ',' + MMAPBATCH.tileYToBatchY(tileY) + ')';
+        g_counter.innerHTML = 'm(' + Math.floor(m_cameraMapX) + ',' + Math.floor(m_cameraMapY) + ',' + cameraScale + ') t(' + tileX + ',' + tileY + ') b(' + MMAPBATCH.getTileXToBatchX(tileX) + ',' + MMAPBATCH.getTileYToBatchY(tileY) + ')';
     }
 
     public.setCameraScale = function (scaleX, scaleY)
@@ -1066,8 +1066,8 @@ var MMAPRENDER = (function ()
     {
         var tileX = Math.floor(screenToTileX(screenX, screenY));
         var tileY = Math.floor(screenToTileY(screenX, screenY));
-        var batchX = MMAPBATCH.tileXToBatchX(tileX);
-        var batchY = MMAPBATCH.tileYToBatchY(tileY);
+        var batchX = MMAPBATCH.getTileXToBatchX(tileX);
+        var batchY = MMAPBATCH.getTileYToBatchY(tileY);
         //console.log('rad ' + batchX + ' ' + batchY );
         var deltaBatchX = centerBatchX - batchX;
         var deltaBatchY = centerBatchY - batchY;
@@ -1077,8 +1077,8 @@ var MMAPRENDER = (function ()
 
     var visibleBatchRadius = function ()
     {
-        var centerBatchX = MMAPBATCH.tileXToBatchX(centerTileX());
-        var centerBatchY = MMAPBATCH.tileYToBatchY(centerTileY());
+        var centerBatchX = MMAPBATCH.getTileXToBatchX(centerTileX());
+        var centerBatchY = MMAPBATCH.getTileYToBatchY(centerTileY());
 
         var x = 0;
         var y = 0;
@@ -1125,20 +1125,20 @@ var MMAPRENDER = (function ()
             var pair = ASMAP.mathReverseCantorPair(k);
             var batchX = pair[0];
             var batchY = pair[1];
-            var startTileX = MMAPBATCH.batchXToStartTileX(batchX);
-            var startTileY = MMAPBATCH.batchYToStartTileY(batchY);
+            var startTileX = MMAPBATCH.getBatchXToStartTileX(batchX);
+            var startTileY = MMAPBATCH.getBatchYToStartTileY(batchY);
             var textureFlag = batchFlag[k].loadTexture;
             if (textureFlag)
             {
-                var endTileX = MMAPBATCH.batchXToEndTileX(batchX);
-                var endTileY = MMAPBATCH.batchYToEndTileY(batchY);
+                var endTileX = MMAPBATCH.getBatchXToEndTileX(batchX);
+                var endTileY = MMAPBATCH.getBatchYToEndTileY(batchY);
                 for (var x = startTileX; x < endTileX; x++)
                 {
                     for (var y = startTileY; y < endTileY; y++)
                     {
-                        if (MMAPDATA.validCoordinates(x, y))
+                        if (MMAPDATA.isValidCoordinates(x, y))
                         {
-                            var tileId = MMAPDATA.tileId(x, y);
+                            var tileId = MMAPDATA.getTileId(x, y);
                             public.setTile(x, y, tileId);
                         }
                     }

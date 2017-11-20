@@ -771,7 +771,7 @@ var MMAPTOUCH = (function ()
     var m_startCameraMapX = 0;
     var m_startCameraMapY = 0;
     
-    var distanceBetween = function (pos1, pos2)
+    var getDistanceBetween = function mmaptouch_getDistanceBetween(pos1, pos2)
     {
         return Math.sqrt(Math.pow(pos2.x - pos1.x, 2) + Math.pow(pos2.y - pos1.y, 2));
     }
@@ -783,7 +783,7 @@ var MMAPTOUCH = (function ()
         //console.log('touch ' + event.data.identifier + '/' + m_touchData.length);
     }
 
-    public.onMapDisplayDragEnd = function (event)
+    public.onMapDisplayDragEnd = function mmaptouch_onMapDisplayDragEnd(event)
     {
         var touchIndex = m_touchData.indexOf(event.data);
         if (touchIndex >= 0)
@@ -794,7 +794,7 @@ var MMAPTOUCH = (function ()
         //console.log('untouch ' + event.data.identifier + '/' + m_touchData.length);
     }
 
-    public.onMapDisplayDragMove = function ()
+    public.onMapDisplayDragMove = function mmaptouch_onMapDisplayDragMove()
     {
         if (m_dragging || m_zooming)
         {
@@ -833,18 +833,18 @@ var MMAPTOUCH = (function ()
         {
             var pos1 = m_touchData[0].getLocalPosition(_this.parent);
             var pos2 = m_touchData[1].getLocalPosition(_this.parent);
-            m_startDistance = distanceBetween(pos1, pos2);
+            m_startDistance = getDistanceBetween(pos1, pos2);
             m_zooming = true;
         }
     }
     
-    var updateCameraDrag = function (_this)
+    var updateCameraDrag = function mmaptouch_updateCameraDrag(_this)
     {
         var pointerScreen = m_touchData[0].getLocalPosition(_this.parent);
         if (m_zooming)
         {
             var position2 = m_touchData[1].getLocalPosition(_this.parent);
-            var newDistance = distanceBetween(pointerScreen, position2);
+            var newDistance = getDistanceBetween(pointerScreen, position2);
             var ratio = newDistance / m_startDistance;
             var cameraScaleX = m_startScaleX * ratio;
             var cameraScaleY = m_startScaleY * ratio;

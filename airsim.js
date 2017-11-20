@@ -523,7 +523,7 @@ var MMAPBATCH = (function ()
             {
                 for (var y = cTileY; y < eTileY; y++)
                 {
-                    var textureName = MMAPRENDER.tileTextureName(0);
+                    var textureName = MMAPRENDER.getTileTextureName(0);
                     var textureCache = PIXI.utils.TextureCache[textureName];
                     var sprite = new PIXI.Sprite(textureCache);
                     //var sprite = MMAPRENDER.createSpritePlaceholder();
@@ -574,7 +574,7 @@ var MMAPBATCH = (function ()
 
             var poolIndex = getSpritePoolIndex(tileX, tileY);
 
-            var textureName = MMAPRENDER.tileTextureName(id);
+            var textureName = MMAPRENDER.getTileTextureName(id);
             var textureCache = PIXI.utils.TextureCache[textureName];
             var sprite = m_mapSpritePool[poolIndex];
             sprite.setTexture(textureCache);
@@ -895,7 +895,7 @@ var MMAPRENDER = (function ()
     {
         for (i = 0; i < MMAPDATA.C_MAXTILEID; i++)
         {
-            var textureName = public.tileTextureName(i);
+            var textureName = public.getTileTextureName(i);
             var graphics = public.createTexture(i);
             var texture = g_app.renderer.generateTexture(graphics);
             PIXI.utils.TextureCache[textureName] = texture;
@@ -944,7 +944,7 @@ var MMAPRENDER = (function ()
         initializeTexture();
     }
 
-    public.tileTextureName = function mmaprender_tileTextureName(tileId)
+    public.getTileTextureName = function mmaprender_getTileTextureName(tileId)
     {
         return "mytile" + tileId;
     }
@@ -972,27 +972,27 @@ var MMAPRENDER = (function ()
         return mapY / TEXTURE_BASE_SIZE_Y - mapX / TEXTURE_BASE_SIZE_X;
     }
 
-    var screenToMapX = function (screenX)
+    var getScreenToMapX = function mmaprender_getScreenToMapX(screenX)
     {
         return m_cameraMapX + (screenX - cameraScreenX()) / m_cameraScaleX;
     }
 
-    var screenToMapY = function (screenY)
+    var getScreenToMapY = function mmaprender_getScreenToMapY(screenY)
     {
         return m_cameraMapY + (screenY - cameraScreenY()) / m_cameraScaleY;
     }
 
-    var screenToTileX = function (screenX, screenY)
+    var getScreenToTileX = function mmaprender_getScreenToTileX(screenX, screenY)
     {
-        var mapX = screenToMapX(screenX);
-        var mapY = screenToMapY(screenY);
+        var mapX = getScreenToMapX(screenX);
+        var mapY = getScreenToMapY(screenY);
         return mapToTileX(mapX, mapY);
     }
 
-    var screenToTileY = function (screenX, screenY)
+    var getScreenToTileY = function mmaprender_getScreenToTileY(screenX, screenY)
     {
-        var mapX = screenToMapX(screenX);
-        var mapY = screenToMapY(screenY);
+        var mapX = getScreenToMapX(screenX);
+        var mapY = getScreenToMapY(screenY);
         return mapToTileY(mapX, mapY);
     }
 
@@ -1023,7 +1023,7 @@ var MMAPRENDER = (function ()
         return m_cameraScaleY;
     }
 
-    var updateCameraVelocity = function ()
+    var updateCameraVelocity = function mmaprender_updateCameraVelocity()
     {
         var cameraMapX = m_cameraMapX + m_cameraMapVelocityX / m_cameraScaleX;
         var cameraMapY = m_cameraMapY + m_cameraMapVelocityY / m_cameraScaleY;
@@ -1033,19 +1033,19 @@ var MMAPRENDER = (function ()
         public.setCameraMap(cameraMapX, cameraMapY);
     }
 
-    public.setCameraMap = function (mapX, mapY)
+    public.setCameraMap = function mmaprender_setCameraMap(mapX, mapY)
     {
         m_cameraMapX = mapX;
         m_cameraMapY = mapY;
 
-        var tileX = centerTileX();
-        var tileY = centerTileY();
+        var tileX = getCenterTileX();
+        var tileY = getCenterTileY();
         var cameraScale = Math.floor(m_cameraScaleX * 100);
 
         g_counter.innerHTML = 'm(' + Math.floor(m_cameraMapX) + ',' + Math.floor(m_cameraMapY) + ',' + cameraScale + ') t(' + tileX + ',' + tileY + ') b(' + MMAPBATCH.getTileXToBatchX(tileX) + ',' + MMAPBATCH.getTileYToBatchY(tileY) + ')';
     }
 
-    public.setCameraScale = function (scaleX, scaleY)
+    public.setCameraScale = function mmaprender_setCameraScale(scaleX, scaleY)
     {
         m_cameraScaleX = scaleX;
         if (m_cameraScaleX < 0.2)
@@ -1059,40 +1059,40 @@ var MMAPRENDER = (function ()
         }
     }
 
-    public.setCameraMapVelocity = function (mapVelocityX, mapVelocityY)
+    public.setCameraMapVelocity = function mmaprender_setCameraMapVelocity(mapVelocityX, mapVelocityY)
     {
         m_cameraMapVelocityX = mapVelocityX;
         m_cameraMapVelocityY = mapVelocityY;
     }
 
-    public.setCameraScaleVelocity = function (scaleVelocity)
+    public.setCameraScaleVelocity = function mmaprender_setCameraScaleVelocity(scaleVelocity)
     {
         m_cameraScaleVelocity = scaleVelocity;
     }
 
-    var centerTileX = function ()
+    var getCenterTileX = function mmaprender_getCenterTileX()
     {
-        return Math.floor(screenToTileX(viewWidth() / 2, viewHeight() / 2));
+        return Math.floor(getScreenToTileX(viewWidth() / 2, viewHeight() / 2));
     }
 
-    var centerTileY = function ()
+    var getCenterTileY = function mmaprender_getCenterTileY()
     {
-        return Math.floor(screenToTileY(viewWidth() / 2, viewHeight() / 2));
+        return Math.floor(getScreenToTileY(viewWidth() / 2, viewHeight() / 2));
     }
 
-    var visibleTileRadius = function ()
+    var getVisibleTileRadius = function mmaprender_getVisibleTileRadius()
     {
-        var topLeftCornerTileX = Math.floor(screenToTileX(0, 0));
-        var topLeftCornerTileY = Math.floor(screenToTileY(0, 0));
+        var topLeftCornerTileX = Math.floor(getScreenToTileX(0, 0));
+        var topLeftCornerTileY = Math.floor(getScreenToTileY(0, 0));
 
-        var cornerToCenterTileDistance = Math.floor(Math.sqrt(Math.pow(topLeftCornerTileX - centerTileX(), 2) + Math.pow(topLeftCornerTileY - centerTileY(), 2)));
+        var cornerToCenterTileDistance = Math.floor(Math.sqrt(Math.pow(topLeftCornerTileX - getCenterTileX(), 2) + Math.pow(topLeftCornerTileY - getCenterTileY(), 2)));
         return cornerToCenterTileDistance;
     }
 
-    var batchRadiusForScreen = function (centerBatchX, centerBatchY, screenX, screenY)
+    var getBatchRadiusForScreen = function mmaprender_getBatchRadiusForScreen(centerBatchX, centerBatchY, screenX, screenY)
     {
-        var tileX = Math.floor(screenToTileX(screenX, screenY));
-        var tileY = Math.floor(screenToTileY(screenX, screenY));
+        var tileX = Math.floor(getScreenToTileX(screenX, screenY));
+        var tileY = Math.floor(getScreenToTileY(screenX, screenY));
         var batchX = MMAPBATCH.getTileXToBatchX(tileX);
         var batchY = MMAPBATCH.getTileYToBatchY(tileY);
         //console.log('rad ' + batchX + ' ' + batchY );
@@ -1102,14 +1102,14 @@ var MMAPRENDER = (function ()
         return batchRadius;
     }
 
-    var visibleBatchRadius = function ()
+    var getVisibleBatchRadius = function mmaprender_getVisibleBatchRadius()
     {
-        var centerBatchX = MMAPBATCH.getTileXToBatchX(centerTileX());
-        var centerBatchY = MMAPBATCH.getTileYToBatchY(centerTileY());
+        var centerBatchX = MMAPBATCH.getTileXToBatchX(getCenterTileX());
+        var centerBatchY = MMAPBATCH.getTileYToBatchY(getCenterTileY());
 
         var x = 0;
         var y = 0;
-        var topLeftBatchRadius = batchRadiusForScreen(
+        var topLeftBatchRadius = getBatchRadiusForScreen(
         centerBatchX,
         centerBatchY,
         x, y);
@@ -1286,10 +1286,10 @@ var MMAPRENDER = (function ()
             false);
         }
 
-        var currentCenterTileX = centerTileX();
-        var currentCenterTileY = centerTileY();
-        var currentRadius = visibleTileRadius();
-        var currentBatchRadius = visibleBatchRadius();
+        var currentCenterTileX = getCenterTileX();
+        var currentCenterTileY = getCenterTileY();
+        var currentRadius = getVisibleTileRadius();
+        var currentBatchRadius = getVisibleBatchRadius();
 
         MMAPBATCH.setVisibilityFlagInRadius(
         m_batchFlag,

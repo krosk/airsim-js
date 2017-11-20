@@ -18,6 +18,7 @@ var Benchmark = require('benchmark');
 
 // function naming conventions
 // Change state: verb
+// no change: get
 
 var g_state = WaitingState;
 
@@ -116,8 +117,8 @@ function WaitingState()
 
 function AddPaxRandom()
 {
-    var width = ASMAP.Width();
-    var height = ASMAP.Height();
+    var width = ASMAP.getWidth();
+    var height = ASMAP.getHeight();
     var x = Math.floor(Math.random() * width);
     var y = Math.floor(Math.random() * height);
     ASPAX.create(x, y);
@@ -185,7 +186,7 @@ var ASPIXIRENDER = (function ()
 
     var m_sprites = {};
 
-    function rainbowProfile(n)
+    var getRainbowProfile = function aspixirender_getRainbowProfile(n)
     {
         var total = 0xFF * 6;
         n = n % total;
@@ -207,23 +208,23 @@ var ASPIXIRENDER = (function ()
         }
     }
 
-    public.rainbowColor = function aspixirender_rainbowColor(i, t)
+    public.getRainbowColor = function aspixirender_getRainbowColor(i, t)
     {
         var n = (0xFF * 6 * i / t);
-        var r = rainbowProfile(n + 0xFF * 2) << 16;
-        var g = rainbowProfile(n) << 8;
-        var b = rainbowProfile(n + 0xFF * 4);
+        var r = getRainbowProfile(n + 0xFF * 2) << 16;
+        var g = getRainbowProfile(n) << 8;
+        var b = getRainbowProfile(n + 0xFF * 4);
         return r + g + b
     }
 
-    function createSprite(id)
+    var createSprite = function aspixirender_createSprite(id)
     {
         var graphics = new PIXI.Graphics();
 
         graphics.beginFill(0xFFFF00);
 
         // set the line style to have a width of 5 and set the color to red
-        var color = rainbowColor(id);
+        var color = public.getRainbowColor(id);
         graphics.lineStyle(1, color);
 
         // draw a rectangle
@@ -304,15 +305,14 @@ var ASMAP = (function ()
         MMAPRENDER.initialize();
     }
 
-    // pathfinding data
-    public.width = function asmap_width()
+    public.getWidth = function asmap_getWidth()
     {
-        return MMAPDATA.mapTableSizeX();
+        return MMAPDATA.getMapTableSizeX();
     }
 
-    public.height = function asmap_height()
+    public.getHeight = function asmap_getHeight()
     {
-        return MMAPDATA.mapTableSizeY();
+        return MMAPDATA.getMapTableSizeY();
     }
 
     public.setWalkableAt = function (x, y, b)
@@ -320,7 +320,7 @@ var ASMAP = (function ()
         m_grid.setWalkableAt(x, y, b);
     }
 
-    public.walkableAt = function (x, y)
+    public.isWalkableAt = function (x, y)
     {
         return m_grid.isWalkableAt(x, y);
     }
@@ -358,11 +358,11 @@ var MMAPDATA = (function ()
 
     public.C_MAXTILEID = 32;
 
-    public.mapTableSizeX = function ()
+    public.getMapTableSizeX = function mmapdata_getMapTableSizeX()
     {
         return m_mapTableSizeX;
     }
-    public.mapTableSizeY = function ()
+    public.getMapTableSizeY = function mmapdata_getMapTableSizeY()
     {
         return m_mapTableSizeY;
     }
@@ -423,7 +423,7 @@ var MMAPDATA = (function ()
     }
     public.validCoordinates = function mmapdata_validCoordinates(tileX, tileY)
     {
-        var isOutOfBound = tileX < 0 || tileX >= public.mapTableSizeX() || tileY < 0 || tileY >= public.mapTableSizeY();
+        var isOutOfBound = tileX < 0 || tileX >= public.getMapTableSizeX() || tileY < 0 || tileY >= public.getMapTableSizeY();
         return !isOutOfBound;
     }
 
@@ -770,7 +770,7 @@ var MMAPRENDER = (function ()
     {
         var graphics = new PIXI.Graphics();
 
-        var color = ASPIXIRENDER.rainbowColor(id, MMAPDATA.C_MAXTILEID);
+        var color = ASPIXIRENDER.getRainbowColor(id, MMAPDATA.C_MAXTILEID);
         var black = 0x000000;
         graphics.beginFill(color);
         graphics.lineStyle(1, black);
@@ -1438,7 +1438,7 @@ var ASRANDOMMOVE = (function ()
         ASCOMPONENT.Position, ]);
         candidates.forEach(function (entity)
         {
-            entity.position.x = (entity.position.x + dt / ut) % ASMAP.Width();
+            entity.position.x = (entity.position.x + dt / ut) % ASMAP.getWidth();
             //entity.position.y += dt/ut*(Math.floor(Math.random() * 3) - 1);
         });
     }

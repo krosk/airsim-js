@@ -500,10 +500,10 @@ var MMAPBATCH = (function ()
             batch.interactive = true;
             batch.visible = false;
 
-            batch.on('pointerdown', MMAPRENDER.onMapDisplayDragStart);
-            batch.on('pointermove', MMAPRENDER.onMapDisplayDragMove);
-            batch.on('pointerupoutside', MMAPRENDER.onMapDisplayDragEnd);
-            batch.on('pointerup', MMAPRENDER.onMapDisplayDragEnd);
+            batch.on('pointerdown', MMAPTOUCH.onMapDisplayDragStart);
+            batch.on('pointermove', MMAPTOUCH.onMapDisplayDragMove);
+            batch.on('pointerupoutside', MMAPTOUCH.onMapDisplayDragEnd);
+            batch.on('pointerup', MMAPTOUCH.onMapDisplayDragEnd);
 
             batch.cacheAsBitmap = true;
 
@@ -756,6 +756,112 @@ var MMAPBATCH = (function ()
     return public;
 })();
 
+var MMAPTOUCH = (function ()
+{
+    var public = {};
+    
+    var m_touchData = [];
+    var m_dragging = false;
+    var m_zooming = false;
+    var m_startScaleX = 1;
+    var m_startScaleY = 1;
+    var m_startDistance = 0;
+    var m_startPointerScreenX = 0;
+    var m_startPointerScreenY = 0;
+    var m_startCameraMapX = 0;
+    var m_startCameraMapY = 0;
+    
+    var distanceBetween = function (pos1, pos2)
+    {
+        return Math.sqrt(Math.pow(pos2.x - pos1.x, 2) + Math.pow(pos2.y - pos1.y, 2));
+    }
+    
+    public.onMapDisplayDragStart = function mmaptouch_onMapDisplayDragStart(event)
+    {
+        m_touchData.push(event.data);
+        mapDisplayDragRefresh(this);
+        //console.log('touch ' + event.data.identifier + '/' + m_touchData.length);
+    }
+
+    public.onMapDisplayDragEnd = function (event)
+    {
+        var touchIndex = m_touchData.indexOf(event.data);
+        if (touchIndex >= 0)
+        {
+            m_touchData.splice(touchIndex, 1);
+        }
+        mapDisplayDragRefresh(this);
+        //console.log('untouch ' + event.data.identifier + '/' + m_touchData.length);
+    }
+
+    public.onMapDisplayDragMove = function ()
+    {
+        if (m_dragging || m_zooming)
+        {
+            updateCameraDrag(this);
+        }
+    }
+    
+    var mapDisplayDragRefresh = function mmaptouch_mapDisplayDragRefresh(_this)
+    {
+        if (m_touchData.length == 0)
+        {
+            m_dragging = false;
+            m_zooming = false;
+            m_startScaleX = 1;
+            m_startScaleY = 1;
+            m_startDistance = 0;
+        }
+        if (m_touchData.length > 0)
+        {
+            // remember initial scale
+            m_startScaleX = _this.scale.x;
+            m_startScaleY = _this.scale.y;
+
+            var pointerPositionOnScreen = m_touchData[0].getLocalPosition(_this.parent);
+
+            m_dragging = true;
+            m_zooming = false;
+            m_startDistance = 0;
+
+            m_startPointerScreenX = pointerPositionOnScreen.x;
+            m_startPointerScreenY = pointerPositionOnScreen.y;
+            m_startCameraMapX = MMAPRENDER.getCameraMapX();
+            m_startCameraMapY = MMAPRENDER.getCameraMapY();
+        }
+        if (m_touchData.length > 1)
+        {
+            var pos1 = m_touchData[0].getLocalPosition(_this.parent);
+            var pos2 = m_touchData[1].getLocalPosition(_this.parent);
+            m_startDistance = distanceBetween(pos1, pos2);
+            m_zooming = true;
+        }
+    }
+    
+    var updateCameraDrag = function (_this)
+    {
+        var pointerScreen = m_touchData[0].getLocalPosition(_this.parent);
+        if (m_zooming)
+        {
+            var position2 = m_touchData[1].getLocalPosition(_this.parent);
+            var newDistance = distanceBetween(pointerScreen, position2);
+            var ratio = newDistance / m_startDistance;
+            var cameraScaleX = m_startScaleX * ratio;
+            var cameraScaleY = m_startScaleY * ratio;
+
+            MMAPRENDER.setCameraScale(cameraScaleX, cameraScaleY);
+        }
+
+        // camera moves according to differential movement of pointer
+        var cameraMapX = m_startCameraMapX + (m_startPointerScreenX - pointerScreen.x) / MMAPRENDER.getCameraScaleX();
+        var cameraMapY = m_startCameraMapY + (m_startPointerScreenY - pointerScreen.y) / MMAPRENDER.getCameraScaleY();
+
+        MMAPRENDER.setCameraMap(cameraMapX, cameraMapY);
+    }
+    
+    return public;
+})();
+
 var MMAPRENDER = (function ()
 {
     var public = {};
@@ -830,17 +936,6 @@ var MMAPRENDER = (function ()
     var m_cameraCenterTileYRendered = null;
     var m_cameraBatchRadiusRendered = 1;
 
-    var m_touchData = [];
-    var m_dragging = false;
-    var m_zooming = false;
-    var m_startScaleX = 1;
-    var m_startScaleY = 1;
-    var m_startDistance = 0;
-    var m_startPointerScreenX = 0;
-    var m_startPointerScreenY = 0;
-    var m_startCameraMapX = 0;
-    var m_startCameraMapY = 0;
-
     public.initialize = function mmaprender_initialize()
     {
         m_cameraMapX = 0;
@@ -908,98 +1003,30 @@ var MMAPRENDER = (function ()
         MMAPBATCH.setSprite(tileX, tileY, id, x, y);
     }
 
-    var distanceBetween = function (pos1, pos2)
+    public.getCameraMapX = function mmaprender_getCameraMapX()
     {
-        return Math.sqrt(Math.pow(pos2.x - pos1.x, 2) + Math.pow(pos2.y - pos1.y, 2));
+        return m_cameraMapX;
     }
 
-    var mapDisplayDragRefresh = function (_this)
+    public.getCameraMapY = function mmaprender_getCameraMapY()
     {
-        if (m_touchData.length == 0)
-        {
-            m_dragging = false;
-            m_zooming = false;
-            m_startScaleX = 1;
-            m_startScaleY = 1;
-            m_startDistance = 0;
-        }
-        if (m_touchData.length > 0)
-        {
-            // remember initial scale
-            m_startScaleX = _this.scale.x;
-            m_startScaleY = _this.scale.y;
-
-            var pointerPositionOnScreen = m_touchData[0].getLocalPosition(_this.parent);
-
-            m_dragging = true;
-            m_zooming = false;
-            m_startDistance = 0;
-
-            m_startPointerScreenX = pointerPositionOnScreen.x;
-            m_startPointerScreenY = pointerPositionOnScreen.y;
-            m_startCameraMapX = m_cameraMapX;
-            m_startCameraMapY = m_cameraMapY;
-        }
-        if (m_touchData.length > 1)
-        {
-            var pos1 = m_touchData[0].getLocalPosition(_this.parent);
-            var pos2 = m_touchData[1].getLocalPosition(_this.parent);
-            m_startDistance = distanceBetween(pos1, pos2);
-            m_zooming = true;
-        }
+        return m_cameraMapY;
     }
 
-    public.onMapDisplayDragStart = function (event)
+    public.getCameraScaleX = function mmaprender_getCameraScaleX()
     {
-        m_touchData.push(event.data);
-        mapDisplayDragRefresh(this);
-        //console.log('touch ' + event.data.identifier + '/' + m_touchData.length);
+        return m_cameraScaleX;
     }
 
-    public.onMapDisplayDragEnd = function (event)
+    public.getCameraScaleY = function mmaprender_getCameraScaleY()
     {
-        var touchIndex = m_touchData.indexOf(event.data);
-        if (touchIndex >= 0)
-        {
-            m_touchData.splice(touchIndex, 1);
-        }
-        mapDisplayDragRefresh(this);
-        //console.log('untouch ' + event.data.identifier + '/' + m_touchData.length);
-    }
-
-    public.onMapDisplayDragMove = function ()
-    {
-        if (m_dragging || m_zooming)
-        {
-            updateCameraDrag(this);
-        }
-    }
-
-    var updateCameraDrag = function (_this)
-    {
-        var pointerScreen = m_touchData[0].getLocalPosition(_this.parent);
-        if (m_zooming)
-        {
-            var position2 = m_touchData[1].getLocalPosition(_this.parent);
-            var newDistance = distanceBetween(pointerScreen, position2);
-            var ratio = newDistance / m_startDistance;
-            var cameraScaleX = m_startScaleX * ratio;
-            var cameraScaleY = m_startScaleY * ratio;
-
-            public.setCameraScale(cameraScaleX, cameraScaleY);
-        }
-
-        // camera moves according to differential movement of pointer
-        var cameraMapX = m_startCameraMapX + (m_startPointerScreenX - pointerScreen.x) / m_cameraScaleX;
-        var cameraMapY = m_startCameraMapY + (m_startPointerScreenY - pointerScreen.y) / m_cameraScaleY;
-
-        public.setCameraMap(cameraMapX, cameraMapY);
+        return m_cameraScaleY;
     }
 
     var updateCameraVelocity = function ()
     {
-        var cameraMapX = m_cameraMapX + m_cameraMapVelocityX / m_cameraScaleX
-        var cameraMapY = m_cameraMapY + m_cameraMapVelocityY / m_cameraScaleY
+        var cameraMapX = m_cameraMapX + m_cameraMapVelocityX / m_cameraScaleX;
+        var cameraMapY = m_cameraMapY + m_cameraMapVelocityY / m_cameraScaleY;
         var cameraScaleX = m_cameraScaleX + m_cameraScaleVelocity;
         var cameraScaleY = m_cameraScaleY + m_cameraScaleVelocity;
         public.setCameraScale(cameraScaleX, cameraScaleY);

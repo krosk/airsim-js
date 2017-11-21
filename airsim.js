@@ -298,7 +298,7 @@ var ASMAP = (function ()
 
     public.initialize = function asmap_initialize(w, h)
     {
-        
+
         MMAPDATA.initialize(w, h);
         MMAPRENDER.initialize();
     }
@@ -319,17 +319,6 @@ var ASMAP = (function ()
         MMAPRENDER.update(dt, time, changedTile);
     }
 
-    public.mathReverseCantorPair = function (z)
-    {
-        var pair = [];
-        var t = Math.floor((-1 + Math.sqrt(1 + 8 * z)) / 2);
-        var x = t * (t + 3) / 2 - z;
-        var y = z - t * (t + 1) / 2;
-        pair[0] = x;
-        pair[1] = y;
-        return pair;
-    }
-
     return public;
 })();
 // ---------------------
@@ -343,7 +332,7 @@ var MMAPDATA = (function ()
     var m_mapChangeLog = [];
     var m_mapTableSizeX = 0;
     var m_mapTableSizeY = 0;
-    
+
     var m_pfgrid = {};
 
     public.C_MAXTILEID = 2;
@@ -388,7 +377,7 @@ var MMAPDATA = (function ()
             var tile = m_mapChangeLog[i];
             var index = tile.x * m_mapTableSizeY + tile.y;
             m_mapTableData[index] = tile.id;
-            
+
             var walkable = isTileIdTypeWalkable(tile.id);
             m_pfgrid.setWalkableAt(tile.x, tile.y, walkable);
             output.push(tile);
@@ -448,6 +437,17 @@ var MMAPBATCH = (function ()
     var mathCantor = function (X, Y)
     {
         return (X + Y) * (X + Y + 1) / 2 + Y;
+    }
+    
+    public.mathReverseCantorPair = function (z)
+    {
+        var pair = [];
+        var t = Math.floor((-1 + Math.sqrt(1 + 8 * z)) / 2);
+        var x = t * (t + 3) / 2 - z;
+        var y = z - t * (t + 1) / 2;
+        pair[0] = x;
+        pair[1] = y;
+        return pair;
     }
 
     public.initialize = function mmapbatch_initialize()
@@ -718,7 +718,7 @@ var MMAPBATCH = (function ()
         for (var i in keys)
         {
             var k = keys[i];
-            var pair = ASMAP.mathReverseCantorPair(k);
+            var pair = public.mathReverseCantorPair(k);
             var batchX = pair[0];
             var batchY = pair[1];
             var exists = hasBatch(batchX, batchY);
@@ -757,7 +757,7 @@ var MMAPBATCH = (function ()
 var MMAPTOUCH = (function ()
 {
     var public = {};
-    
+
     var m_touchData = [];
     var m_dragging = false;
     var m_zooming = false;
@@ -768,12 +768,12 @@ var MMAPTOUCH = (function ()
     var m_startPointerScreenY = 0;
     var m_startCameraMapX = 0;
     var m_startCameraMapY = 0;
-    
+
     var getDistanceBetween = function mmaptouch_getDistanceBetween(pos1, pos2)
     {
         return Math.sqrt(Math.pow(pos2.x - pos1.x, 2) + Math.pow(pos2.y - pos1.y, 2));
     }
-    
+
     public.onMapDisplayDragStart = function mmaptouch_onMapDisplayDragStart(event)
     {
         m_touchData.push(event.data);
@@ -799,7 +799,7 @@ var MMAPTOUCH = (function ()
             updateCameraDrag(this);
         }
     }
-    
+
     var mapDisplayDragRefresh = function mmaptouch_mapDisplayDragRefresh(_this)
     {
         if (m_touchData.length == 0)
@@ -835,7 +835,7 @@ var MMAPTOUCH = (function ()
             m_zooming = true;
         }
     }
-    
+
     var updateCameraDrag = function mmaptouch_updateCameraDrag(_this)
     {
         var pointerScreen = m_touchData[0].getLocalPosition(_this.parent);
@@ -856,7 +856,7 @@ var MMAPTOUCH = (function ()
 
         MMAPRENDER.setCameraMap(cameraMapX, cameraMapY);
     }
-    
+
     return public;
 })();
 
@@ -889,7 +889,7 @@ var MMAPRENDER = (function ()
         return graphics;
     }
 
-    var initializeTexture = function ()
+    var initializeTexture = function mmaprender_initializeTexture()
     {
         for (i = 0; i < MMAPDATA.C_MAXTILEID; i++)
         {
@@ -1114,7 +1114,7 @@ var MMAPRENDER = (function ()
         return topLeftBatchRadius;
     }
 
-    var processBatchFlag = function mmapbatch_processBatchFlag(batchPerCall, batchFlag)
+    var processBatchFlag = function mmaprender_processBatchFlag(batchPerCall, batchFlag)
     {
         var keys = Object.keys(batchFlag);
         var count = 0;
@@ -1125,7 +1125,7 @@ var MMAPRENDER = (function ()
         for (var i in keys)
         {
             var k = keys[i];
-            var pair = ASMAP.mathReverseCantorPair(k);
+            var pair = MMAPBATCH.mathReverseCantorPair(k);
             var batchX = pair[0];
             var batchY = pair[1];
             var textureFlag = batchFlag[k].loadTexture;
@@ -1147,14 +1147,14 @@ var MMAPRENDER = (function ()
         for (var i in orderedKeys)
         {
             var k = orderedKeys[i];
-            var pair = ASMAP.mathReverseCantorPair(k);
+            var pair = MMAPBATCH.mathReverseCantorPair(k);
             var batchX = pair[0];
             var batchY = pair[1];
-            var startTileX = MMAPBATCH.getBatchXToStartTileX(batchX);
-            var startTileY = MMAPBATCH.getBatchYToStartTileY(batchY);
             var textureFlag = batchFlag[k].loadTexture;
             if (textureFlag)
             {
+                var startTileX = MMAPBATCH.getBatchXToStartTileX(batchX);
+                var startTileY = MMAPBATCH.getBatchYToStartTileY(batchY);
                 var endTileX = MMAPBATCH.getBatchXToEndTileX(batchX);
                 var endTileY = MMAPBATCH.getBatchYToEndTileY(batchY);
                 for (var x = startTileX; x < endTileX; x++)
@@ -1241,12 +1241,13 @@ var MMAPRENDER = (function ()
         // scrolls DONE
         // 3/ stutering happens on scroll, which is
         // mitigated by a loading queue that process 
-        // things until time is depleted
-        // however position and visibility
-        // must be set only if texture is loaded
-        // so maybe one should perform
-        // texture loading with a default transparent one
-        // then replace it when needed?
+        // limited number of batches. position and 
+        // visibility are prioritized, last are 
+        // texture loading. When too many batches 
+        // are displayed on screen batches stay static
+        // although performance does not drop
+        // and no more texture load occurs.
+        // hence there is a maximum zoom level to reach
         // 4/ container creation could also be in cause,
         // consider pooling?
 

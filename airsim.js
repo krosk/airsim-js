@@ -296,11 +296,9 @@ var ASMAP = (function ()
 {
     var public = {};
 
-    var m_grid = {};
-
     public.initialize = function asmap_initialize(w, h)
     {
-        m_grid = new ASPF.Grid(w, h);
+        
         MMAPDATA.initialize(w, h);
         MMAPRENDER.initialize();
     }
@@ -313,16 +311,6 @@ var ASMAP = (function ()
     public.getHeight = function asmap_getHeight()
     {
         return MMAPDATA.getMapTableSizeY();
-    }
-
-    public.setWalkableAt = function (x, y, b)
-    {
-        m_grid.setWalkableAt(x, y, b);
-    }
-
-    public.isWalkableAt = function (x, y)
-    {
-        return m_grid.isWalkableAt(x, y);
     }
 
     public.update = function asmap_update(dt, time)
@@ -355,8 +343,10 @@ var MMAPDATA = (function ()
     var m_mapChangeLog = [];
     var m_mapTableSizeX = 0;
     var m_mapTableSizeY = 0;
+    
+    var m_pfgrid = {};
 
-    public.C_MAXTILEID = 32;
+    public.C_MAXTILEID = 2;
 
     public.getMapTableSizeX = function mmapdata_getMapTableSizeX()
     {
@@ -370,6 +360,7 @@ var MMAPDATA = (function ()
     {
         m_mapTableSizeX = x;
         m_mapTableSizeY = y;
+        m_pfgrid = new ASPF.Grid(x, y);
         for (var x = 0; x < m_mapTableSizeX; x++)
         {
             for (var y = 0; y < m_mapTableSizeY; y++)
@@ -397,6 +388,9 @@ var MMAPDATA = (function ()
             var tile = m_mapChangeLog[i];
             var index = tile.x * m_mapTableSizeY + tile.y;
             m_mapTableData[index] = tile.id;
+            
+            var walkable = isTileIdTypeWalkable(tile.id);
+            m_pfgrid.setWalkableAt(tile.x, tile.y, walkable);
             output.push(tile);
         }
         m_mapChangeLog = [];
@@ -420,6 +414,10 @@ var MMAPDATA = (function ()
     {
         var index = tileX * m_mapTableSizeY + tileY;
         return m_mapTableData[index];
+    }
+    var isTileIdTypeWalkable = function mmapdata_isTileIdTypeWalkable(id)
+    {
+        return id < public.C_MAXTILEID / 2;
     }
     public.isValidCoordinates = function mmapdata_isValidCoordinates(tileX, tileY)
     {

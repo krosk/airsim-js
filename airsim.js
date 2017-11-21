@@ -475,7 +475,7 @@ var MMAPBATCH = (function ()
         return mathCantor(X, Y);
     }
 
-    var getSpritePoolIndex = function (tileX, tileY)
+    var getSpritePoolIndex = function mmapbatch_getSpritePoolIndex(tileX, tileY)
     {
         var batchMapIndex = getBatchMapIndexByTile(tileX, tileY);
         var X = tileX - public.getTileXToStartTileX(tileX);
@@ -486,7 +486,7 @@ var MMAPBATCH = (function ()
 
     // create one empty if none
     // excepted if coordinates are negative
-    var getBatch = function (tileX, tileY)
+    var getBatch = function mmapbatch_getBatch(tileX, tileY)
     {
         var mapIndex = getBatchMapIndexByTile(tileX, tileY);
         var batchX = Math.floor(tileX / BATCH_SIZE_X);
@@ -1212,7 +1212,7 @@ var MMAPRENDER = (function ()
 
     public.C_FPS = 30;
     public.C_MINBATCHPERCALL = 1;
-    public.C_MAXBATCHPERCALL = 200;
+    public.C_MAXBATCHPERCALL = 400;
 
     public.update = function mmaprender_update(dt, tile, updatedTiles)
     {
@@ -1250,6 +1250,8 @@ var MMAPRENDER = (function ()
         // hence there is a maximum zoom level to reach
         // 4/ container creation could also be in cause,
         // consider pooling?
+        // 5/ consider not using radius but
+        // exact list of batches on screen?
 
         if (dt > 1000 / public.C_FPS)
         {
@@ -1323,6 +1325,7 @@ var MMAPRENDER = (function ()
         var time3 = Date.now();
 
         // checking whether it is texture load
+        /*
         if (time1 - time0 > 16)
         {
             console.log(time1 - time0 + 'p');
@@ -1335,6 +1338,7 @@ var MMAPRENDER = (function ()
         {
             console.log(time3 - time2 + 'f');
         }
+        */
 
         m_cameraMapXRendered = m_cameraMapX;
         m_cameraMapYRendered = m_cameraMapY;

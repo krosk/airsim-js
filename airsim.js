@@ -686,6 +686,42 @@ var MMAPBATCH = (function ()
             }
         }
     }
+    
+    public.getBatchIndexInRadius = function mmapbatch_getBatchInRadius(centerTileX, centerTileY, radius)
+    {
+        var batchList = [];
+        var centerBatchX = public.getTileXToBatchX(centerTileX);
+        var centerBatchY = public.getTileYToBatchY(centerTileY);
+        for (var i = -radius; i <= radius; i++)
+        {
+            for (var j = -radius; j <= radius; j++)
+            {
+                var batchX = centerBatchX + i;
+                var batchY = centerBatchY + j;
+                var startTileX = public.getBatchXToStartTileX(batchX);
+                var startTileY = public.getBatchYToStartTileY(batchY);
+                if (batchX >= 0 && batchY >= 0 && MMAPDATA.isValidCoordinates(startTileX, startTileY))
+                {
+                    var index = mathCantor(batchX, batchY);
+                    batchList.push(index);
+                }
+            }
+        }
+        return batchList;
+    }
+    
+    public.setVisibilityFlagInList = function mmapbatch_setVisibilityFlagInList(flag, batchList, flagValue)
+    {
+        for (var i in batchList)
+        {
+            var index = batchList[i];
+            if (typeof flag[index] === 'undefined')
+            {
+                flag[index] = {};
+            }
+            flag[index].visible = flagValue;
+        }
+    }
 
     public.setPositionFlagInRadius = function mmapbatch_setPositionFlagInRadius(flag, centerTileX, centerTileY, radius, flagValue)
     {
@@ -709,6 +745,19 @@ var MMAPBATCH = (function ()
                     flag[index].position = flagValue;
                 }
             }
+        }
+    }
+    
+    public.setPositionFlagInList = function mmapbatch_setPositionFlagInList(flag, batchList, flagValue)
+    {
+        for (var i in batchList)
+        {
+            var index = batchList[i];
+            if (typeof flag[index] === 'undefined')
+            {
+                flag[index] = {};
+            }
+            flag[index].position = flagValue;
         }
     }
 
@@ -933,6 +982,7 @@ var MMAPRENDER = (function ()
     var m_cameraCenterTileXRendered = null;
     var m_cameraCenterTileYRendered = null;
     var m_cameraBatchRadiusRendered = 1;
+    var m_cameraBatchListRendered = null;
 
     public.initialize = function mmaprender_initialize()
     {
@@ -1196,7 +1246,7 @@ var MMAPRENDER = (function ()
 
     }
 
-    var updateMapSpriteBatchPosition = function (batchX, batchY)
+    var updateMapSpriteBatchPosition = function mmaprender_updateMapSpriteBatchPosition(batchX, batchY)
     {
         // note: x and y are screen coordinates
         var x = -m_cameraMapX * m_cameraScaleX + viewWidth() / 2;
@@ -1274,16 +1324,14 @@ var MMAPRENDER = (function ()
 
         updateCameraVelocity();
 
-        if (m_cameraCenterTileXRendered === null){
+        if (m_cameraBatchListRendered === null){
 
         }
         else
         {
-            MMAPBATCH.setVisibilityFlagInRadius(
+            MMAPBATCH.setVisibilityFlagInList(
             m_batchFlag,
-            m_cameraCenterTileXRendered,
-            m_cameraCenterTileYRendered,
-            m_cameraBatchRadiusRendered,
+            m_cameraBatchListRendered,
             false);
         }
 
@@ -1291,12 +1339,15 @@ var MMAPRENDER = (function ()
         var currentCenterTileY = getCenterTileY();
         var currentRadius = getVisibleTileRadius();
         var currentBatchRadius = getVisibleBatchRadius();
-
-        MMAPBATCH.setVisibilityFlagInRadius(
-        m_batchFlag,
+        
+        var currentBatchList = MMAPBATCH.getBatchIndexInRadius(
         currentCenterTileX,
         currentCenterTileY,
-        currentBatchRadius,
+        currentBatchRadius);
+        
+        MMAPBATCH.setVisibilityFlagInList(
+        m_batchFlag,
+        currentBatchList,
         true);
 
         var time1 = Date.now();
@@ -1311,11 +1362,9 @@ var MMAPRENDER = (function ()
         currentBatchRadius,
         updatedTiles);
 
-        MMAPBATCH.setPositionFlagInRadius(
+        MMAPBATCH.setPositionFlagInList(
         m_batchFlag,
-        currentCenterTileX,
-        currentCenterTileY,
-        currentBatchRadius,
+        currentBatchList,
         true);
 
         var time2 = Date.now();
@@ -1347,6 +1396,7 @@ var MMAPRENDER = (function ()
         m_cameraCenterTileXRendered = currentCenterTileX;
         m_cameraCenterTileYRendered = currentCenterTileY;
         m_cameraBatchRadiusRendered = currentBatchRadius;
+        m_cameraBatchListRendered = currentBatchList;
     }
 
     return public;

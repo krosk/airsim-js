@@ -1226,9 +1226,9 @@ var MMAPRENDER = (function ()
         
         // tileY +\-
         // tileX -/+
-        for (var stepX = 0; stepX <= totalStepX; stepX += 1)
+        for (var stepX = -1; stepX <= totalStepX; stepX += 1)
         {
-            for (var stepY = 0; stepY <= totalStepY; stepY += 1)
+            for (var stepY = -1; stepY <= totalStepY; stepY += 1)
             {
                 // probably only works with square batch
                 var tileX = baseTileX + stepX * minBatchEdge + stepY * minBatchEdge;

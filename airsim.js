@@ -431,15 +431,15 @@ var MMAPBATCH = (function ()
     var m_mapSpritePool = [];
     var m_mapSpriteId = []; // mapIndex
 
-    var BATCH_SIZE_X = 8;
-    var BATCH_SIZE_Y = 8;
+    public.C_BATCH_SIZE_X = 8;
+    public.C_BATCH_SIZE_Y = 8;
 
-    var mathCantor = function (X, Y)
+    public.mathCantor = function mmapbatch_mathCantor(X, Y)
     {
         return (X + Y) * (X + Y + 1) / 2 + Y;
     }
     
-    public.mathReverseCantorPair = function (z)
+    public.mathReverseCantorPair = function mmapbatch_mathReverseCantorPair(z)
     {
         var pair = [];
         var t = Math.floor((-1 + Math.sqrt(1 + 8 * z)) / 2);
@@ -458,21 +458,21 @@ var MMAPBATCH = (function ()
 
     var getBatchMapIndexByTile = function (tileX, tileY)
     {
-        var X = Math.floor(tileX / BATCH_SIZE_X);
-        var Y = Math.floor(tileY / BATCH_SIZE_Y);
+        var X = Math.floor(tileX / public.C_BATCH_SIZE_X);
+        var Y = Math.floor(tileY / public.C_BATCH_SIZE_Y);
         return getBatchMapIndex(X, Y);
     }
 
     var getBatchMapIndex = function (batchX, batchY)
     {
-        return mathCantor(batchX, batchY);
+        return public.mathCantor(batchX, batchY);
     }
 
     var getSpriteMapIndex = function (tileX, tileY)
     {
         var X = tileX;
         var Y = tileY;
-        return mathCantor(X, Y);
+        return public.mathCantor(X, Y);
     }
 
     var getSpritePoolIndex = function mmapbatch_getSpritePoolIndex(tileX, tileY)
@@ -480,7 +480,7 @@ var MMAPBATCH = (function ()
         var batchMapIndex = getBatchMapIndexByTile(tileX, tileY);
         var X = tileX - public.getTileXToStartTileX(tileX);
         var Y = tileY - public.getTileYToStartTileY(tileY);
-        var spritePoolIndex = batchMapIndex * BATCH_SIZE_X * BATCH_SIZE_Y + X * BATCH_SIZE_Y + Y;
+        var spritePoolIndex = batchMapIndex * public.C_BATCH_SIZE_X * public.C_BATCH_SIZE_Y + X * public.C_BATCH_SIZE_Y + Y;
         return spritePoolIndex;
     }
 
@@ -489,8 +489,8 @@ var MMAPBATCH = (function ()
     var getBatch = function mmapbatch_getBatch(tileX, tileY)
     {
         var mapIndex = getBatchMapIndexByTile(tileX, tileY);
-        var batchX = Math.floor(tileX / BATCH_SIZE_X);
-        var batchY = Math.floor(tileY / BATCH_SIZE_Y);
+        var batchX = Math.floor(tileX / public.C_BATCH_SIZE_X);
+        var batchY = Math.floor(tileY / public.C_BATCH_SIZE_Y);
         if (!hasBatch(batchX, batchY))
         {
             var batch = new PIXI.Container();
@@ -586,53 +586,53 @@ var MMAPBATCH = (function ()
 
     public.getTileXToStartTileX = function (tileX)
     {
-        return public.getTileXToBatchX(tileX) * BATCH_SIZE_X;
+        return public.getTileXToBatchX(tileX) * public.C_BATCH_SIZE_X;
     }
 
     public.getTileYToStartTileY = function (tileY)
     {
-        return public.getTileYToBatchY(tileY) * BATCH_SIZE_Y;
+        return public.getTileYToBatchY(tileY) * public.C_BATCH_SIZE_Y;
     }
 
     // end tile excluded
     public.getTileXToEndTileX = function (tileX)
     {
-        return public.getTileXToStartTileX(tileX) + BATCH_SIZE_X;
+        return public.getTileXToStartTileX(tileX) + public.C_BATCH_SIZE_X;
     }
 
     public.getTileYToEndTileY = function (tileY)
     {
-        return public.getTileYToStartTileY(tileY) + BATCH_SIZE_Y;
+        return public.getTileYToStartTileY(tileY) + public.C_BATCH_SIZE_Y;
     }
 
     public.getTileXToBatchX = function (tileX)
     {
-        return Math.floor(Math.floor(tileX) / BATCH_SIZE_X);
+        return Math.floor(Math.floor(tileX) / public.C_BATCH_SIZE_X);
     }
 
     public.getTileYToBatchY = function (tileY)
     {
-        return Math.floor(Math.floor(tileY) / BATCH_SIZE_Y);
+        return Math.floor(Math.floor(tileY) / public.C_BATCH_SIZE_Y);
     }
 
     public.getBatchXToStartTileX = function (batchX)
     {
-        return batchX * BATCH_SIZE_X;
+        return batchX * public.C_BATCH_SIZE_X;
     }
 
     public.getBatchYToStartTileY = function (batchY)
     {
-        return batchY * BATCH_SIZE_Y;
+        return batchY * public.C_BATCH_SIZE_Y;
     }
 
     public.getBatchXToEndTileX = function (batchX)
     {
-        return (batchX + 1) * BATCH_SIZE_X;
+        return (batchX + 1) * public.C_BATCH_SIZE_X;
     }
 
     public.getBatchYToEndTileY = function (batchY)
     {
-        return (batchY + 1) * BATCH_SIZE_Y;
+        return (batchY + 1) * public.C_BATCH_SIZE_Y;
     }
 
     public.setBatchVisible = function mmapbatch_setBatchVisible(batchX, batchY, flag)
@@ -676,7 +676,7 @@ var MMAPBATCH = (function ()
                 var startTileY = public.getBatchYToStartTileY(batchY);
                 if (batchX >= 0 && batchY >= 0 && MMAPDATA.isValidCoordinates(startTileX, startTileY))
                 {
-                    var index = mathCantor(batchX, batchY);
+                    var index = public.mathCantor(batchX, batchY);
                     if (typeof flag[index] === 'undefined')
                     {
                         flag[index] = {};
@@ -687,7 +687,7 @@ var MMAPBATCH = (function ()
         }
     }
     
-    public.getBatchIndexInRadius = function mmapbatch_getBatchInRadius(centerTileX, centerTileY, radius)
+    public.getBatchIndexInRadius = function mmapbatch_getBatchIndexInRadius(centerTileX, centerTileY, radius)
     {
         var batchList = [];
         var centerBatchX = public.getTileXToBatchX(centerTileX);
@@ -702,7 +702,7 @@ var MMAPBATCH = (function ()
                 var startTileY = public.getBatchYToStartTileY(batchY);
                 if (batchX >= 0 && batchY >= 0 && MMAPDATA.isValidCoordinates(startTileX, startTileY))
                 {
-                    var index = mathCantor(batchX, batchY);
+                    var index = public.mathCantor(batchX, batchY);
                     batchList.push(index);
                 }
             }
@@ -737,7 +737,7 @@ var MMAPBATCH = (function ()
                 var startTileY = public.getBatchYToStartTileY(batchY);
                 if (batchX >= 0 && batchY >= 0 && MMAPDATA.isValidCoordinates(startTileX, startTileY))
                 {
-                    var index = mathCantor(batchX, batchY);
+                    var index = public.mathCantor(batchX, batchY);
                     if (typeof flag[index] === 'undefined')
                     {
                         flag[index] = {};
@@ -1163,6 +1163,44 @@ var MMAPRENDER = (function ()
         x, y);
         return topLeftBatchRadius;
     }
+    
+    var getBatchIndexInScreen = function mmaprender_getBatchIndexInScreen()
+    {
+        var minBatchEdge = Math.min(MMAPBATCH.C_BATCH_SIZE_X, MMAPBATCH.C_BATCH_SIZE_Y);
+        var deltaScreenX = minBatchEdge * TEXTURE_BASE_SIZE_X * m_cameraScaleX;
+        var deltaScreenY = minBatchEdge * TEXTURE_BASE_SIZE_Y * m_cameraScaleY;
+        
+        var maxScreenX = viewWidth();
+        var maxScreenY = viewHeight();
+        
+        var batchList = [];
+        
+        for (var stepScreenX = 0; stepScreenX <= maxScreenX + deltaScreenX; stepScreenX += deltaScreenX)
+        {
+            for (var stepScreenY = 0; stepScreenY <= maxScreenY + deltaScreenY; stepScreenY += deltaScreenY)
+            {
+                var tileX = Math.floor(getScreenToTileX(stepScreenX, stepScreenY));
+                var tileY = Math.floor(getScreenToTileY(stepScreenX, stepScreenY));
+                var batchX = MMAPBATCH.getTileXToBatchX(tileX);
+                var batchY = MMAPBATCH.getTileYToBatchY(tileY);
+                batchList.push(MMAPBATCH.mathCantor(batchX, batchY));
+            }
+        }
+        
+        for (var stepScreenX = -deltaScreenX/2; stepScreenX <= maxScreenX + deltaScreenX; stepScreenX += deltaScreenX)
+        {
+            for (var stepScreenY = -deltaScreenY/2; stepScreenY <= maxScreenY + deltaScreenY; stepScreenY += deltaScreenY)
+            {
+                var tileX = Math.floor(getScreenToTileX(stepScreenX, stepScreenY));
+                var tileY = Math.floor(getScreenToTileY(stepScreenX, stepScreenY));
+                var batchX = MMAPBATCH.getTileXToBatchX(tileX);
+                var batchY = MMAPBATCH.getTileYToBatchY(tileY);
+                batchList.push(MMAPBATCH.mathCantor(batchX, batchY));
+            }
+        }
+        
+        return batchList;
+    }
 
     var processBatchFlag = function mmaprender_processBatchFlag(batchPerCall, batchFlag)
     {
@@ -1340,10 +1378,8 @@ var MMAPRENDER = (function ()
         var currentRadius = getVisibleTileRadius();
         var currentBatchRadius = getVisibleBatchRadius();
         
-        var currentBatchList = MMAPBATCH.getBatchIndexInRadius(
-        currentCenterTileX,
-        currentCenterTileY,
-        currentBatchRadius);
+        var currentBatchList = getBatchIndexInScreen();
+        //var currentBatchList = MMAPBATCH.getBatchIndexInRadius(currentCenterTileX, currentCenterTileY, currentBatchRadius);
         
         MMAPBATCH.setVisibilityFlagInList(
         m_batchFlag,

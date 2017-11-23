@@ -1201,6 +1201,39 @@ var MMAPRENDER = (function ()
         
         return batchList;
     }
+    
+    var getBatchIndexInScreen2 = function mmaprender_getBatchIndexInScreen2()
+    {
+        var minBatchEdge = Math.min(MMAPBATCH.C_BATCH_SIZE_X, MMAPBATCH.C_BATCH_SIZE_Y);
+        var deltaScreenX = minBatchEdge * TEXTURE_BASE_SIZE_X * m_cameraScaleX;
+        var deltaScreenY = minBatchEdge * TEXTURE_BASE_SIZE_Y * m_cameraScaleY;
+        
+        var totalStepX = Math.floor(viewWidth() / deltaScreenX) + 1;
+        var totalStepY = Math.floor(viewHeight() / deltaScreenY) + 1;
+        
+        var batchList = [];
+        
+        var baseTileX = Math.floor(getScreenToTileX(0, 0));
+        var baseTileY = Math.floor(getScreenToTileY(0, 0));
+        
+        // tileY +\-
+        // tileX -/+
+        for (var stepX = 0; stepX <= totalStepX; stepX += 1)
+        {
+            for (var stepY = 0; stepY <= totalStepY; stepY += 1)
+            {
+                // probably only works with square batch
+                var tileX = baseTileX + stepX * minBatchEdge + stepY * minBatchEdge;
+                var tileY = baseTileY - stepX * minBatchEdge + stepY * minBatchEdge;
+                var batchX = MMAPBATCH.getTileXToBatchX(tileX);
+                var batchY = MMAPBATCH.getTileYToBatchY(tileY);
+                batchList.push(MMAPBATCH.mathCantor(batchX, batchY));
+                batchList.push(MMAPBATCH.mathCantor(batchX, batchY+1));
+            }
+        }
+        
+        return batchList;
+    }
 
     var processBatchFlag = function mmaprender_processBatchFlag(batchPerCall, batchFlag)
     {
@@ -1281,7 +1314,6 @@ var MMAPRENDER = (function ()
                 return;
             }
         }
-
     }
 
     var updateMapSpriteBatchPosition = function mmaprender_updateMapSpriteBatchPosition(batchX, batchY)
@@ -1378,7 +1410,7 @@ var MMAPRENDER = (function ()
         var currentRadius = getVisibleTileRadius();
         var currentBatchRadius = getVisibleBatchRadius();
         
-        var currentBatchList = getBatchIndexInScreen();
+        var currentBatchList = getBatchIndexInScreen2();
         //var currentBatchList = MMAPBATCH.getBatchIndexInRadius(currentCenterTileX, currentCenterTileY, currentBatchRadius);
         
         MMAPBATCH.setVisibilityFlagInList(

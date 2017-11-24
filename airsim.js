@@ -357,7 +357,7 @@ var MMAPDATA = (function ()
                 //var randomId = Math.floor(Math.random() * public.C_MAXTILEID);
                 var batchX = MMAPBATCH.getTileXToBatchX(x);
                 var batchY = MMAPBATCH.getTileYToBatchY(y);
-                var odd = (batchX + batchY ) % 2;
+                var odd = (batchX + batchY) % 2;
                 public.setTileId(x, y, odd);
             }
         }
@@ -441,7 +441,7 @@ var MMAPBATCH = (function ()
     {
         return (X + Y) * (X + Y + 1) / 2 + Y;
     }
-    
+
     public.mathReverseCantorPair = function mmapbatch_mathReverseCantorPair(z)
     {
         var pair = [];
@@ -689,7 +689,7 @@ var MMAPBATCH = (function ()
             }
         }
     }
-    
+
     public.getBatchIndexInRadius = function mmapbatch_getBatchIndexInRadius(centerTileX, centerTileY, radius)
     {
         var batchList = [];
@@ -712,7 +712,7 @@ var MMAPBATCH = (function ()
         }
         return batchList;
     }
-    
+
     public.setVisibilityFlagInList = function mmapbatch_setVisibilityFlagInList(flag, batchList, flagValue)
     {
         for (var i in batchList)
@@ -750,7 +750,7 @@ var MMAPBATCH = (function ()
             }
         }
     }
-    
+
     public.setPositionFlagInList = function mmapbatch_setPositionFlagInList(flag, batchList, flagValue)
     {
         for (var i in batchList)
@@ -930,7 +930,7 @@ var MMAPRENDER = (function ()
         var black = 0x000000;
         graphics.beginFill(color);
         graphics.lineStyle(1, black);
-        
+
         var M = 3; // margin
 
         // draw a rectangle
@@ -1174,18 +1174,18 @@ var MMAPRENDER = (function ()
         x, y);
         return topLeftBatchRadius;
     }
-    
+
     var getBatchIndexInScreen = function mmaprender_getBatchIndexInScreen()
     {
         var minBatchEdge = Math.min(MMAPBATCH.C_BATCH_SIZE_X, MMAPBATCH.C_BATCH_SIZE_Y);
         var deltaScreenX = minBatchEdge * TEXTURE_BASE_SIZE_X * m_cameraScaleX;
         var deltaScreenY = minBatchEdge * TEXTURE_BASE_SIZE_Y * m_cameraScaleY;
-        
+
         var maxScreenX = viewWidth();
         var maxScreenY = viewHeight();
-        
+
         var batchList = [];
-        
+
         for (var stepScreenX = 0; stepScreenX <= maxScreenX + deltaScreenX; stepScreenX += deltaScreenX)
         {
             for (var stepScreenY = 0; stepScreenY <= maxScreenY + deltaScreenY; stepScreenY += deltaScreenY)
@@ -1197,10 +1197,10 @@ var MMAPRENDER = (function ()
                 batchList.push(MMAPBATCH.mathCantor(batchX, batchY));
             }
         }
-        
-        for (var stepScreenX = -deltaScreenX/2; stepScreenX <= maxScreenX + deltaScreenX; stepScreenX += deltaScreenX)
+
+        for (var stepScreenX = -deltaScreenX / 2; stepScreenX <= maxScreenX + deltaScreenX; stepScreenX += deltaScreenX)
         {
-            for (var stepScreenY = -deltaScreenY/2; stepScreenY <= maxScreenY + deltaScreenY; stepScreenY += deltaScreenY)
+            for (var stepScreenY = -deltaScreenY / 2; stepScreenY <= maxScreenY + deltaScreenY; stepScreenY += deltaScreenY)
             {
                 var tileX = Math.floor(getScreenToTileX(stepScreenX, stepScreenY));
                 var tileY = Math.floor(getScreenToTileY(stepScreenX, stepScreenY));
@@ -1209,24 +1209,24 @@ var MMAPRENDER = (function ()
                 batchList.push(MMAPBATCH.mathCantor(batchX, batchY));
             }
         }
-        
+
         return batchList;
     }
-    
+
     var getBatchIndexInScreen2 = function mmaprender_getBatchIndexInScreen2()
     {
         var minBatchEdge = Math.min(MMAPBATCH.C_BATCH_SIZE_X, MMAPBATCH.C_BATCH_SIZE_Y);
         var deltaScreenX = minBatchEdge * TEXTURE_BASE_SIZE_X * m_cameraScaleX;
         var deltaScreenY = minBatchEdge * TEXTURE_BASE_SIZE_Y * m_cameraScaleY;
-        
+
         var totalStepX = Math.floor(viewWidth() / deltaScreenX) + 2;
         var totalStepY = Math.floor(viewHeight() / deltaScreenY) + 2;
-        
+
         var batchList = [];
-        
+
         var baseTileX = Math.floor(getScreenToTileX(0, 0));
         var baseTileY = Math.floor(getScreenToTileY(0, 0));
-        
+
         // tileY +\-
         // tileX -/+
         for (var stepX = -1; stepX <= totalStepX; stepX += 1)
@@ -1239,10 +1239,10 @@ var MMAPRENDER = (function ()
                 var batchX = MMAPBATCH.getTileXToBatchX(tileX);
                 var batchY = MMAPBATCH.getTileYToBatchY(tileY);
                 batchList.push(MMAPBATCH.mathCantor(batchX, batchY));
-                batchList.push(MMAPBATCH.mathCantor(batchX, batchY+1));
+                batchList.push(MMAPBATCH.mathCantor(batchX, batchY + 1));
             }
         }
-        
+
         return batchList;
     }
 
@@ -1343,7 +1343,7 @@ var MMAPRENDER = (function ()
 
     public.C_FPS = 30;
     public.C_MINBATCHPERCALL = 1;
-    public.C_MAXBATCHPERCALL = 400;
+    public.C_MAXBATCHPERCALL = 800;
 
     public.update = function mmaprender_update(dt, tile, updatedTiles)
     {
@@ -1420,10 +1420,10 @@ var MMAPRENDER = (function ()
         var currentCenterTileY = getCenterTileY();
         var currentRadius = getVisibleTileRadius();
         var currentBatchRadius = getVisibleBatchRadius();
-        
+
         var currentBatchList = getBatchIndexInScreen2();
         //var currentBatchList = MMAPBATCH.getBatchIndexInRadius(currentCenterTileX, currentCenterTileY, currentBatchRadius);
-        
+
         MMAPBATCH.setVisibilityFlagInList(
         m_batchFlag,
         currentBatchList,

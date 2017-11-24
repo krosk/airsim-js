@@ -298,7 +298,6 @@ var ASMAP = (function ()
 
     public.initialize = function asmap_initialize(w, h)
     {
-
         MMAPDATA.initialize(w, h);
         MMAPRENDER.initialize();
     }
@@ -315,6 +314,7 @@ var ASMAP = (function ()
 
     public.update = function asmap_update(dt, time)
     {
+        MMAPDATA.randomizeTile(1);
         var changedTile = MMAPDATA.commitChangeLog();
         MMAPRENDER.update(dt, time, changedTile);
     }
@@ -354,8 +354,11 @@ var MMAPDATA = (function ()
         {
             for (var y = 0; y < m_mapTableSizeY; y++)
             {
-                var randomId = Math.floor(Math.random() * public.C_MAXTILEID);
-                public.setTileId(x, y, randomId);
+                //var randomId = Math.floor(Math.random() * public.C_MAXTILEID);
+                var batchX = MMAPBATCH.getTileXToBatchX(x);
+                var batchY = MMAPBATCH.getTileYToBatchY(y);
+                var odd = (batchX + batchY ) % 2;
+                public.setTileId(x, y, odd);
             }
         }
     }

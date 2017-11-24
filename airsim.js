@@ -1216,8 +1216,8 @@ var MMAPRENDER = (function ()
         var deltaScreenX = minBatchEdge * TEXTURE_BASE_SIZE_X * m_cameraScaleX;
         var deltaScreenY = minBatchEdge * TEXTURE_BASE_SIZE_Y * m_cameraScaleY;
         
-        var totalStepX = Math.floor(viewWidth() / deltaScreenX) + 1;
-        var totalStepY = Math.floor(viewHeight() / deltaScreenY) + 1;
+        var totalStepX = Math.floor(viewWidth() / deltaScreenX) + 2;
+        var totalStepY = Math.floor(viewHeight() / deltaScreenY) + 2;
         
         var batchList = [];
         

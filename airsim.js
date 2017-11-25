@@ -314,7 +314,7 @@ var ASMAP = (function ()
 
     public.update = function asmap_update(dt, time)
     {
-        MMAPDATA.randomizeTile(1);
+        //MMAPDATA.randomizeTile(1);
         var changedTile = MMAPDATA.commitChangeLog();
         MMAPRENDER.update(dt, time, changedTile);
     }
@@ -457,6 +457,11 @@ var MMAPBATCH = (function ()
     {
         m_mapLayer = new PIXI.Container();
         g_app.stage.addChild(m_mapLayer);
+        m_mapLayer.interactive = true;
+        m_mapLayer.on('pointerdown', MMAPTOUCH.onMapDisplayDragStart);
+        m_mapLayer.on('pointermove', MMAPTOUCH.onMapDisplayDragMove);
+        m_mapLayer.on('pointerupoutside', MMAPTOUCH.onMapDisplayDragEnd);
+        m_mapLayer.on('pointerup', MMAPTOUCH.onMapDisplayDragEnd);
     }
 
     var getBatchMapIndexByTile = function (tileX, tileY)
@@ -497,15 +502,9 @@ var MMAPBATCH = (function ()
         if (!hasBatch(batchX, batchY))
         {
             var batch = new PIXI.Container();
-
-            batch.interactive = true;
+            
             batch.visible = false;
-
-            batch.on('pointerdown', MMAPTOUCH.onMapDisplayDragStart);
-            batch.on('pointermove', MMAPTOUCH.onMapDisplayDragMove);
-            batch.on('pointerupoutside', MMAPTOUCH.onMapDisplayDragEnd);
-            batch.on('pointerup', MMAPTOUCH.onMapDisplayDragEnd);
-
+            
             batch.cacheAsBitmap = true;
 
             m_mapLayer.addChild(batch);
@@ -644,16 +643,10 @@ var MMAPBATCH = (function ()
         var tileY = public.getBatchYToStartTileY(batchY);
         getBatch(tileX, tileY).visible = flag;
     }
-
-    public.setBatchPosition = function mmapbatch_setBatchPosition(batchX, batchY, x, y)
+    
+    public.mapLayer = function mmapbatch_mapLayer()
     {
-        var tileX = public.getBatchXToStartTileX(batchX);
-        var tileY = public.getBatchYToStartTileY(batchY);
-        var batch = getBatch(tileX, tileY);
-        batch.x = x;
-        batch.y = y;
-        batch.pivot.x = 0;
-        batch.pivot.y = 0;
+        return m_mapLayer;
     }
 
     public.setBatchScale = function mmapbatch_setBatchScale(batchX, batchY, scaleX, scaleY)
@@ -723,44 +716,6 @@ var MMAPBATCH = (function ()
                 flag[index] = {};
             }
             flag[index].visible = flagValue;
-        }
-    }
-
-    public.setPositionFlagInRadius = function mmapbatch_setPositionFlagInRadius(flag, centerTileX, centerTileY, radius, flagValue)
-    {
-        var centerBatchX = public.getTileXToBatchX(centerTileX);
-        var centerBatchY = public.getTileYToBatchY(centerTileY);
-        for (var i = -radius; i <= radius; i++)
-        {
-            for (var j = -radius; j <= radius; j++)
-            {
-                var batchX = centerBatchX + i;
-                var batchY = centerBatchY + j;
-                var startTileX = public.getBatchXToStartTileX(batchX);
-                var startTileY = public.getBatchYToStartTileY(batchY);
-                if (batchX >= 0 && batchY >= 0 && MMAPDATA.isValidCoordinates(startTileX, startTileY))
-                {
-                    var index = public.mathCantor(batchX, batchY);
-                    if (typeof flag[index] === 'undefined')
-                    {
-                        flag[index] = {};
-                    }
-                    flag[index].position = flagValue;
-                }
-            }
-        }
-    }
-
-    public.setPositionFlagInList = function mmapbatch_setPositionFlagInList(flag, batchList, flagValue)
-    {
-        for (var i in batchList)
-        {
-            var index = batchList[i];
-            if (typeof flag[index] === 'undefined')
-            {
-                flag[index] = {};
-            }
-            flag[index].position = flagValue;
         }
     }
 
@@ -1007,6 +962,15 @@ var MMAPRENDER = (function ()
     {
         return "mytile" + tileId;
     }
+    
+    // sprites are rendered at their
+    // absolute (x,y) and never change
+    // position.
+    // batches are added at (0,0) and 
+    // never change their position.
+    // however the map container will move
+    
+    
 
     var tileToMapX = function (tileX, tileY)
     {
@@ -1058,7 +1022,7 @@ var MMAPRENDER = (function ()
     public.setTile = function mmaprender_setTile(tileX, tileY, id)
     {
         var x = tileToMapX(tileX, tileY);
-        var y = tileToMapY(tileX, tileY); + TEXTURE_BASE_SIZE_Y;
+        var y = tileToMapY(tileX, tileY);
         MMAPBATCH.setSprite(tileX, tileY, id, x, y);
     }
 
@@ -1102,6 +1066,12 @@ var MMAPRENDER = (function ()
         var cameraScale = Math.floor(m_cameraScaleX * 100);
 
         g_counter.innerHTML = 'm(' + Math.floor(m_cameraMapX) + ',' + Math.floor(m_cameraMapY) + ',' + cameraScale + ') t(' + tileX + ',' + tileY + ') b(' + MMAPBATCH.getTileXToBatchX(tileX) + ',' + MMAPBATCH.getTileYToBatchY(tileY) + ')';
+        
+        var mapLayer = MMAPBATCH.mapLayer();
+        mapLayer.pivot.x = m_cameraMapX;
+        mapLayer.pivot.y = m_cameraMapY;
+        mapLayer.x = viewWidth() / 2;
+        mapLayer.y = viewHeight() / 2;
     }
 
     public.setCameraScale = function mmaprender_setCameraScale(scaleX, scaleY)
@@ -1116,6 +1086,9 @@ var MMAPRENDER = (function ()
         {
             m_cameraScaleY = 0.2;
         }
+        var mapLayer = MMAPBATCH.mapLayer();
+        mapLayer.scale.x = m_cameraScaleX;
+        mapLayer.scale.y = m_cameraScaleY;
     }
 
     public.setCameraMapVelocity = function mmaprender_setCameraMapVelocity(mapVelocityX, mapVelocityY)
@@ -1306,11 +1279,6 @@ var MMAPRENDER = (function ()
             {
                 MMAPBATCH.setBatchVisible(batchX, batchY, visibleFlag);
             }
-            var positionFlag = batchFlag[k].position;
-            if (typeof positionFlag != 'undefined')
-            {
-                updateMapSpriteBatchPosition(batchX, batchY);
-            }
             delete batchFlag[k];
             count++;
             if (count == batchPerCall)
@@ -1325,15 +1293,6 @@ var MMAPRENDER = (function ()
                 return;
             }
         }
-    }
-
-    var updateMapSpriteBatchPosition = function mmaprender_updateMapSpriteBatchPosition(batchX, batchY)
-    {
-        // note: x and y are screen coordinates
-        var x = -m_cameraMapX * m_cameraScaleX + viewWidth() / 2;
-        var y = -m_cameraMapY * m_cameraScaleY + viewHeight() / 2;
-        MMAPBATCH.setBatchPosition(batchX, batchY, x, y);
-        MMAPBATCH.setBatchScale(batchX, batchY, m_cameraScaleX, m_cameraScaleY);
     }
 
     // hold cantor indicies
@@ -1422,7 +1381,6 @@ var MMAPRENDER = (function ()
         var currentBatchRadius = getVisibleBatchRadius();
 
         var currentBatchList = getBatchIndexInScreen2();
-        //var currentBatchList = MMAPBATCH.getBatchIndexInRadius(currentCenterTileX, currentCenterTileY, currentBatchRadius);
 
         MMAPBATCH.setVisibilityFlagInList(
         m_batchFlag,
@@ -1440,11 +1398,6 @@ var MMAPRENDER = (function ()
         currentCenterTileY,
         currentBatchRadius,
         updatedTiles);
-
-        MMAPBATCH.setPositionFlagInList(
-        m_batchFlag,
-        currentBatchList,
-        true);
 
         var time2 = Date.now();
 

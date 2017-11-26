@@ -886,20 +886,22 @@ var MMAPRENDER = (function ()
         graphics.beginFill(color);
         graphics.lineStyle(1, black);
 
-        var M = 3; // margin
+        var high = id % 2 == 0;
+        var M = high ? 5 : 3; // margin
+        var H = high ? 15 : 10;
 
         // draw a rectangle
-        graphics.moveTo(TEXTURE_BASE_SIZE_X / 2, 3);
-        graphics.lineTo(3, TEXTURE_BASE_SIZE_Y / 2);
-        graphics.lineTo(3, TEXTURE_BASE_SIZE_Y / 2 + 10);
-        graphics.lineTo(TEXTURE_BASE_SIZE_X / 2, TEXTURE_BASE_SIZE_Y - 3 + 10);
-        graphics.lineTo(TEXTURE_BASE_SIZE_X - 3, TEXTURE_BASE_SIZE_Y / 2 + 10);
-        graphics.lineTo(TEXTURE_BASE_SIZE_X - 3, TEXTURE_BASE_SIZE_Y / 2);
-        graphics.lineTo(TEXTURE_BASE_SIZE_X / 2, 3);
-        graphics.moveTo(TEXTURE_BASE_SIZE_X / 2, TEXTURE_BASE_SIZE_Y - 6 + 3);
-        graphics.lineTo(3, TEXTURE_BASE_SIZE_Y / 2);
-        graphics.moveTo(TEXTURE_BASE_SIZE_X / 2, TEXTURE_BASE_SIZE_Y - 6 + 3);
-        graphics.lineTo(TEXTURE_BASE_SIZE_X - 3, TEXTURE_BASE_SIZE_Y / 2);
+        graphics.moveTo(TEXTURE_BASE_SIZE_X / 2, M);
+        graphics.lineTo(M, TEXTURE_BASE_SIZE_Y / 2);
+        graphics.lineTo(M, TEXTURE_BASE_SIZE_Y / 2 + H);
+        graphics.lineTo(TEXTURE_BASE_SIZE_X / 2, TEXTURE_BASE_SIZE_Y - M + H);
+        graphics.lineTo(TEXTURE_BASE_SIZE_X - M, TEXTURE_BASE_SIZE_Y / 2 + H);
+        graphics.lineTo(TEXTURE_BASE_SIZE_X - M, TEXTURE_BASE_SIZE_Y / 2);
+        graphics.lineTo(TEXTURE_BASE_SIZE_X / 2, M);
+        graphics.moveTo(TEXTURE_BASE_SIZE_X / 2, TEXTURE_BASE_SIZE_Y - 2 * M + M);
+        graphics.lineTo(M, TEXTURE_BASE_SIZE_Y / 2);
+        graphics.moveTo(TEXTURE_BASE_SIZE_X / 2, TEXTURE_BASE_SIZE_Y - 2 * M + M);
+        graphics.lineTo(TEXTURE_BASE_SIZE_X - M, TEXTURE_BASE_SIZE_Y / 2);
 
         return graphics;
     }

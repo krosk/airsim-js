@@ -491,6 +491,22 @@ var MMAPBATCH = (function ()
         var spritePoolIndex = batchMapIndex * public.C_BATCH_SIZE_X * public.C_BATCH_SIZE_Y + X * public.C_BATCH_SIZE_Y + Y;
         return spritePoolIndex;
     }
+    
+    var findIndexForNewBatch = function mmapbatch_findIndexForNewBatch(batchX, batchY)
+    {
+        var mapIndex = getBatchMapIndex(batchX, batchY);
+        var arrayIndex = mapIndex;
+        while (arrayIndex >= 0)
+        {
+            if (hasBatchByIndex(arrayIndex))
+            {
+                var batch = m_mapSpriteBatch[arrayIndex];
+                return m_mapLayer.getChildIndex(batch) + 1;
+            }
+            arrayIndex--;
+        }
+        return m_mapLayer.children.length;
+    }
 
     // create one empty if none
     // excepted if coordinates are negative
@@ -506,8 +522,11 @@ var MMAPBATCH = (function ()
             batch.visible = false;
             
             batch.cacheAsBitmap = true;
+            
+            var addIndex = findIndexForNewBatch(batchX, batchY);
+            //console.log(addIndex);
 
-            m_mapLayer.addChild(batch);
+            m_mapLayer.addChildAt(batch, addIndex);
 
             var batchCount = m_mapLayer.children.length;
 
@@ -546,11 +565,16 @@ var MMAPBATCH = (function ()
         }
         return m_mapSpriteBatch[mapIndex];
     }
+    
+    var hasBatchByIndex = function (mapIndex)
+    {
+        return !(typeof m_mapSpriteBatch[mapIndex] === 'undefined' || m_mapSpriteBatch[mapIndex] === null);
+    }
 
     var hasBatch = function (batchX, batchY)
     {
         var mapIndex = getBatchMapIndex(batchX, batchY);
-        return !(typeof m_mapSpriteBatch[mapIndex] === 'undefined' || m_mapSpriteBatch[mapIndex] === null);
+        return hasBatchByIndex(mapIndex);
     }
 
     var hasSprite = function (tileX, tileY)

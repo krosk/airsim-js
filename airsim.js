@@ -354,11 +354,11 @@ var MMAPDATA = (function ()
         {
             for (var y = 0; y < m_mapTableSizeY; y++)
             {
-                //var randomId = Math.floor(Math.random() * public.C_MAXTILEID);
+                var randomId = Math.floor(Math.random() * public.C_MAXTILEID);
                 var batchX = MMAPBATCH.getTileXToBatchX(x);
                 var batchY = MMAPBATCH.getTileYToBatchY(y);
                 var odd = (batchX + batchY) % 2;
-                public.setTileId(x, y, odd);
+                public.setTileId(x, y, randomId);
             }
         }
     }
@@ -910,9 +910,9 @@ var MMAPRENDER = (function ()
         graphics.beginFill(color);
         graphics.lineStyle(1, black);
 
-        var high = id % 2 == 0;
-        var M = high ? 5 : 3; // margin
-        var H = high ? 15 : 10;
+        var high = id % MMAPDATA.C_MAXTILEID == 0;
+        var M = high ? 0 : 0; // margin
+        var H = high ? 12 : 3;
 
         // draw a rectangle
         graphics.moveTo(TEXTURE_BASE_SIZE_X / 2, M);

@@ -491,7 +491,7 @@ var MMAPBATCH = (function ()
         var spritePoolIndex = batchMapIndex * public.C_BATCH_SIZE_X * public.C_BATCH_SIZE_Y + X * public.C_BATCH_SIZE_Y + Y;
         return spritePoolIndex;
     }
-    
+
     var findIndexForNewBatch = function mmapbatch_findIndexForNewBatch(batchX, batchY)
     {
         var mapIndex = getBatchMapIndex(batchX, batchY);
@@ -507,7 +507,7 @@ var MMAPBATCH = (function ()
         }
         return m_mapLayer.children.length;
     }
-    
+
     /*
     var setSpriteInteraction = function mmapbatch_setSpriteInteraction(sprite)
     {
@@ -529,11 +529,11 @@ var MMAPBATCH = (function ()
         if (!hasBatch(batchX, batchY))
         {
             var batch = new PIXI.Container();
-            
+
             batch.visible = false;
-            
+
             batch.cacheAsBitmap = true;
-            
+
             var addIndex = findIndexForNewBatch(batchX, batchY);
             //console.log(addIndex);
 
@@ -561,7 +561,7 @@ var MMAPBATCH = (function ()
                     //sprite.x = x - sprite.width / 2;
                     //sprite.y = y - sprite.height;
                     sprite.visible = true;
-                    
+
                     //setSpriteInteraction(sprite);
 
                     var spritePoolIndex = getSpritePoolIndex(x, y);
@@ -578,7 +578,7 @@ var MMAPBATCH = (function ()
         }
         return m_mapSpriteBatch[mapIndex];
     }
-    
+
     var hasBatchByIndex = function (mapIndex)
     {
         return !(typeof m_mapSpriteBatch[mapIndex] === 'undefined' || m_mapSpriteBatch[mapIndex] === null);
@@ -680,7 +680,7 @@ var MMAPBATCH = (function ()
         var tileY = public.getBatchYToStartTileY(batchY);
         getBatch(tileX, tileY).visible = flag;
     }
-    
+
     public.mapLayer = function mmapbatch_mapLayer()
     {
         return m_mapLayer;
@@ -813,10 +813,11 @@ var MMAPTOUCH = (function ()
     var m_startCameraMapX = 0;
     var m_startCameraMapY = 0;
     // 
-    var m_firstTouchTimeOut = false;
+    var m_clickTimeout = false;
+    var m_clickCount = 0;
     var m_singleClickToProcess = [];
     var m_doubleClickToProcess = [];
-    var C_CLICKDELAYMS = 150;
+    var C_CLICKDELAYMS = 200;
 
     var getDistanceBetween = function mmaptouch_getDistanceBetween(pos1, pos2)
     {
@@ -846,7 +847,29 @@ var MMAPTOUCH = (function ()
         if (m_dragging || m_zooming)
         {
             updateCameraDrag(this);
+            m_clickTimeout = false;
         }
+    }
+
+    var clickDecisionTimeout = function mmaptouch_clickDecisionTimeout()
+    {
+        m_singleClickToProcess = [];
+        m_doubleClickToProcess = [];
+        if (m_clickTimeout && m_touchData.length == 0)
+        {
+            if (m_clickCount == 1)
+            {
+                m_singleClickToProcess = [m_startPointerScreenX, m_startPointerScreenY];
+                console.log('s');
+            }
+            else if (m_clickCount == 2)
+            {
+                m_doubleClickToProcess = [m_startPointerScreenX, m_startPointerScreenY];
+                console.log('d');
+            }
+        }
+        m_clickCount = 0;
+        m_clickTimeout = false;
     }
 
     var mapDisplayDragRefresh = function mmaptouch_mapDisplayDragRefresh(_this)
@@ -858,6 +881,10 @@ var MMAPTOUCH = (function ()
             m_startScaleX = 1;
             m_startScaleY = 1;
             m_startDistance = 0;
+            if (m_clickTimeout)
+            {
+                m_clickCount++;
+            }
         }
         if (m_touchData.length > 0)
         {
@@ -875,13 +902,14 @@ var MMAPTOUCH = (function ()
             m_startPointerScreenY = pointerPositionOnScreen.y;
             m_startCameraMapX = MMAPRENDER.getCameraMapX();
             m_startCameraMapY = MMAPRENDER.getCameraMapY();
-            
+
             if (m_touchData.length == 1)
             {
-                m_firstTouchTimeOut = true;
-                setTimeout(function () {
-                    m_firstTouchTimeOut = false;
-                }, C_CLICKDELAYMS);
+                if (!m_clickTimeout)
+                {
+                    m_clickTimeout = true;
+                    setTimeout(clickDecisionTimeout, C_CLICKDELAYMS);
+                }
             }
         }
         if (m_touchData.length > 1)
@@ -890,7 +918,6 @@ var MMAPTOUCH = (function ()
             var pos2 = m_touchData[1].getLocalPosition(_this.parent);
             m_startDistance = getDistanceBetween(pos1, pos2);
             m_zooming = true;
-            m_firstTouchTimeOut = false;
         }
     }
 
@@ -907,7 +934,7 @@ var MMAPTOUCH = (function ()
 
             MMAPRENDER.setCameraScale(cameraScaleX, cameraScaleY);
         }
-        
+
         // if moved, consider no click
         //m_firstTouchTimeOut = false;
 
@@ -917,8 +944,8 @@ var MMAPTOUCH = (function ()
 
         MMAPRENDER.setCameraMap(cameraMapX, cameraMapY);
     }
-    
-    
+
+
     /*
     public.onSpriteDisplayDragStart = function mmaptouch_onSpriteDisplayDragStart(event)
     {
@@ -1036,15 +1063,15 @@ var MMAPRENDER = (function ()
     {
         return "mytile" + tileId;
     }
-    
+
     // sprites are rendered at their
     // absolute (x,y) and never change
     // position.
     // batches are added at (0,0) and 
     // never change their position.
     // however the map container will move
-    
-    
+
+
 
     var tileToMapX = function (tileX, tileY)
     {
@@ -1140,7 +1167,7 @@ var MMAPRENDER = (function ()
         var cameraScale = Math.floor(m_cameraScaleX * 100);
 
         g_counter.innerHTML = 'm(' + Math.floor(m_cameraMapX) + ',' + Math.floor(m_cameraMapY) + ',' + cameraScale + ') t(' + tileX + ',' + tileY + ') b(' + MMAPBATCH.getTileXToBatchX(tileX) + ',' + MMAPBATCH.getTileYToBatchY(tileY) + ')';
-        
+
         var mapLayer = MMAPBATCH.mapLayer();
         mapLayer.pivot.x = m_cameraMapX;
         mapLayer.pivot.y = m_cameraMapY;

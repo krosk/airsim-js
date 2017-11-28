@@ -1321,7 +1321,7 @@ var MMAPRENDER = (function ()
         for (var i in toLoadTextureKeys)
         {
             orderedKeys.push(toLoadTextureKeys[i]);
-            break; // process only one texture load per call
+            //break; // process only one texture load per call
         }
         for (var i in orderedKeys)
         {
@@ -1344,6 +1344,7 @@ var MMAPRENDER = (function ()
                         {
                             var tileId = MMAPDATA.getTileId(x, y);
                             public.setTile(x, y, tileId);
+                            count++;
                         }
                     }
                 }
@@ -1355,7 +1356,7 @@ var MMAPRENDER = (function ()
             }
             delete batchFlag[k];
             count++;
-            if (count == batchPerCall)
+            if (count >= batchPerCall)
             {
                 if (i < orderedKeys.length - 1)
                 {

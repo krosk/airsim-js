@@ -507,6 +507,17 @@ var MMAPBATCH = (function ()
         }
         return m_mapLayer.children.length;
     }
+    
+    /*
+    var setSpriteInteraction = function mmapbatch_setSpriteInteraction(sprite)
+    {
+        sprite.interactive = true;
+        sprite.on('pointerdown', MMAPTOUCH.onSpriteDisplayDragStart);
+        sprite.on('pointermove', MMAPTOUCH.onSpriteDisplayDragMove);
+        sprite.on('pointerupoutside', MMAPTOUCH.onSpriteDisplayDragEnd);
+        sprite.on('pointerup', MMAPTOUCH.onSpriteDisplayDragEnd);
+    }
+    */
 
     // create one empty if none
     // excepted if coordinates are negative
@@ -550,6 +561,8 @@ var MMAPBATCH = (function ()
                     //sprite.x = x - sprite.width / 2;
                     //sprite.y = y - sprite.height;
                     sprite.visible = true;
+                    
+                    //setSpriteInteraction(sprite);
 
                     var spritePoolIndex = getSpritePoolIndex(x, y);
                     var spriteMapIndex = getSpriteMapIndex(x, y)
@@ -799,6 +812,11 @@ var MMAPTOUCH = (function ()
     var m_startPointerScreenY = 0;
     var m_startCameraMapX = 0;
     var m_startCameraMapY = 0;
+    // 
+    var m_firstTouchTimeOut = false;
+    var m_singleClickToProcess = [];
+    var m_doubleClickToProcess = [];
+    var C_CLICKDELAYMS = 150;
 
     var getDistanceBetween = function mmaptouch_getDistanceBetween(pos1, pos2)
     {
@@ -857,6 +875,14 @@ var MMAPTOUCH = (function ()
             m_startPointerScreenY = pointerPositionOnScreen.y;
             m_startCameraMapX = MMAPRENDER.getCameraMapX();
             m_startCameraMapY = MMAPRENDER.getCameraMapY();
+            
+            if (m_touchData.length == 1)
+            {
+                m_firstTouchTimeOut = true;
+                setTimeout(function () {
+                    m_firstTouchTimeOut = false;
+                }, C_CLICKDELAYMS);
+            }
         }
         if (m_touchData.length > 1)
         {
@@ -864,6 +890,7 @@ var MMAPTOUCH = (function ()
             var pos2 = m_touchData[1].getLocalPosition(_this.parent);
             m_startDistance = getDistanceBetween(pos1, pos2);
             m_zooming = true;
+            m_firstTouchTimeOut = false;
         }
     }
 
@@ -880,6 +907,9 @@ var MMAPTOUCH = (function ()
 
             MMAPRENDER.setCameraScale(cameraScaleX, cameraScaleY);
         }
+        
+        // if moved, consider no click
+        //m_firstTouchTimeOut = false;
 
         // camera moves according to differential movement of pointer
         var cameraMapX = m_startCameraMapX + (m_startPointerScreenX - pointerScreen.x) / MMAPRENDER.getCameraScaleX();
@@ -887,6 +917,24 @@ var MMAPTOUCH = (function ()
 
         MMAPRENDER.setCameraMap(cameraMapX, cameraMapY);
     }
+    
+    
+    /*
+    public.onSpriteDisplayDragStart = function mmaptouch_onSpriteDisplayDragStart(event)
+    {
+        //console.log("start");
+    }
+    
+    public.onSpriteDisplayDragEnd = function mmaptouch_onSpriteDisplayDragEnd(event)
+    {
+        //console.log("end");
+    }
+    
+    public.onSpriteDisplayDragMove = function mmaptouch_onSpriteDisplayDragMove()
+    {
+        //console.log("move");
+    }
+    */
 
     return public;
 })();

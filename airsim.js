@@ -443,6 +443,7 @@ var MMAPBATCH = (function ()
     var m_mapLayer;
 
     var m_mapSpriteBatch = [];
+    var m_mapSpriteBatchCount = 0;
     // sprites grouped by batch
     // in batchMapIndex order
     var m_mapSpritePool = [];
@@ -556,6 +557,7 @@ var MMAPBATCH = (function ()
             var batchCount = m_mapLayer.children.length;
 
             m_mapSpriteBatch[mapIndex] = batch;
+            m_mapSpriteBatchCount++;
 
             var cTileX = public.getTileXToStartTileX(tileX);
             var cTileY = public.getTileYToStartTileY(tileY);
@@ -602,6 +604,11 @@ var MMAPBATCH = (function ()
     {
         var mapIndex = getBatchMapIndex(batchX, batchY);
         return hasBatchByIndex(mapIndex);
+    }
+    
+    public.getBatchCount = function mmapbatch_getBatchCount()
+    {
+        return m_mapSpriteBatchCount;
     }
 
     var hasSprite = function (tileX, tileY)
@@ -1160,8 +1167,12 @@ var MMAPRENDER = (function ()
         var tileY = getCenterTileY();
         var cameraScale = Math.floor(m_cameraScaleX * 100);
 
-        g_counter.innerHTML = 'm(' + Math.floor(m_cameraMapX) + ',' + Math.floor(m_cameraMapY) + ',' + cameraScale + ') t(' + tileX + ',' + tileY + ') b(' + MMAPBATCH.getTileXToBatchX(tileX) + ',' + MMAPBATCH.getTileYToBatchY(tileY) + ')';
-
+        var mapCoords = 'm(' + (m_cameraMapX | 0) + ',' + (m_cameraMapY | 0) + ') ';
+        var tileCoords = 't(' + tileX + ',' + tileY + ') ';
+        var batchCoords = 'b(' + MMAPBATCH.getTileXToBatchX(tileX) + ',' + MMAPBATCH.getTileYToBatchY(tileY) + ') ';
+        var batchCount = 'B(' + MMAPBATCH.getBatchCount() + ') ';
+        g_counter.innerHTML = mapCoords + batchCount;
+        
         var mapLayer = MMAPBATCH.mapLayer();
         mapLayer.pivot.x = m_cameraMapX;
         mapLayer.pivot.y = m_cameraMapY;

@@ -964,8 +964,8 @@ var MMAPRENDER = (function ()
     //var TEXTURE_BASE_SIZE_X = 130;
     //var TEXTURE_BASE_SIZE_Y = 66;
 
-    var TEXTURE_BASE_SIZE_X = 32;
-    var TEXTURE_BASE_SIZE_Y = 16;
+    var TEXTURE_BASE_SIZE_X = 64;
+    var TEXTURE_BASE_SIZE_Y = 32;
 
     public.createTexture = function mmaprender_createTexture(id)
     {
@@ -1439,23 +1439,6 @@ var MMAPRENDER = (function ()
         // 5/ consider not using radius but
         // exact list of batches on screen?
 
-        if (dt > 1000 / public.C_FPS)
-        {
-            m_batchPerCall--;
-            if (m_batchPerCall < public.C_MINBATCHPERCALL)
-            {
-                m_batchPerCall = public.C_MINBATCHPERCALL;
-            }
-        }
-        else
-        {
-            m_batchPerCall++;
-            if (m_batchPerCall >= public.C_MAXBATCHPERCALL)
-            {
-                m_batchPerCall = public.C_MAXBATCHPERCALL;
-            }
-        }
-
         var time0 = Date.now();
 
         updateCameraVelocity();
@@ -1496,6 +1479,25 @@ var MMAPRENDER = (function ()
         updatedTiles);
 
         var time2 = Date.now();
+        //var increaseBatchPerCall = Object.keys(m_batchFlag).length > 0;
+        var increaseBatchPerCall = true;
+        
+        if (dt > 1000 / public.C_FPS)
+        {
+            m_batchPerCall--;
+            if (m_batchPerCall < public.C_MINBATCHPERCALL)
+            {
+                m_batchPerCall = public.C_MINBATCHPERCALL;
+            }
+        }
+        else if (increaseBatchPerCall)
+        {
+            m_batchPerCall++;
+            if (m_batchPerCall >= public.C_MAXBATCHPERCALL)
+            {
+                m_batchPerCall = public.C_MAXBATCHPERCALL;
+            }
+        }
 
         processBatchFlag(m_batchPerCall, m_batchFlag);
 

@@ -321,7 +321,7 @@ var ASMAP = (function ()
     
     var singleClick = function asmap_singleClick(x, y)
     {
-        console.log('s' + x + ',' + y);
+        //console.log('s' + x + ',' + y);
         var id = MMAPDATA.getTileId(x, y);
         id += 1;
         id %= MMAPDATA.C_MAXTILEID;
@@ -1082,12 +1082,12 @@ var MMAPRENDER = (function ()
     // nor z level
     var mapToTileX = function (mapX, mapY)
     {
-        return mapX / TEXTURE_BASE_SIZE_X + mapY / TEXTURE_BASE_SIZE_Y;
+        return mapX / TEXTURE_BASE_SIZE_X + (mapY + 1 + TEXTURE_BASE_SIZE_Y) / TEXTURE_BASE_SIZE_Y;
     }
 
     var mapToTileY = function (mapX, mapY)
     {
-        return mapY / TEXTURE_BASE_SIZE_Y - mapX / TEXTURE_BASE_SIZE_X;
+        return (mapY + 1 + TEXTURE_BASE_SIZE_Y) / TEXTURE_BASE_SIZE_Y - mapX / TEXTURE_BASE_SIZE_X;
     }
 
     var getScreenToMapX = function mmaprender_getScreenToMapX(screenX)

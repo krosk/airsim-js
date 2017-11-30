@@ -299,7 +299,7 @@ var ASMAP = (function ()
     public.initialize = function asmap_initialize(w, h)
     {
         MMAPDATA.initialize(w, h);
-        MMAPRENDER.initialize(singleClick, doubleClick);
+        MMAPRENDER.initialize(doSingleClick, doDoubleClick);
     }
 
     public.getWidth = function asmap_getWidth()
@@ -319,7 +319,7 @@ var ASMAP = (function ()
         MMAPRENDER.update(dt, time, changedTile);
     }
     
-    var singleClick = function asmap_singleClick(x, y)
+    var doSingleClick = function asmap_doSingleClick(x, y)
     {
         //console.log('s' + x + ',' + y);
         var id = MMAPDATA.getTileId(x, y);
@@ -328,7 +328,7 @@ var ASMAP = (function ()
         MMAPDATA.setTileId(x, y, id);
     }
     
-    var doubleClick = function asmap_doubleClick(x, y)
+    var doDoubleClick = function asmap_doDoubleClick(x, y)
     {
         console.log('d' + x + ',' + y);
     }

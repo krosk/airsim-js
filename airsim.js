@@ -300,6 +300,7 @@ var ASMAP = (function ()
     {
         MMAPDATA.initialize(w, h);
         MMAPRENDER.initialize();
+        MMAPTOUCH.initialize(singleClick, doubleClick);
     }
 
     public.getWidth = function asmap_getWidth()
@@ -317,6 +318,16 @@ var ASMAP = (function ()
         //MMAPDATA.randomizeTile(1);
         var changedTile = MMAPDATA.commitChangeLog();
         MMAPRENDER.update(dt, time, changedTile);
+    }
+    
+    var singleClick = function asmap_singleClick(x, y)
+    {
+        console.log('s');
+    }
+    
+    var doubleClick = function asmap_doubleClick(x, y)
+    {
+        console.log('d');
     }
 
     return public;
@@ -815,9 +826,16 @@ var MMAPTOUCH = (function ()
     // 
     var m_clickTimeout = false;
     var m_clickCount = 0;
-    var m_singleClickToProcess = [];
-    var m_doubleClickToProcess = [];
     var C_CLICKDELAYMS = 200;
+    var m_singleClickCallback;
+    var m_doubleClickCallback;
+
+    
+    public.initialize = function mmaprouch_initialize(singleClick, doubleClick)
+    {
+        m_singleClickCallback = singleClick;
+        m_doubleClickCallback = doubleClick;
+    }
 
     var getDistanceBetween = function mmaptouch_getDistanceBetween(pos1, pos2)
     {
@@ -850,22 +868,18 @@ var MMAPTOUCH = (function ()
             m_clickTimeout = false;
         }
     }
-
+    
     var clickDecisionTimeout = function mmaptouch_clickDecisionTimeout()
     {
-        m_singleClickToProcess = [];
-        m_doubleClickToProcess = [];
         if (m_clickTimeout && m_touchData.length == 0)
         {
             if (m_clickCount == 1)
             {
-                m_singleClickToProcess = [m_startPointerScreenX, m_startPointerScreenY];
-                console.log('s');
+                m_singleClickCallback(m_startPointerScreenX, m_startPointerScreenY);
             }
             else if (m_clickCount == 2)
             {
-                m_doubleClickToProcess = [m_startPointerScreenX, m_startPointerScreenY];
-                console.log('d');
+                m_doubleClickCallback(m_startPointerScreenX, m_startPointerScreenY);
             }
         }
         m_clickCount = 0;
@@ -944,24 +958,6 @@ var MMAPTOUCH = (function ()
 
         MMAPRENDER.setCameraMap(cameraMapX, cameraMapY);
     }
-
-
-    /*
-    public.onSpriteDisplayDragStart = function mmaptouch_onSpriteDisplayDragStart(event)
-    {
-        //console.log("start");
-    }
-    
-    public.onSpriteDisplayDragEnd = function mmaptouch_onSpriteDisplayDragEnd(event)
-    {
-        //console.log("end");
-    }
-    
-    public.onSpriteDisplayDragMove = function mmaptouch_onSpriteDisplayDragMove()
-    {
-        //console.log("move");
-    }
-    */
 
     return public;
 })();

@@ -299,8 +299,7 @@ var ASMAP = (function ()
     public.initialize = function asmap_initialize(w, h)
     {
         MMAPDATA.initialize(w, h);
-        MMAPRENDER.initialize();
-        MMAPTOUCH.initialize(singleClick, doubleClick);
+        MMAPRENDER.initialize(singleClick, doubleClick);
     }
 
     public.getWidth = function asmap_getWidth()
@@ -322,12 +321,12 @@ var ASMAP = (function ()
     
     var singleClick = function asmap_singleClick(x, y)
     {
-        console.log('s');
+        console.log('s' + x + ',' + y);
     }
     
     var doubleClick = function asmap_doubleClick(x, y)
     {
-        console.log('d');
+        console.log('d' + x + ',' + y);
     }
 
     return public;
@@ -809,6 +808,7 @@ var MMAPBATCH = (function ()
     return public;
 })();
 
+// sub unit of MMAPRENDER
 var MMAPTOUCH = (function ()
 {
     var public = {};
@@ -827,15 +827,6 @@ var MMAPTOUCH = (function ()
     var m_clickTimeout = false;
     var m_clickCount = 0;
     var C_CLICKDELAYMS = 200;
-    var m_singleClickCallback;
-    var m_doubleClickCallback;
-
-    
-    public.initialize = function mmaprouch_initialize(singleClick, doubleClick)
-    {
-        m_singleClickCallback = singleClick;
-        m_doubleClickCallback = doubleClick;
-    }
 
     var getDistanceBetween = function mmaptouch_getDistanceBetween(pos1, pos2)
     {
@@ -875,11 +866,11 @@ var MMAPTOUCH = (function ()
         {
             if (m_clickCount == 1)
             {
-                m_singleClickCallback(m_startPointerScreenX, m_startPointerScreenY);
+                MMAPRENDER.processSingleClick(m_startPointerScreenX, m_startPointerScreenY);
             }
             else if (m_clickCount == 2)
             {
-                m_doubleClickCallback(m_startPointerScreenX, m_startPointerScreenY);
+                MMAPRENDER.processDoubleClick(m_startPointerScreenX, m_startPointerScreenY);
             }
         }
         m_clickCount = 0;
@@ -1046,12 +1037,17 @@ var MMAPRENDER = (function ()
     var m_cameraCenterTileYRendered = null;
     var m_cameraBatchRadiusRendered = 1;
     var m_cameraBatchListRendered = null;
+    
+    var m_singleClickCallback;
+    var m_doubleClickCallback;
 
-    public.initialize = function mmaprender_initialize()
+    public.initialize = function mmaprender_initialize(singleClick, doubleClick)
     {
         m_cameraMapX = 0;
         m_cameraMapY = 0;
         MMAPBATCH.initialize();
+        m_singleClickCallback = singleClick;
+        m_doubleClickCallback = doubleClick;
         initializeTexture();
     }
 
@@ -1066,8 +1062,6 @@ var MMAPRENDER = (function ()
     // batches are added at (0,0) and 
     // never change their position.
     // however the map container will move
-
-
 
     var tileToMapX = function (tileX, tileY)
     {
@@ -1527,6 +1521,20 @@ var MMAPRENDER = (function ()
         m_cameraCenterTileYRendered = currentCenterTileY;
         m_cameraBatchRadiusRendered = currentBatchRadius;
         m_cameraBatchListRendered = currentBatchList;
+    }
+    
+    public.processSingleClick = function mmaprender_processSingleClick(screenX, screenY)
+    {
+        var tileX = getScreenToTileX(screenX, screenY) | 0;
+        var tileY = getScreenToTileY(screenX, screenY) | 0;
+        m_singleClickCallback(tileX, tileY);
+    }
+    
+    public.processDoubleClick = function mmaprender_processDoubleClick(screenX, screenY)
+    {
+        var tileX = getScreenToTileX(screenX, screenY) | 0;
+        var tileY = getScreenToTileY(screenX, screenY) | 0;
+        m_doubleClickCallback(tileX, tileY);
     }
 
     return public;

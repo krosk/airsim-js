@@ -322,6 +322,10 @@ var ASMAP = (function ()
     var singleClick = function asmap_singleClick(x, y)
     {
         console.log('s' + x + ',' + y);
+        var id = MMAPDATA.getTileId(x, y);
+        id += 1;
+        id %= MMAPDATA.C_MAXTILEID;
+        MMAPDATA.setTileId(x, y, id);
     }
     
     var doubleClick = function asmap_doubleClick(x, y)

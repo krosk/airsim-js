@@ -594,6 +594,21 @@ var MMAPBATCH = (function ()
         }
         return m_mapSpriteBatch[mapIndex];
     }
+    
+    public.removeBatch = function mmapbatch_removeBatch(batchX, batchY)
+    {
+        if (hasBatch(batchX, batchY))
+        {
+            var tileX = public.getBatchXToStartTileX(batchX);
+            var tileY = public.getBatchYToStartTileY(batchY);
+            var batch = getBatch(tileX, tileY);
+            m_mapLayer.removeChild(batch);
+            var mapIndex = getBatchMapIndex(batchX, batchY);
+            m_mapSpriteBatch[mapIndex] = null;
+            m_mapSpriteBatchCount--;
+            batch.delete;
+        }
+    }
 
     var hasBatchByIndex = function (mapIndex)
     {
@@ -1390,6 +1405,11 @@ var MMAPRENDER = (function ()
             if (typeof visibleFlag != 'undefined')
             {
                 MMAPBATCH.setBatchVisible(batchX, batchY, visibleFlag);
+            }
+            var removeFlag = batchFlag[k].remove;
+            if (typeof removeFlag != 'undefined')
+            {
+                MMAPBATCH.removeBatch(batchX, batchY);
             }
             delete batchFlag[k];
             count++;

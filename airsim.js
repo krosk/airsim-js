@@ -1397,9 +1397,10 @@ var MMAPRENDER = (function ()
                     // already taking all computation
                     // and leaves nothing to texture 
                 }
-                return;
+                return false;
             }
         }
+        return true;
     }
 
     // hold cantor indicies
@@ -1490,9 +1491,11 @@ var MMAPRENDER = (function ()
         updatedTiles);
 
         var time2 = Date.now();
-        //var increaseBatchPerCall = Object.keys(m_batchFlag).length > 0;
-        var increaseBatchPerCall = true;
         
+        var fullyProcessed = processBatchFlag(m_batchPerCall, m_batchFlag);
+        //var increaseBatchPerCall = Object.keys(m_batchFlag).length > 0;
+        var increaseBatchPerCall = !fullyProcessed;
+
         if (dt > 1000 / public.C_FPS)
         {
             m_batchPerCall--;
@@ -1509,8 +1512,6 @@ var MMAPRENDER = (function ()
                 m_batchPerCall = public.C_MAXBATCHPERCALL;
             }
         }
-
-        processBatchFlag(m_batchPerCall, m_batchFlag);
 
         var time3 = Date.now();
 

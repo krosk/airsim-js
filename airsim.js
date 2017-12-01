@@ -1162,22 +1162,27 @@ var MMAPRENDER = (function ()
     {
         m_cameraMapX = mapX;
         m_cameraMapY = mapY;
-
-        var tileX = getCenterTileX();
-        var tileY = getCenterTileY();
-        var cameraScale = Math.floor(m_cameraScaleX * 100);
-
-        var mapCoords = 'm(' + (m_cameraMapX | 0) + ',' + (m_cameraMapY | 0) + ') ';
-        var tileCoords = 't(' + tileX + ',' + tileY + ') ';
-        var batchCoords = 'b(' + MMAPBATCH.getTileXToBatchX(tileX) + ',' + MMAPBATCH.getTileYToBatchY(tileY) + ') ';
-        var batchCount = 'B(' + MMAPBATCH.getBatchCount() + ') ';
-        g_counter.innerHTML = mapCoords + batchCount;
         
         var mapLayer = MMAPBATCH.mapLayer();
         mapLayer.pivot.x = m_cameraMapX;
         mapLayer.pivot.y = m_cameraMapY;
         mapLayer.x = viewWidth() / 2;
         mapLayer.y = viewHeight() / 2;
+        
+        public.updateDebug();
+    }
+    
+    public.updateDebug = function mmaprender_updateDebug()
+    {
+        var tileX = getCenterTileX();
+        var tileY = getCenterTileY();
+        var cameraScale = (m_cameraScaleX * 100) | 0;
+        
+        var mapCoords = 'm(' + (m_cameraMapX | 0) + ',' + (m_cameraMapY | 0) + ',' + cameraScale + ') ';
+        var tileCoords = 't(' + tileX + ',' + tileY + ') ';
+        var batchCoords = 'b(' + MMAPBATCH.getTileXToBatchX(tileX) + ',' + MMAPBATCH.getTileYToBatchY(tileY) + ') ';
+        var batchCount = 'B(' + MMAPBATCH.getBatchCount() + ') ';
+        g_counter.innerHTML = mapCoords + batchCount;
     }
 
     public.setCameraScale = function mmaprender_setCameraScale(scaleX, scaleY)

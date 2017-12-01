@@ -536,11 +536,9 @@ var MMAPBATCH = (function ()
 
     // create one empty if none
     // excepted if coordinates are negative
-    var getBatch = function mmapbatch_getBatch(tileX, tileY)
+    var getBatch = function mmapbatch_getBatch(batchX, batchY)
     {
-        var mapIndex = getBatchMapIndexByTile(tileX, tileY);
-        var batchX = Math.floor(tileX / public.C_BATCH_SIZE_X);
-        var batchY = Math.floor(tileY / public.C_BATCH_SIZE_Y);
+        var mapIndex = getBatchMapIndex(batchX, batchY);
         if (!hasBatch(batchX, batchY))
         {
             var batch = new PIXI.Container();
@@ -559,12 +557,12 @@ var MMAPBATCH = (function ()
             m_mapSpriteBatch[mapIndex] = batch;
             m_mapSpriteBatchCount++;
 
-            var cTileX = public.getTileXToStartTileX(tileX);
-            var cTileY = public.getTileYToStartTileY(tileY);
+            var cTileX = public.getBatchXToStartTileX(batchX);
+            var cTileY = public.getBatchYToStartTileY(batchY);
             //console.log('created container for ' + cTileX + ',' + cTileY + ',' + batchCount);
 
-            var eTileX = public.getTileXToEndTileX(tileX);
-            var eTileY = public.getTileYToEndTileY(tileY);
+            var eTileX = public.getBatchXToEndTileX(batchX);
+            var eTileY = public.getBatchYToEndTileY(batchY);
             for (var x = cTileX; x < eTileX; x++)
             {
                 for (var y = cTileY; y < eTileY; y++)
@@ -599,8 +597,6 @@ var MMAPBATCH = (function ()
     {
         if (hasBatch(batchX, batchY))
         {
-            var tileX = public.getBatchXToStartTileX(batchX);
-            var tileY = public.getBatchYToStartTileY(batchY);
             var batch = getBatch(tileX, tileY);
             m_mapLayer.removeChild(batch);
             var mapIndex = getBatchMapIndex(batchX, batchY);
@@ -635,14 +631,16 @@ var MMAPBATCH = (function ()
     public.setSprite = function mmapbatch_setSprite(tileX, tileY, id, x, y)
     {
         var mapIndex = getSpriteMapIndex(tileX, tileY);
+        var batchX = public.getTileXToBatchX(tileX);
+        var batchY = public.getTileYToBatchY(tileY);
         if (!hasSprite(tileX, tileY))
         {
-            var batch = getBatch(tileX, tileY);
+            var batch = getBatch(batchX, batchY);
         }
         // it is likely this
         if (m_mapSpriteId[mapIndex] != id)
         {
-            var batch = getBatch(tileX, tileY);
+            var batch = getBatch(batchX, batchY);
             batch.cacheAsBitmap = false;
 
             var poolIndex = getSpritePoolIndex(tileX, tileY);
@@ -712,9 +710,7 @@ var MMAPBATCH = (function ()
 
     public.setBatchVisible = function mmapbatch_setBatchVisible(batchX, batchY, flag)
     {
-        var tileX = public.getBatchXToStartTileX(batchX);
-        var tileY = public.getBatchYToStartTileY(batchY);
-        getBatch(tileX, tileY).visible = flag;
+        getBatch(batchX, batchY).visible = flag;
     }
 
     public.mapLayer = function mmapbatch_mapLayer()
@@ -724,9 +720,7 @@ var MMAPBATCH = (function ()
 
     public.setBatchScale = function mmapbatch_setBatchScale(batchX, batchY, scaleX, scaleY)
     {
-        var tileX = public.getBatchXToStartTileX(batchX);
-        var tileY = public.getBatchYToStartTileY(batchY);
-        var batch = getBatch(tileX, tileY);
+        var batch = getBatch(batchX, batchY);
         batch.scale.x = scaleX;
         batch.scale.y = scaleY;
     }

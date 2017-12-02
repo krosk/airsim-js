@@ -1,4 +1,4 @@
-var Nano = require('nano-ecs')();
+﻿var Nano = require('nano-ecs')();
 var PF = require('pathfinding');
 var Benchmark = require('benchmark');
 
@@ -608,9 +608,9 @@ var MMAPBATCH = (function ()
             m_mapLayer.removeChild(batch);
             
             var mapIndex = getBatchMapIndex(batchX, batchY);
-            m_mapSpriteBatch[mapIndex] = null;
+            delete m_mapSpriteBatch[mapIndex];
             m_mapSpriteBatchCount--;
-            m_mapSpriteBatchLifetime[mapIndex] = null;
+            delete m_mapSpriteBatchLifetime[mapIndex];
             batch.destroy();
             
             var cTileX = public.getBatchXToStartTileX(batchX);
@@ -626,8 +626,8 @@ var MMAPBATCH = (function ()
 
                     var sprite = m_mapSpritePool[spritePoolIndex];
                     sprite.destroy();
-                    m_mapSpritePool[spritePoolIndex] = null;
-                    m_mapSpriteId[spriteMapIndex] = null;
+                    delete m_mapSpritePool[spritePoolIndex];
+                    delete m_mapSpriteId[spriteMapIndex];
                 }
             }
         }
@@ -635,7 +635,7 @@ var MMAPBATCH = (function ()
 
     var hasBatchByIndex = function (mapIndex)
     {
-        return !(typeof m_mapSpriteBatch[mapIndex] === 'undefined' || m_mapSpriteBatch[mapIndex] === null);
+        return !(typeof m_mapSpriteBatch[mapIndex] === 'undefined' || m_mapSpriteBatch[mapIndex] == null);
     }
 
     var hasBatch = function (batchX, batchY)
@@ -652,7 +652,7 @@ var MMAPBATCH = (function ()
     var hasSprite = function (tileX, tileY)
     {
         var poolIndex = getSpritePoolIndex(tileX, tileY);
-        return !(typeof m_mapSpritePool[poolIndex] === 'undefined' || m_mapSpritePool[poolIndex] === null);
+        return !(typeof m_mapSpritePool[poolIndex] === 'undefined' || m_mapSpritePool[poolIndex] == null);
     }
 
     public.setSprite = function mmapbatch_setSprite(tileX, tileY, id, x, y)
@@ -1381,8 +1381,16 @@ var MMAPRENDER = (function ()
                 var tileY = baseTileY - stepX * minBatchEdge + stepY * minBatchEdge;
                 var batchX = MMAPBATCH.getTileXToBatchX(tileX);
                 var batchY = MMAPBATCH.getTileYToBatchY(tileY);
-                batchList.push(MMAPBATCH.mathCantor(batchX, batchY));
-                batchList.push(MMAPBATCH.mathCantor(batchX, batchY + 1));
+                // note: tileX and tileY ay not be valid coordinates,
+                // however batchY + 1 may be, so check only upon adding
+                if (batchX >= 0 && batchY >= 0)
+                {
+                    batchList.push(MMAPBATCH.mathCantor(batchX, batchY));
+                }
+                if (batchX >= 0 && batchY + 1 >= 0)
+                {
+                    batchList.push(MMAPBATCH.mathCantor(batchX, batchY + 1));
+                }
             }
         }
 

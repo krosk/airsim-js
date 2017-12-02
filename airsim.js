@@ -611,8 +611,9 @@ var MMAPBATCH = (function ()
             delete m_mapSpriteBatch[mapIndex];
             m_mapSpriteBatchCount--;
             delete m_mapSpriteBatchLifetime[mapIndex];
-            batch.destroy();
             
+            var options = {children: true};
+
             var cTileX = public.getBatchXToStartTileX(batchX);
             var cTileY = public.getBatchYToStartTileY(batchY);
             var eTileX = public.getBatchXToEndTileX(batchX);
@@ -625,11 +626,13 @@ var MMAPBATCH = (function ()
                     var spriteMapIndex = getSpriteMapIndex(x, y)
 
                     var sprite = m_mapSpritePool[spritePoolIndex];
-                    sprite.destroy();
+                    sprite.destroy(options);
                     delete m_mapSpritePool[spritePoolIndex];
                     delete m_mapSpriteId[spriteMapIndex];
                 }
             }
+
+            batch.destroy(options);
         }
     }
 

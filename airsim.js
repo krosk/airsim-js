@@ -444,6 +444,7 @@ var MMAPBATCH = (function ()
 
     var m_mapSpriteBatch = [];
     var m_mapSpriteBatchCount = 0;
+    var m_mapSpriteBatchLifetime = {}; // cantor index
     // sprites grouped by batch
     // in batchMapIndex order
     var m_mapSpritePool = [];
@@ -451,6 +452,8 @@ var MMAPBATCH = (function ()
 
     public.C_BATCH_SIZE_X = 8;
     public.C_BATCH_SIZE_Y = 8;
+    
+    public.C_BATCH_LIFETIME = 300;
 
     public.mathCantor = function mmapbatch_mathCantor(X, Y)
     {
@@ -510,6 +513,10 @@ var MMAPBATCH = (function ()
     var findIndexForNewBatch = function mmapbatch_findIndexForNewBatch(batchX, batchY)
     {
         var mapIndex = getBatchMapIndex(batchX, batchY);
+        if (mapIndex == 0)
+        {
+            return 0;
+        }
         var arrayIndex = mapIndex;
         while (arrayIndex >= 0)
         {
@@ -555,6 +562,7 @@ var MMAPBATCH = (function ()
             var batchCount = m_mapLayer.children.length;
 
             m_mapSpriteBatch[mapIndex] = batch;
+            m_mapSpriteBatchLifetime[mapIndex] = public.C_BATCH_LIFETIME;
             m_mapSpriteBatchCount++;
 
             var cTileX = public.getBatchXToStartTileX(batchX);
@@ -570,7 +578,6 @@ var MMAPBATCH = (function ()
                     var textureName = MMAPRENDER.getTileTextureName(0);
                     var textureCache = PIXI.utils.TextureCache[textureName];
                     var sprite = new PIXI.Sprite(textureCache);
-                    //var sprite = MMAPRENDER.createSpritePlaceholder();
 
                     //sprite.x = x - sprite.width / 2;
                     //sprite.y = y - sprite.height;
@@ -597,12 +604,32 @@ var MMAPBATCH = (function ()
     {
         if (hasBatch(batchX, batchY))
         {
-            var batch = getBatch(tileX, tileY);
+            var batch = getBatch(batchX, batchY);
             m_mapLayer.removeChild(batch);
+            
             var mapIndex = getBatchMapIndex(batchX, batchY);
             m_mapSpriteBatch[mapIndex] = null;
             m_mapSpriteBatchCount--;
-            batch.delete;
+            m_mapSpriteBatchLifetime[mapIndex] = null;
+            batch.destroy();
+            
+            var cTileX = public.getBatchXToStartTileX(batchX);
+            var cTileY = public.getBatchYToStartTileY(batchY);
+            var eTileX = public.getBatchXToEndTileX(batchX);
+            var eTileY = public.getBatchYToEndTileY(batchY);
+            for (var x = cTileX; x < eTileX; x++)
+            {
+                for (var y = cTileY; y < eTileY; y++)
+                {
+                    var spritePoolIndex = getSpritePoolIndex(x, y);
+                    var spriteMapIndex = getSpriteMapIndex(x, y)
+
+                    var sprite = m_mapSpritePool[spritePoolIndex];
+                    sprite.destroy();
+                    m_mapSpritePool[spritePoolIndex] = null;
+                    m_mapSpriteId[spriteMapIndex] = null;
+                }
+            }
         }
     }
 
@@ -821,6 +848,29 @@ var MMAPBATCH = (function ()
                     flag[mapIndex] = {};
                 }
                 flag[mapIndex].loadTexture = true;
+            }
+        }
+    }
+    
+    public.setLifetimeFlagInList = function mmapbatch_setLifetimeFlagInList(flag, batchList)
+    {
+        for (var i in batchList)
+        {
+            var index = batchList[i];
+            m_mapSpriteBatchLifetime[index] = public.C_BATCH_LIFETIME;
+        }
+        var keys = Object.keys(m_mapSpriteBatchLifetime);
+        for (var i in keys)
+        {
+            var mapIndex = keys[i];
+            m_mapSpriteBatchLifetime[mapIndex]--;
+            if (m_mapSpriteBatchLifetime[mapIndex] == 0)
+            {
+                if (typeof flag[mapIndex] === 'undefined')
+                {
+                    flag[mapIndex] = {};
+                }
+                flag[mapIndex].remove = true;
             }
         }
     }
@@ -1447,7 +1497,7 @@ var MMAPRENDER = (function ()
         // refresh smaller container instead,
         // leading to shorter delay
         // has ability to turn containers into cached
-        // bitmap?
+        // bitmap? DONE
         // note: better performance reached when
         // visibility is controlled at higher level
         // 2/ the texture change is one of the
@@ -1460,15 +1510,17 @@ var MMAPRENDER = (function ()
         // mitigated by a loading queue that process 
         // limited number of batches. position and 
         // visibility are prioritized, last are 
-        // texture loading. When too many batches 
-        // are displayed on screen batches stay static
-        // although performance does not drop
-        // and no more texture load occurs.
-        // hence there is a maximum zoom level to reach
+        // texture loading. DONE
         // 4/ container creation could also be in cause,
         // consider pooling?
         // 5/ consider not using radius but
-        // exact list of batches on screen?
+        // exact list of batches on screen? DONE
+        // 6/ upon instantiation of 1k+ batches
+        // browser is out of memory. consider
+        // deleting batches if out of viewport?
+        // or putting them in pool
+        // Note that a batch contains sprites so themselves
+        // should also be deleted
 
         var time0 = Date.now();
 
@@ -1496,6 +1548,10 @@ var MMAPRENDER = (function ()
         m_batchFlag,
         currentBatchList,
         true);
+        
+        MMAPBATCH.setLifetimeFlagInList(
+        m_batchFlag,
+        currentBatchList);
 
         var time1 = Date.now();
 

@@ -1,4 +1,4 @@
-﻿var Nano = require('nano-ecs')();
+var Nano = require('nano-ecs')();
 var PF = require('pathfinding');
 var Benchmark = require('benchmark');
 
@@ -152,7 +152,7 @@ function EngineState()
 {
     ASMAP.update(g_updateDelta, g_updateTimestamp);
     //ASRENDER.update(g_updateDelta, g_updateTimestamp);
-    ASRANDOMMOVE.update(g_updateDelta, g_updateTimestamp);
+    //ASRANDOMMOVE.update(g_updateDelta, g_updateTimestamp);
 }
 
 var g_frameCounter = 0;
@@ -178,119 +178,6 @@ function Update()
     }
 }
 
-
-// ---------------------
-var ASPIXIRENDER = (function ()
-{
-    var public = {};
-
-    var m_sprites = {};
-
-    var getRainbowProfile = function aspixirender_getRainbowProfile(n)
-    {
-        var total = 0xFF * 6;
-        n = n % total;
-        if (n < 0xFF)
-        {
-            return n;
-        }
-        else if (n < 0xFF * 3)
-        {
-            return 0xFF;
-        }
-        else if (n < 0xFF * 4)
-        {
-            return 0xFF * 4 - n;
-        }
-        else
-        {
-            return 0;
-        }
-    }
-
-    public.getRainbowColor = function aspixirender_getRainbowColor(i, t)
-    {
-        var n = (0xFF * 6 * i / t);
-        var r = getRainbowProfile(n + 0xFF * 2) << 16;
-        var g = getRainbowProfile(n) << 8;
-        var b = getRainbowProfile(n + 0xFF * 4);
-        return r + g + b
-    }
-
-    var createSprite = function aspixirender_createSprite(id)
-    {
-        var graphics = new PIXI.Graphics();
-
-        graphics.beginFill(0xFFFF00);
-
-        // set the line style to have a width of 5 and set the color to red
-        var color = public.getRainbowColor(id);
-        graphics.lineStyle(1, color);
-
-        // draw a rectangle
-        /*
-        graphics.moveTo(0, 0);
-        graphics.lineTo(3, 3);
-        graphics.moveTo(3, 0);
-        graphics.lineTo(0, 3);
-        */
-        graphics.drawRect(0, 0, 1, 1);
-
-        return graphics;
-    }
-
-    /*
-    function drawAsGrid(grid, w, h)
-    {
-        var graphics = new PIXI.Graphics();
-
-        graphics.beginFill(0xFF0000);
-        graphics.lineStyle(1, 0xFF00FF);
-
-        // draw a rectangle
-        for (y = 0; y < h; y++)
-        {
-            for (x = 0; x < w; x++)
-            {
-                if (!grid.isWalkableAt(x, y))
-                {
-                    graphics.moveTo(x, y);
-                    graphics.lineTo(x + 1, y);
-                }
-            }
-        }
-
-        return graphics;
-    }
-    */
-
-    public.setSpriteToPosition = function aspixirender_setSpriteToPosition(id, x, y, visible)
-    {
-        if (typeof m_sprites[id] == 'undefined')
-        {
-            var sprite = createSprite(id);
-            g_app.stage.addChild(sprite);
-            m_sprites[id] = sprite;
-        }
-        m_sprites[id].x = x;
-        m_sprites[id].y = y;
-        m_sprites[id].visible = visible;
-    }
-
-    var m_grid;
-
-    public.drawGrid = function (grid, w, h)
-    {
-        if (typeof m_grid == 'undefined')
-        {
-            var sprite = drawAsGrid(grid, w, h);
-            g_app.stage.addChild(sprite);
-            m_grid = grid;
-        }
-    }
-
-    return public;
-})();
 // ---------------------
 var ASMAP = (function ()
 {
@@ -1036,11 +923,42 @@ var MMAPRENDER = (function ()
     var TEXTURE_BASE_SIZE_X = 64;
     var TEXTURE_BASE_SIZE_Y = 32;
 
+    var getRainbowProfile = function mmaprender_getRainbowProfile(n)
+    {
+        var total = 0xFF * 6;
+        n = n % total;
+        if (n < 0xFF)
+        {
+            return n;
+        }
+        else if (n < 0xFF * 3)
+        {
+            return 0xFF;
+        }
+        else if (n < 0xFF * 4)
+        {
+            return 0xFF * 4 - n;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
+    var getRainbowColor = function mmaprender_getRainbowColor(i, t)
+    {
+        var n = (0xFF * 6 * i / t);
+        var r = getRainbowProfile(n + 0xFF * 2) << 16;
+        var g = getRainbowProfile(n) << 8;
+        var b = getRainbowProfile(n + 0xFF * 4);
+        return r + g + b
+    }
+
     public.createTexture = function mmaprender_createTexture(id)
     {
         var graphics = new PIXI.Graphics();
 
-        var color = ASPIXIRENDER.getRainbowColor(id, MMAPDATA.C_MAXTILEID);
+        var color = getRainbowColor(id, MMAPDATA.C_MAXTILEID);
         var black = 0x000000;
         graphics.beginFill(color);
         graphics.lineStyle(1, black);

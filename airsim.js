@@ -70,6 +70,7 @@ function InitializeDebugOverlay()
     g_debugOverlay.style.position = "absolute";
     g_debugOverlay.style.color = "#0ff";
     g_debugOverlay.style.fontSize = "16px";
+    g_debugOverlay.style.userSelect = "none";
     document.body.appendChild(g_debugOverlay);
 
     g_debugOverlay.style.left = 0 + "px";

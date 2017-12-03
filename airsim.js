@@ -215,6 +215,7 @@ var ASMAP = (function ()
         id += 1;
         id %= MMAPDATA.C_MAXTILEID;
         MMAPDATA.setTileId(x, y, id);
+        console.log(MMAPRENDER.getTileZOrder(x, y));
     }
     
     var doDoubleClick = function asmap_doDoubleClick(x, y)
@@ -400,10 +401,6 @@ var MMAPBATCH = (function ()
     var findIndexForNewBatch = function mmapbatch_findIndexForNewBatch(batchX, batchY)
     {
         var batchMapIndex = getBatchMapIndex(batchX, batchY);
-        if (batchMapIndex == 0)
-        {
-            return 0;
-        }
         var arrayIndex = batchMapIndex;
         while (arrayIndex >= 0)
         {
@@ -414,7 +411,20 @@ var MMAPBATCH = (function ()
             }
             arrayIndex--;
         }
-        return m_mapLayer.children.length;
+        return 0;
+    }
+    
+    public.getBatchRenderIndex = function mmapbatch_getBatchRenderIndex(batchX, batchY)
+    {
+        if (hasBatch(batchX, batchY))
+        {
+            var batch = getBatch(batchX, batchY);
+            return m_mapLayer.getChildIndex(batch);
+        }
+        else
+        {
+            return -1;
+        }
     }
 
     /*
@@ -630,7 +640,7 @@ var MMAPBATCH = (function ()
         getBatch(batchX, batchY).visible = flag;
     }
 
-    public.mapLayer = function mmapbatch_mapLayer()
+    public.getMapLayer = function mmapbatch_getMapLayer()
     {
         return m_mapLayer;
     }
@@ -1127,6 +1137,13 @@ var MMAPRENDER = (function ()
     {
         return m_cameraScaleY;
     }
+    
+    public.getTileZOrder = function mmaprender_getTileZOrder(tileX, tileY)
+    {
+        var batchX = MMAPBATCH.getTileXToBatchX(tileX);
+        var batchY = MMAPBATCH.getTileYToBatchY(tileY);
+        return MMAPBATCH.getBatchRenderIndex(batchX, batchY);
+    }
 
     var updateCameraVelocity = function mmaprender_updateCameraVelocity()
     {
@@ -1143,7 +1160,7 @@ var MMAPRENDER = (function ()
         m_cameraMapX = mapX;
         m_cameraMapY = mapY;
         
-        var mapLayer = MMAPBATCH.mapLayer();
+        var mapLayer = MMAPBATCH.getMapLayer();
         mapLayer.pivot.x = m_cameraMapX;
         mapLayer.pivot.y = m_cameraMapY;
         mapLayer.x = viewWidth() / 2;
@@ -1177,7 +1194,7 @@ var MMAPRENDER = (function ()
         {
             m_cameraScaleY = 0.2;
         }
-        var mapLayer = MMAPBATCH.mapLayer();
+        var mapLayer = MMAPBATCH.getMapLayer();
         mapLayer.scale.x = m_cameraScaleX;
         mapLayer.scale.y = m_cameraScaleY;
     }

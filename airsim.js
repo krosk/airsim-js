@@ -1,4 +1,4 @@
-﻿var Nano = require('nano-ecs')();
+var Nano = require('nano-ecs')();
 var PF = require('pathfinding');
 var Benchmark = require('benchmark');
 
@@ -453,7 +453,7 @@ var MMAPBATCH = (function ()
     public.C_BATCH_SIZE_X = 8;
     public.C_BATCH_SIZE_Y = 8;
     
-    public.C_BATCH_LIFETIME = 300;
+    public.C_BATCH_LIFETIME = 60;
 
     public.mathCantor = function mmapbatch_mathCantor(X, Y)
     {

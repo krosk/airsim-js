@@ -70,6 +70,7 @@ function InitializeDebugOverlay()
     g_debugOverlay.style.position = "absolute";
     g_debugOverlay.style.color = "#0ff";
     g_debugOverlay.style.fontSize = "16px";
+    g_debugOverlay.style.userSelect = "none";
     document.body.appendChild(g_debugOverlay);
 
     g_debugOverlay.style.left = 0 + "px";
@@ -81,6 +82,7 @@ function InitializeDebugOverlay()
     g_counter.style.position = "absolute";
     g_counter.style.color = "#0ff";
     g_counter.style.fontSize = "16px";
+    g_counter.style.userSelect = "none";
     document.body.appendChild(g_counter);
 
     g_counter.style.left = 100 + "px";
@@ -152,7 +154,7 @@ function EngineState()
 {
     ASMAP.update(g_updateDelta, g_updateTimestamp);
     //ASRENDER.update(g_updateDelta, g_updateTimestamp);
-    ASRANDOMMOVE.update(g_updateDelta, g_updateTimestamp);
+    //ASRANDOMMOVE.update(g_updateDelta, g_updateTimestamp);
 }
 
 var g_frameCounter = 0;
@@ -178,119 +180,6 @@ function Update()
     }
 }
 
-
-// ---------------------
-var ASPIXIRENDER = (function ()
-{
-    var public = {};
-
-    var m_sprites = {};
-
-    var getRainbowProfile = function aspixirender_getRainbowProfile(n)
-    {
-        var total = 0xFF * 6;
-        n = n % total;
-        if (n < 0xFF)
-        {
-            return n;
-        }
-        else if (n < 0xFF * 3)
-        {
-            return 0xFF;
-        }
-        else if (n < 0xFF * 4)
-        {
-            return 0xFF * 4 - n;
-        }
-        else
-        {
-            return 0;
-        }
-    }
-
-    public.getRainbowColor = function aspixirender_getRainbowColor(i, t)
-    {
-        var n = (0xFF * 6 * i / t);
-        var r = getRainbowProfile(n + 0xFF * 2) << 16;
-        var g = getRainbowProfile(n) << 8;
-        var b = getRainbowProfile(n + 0xFF * 4);
-        return r + g + b
-    }
-
-    var createSprite = function aspixirender_createSprite(id)
-    {
-        var graphics = new PIXI.Graphics();
-
-        graphics.beginFill(0xFFFF00);
-
-        // set the line style to have a width of 5 and set the color to red
-        var color = public.getRainbowColor(id);
-        graphics.lineStyle(1, color);
-
-        // draw a rectangle
-        /*
-        graphics.moveTo(0, 0);
-        graphics.lineTo(3, 3);
-        graphics.moveTo(3, 0);
-        graphics.lineTo(0, 3);
-        */
-        graphics.drawRect(0, 0, 1, 1);
-
-        return graphics;
-    }
-
-    /*
-    function drawAsGrid(grid, w, h)
-    {
-        var graphics = new PIXI.Graphics();
-
-        graphics.beginFill(0xFF0000);
-        graphics.lineStyle(1, 0xFF00FF);
-
-        // draw a rectangle
-        for (y = 0; y < h; y++)
-        {
-            for (x = 0; x < w; x++)
-            {
-                if (!grid.isWalkableAt(x, y))
-                {
-                    graphics.moveTo(x, y);
-                    graphics.lineTo(x + 1, y);
-                }
-            }
-        }
-
-        return graphics;
-    }
-    */
-
-    public.setSpriteToPosition = function aspixirender_setSpriteToPosition(id, x, y, visible)
-    {
-        if (typeof m_sprites[id] == 'undefined')
-        {
-            var sprite = createSprite(id);
-            g_app.stage.addChild(sprite);
-            m_sprites[id] = sprite;
-        }
-        m_sprites[id].x = x;
-        m_sprites[id].y = y;
-        m_sprites[id].visible = visible;
-    }
-
-    var m_grid;
-
-    public.drawGrid = function (grid, w, h)
-    {
-        if (typeof m_grid == 'undefined')
-        {
-            var sprite = drawAsGrid(grid, w, h);
-            g_app.stage.addChild(sprite);
-            m_grid = grid;
-        }
-    }
-
-    return public;
-})();
 // ---------------------
 var ASMAP = (function ()
 {
@@ -482,23 +371,21 @@ var MMAPBATCH = (function ()
         m_mapLayer.on('pointerup', MMAPTOUCH.onMapDisplayDragEnd);
     }
 
-    var getBatchMapIndexByTile = function (tileX, tileY)
+    var getBatchMapIndexByTile = function mmapbatch_getBatchMapIndexByTile(tileX, tileY)
     {
         var X = Math.floor(tileX / public.C_BATCH_SIZE_X);
         var Y = Math.floor(tileY / public.C_BATCH_SIZE_Y);
         return getBatchMapIndex(X, Y);
     }
 
-    var getBatchMapIndex = function (batchX, batchY)
+    var getBatchMapIndex = function mmapbatch_getBatchMapIndex(batchX, batchY)
     {
         return public.mathCantor(batchX, batchY);
     }
 
-    var getSpriteMapIndex = function (tileX, tileY)
+    var getSpriteMapIndex = function mmapbatch_getSpriteMapIndex(tileX, tileY)
     {
-        var X = tileX;
-        var Y = tileY;
-        return public.mathCantor(X, Y);
+        return public.mathCantor(tileX, tileY);
     }
 
     var getSpritePoolIndex = function mmapbatch_getSpritePoolIndex(tileX, tileY)
@@ -512,12 +399,12 @@ var MMAPBATCH = (function ()
 
     var findIndexForNewBatch = function mmapbatch_findIndexForNewBatch(batchX, batchY)
     {
-        var mapIndex = getBatchMapIndex(batchX, batchY);
-        if (mapIndex == 0)
+        var batchMapIndex = getBatchMapIndex(batchX, batchY);
+        if (batchMapIndex == 0)
         {
             return 0;
         }
-        var arrayIndex = mapIndex;
+        var arrayIndex = batchMapIndex;
         while (arrayIndex >= 0)
         {
             if (hasBatchByIndex(arrayIndex))
@@ -545,7 +432,7 @@ var MMAPBATCH = (function ()
     // excepted if coordinates are negative
     var getBatch = function mmapbatch_getBatch(batchX, batchY)
     {
-        var mapIndex = getBatchMapIndex(batchX, batchY);
+        var batchMapIndex = getBatchMapIndex(batchX, batchY);
         if (!hasBatch(batchX, batchY))
         {
             var batch = new PIXI.Container();
@@ -561,8 +448,8 @@ var MMAPBATCH = (function ()
 
             var batchCount = m_mapLayer.children.length;
 
-            m_mapSpriteBatch[mapIndex] = batch;
-            m_mapSpriteBatchLifetime[mapIndex] = public.C_BATCH_LIFETIME;
+            m_mapSpriteBatch[batchMapIndex] = batch;
+            m_mapSpriteBatchLifetime[batchMapIndex] = public.C_BATCH_LIFETIME;
             m_mapSpriteBatchCount++;
 
             var cTileX = public.getBatchXToStartTileX(batchX);
@@ -597,7 +484,7 @@ var MMAPBATCH = (function ()
                 }
             }
         }
-        return m_mapSpriteBatch[mapIndex];
+        return m_mapSpriteBatch[batchMapIndex];
     }
     
     public.removeBatch = function mmapbatch_removeBatch(batchX, batchY)
@@ -607,10 +494,10 @@ var MMAPBATCH = (function ()
             var batch = getBatch(batchX, batchY);
             m_mapLayer.removeChild(batch);
             
-            var mapIndex = getBatchMapIndex(batchX, batchY);
-            delete m_mapSpriteBatch[mapIndex];
+            var batchMapIndex = getBatchMapIndex(batchX, batchY);
+            delete m_mapSpriteBatch[batchMapIndex];
             m_mapSpriteBatchCount--;
-            delete m_mapSpriteBatchLifetime[mapIndex];
+            delete m_mapSpriteBatchLifetime[batchMapIndex];
             
             var options = {children: true};
 
@@ -636,12 +523,12 @@ var MMAPBATCH = (function ()
         }
     }
 
-    var hasBatchByIndex = function (mapIndex)
+    var hasBatchByIndex = function mmapbatch_hasBatchByIndex(batchMapIndex)
     {
-        return !(typeof m_mapSpriteBatch[mapIndex] === 'undefined' || m_mapSpriteBatch[mapIndex] == null);
+        return !(typeof m_mapSpriteBatch[batchMapIndex] === 'undefined' || m_mapSpriteBatch[batchMapIndex] == null);
     }
 
-    var hasBatch = function (batchX, batchY)
+    var hasBatch = function mmapbatch_hasBatch(batchX, batchY)
     {
         var mapIndex = getBatchMapIndex(batchX, batchY);
         return hasBatchByIndex(mapIndex);
@@ -652,7 +539,7 @@ var MMAPBATCH = (function ()
         return m_mapSpriteBatchCount;
     }
 
-    var hasSprite = function (tileX, tileY)
+    var hasSprite = function mmapbatch_hasSprite(tileX, tileY)
     {
         var poolIndex = getSpritePoolIndex(tileX, tileY);
         return !(typeof m_mapSpritePool[poolIndex] === 'undefined' || m_mapSpritePool[poolIndex] == null);
@@ -660,7 +547,7 @@ var MMAPBATCH = (function ()
 
     public.setSprite = function mmapbatch_setSprite(tileX, tileY, id, x, y)
     {
-        var mapIndex = getSpriteMapIndex(tileX, tileY);
+        var spriteMapIndex = getSpriteMapIndex(tileX, tileY);
         var batchX = public.getTileXToBatchX(tileX);
         var batchY = public.getTileYToBatchY(tileY);
         if (!hasSprite(tileX, tileY))
@@ -668,7 +555,7 @@ var MMAPBATCH = (function ()
             var batch = getBatch(batchX, batchY);
         }
         // it is likely this
-        if (m_mapSpriteId[mapIndex] != id)
+        if (m_mapSpriteId[spriteMapIndex] != id)
         {
             var batch = getBatch(batchX, batchY);
             batch.cacheAsBitmap = false;
@@ -681,59 +568,59 @@ var MMAPBATCH = (function ()
             sprite.setTexture(textureCache);
             sprite.x = x - sprite.width / 2;
             sprite.y = y - sprite.height;
-            m_mapSpriteId[mapIndex] = id;
+            m_mapSpriteId[spriteMapIndex] = id;
 
             batch.cacheAsBitmap = true;
         }
     }
 
-    public.getTileXToStartTileX = function (tileX)
+    public.getTileXToStartTileX = function mmapbatch_getTileXToStartTileX(tileX)
     {
         return public.getTileXToBatchX(tileX) * public.C_BATCH_SIZE_X;
     }
 
-    public.getTileYToStartTileY = function (tileY)
+    public.getTileYToStartTileY = function mmapbatch_getTileYToStartTileY(tileY)
     {
         return public.getTileYToBatchY(tileY) * public.C_BATCH_SIZE_Y;
     }
 
     // end tile excluded
-    public.getTileXToEndTileX = function (tileX)
+    public.getTileXToEndTileX = function mmapbatch_getTileXToEndTileX(tileX)
     {
         return public.getTileXToStartTileX(tileX) + public.C_BATCH_SIZE_X;
     }
 
-    public.getTileYToEndTileY = function (tileY)
+    public.getTileYToEndTileY = function mmapbatch_getTileYToEndTileY(tileY)
     {
         return public.getTileYToStartTileY(tileY) + public.C_BATCH_SIZE_Y;
     }
 
-    public.getTileXToBatchX = function (tileX)
+    public.getTileXToBatchX = function mmapbatch_getTileXToBatchX(tileX)
     {
         return Math.floor(Math.floor(tileX) / public.C_BATCH_SIZE_X);
     }
 
-    public.getTileYToBatchY = function (tileY)
+    public.getTileYToBatchY = function mmapbatch_getTileYToBatchY(tileY)
     {
         return Math.floor(Math.floor(tileY) / public.C_BATCH_SIZE_Y);
     }
 
-    public.getBatchXToStartTileX = function (batchX)
+    public.getBatchXToStartTileX = function mmapbatch_getBatchXToStartTileX(batchX)
     {
         return batchX * public.C_BATCH_SIZE_X;
     }
 
-    public.getBatchYToStartTileY = function (batchY)
+    public.getBatchYToStartTileY = function mmapbatch_getBatchYToStartTileY(batchY)
     {
         return batchY * public.C_BATCH_SIZE_Y;
     }
 
-    public.getBatchXToEndTileX = function (batchX)
+    public.getBatchXToEndTileX = function mmapbatch_getBatchXToEndTileX(batchX)
     {
         return (batchX + 1) * public.C_BATCH_SIZE_X;
     }
 
-    public.getBatchYToEndTileY = function (batchY)
+    public.getBatchYToEndTileY = function mmapbatch_getBatchYToEndTileY(batchY)
     {
         return (batchY + 1) * public.C_BATCH_SIZE_Y;
     }
@@ -807,12 +694,12 @@ var MMAPBATCH = (function ()
     {
         for (var i in batchList)
         {
-            var index = batchList[i];
-            if (typeof flag[index] === 'undefined')
+            var batchMapIndex = batchList[i];
+            if (typeof flag[batchMapIndex] === 'undefined')
             {
-                flag[index] = {};
+                flag[batchMapIndex] = {};
             }
-            flag[index].visible = flagValue;
+            flag[batchMapIndex].visible = flagValue;
         }
     }
 
@@ -1036,11 +923,42 @@ var MMAPRENDER = (function ()
     var TEXTURE_BASE_SIZE_X = 64;
     var TEXTURE_BASE_SIZE_Y = 32;
 
+    var getRainbowProfile = function mmaprender_getRainbowProfile(n)
+    {
+        var total = 0xFF * 6;
+        n = n % total;
+        if (n < 0xFF)
+        {
+            return n;
+        }
+        else if (n < 0xFF * 3)
+        {
+            return 0xFF;
+        }
+        else if (n < 0xFF * 4)
+        {
+            return 0xFF * 4 - n;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
+    var getRainbowColor = function mmaprender_getRainbowColor(i, t)
+    {
+        var n = (0xFF * 6 * i / t);
+        var r = getRainbowProfile(n + 0xFF * 2) << 16;
+        var g = getRainbowProfile(n) << 8;
+        var b = getRainbowProfile(n + 0xFF * 4);
+        return r + g + b
+    }
+
     public.createTexture = function mmaprender_createTexture(id)
     {
         var graphics = new PIXI.Graphics();
 
-        var color = ASPIXIRENDER.getRainbowColor(id, MMAPDATA.C_MAXTILEID);
+        var color = getRainbowColor(id, MMAPDATA.C_MAXTILEID);
         var black = 0x000000;
         graphics.beginFill(color);
         graphics.lineStyle(1, black);
@@ -2528,25 +2446,25 @@ var ASPF = (function ()
             d3 = false,
             nodes = this.nodes;
 
-        // ↑
+        // ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬Ëœ
         if (this.isWalkableAt(x, y - 1))
         {
             neighbors.push(this.getNodeAt(x, y - 1));
             s0 = true;
         }
-        // →
+        // ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢
         if (this.isWalkableAt(x + 1, y))
         {
             neighbors.push(this.getNodeAt(x + 1, y));
             s1 = true;
         }
-        // ↓
+        // ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬Å“
         if (this.isWalkableAt(x, y + 1))
         {
             neighbors.push(this.getNodeAt(x, y + 1));
             s2 = true;
         }
-        // ←
+        // ÃƒÂ¢Ã¢â‚¬Â Ã‚Â
         if (this.isWalkableAt(x - 1, y))
         {
             neighbors.push(this.getNodeAt(x - 1, y));
@@ -2584,22 +2502,22 @@ var ASPF = (function ()
             throw new Error('Incorrect value of diagonalMovement');
         }
 
-        // ↖
+        // ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â€œ
         if (d0 && this.isWalkableAt(x - 1, y - 1))
         {
             neighbors.push(this.getNodeAt(x - 1, y - 1));
         }
-        // ↗
+        // ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â€
         if (d1 && this.isWalkableAt(x + 1, y - 1))
         {
             neighbors.push(this.getNodeAt(x + 1, y - 1));
         }
-        // ↘
+        // ÃƒÂ¢Ã¢â‚¬Â Ã‹Å“
         if (d2 && this.isWalkableAt(x + 1, y + 1))
         {
             neighbors.push(this.getNodeAt(x + 1, y + 1));
         }
-        // ↙
+        // ÃƒÂ¢Ã¢â‚¬Â Ã¢â€žÂ¢
         if (d3 && this.isWalkableAt(x - 1, y + 1))
         {
             neighbors.push(this.getNodeAt(x - 1, y + 1));

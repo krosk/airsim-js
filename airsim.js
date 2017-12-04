@@ -239,7 +239,7 @@ var MMAPDATA = (function ()
 
     var m_pfgrid = {};
 
-    public.C_MAXTILEID = 2;
+    public.C_MAXTILEID = 5;
 
     public.getMapTableSizeX = function mmapdata_getMapTableSizeX()
     {
@@ -980,21 +980,71 @@ var MMAPRENDER = (function ()
         var r = getRainbowProfile(n + 0xFF * 2) << 16;
         var g = getRainbowProfile(n) << 8;
         var b = getRainbowProfile(n + 0xFF * 4);
-        return r + g + b
+        return r + g + b;
+    }
+    
+    var getColor = function mmaprender_getColor(r, g, b)
+    {
+        return (r) * 2**16 + (g) * 2**8 + (b);
+    }
+    
+    var getCityColor = function mmaprender_getCityColor(n)
+    {
+        if (n == 0)
+        {
+            return getColor(121, 85, 72); // dirt
+        }
+        else if (n == 1)
+        {
+            return getColor(158, 158, 158); // road
+        }
+        else if (n == 2)
+        {
+            return getColor(76, 175, 80); // r
+        }
+        else if (n == 3)
+        {
+            return getColor(33, 150, 243); // c
+        }
+        else if (n == 4)
+        {
+            return getColor(255, 235, 59); // i
+        }
+        return getColor(255, 0, 0);
+    }
+    
+    var getCityTextureHeight = function mmaprender_getCityTextureHeight(n)
+    {
+        if (n == 1)
+        {
+            return 6;
+        }
+        else if (n == 2)
+        {
+            return 9; // r
+        }
+        else if (n == 3)
+        {
+            return 12; // c
+        }
+        else if (n == 4)
+        {
+            return 15; // i
+        }
+        return 3;
     }
 
     public.createTexture = function mmaprender_createTexture(id)
     {
         var graphics = new PIXI.Graphics();
 
-        var color = getRainbowColor(id, MMAPDATA.C_MAXTILEID);
+        var color = getCityColor(id);
         var black = 0x000000;
         graphics.beginFill(color);
         graphics.lineStyle(1, black);
 
-        var high = id % MMAPDATA.C_MAXTILEID == 0;
-        var M = high ? 0 : 0; // margin
-        var H = high ? 12 : 3;
+        var M = 0; // margin
+        var H = getCityTextureHeight(id);
 
         // draw a rectangle
         graphics.moveTo(TEXTURE_BASE_SIZE_X / 2, M);

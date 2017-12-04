@@ -337,7 +337,6 @@ var MMAPBATCH = (function ()
     var m_mapSpriteBatchLifetime = {}; // cantor index
     // sprites grouped by batch
     // in batchMapIndex order
-    var m_mapSpritePool = [];
     var m_mapSpriteId = []; // mapIndex
 
     public.C_BATCH_SIZE_X = 8;
@@ -390,15 +389,6 @@ var MMAPBATCH = (function ()
         return public.mathCantor(tileX, tileY);
     }
 
-    var getSpritePoolIndex = function mmapbatch_getSpritePoolIndex(tileX, tileY)
-    {
-        var batchMapIndex = getBatchMapIndexByTile(tileX, tileY);
-        var X = tileX - public.getTileXToStartTileX(tileX);
-        var Y = tileY - public.getTileYToStartTileY(tileY);
-        var spritePoolIndex = batchMapIndex * public.C_BATCH_SIZE_X * public.C_BATCH_SIZE_Y + X * public.C_BATCH_SIZE_Y + Y;
-        return spritePoolIndex;
-    }
-
     var findIndexForNewBatch = function mmapbatch_findIndexForNewBatch(batchX, batchY)
     {
         var batchMapIndex = getBatchMapIndex(batchX, batchY);
@@ -446,7 +436,23 @@ var MMAPBATCH = (function ()
         if (m_buildBatchPool.length <= 0)
         {
             m_buildBatchTotalCount++;
-            return new PIXI.Container();
+            var batch = new PIXI.Container();
+            for (var x = 0; x < public.C_BATCH_SIZE_X; x++)
+            {
+                for (var y = 0; y < public.C_BATCH_SIZE_Y; y++)
+                {
+                    var textureName = MMAPRENDER.getTileTextureName(0);
+                    var textureCache = PIXI.utils.TextureCache[textureName];
+                    var sprite = new PIXI.Sprite(textureCache);
+
+                    sprite.visible = true;
+
+                    //setSpriteInteraction(sprite);
+                    
+                    batch.addChild(sprite);
+                }
+            }
+            return batch;
         }
         else
         {
@@ -458,9 +464,16 @@ var MMAPBATCH = (function ()
     {
         return m_buildBatchTotalCount;
     }
+    
+    var getSpriteFromBatch = function mmapbatch_getSpriteFromBatch(batch, iTileX, iTileY)
+    {
+        return batch.getChildAt(iTileY + iTileX * public.C_BATCH_SIZE_Y);
+    }
 
-    // create one empty if none
-    // excepted if coordinates are negative
+    // create one if none exists, excepted 
+    // if coordinates are negative.
+    // batch has z-ordered sprites
+    // batch exists <=> sprite exists
     var getBatch = function mmapbatch_getBatch(batchX, batchY)
     {
         var batchMapIndex = getBatchMapIndex(batchX, batchY);
@@ -477,7 +490,7 @@ var MMAPBATCH = (function ()
 
             m_mapLayer.addChildAt(batch, addIndex);
 
-            var batchCount = m_mapLayer.children.length;
+            //var batchCount = m_mapLayer.children.length;
 
             m_mapSpriteBatch[batchMapIndex] = batch;
             m_mapSpriteBatchLifetime[batchMapIndex] = public.C_BATCH_LIFETIME;
@@ -493,25 +506,11 @@ var MMAPBATCH = (function ()
             {
                 for (var y = cTileY; y < eTileY; y++)
                 {
-                    var textureName = MMAPRENDER.getTileTextureName(0);
-                    var textureCache = PIXI.utils.TextureCache[textureName];
-                    var sprite = new PIXI.Sprite(textureCache);
-
-                    //sprite.x = x - sprite.width / 2;
-                    //sprite.y = y - sprite.height;
+                    var sprite = getSpriteFromBatch(batch, x - cTileX, y - cTileY);
                     sprite.visible = true;
 
-                    //setSpriteInteraction(sprite);
-
-                    var spritePoolIndex = getSpritePoolIndex(x, y);
                     var spriteMapIndex = getSpriteMapIndex(x, y)
-
-                    m_mapSpritePool[spritePoolIndex] = sprite;
                     m_mapSpriteId[spriteMapIndex] = -1;
-
-                    batch.addChild(sprite);
-
-                    //console.log('init ' + x + ' ' + y);
                 }
             }
         }
@@ -540,12 +539,7 @@ var MMAPBATCH = (function ()
             {
                 for (var y = cTileY; y < eTileY; y++)
                 {
-                    var spritePoolIndex = getSpritePoolIndex(x, y);
                     var spriteMapIndex = getSpriteMapIndex(x, y)
-
-                    var sprite = m_mapSpritePool[spritePoolIndex];
-                    sprite.destroy(options);
-                    delete m_mapSpritePool[spritePoolIndex];
                     delete m_mapSpriteId[spriteMapIndex];
                 }
             }
@@ -574,8 +568,9 @@ var MMAPBATCH = (function ()
 
     var hasSprite = function mmapbatch_hasSprite(tileX, tileY)
     {
-        var poolIndex = getSpritePoolIndex(tileX, tileY);
-        return !(typeof m_mapSpritePool[poolIndex] === 'undefined' || m_mapSpritePool[poolIndex] == null);
+        var batchX = public.getTileXToBatchX(tileX);
+        var batchY = public.getTileYToBatchY(tileY);
+        return hasBatch(batchX, batchY);
     }
 
     public.setSprite = function mmapbatch_setSprite(tileX, tileY, id, x, y)
@@ -593,11 +588,11 @@ var MMAPBATCH = (function ()
             var batch = getBatch(batchX, batchY);
             batch.cacheAsBitmap = false;
 
-            var poolIndex = getSpritePoolIndex(tileX, tileY);
-
+            var cTileX = public.getBatchXToStartTileX(batchX);
+            var cTileY = public.getBatchYToStartTileY(batchY);
             var textureName = MMAPRENDER.getTileTextureName(id);
             var textureCache = PIXI.utils.TextureCache[textureName];
-            var sprite = m_mapSpritePool[poolIndex];
+            var sprite = getSpriteFromBatch(batch, tileX - cTileX, tileY - cTileY);
             sprite.setTexture(textureCache);
             sprite.x = x - sprite.width / 2;
             sprite.y = y - sprite.height;

@@ -950,6 +950,7 @@ var MMAPRENDER = (function ()
 
     var TEXTURE_BASE_SIZE_X = 64;
     var TEXTURE_BASE_SIZE_Y = 32;
+    public.C_MIN_ZOOM = 0.25;
 
     var getRainbowProfile = function mmaprender_getRainbowProfile(n)
     {
@@ -1203,14 +1204,14 @@ var MMAPRENDER = (function ()
     public.setCameraScale = function mmaprender_setCameraScale(scaleX, scaleY)
     {
         m_cameraScaleX = scaleX;
-        if (m_cameraScaleX < 0.2)
+        if (m_cameraScaleX < public.C_MIN_ZOOM)
         {
-            m_cameraScaleX = 0.2;
+            m_cameraScaleX = public.C_MIN_ZOOM;
         }
         m_cameraScaleY = scaleY;
-        if (m_cameraScaleY < 0.2)
+        if (m_cameraScaleY < public.C_MIN_ZOOM)
         {
-            m_cameraScaleY = 0.2;
+            m_cameraScaleY = public.C_MIN_ZOOM;
         }
         var mapLayer = MMAPBATCH.getMapLayer();
         mapLayer.scale.x = m_cameraScaleX;

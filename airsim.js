@@ -344,6 +344,7 @@ var MMAPBATCH = (function ()
     public.C_BATCH_SIZE_Y = 8;
     
     public.C_BATCH_LIFETIME = 60;
+    public.C_MAX_BATCH_COUNT = 300;
 
     public.mathCantor = function mmapbatch_mathCantor(X, Y)
     {
@@ -437,6 +438,26 @@ var MMAPBATCH = (function ()
         sprite.on('pointerup', MMAPTOUCH.onSpriteDisplayDragEnd);
     }
     */
+    
+    var m_buildBatchPool = [];
+    var m_buildBatchTotalCount = 0;
+    var buildBatch = function mmapbatch_buildBatch()
+    {
+        if (m_buildBatchPool.length <= 0)
+        {
+            m_buildBatchTotalCount++;
+            return new PIXI.Container();
+        }
+        else
+        {
+            return m_buildBatchPool.pop();
+        }
+    }
+    
+    public.getBatchTotalCount = function mmapbatch_getBatchTotalCount()
+    {
+        return m_buildBatchTotalCount;
+    }
 
     // create one empty if none
     // excepted if coordinates are negative
@@ -445,7 +466,7 @@ var MMAPBATCH = (function ()
         var batchMapIndex = getBatchMapIndex(batchX, batchY);
         if (!hasBatch(batchX, batchY))
         {
-            var batch = new PIXI.Container();
+            var batch = buildBatch();
 
             batch.visible = false;
 
@@ -529,7 +550,9 @@ var MMAPBATCH = (function ()
                 }
             }
 
-            batch.destroy(options);
+            //batch.destroy(options);
+            //batch.visible = false;
+            m_buildBatchPool.push(batch);
         }
     }
 
@@ -764,7 +787,7 @@ var MMAPBATCH = (function ()
         {
             var mapIndex = keys[i];
             m_mapSpriteBatchLifetime[mapIndex]--;
-            if (m_mapSpriteBatchLifetime[mapIndex] == 0)
+            if (m_mapSpriteBatchLifetime[mapIndex] <= 0)
             {
                 if (typeof flag[mapIndex] === 'undefined')
                 {
@@ -1178,7 +1201,7 @@ var MMAPRENDER = (function ()
         var mapCoords = 'm(' + (m_cameraMapX | 0) + ',' + (m_cameraMapY | 0) + ',' + cameraScale + ') ';
         var tileCoords = 't(' + tileX + ',' + tileY + ') ';
         var batchCoords = 'b(' + MMAPBATCH.getTileXToBatchX(tileX) + ',' + MMAPBATCH.getTileYToBatchY(tileY) + ') ';
-        var batchCount = 'B(' + MMAPBATCH.getBatchCount() + ') ';
+        var batchCount = 'B(' + MMAPBATCH.getBatchCount() + '/' + MMAPBATCH.getBatchTotalCount() + ') ';
         g_counter.innerHTML = mapCoords + batchCount;
     }
 

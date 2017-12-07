@@ -55,6 +55,7 @@ function OnReady()
         .on("progress", LoaderProgressHandler)
         .load(LoaderSetup);
 
+    window.onresize = Resize;
     Resize();
 
     g_app.ticker.add(Update);
@@ -106,7 +107,7 @@ function Resize()
 {
     console.log('resizing');
     var width = window.innerWidth - 8;
-    var height = window.innerHeight - 4;
+    var height = window.innerHeight - 8;
 
     g_app.renderer.view.style.left = 0;
     g_app.renderer.view.style.top = 0;

@@ -212,9 +212,8 @@ var ASMAP = (function ()
     {
         //console.log('s' + x + ',' + y);
         var id = MMAPDATA.getTileId(x, y);
-        id += 1;
-        id %= MMAPDATA.C_MAXTILEID;
-        MMAPDATA.setTileId(x, y, id);
+        var randomId = MMAPDATA.getRandomTileId();
+        MMAPDATA.setTileId(x, y, randomId);
         //console.log(MMAPRENDER.getTileZOrder(x, y));
     }
     
@@ -242,12 +241,11 @@ var MMAPDATA = (function ()
     public.C_TILEENUM = {
         NONE: 0,
         DIRT: 1,
-        WATER: 2,
-        RESLOW: 3,
-        COMLOW: 4,
-        INDLOW: 6
+        ROAD: 3,
+        RESLOW: 10,
+        COMLOW: 20,
+        INDLOW: 30
     }
-    public.C_MAXTILEID = Object.keys(public.C_TILEENUM).length;
 
     public.getMapTableSizeX = function mmapdata_getMapTableSizeX()
     {
@@ -262,11 +260,12 @@ var MMAPDATA = (function ()
         m_mapTableSizeX = x;
         m_mapTableSizeY = y;
         m_pfgrid = new ASPF.Grid(x, y);
+        
         for (var x = 0; x < m_mapTableSizeX; x++)
         {
             for (var y = 0; y < m_mapTableSizeY; y++)
             {
-                var randomId = Math.floor(Math.random() * public.C_MAXTILEID);
+                var randomId = public.getRandomTileId();
                 var batchX = MMAPBATCH.getTileXToBatchX(x);
                 var batchY = MMAPBATCH.getTileYToBatchY(y);
                 var odd = (batchX + batchY) % 2;
@@ -274,13 +273,26 @@ var MMAPDATA = (function ()
             }
         }
     }
+    public.isValidTileId = function mmapdata_isValidTileId(id)
+    {
+        var index = Object.values(public.C_TILEENUM).indexOf(id)
+        return index > -1;
+    }
+    public.getRandomTileId = function mmapdata_getRandomTileId()
+    {
+        var tileEnumValues = Object.values(MMAPDATA.C_TILEENUM);
+        var tileEnumCount = tileEnumValues.length;
+        var randomIndex = Math.floor(Math.random() * tileEnumCount);
+        var randomId = tileEnumValues[randomIndex];
+        return randomId;
+    }
     public.randomizeTile = function (count)
     {
         for (var i = 0; i < count; i++)
         {
             var x = Math.floor(m_mapTableSizeX * Math.random());
             var y = Math.floor(m_mapTableSizeY * Math.random());
-            var id = Math.floor(public.C_MAXTILEID * Math.random());
+            var id = public.getRandomTileId();
             public.setTileId(x, y, id);
         }
     }
@@ -302,9 +314,9 @@ var MMAPDATA = (function ()
     }
     public.setTileId = function mmapdata_setTileId(x, y, newId)
     {
-        if (newId >= public.C_MAXTILEID)
+        if (!public.isValidTileId(newId))
         {
-            newId = public.C_MAXTILEID - 1;
+            newId = public.C_TILEENUM.NONE;
         }
         var tile =
         {
@@ -321,7 +333,7 @@ var MMAPDATA = (function ()
     }
     var isTileIdTypeWalkable = function mmapdata_isTileIdTypeWalkable(id)
     {
-        return id < public.C_MAXTILEID / 2;
+        return id <= public.C_TILEENUM.ROAD;
     }
     public.isValidCoordinates = function mmapdata_isValidCoordinates(tileX, tileY)
     {
@@ -998,23 +1010,24 @@ var MMAPRENDER = (function ()
     
     var getCityColor = function mmaprender_getCityColor(n)
     {
-        if (n == 0)
+        var type = MMAPDATA.C_TILEENUM;
+        if (n == type.DIRT)
         {
             return getColor(121, 85, 72); // dirt
         }
-        else if (n == 1)
+        else if (n == type.ROAD)
         {
             return getColor(158, 158, 158); // road
         }
-        else if (n == 2)
+        else if (n == type.RESLOW)
         {
             return getColor(76, 175, 80); // r
         }
-        else if (n == 3)
+        else if (n == type.COMLOW)
         {
             return getColor(33, 150, 243); // c
         }
-        else if (n == 4)
+        else if (n == type.INDLOW)
         {
             return getColor(255, 235, 59); // i
         }
@@ -1023,19 +1036,20 @@ var MMAPRENDER = (function ()
     
     var getCityTextureHeight = function mmaprender_getCityTextureHeight(n)
     {
-        if (n == 1)
+        var type = MMAPDATA.C_TILEENUM;
+        if (n == type.ROAD)
         {
             return 6;
         }
-        else if (n == 2)
+        else if (n == type.RESLOW)
         {
             return 9; // r
         }
-        else if (n == 3)
+        else if (n == type.COMLOW)
         {
             return 12; // c
         }
-        else if (n == 4)
+        else if (n == type.INDLOW)
         {
             return 15; // i
         }
@@ -1072,10 +1086,13 @@ var MMAPRENDER = (function ()
 
     var initializeTexture = function mmaprender_initializeTexture()
     {
-        for (i = 0; i < MMAPDATA.C_MAXTILEID; i++)
+        //for (i = 0; i < MMAPDATA.C_MAXTILEID; i++)
+        var values = Object.values(MMAPDATA.C_TILEENUM);
+        for (var i in values)
         {
-            var textureName = public.getTileTextureName(i);
-            var graphics = public.createTexture(i);
+            var id = values[i] | 0;
+            var textureName = public.getTileTextureName(id);
+            var graphics = public.createTexture(id);
             var texture = g_app.renderer.generateTexture(graphics);
             PIXI.utils.TextureCache[textureName] = texture;
         }

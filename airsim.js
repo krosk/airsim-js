@@ -215,7 +215,7 @@ var ASMAP = (function ()
         id += 1;
         id %= MMAPDATA.C_MAXTILEID;
         MMAPDATA.setTileId(x, y, id);
-        console.log(MMAPRENDER.getTileZOrder(x, y));
+        //console.log(MMAPRENDER.getTileZOrder(x, y));
     }
     
     var doDoubleClick = function asmap_doDoubleClick(x, y)
@@ -239,7 +239,15 @@ var MMAPDATA = (function ()
 
     var m_pfgrid = {};
 
-    public.C_MAXTILEID = 5;
+    public.C_TILEENUM = {
+        NONE: 0,
+        DIRT: 1,
+        WATER: 2,
+        RESLOW: 3,
+        COMLOW: 4,
+        INDLOW: 6
+    }
+    public.C_MAXTILEID = Object.keys(public.C_TILEENUM).length;
 
     public.getMapTableSizeX = function mmapdata_getMapTableSizeX()
     {

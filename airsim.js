@@ -233,6 +233,8 @@ var ASMAPUI = (function ()
     
     var m_uiLayer;
     
+    //var m_currentTileId = MMAPDATA.C_TILEENUM.DIRT;
+    
     public.initialize = function asmapui_initialize()
     {
         m_uiLayer = new PIXI.Container();
@@ -265,13 +267,14 @@ var ASMAPUI = (function ()
         var textureCache = PIXI.utils.TextureCache[textureName];
         var sprite = new PIXI.Sprite(textureCache);
         sprite.interactive = true;
-        sprite.on('pointerdown', onSpritePress);
+        sprite.on('pointerdown',
+            function(e){onSpritePress(e, tileId);});
         return sprite;
     }
     
-    var onSpritePress = function asmapui_onSpritePress()
+    var onSpritePress = function asmapui_onSpritePress(event, tileId)
     {
-        console.log('p');
+        console.log('p' + tileId);
     }
     
     return public;

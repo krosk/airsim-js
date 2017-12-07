@@ -104,8 +104,9 @@ function LoaderSetup()
 
 function Resize()
 {
-    var width = window.innerWidth;
-    var height = window.innerHeight;
+    console.log('resizing');
+    var width = window.innerWidth - 8;
+    var height = window.innerHeight - 8;
 
     g_app.renderer.view.style.left = 0;
     g_app.renderer.view.style.top = 0;
@@ -189,6 +190,7 @@ var ASMAP = (function ()
     {
         MMAPDATA.initialize(w, h);
         MMAPRENDER.initialize(doSingleClick, doDoubleClick);
+        ASMAPUI.initialize();
     }
 
     public.getWidth = function asmap_getWidth()
@@ -222,6 +224,56 @@ var ASMAP = (function ()
         console.log('d' + x + ',' + y);
     }
 
+    return public;
+})();
+// ---------------------
+var ASMAPUI = (function ()
+{
+    var public = {};
+    
+    var m_uiLayer;
+    
+    public.initialize = function asmapui_initialize()
+    {
+        m_uiLayer = new PIXI.Container();
+        g_app.stage.addChild(m_uiLayer);
+        m_uiLayer.interactive = false;
+        
+        var tileEnums = Object.values(MMAPDATA.C_TILEENUM);
+        for (var i in tileEnums)
+        {
+            var tileId = tileEnums[i];
+            var sprite = createTileSprite(tileId);
+            m_uiLayer.addChild(sprite);
+            sprite.x = i*sprite.width;
+            sprite.y = getLayerHeight() - sprite.height;
+        }
+    }
+    
+    var getLayerWidth = function asmapui_getLayerWidth()
+    {
+        return g_app.renderer.width;
+    }
+    var getLayerHeight = function asmap_getLayerHeight()
+    {
+        return g_app.renderer.height;
+    }
+    
+    var createTileSprite = function asmapui_createButton(tileId)
+    {
+        var textureName = MMAPRENDER.getTileTextureName(tileId);
+        var textureCache = PIXI.utils.TextureCache[textureName];
+        var sprite = new PIXI.Sprite(textureCache);
+        sprite.interactive = true;
+        sprite.on('pointerdown', onSpritePress);
+        return sprite;
+    }
+    
+    var onSpritePress = function asmapui_onSpritePress()
+    {
+        console.log('p');
+    }
+    
     return public;
 })();
 // ---------------------
@@ -1098,11 +1150,11 @@ var MMAPRENDER = (function ()
         }
     }
 
-    var viewWidth = function ()
+    var viewWidth = function mmaprender_viewWidth()
     {
         return g_app.renderer.width;
     }
-    var viewHeight = function ()
+    var viewHeight = function mmaprender_viewHeight()
     {
         return g_app.renderer.height;
     }

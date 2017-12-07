@@ -106,7 +106,7 @@ function Resize()
 {
     console.log('resizing');
     var width = window.innerWidth - 8;
-    var height = window.innerHeight - 8;
+    var height = window.innerHeight - 4;
 
     g_app.renderer.view.style.left = 0;
     g_app.renderer.view.style.top = 0;
@@ -233,7 +233,7 @@ var ASMAPUI = (function ()
     
     var m_uiLayer;
     
-    //var m_currentTileId = MMAPDATA.C_TILEENUM.DIRT;
+    var m_currentTileId = 0;
     
     public.initialize = function asmapui_initialize()
     {
@@ -241,6 +241,7 @@ var ASMAPUI = (function ()
         g_app.stage.addChild(m_uiLayer);
         m_uiLayer.interactive = false;
         
+        var maxHeight = 0;
         var tileEnums = Object.values(MMAPDATA.C_TILEENUM);
         for (var i in tileEnums)
         {
@@ -249,7 +250,16 @@ var ASMAPUI = (function ()
             m_uiLayer.addChild(sprite);
             sprite.x = i*sprite.width;
             sprite.y = getLayerHeight() - sprite.height;
+            if (maxHeight < sprite.height)
+            {
+                maxHeight = sprite.height;
+            }
         }
+        
+        var background = createMenuBackground(maxHeight);
+        m_uiLayer.addChildAt(background, 0);
+        background.y = getLayerHeight() - background.height;
+        
     }
     
     var getLayerWidth = function asmapui_getLayerWidth()
@@ -272,9 +282,34 @@ var ASMAPUI = (function ()
         return sprite;
     }
     
+    var createMenuBackground = function asmapui_createMenuBackground(height)
+    {
+        var graphics = new PIXI.Graphics();
+
+        var black = 0x000000;
+        var white = 0xFFFFFF;
+        graphics.beginFill(white);
+        graphics.lineStyle(1, black);
+        
+        var H = height;
+
+        // draw a rectangle
+        graphics.moveTo(0, 0);
+        graphics.lineTo(getLayerWidth(), 0);
+        graphics.lineTo(getLayerWidth(), H);
+        graphics.lineTo(0, H);
+        
+        graphics.endFill();
+        
+        var texture = g_app.renderer.generateTexture(graphics);
+        var sprite = new PIXI.Sprite(texture)
+        return sprite;
+    }
+    
     var onSpritePress = function asmapui_onSpritePress(event, tileId)
     {
         console.log('p' + tileId);
+        m_currentTileId = tileId;
     }
     
     return public;

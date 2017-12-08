@@ -982,8 +982,7 @@ var MMAPTOUCH = (function ()
     var m_startScaleX = 1;
     var m_startScaleY = 1;
     var m_startDistance = 0;
-    var m_startPointerScreenX = 0;
-    var m_startPointerScreenY = 0;
+    var m_startPointerScreen = {};
     var m_startCameraMapX = 0;
     var m_startCameraMapY = 0;
     // 
@@ -1029,11 +1028,11 @@ var MMAPTOUCH = (function ()
         {
             if (m_clickCount == 1)
             {
-                MMAPRENDER.processSingleClick(m_startPointerScreenX, m_startPointerScreenY);
+                MMAPRENDER.processSingleClick(m_startPointerScreen.x, m_startPointerScreen.y);
             }
             else if (m_clickCount == 2)
             {
-                MMAPRENDER.processDoubleClick(m_startPointerScreenX, m_startPointerScreenY);
+                MMAPRENDER.processDoubleClick(m_startPointerScreen.x, m_startPointerScreen.y);
             }
         }
         m_clickCount = 0;
@@ -1060,14 +1059,11 @@ var MMAPTOUCH = (function ()
             m_startScaleX = _this.scale.x;
             m_startScaleY = _this.scale.y;
 
-            var pointerPositionOnScreen = m_touchData[0].getLocalPosition(_this.parent);
-
             m_dragging = true;
             m_zooming = false;
             m_startDistance = 0;
 
-            m_startPointerScreenX = pointerPositionOnScreen.x;
-            m_startPointerScreenY = pointerPositionOnScreen.y;
+            m_startPointerScreen = m_touchData[0].getLocalPosition(_this.parent);
             m_startCameraMapX = MMAPRENDER.getCameraMapX();
             m_startCameraMapY = MMAPRENDER.getCameraMapY();
 
@@ -1103,12 +1099,12 @@ var MMAPTOUCH = (function ()
             MMAPRENDER.setCameraScale(cameraScaleX, cameraScaleY);
         }
 
-        // if moved, consider no click
-        //m_firstTouchTimeOut = false;
+        var deltaPointerScreenX = m_startPointerScreen.x - pointerScreen.x;
+        var deltaPointerScreenY = m_startPointerScreen.y - pointerScreen.y;
 
         // camera moves according to differential movement of pointer
-        var cameraMapX = m_startCameraMapX + (m_startPointerScreenX - pointerScreen.x) / MMAPRENDER.getCameraScaleX();
-        var cameraMapY = m_startCameraMapY + (m_startPointerScreenY - pointerScreen.y) / MMAPRENDER.getCameraScaleY();
+        var cameraMapX = m_startCameraMapX + deltaPointerScreenX / MMAPRENDER.getCameraScaleX();
+        var cameraMapY = m_startCameraMapY + deltaPointerScreenY / MMAPRENDER.getCameraScaleY();
 
         MMAPRENDER.setCameraMap(cameraMapX, cameraMapY);
     }

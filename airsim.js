@@ -235,6 +235,7 @@ var ASMAPUI = (function ()
     var public = {};
     
     var m_uiLayer;
+    var m_uiSpriteTable = {};
     
     var m_currentTileId = 0;
     
@@ -257,6 +258,7 @@ var ASMAPUI = (function ()
         var landscape = MMAPRENDER.isOrientationLandscape();
         
         m_uiLayer.removeChildren();
+        m_uiSpriteTable = {};
         
         var maxHeight = 0;
         var maxWidth = 0;
@@ -266,6 +268,7 @@ var ASMAPUI = (function ()
             var tileId = tileEnums[i];
             var sprite = createTileSprite(tileId);
             m_uiLayer.addChild(sprite);
+            m_uiSpriteTable[tileId] = sprite;
             if (landscape)
             {
                 sprite.x = getLayerWidth() - sprite.width;
@@ -298,6 +301,19 @@ var ASMAPUI = (function ()
         else
         {
             background.y = getLayerHeight() - background.height;
+        }
+        
+        focusTileSprite();
+    }
+    
+    var focusTileSprite = function asmapui_focusTileSprite()
+    {
+        var keys = Object.keys(m_uiSpriteTable);
+        for (var i in keys)
+        {
+            var id = keys[i];
+            var sprite = m_uiSpriteTable[id];
+            sprite.alpha = id == m_currentTileId ? 1 : 0.25 ;
         }
     }
     
@@ -348,8 +364,8 @@ var ASMAPUI = (function ()
     
     var onSpritePress = function asmapui_onSpritePress(event, tileId)
     {
-        console.log('p' + tileId);
         m_currentTileId = tileId;
+        focusTileSprite();
     }
     
     return public;

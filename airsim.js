@@ -1018,7 +1018,6 @@ var MMAPTOUCH = (function ()
         if (m_dragging || m_zooming)
         {
             updateCameraDrag(this);
-            m_clickTimeout = false;
         }
     }
     
@@ -1084,6 +1083,18 @@ var MMAPTOUCH = (function ()
             m_zooming = true;
         }
     }
+    
+    var disableClickTimeoutOnMove = function mmaptouch_disableClickTimeoutOnMove(p1, p2)
+    {
+        if (m_clickTimeout)
+        {
+            var d = getDistanceBetween(p1, p2);
+            if (d > 4)
+            {
+                m_clickTimeout = false;
+            }
+        }
+    }
 
     var updateCameraDrag = function mmaptouch_updateCameraDrag(_this)
     {
@@ -1098,6 +1109,8 @@ var MMAPTOUCH = (function ()
 
             MMAPRENDER.setCameraScale(cameraScaleX, cameraScaleY);
         }
+        
+        disableClickTimeoutOnMove(pointerScreen, m_startPointerScreen);
 
         var deltaPointerScreenX = m_startPointerScreen.x - pointerScreen.x;
         var deltaPointerScreenY = m_startPointerScreen.y - pointerScreen.y;

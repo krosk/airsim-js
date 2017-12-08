@@ -259,7 +259,7 @@ var ASMAPUI = (function ()
         
         var maxHeight = 0;
         var maxWidth = 0;
-        var tileEnums = Object.values(MMAPDATA.C_TILEENUM);
+        var tileEnums = MMAPDATA.getZoningTile();
         for (var i in tileEnums)
         {
             var tileId = tileEnums[i];
@@ -394,7 +394,14 @@ var MMAPDATA = (function ()
         COMLOW: 20,
         INDLOW: 30
     }
-
+    public.getZoningTile = function mmapdata_getZoningTile()
+    {
+        var C = public.C_TILEENUM;
+        return [
+            C.DIRT, C.ROAD, 
+            C.RESLOW, C.COMLOW, C.INDLOW
+        ];
+    }
     public.getMapTableSizeX = function mmapdata_getMapTableSizeX()
     {
         return m_mapTableSizeX;
@@ -428,7 +435,7 @@ var MMAPDATA = (function ()
     }
     public.getRandomTileId = function mmapdata_getRandomTileId()
     {
-        var tileEnumValues = Object.values(MMAPDATA.C_TILEENUM);
+        var tileEnumValues = public.getZoningTile();
         var tileEnumCount = tileEnumValues.length;
         var randomIndex = Math.floor(Math.random() * tileEnumCount);
         var randomId = tileEnumValues[randomIndex];

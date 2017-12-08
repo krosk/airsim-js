@@ -420,11 +420,11 @@ var MMAPDATA = (function ()
         {
             for (var y = 0; y < m_mapTableSizeY; y++)
             {
-                var randomId = public.getRandomTileId();
+                var defaultId = public.C_TILEENUM.DIRT;
                 var batchX = MMAPBATCH.getTileXToBatchX(x);
                 var batchY = MMAPBATCH.getTileYToBatchY(y);
                 var odd = (batchX + batchY) % 2;
-                public.setTileId(x, y, randomId);
+                public.setTileId(x, y, defaultId);
             }
         }
     }

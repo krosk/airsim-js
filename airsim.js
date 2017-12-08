@@ -215,11 +215,8 @@ var ASMAP = (function ()
     
     var doSingleClick = function asmap_doSingleClick(x, y)
     {
-        //console.log('s' + x + ',' + y);
-        var id = MMAPDATA.getTileId(x, y);
-        var randomId = MMAPDATA.getRandomTileId();
-        MMAPDATA.setTileId(x, y, randomId);
-        //console.log(MMAPRENDER.getTileZOrder(x, y));
+        var selectedId = ASMAPUI.getCurrentTileId();
+        MMAPDATA.setTileId(x, y, selectedId);
     }
     
     var doDoubleClick = function asmap_doDoubleClick(x, y)
@@ -304,6 +301,11 @@ var ASMAPUI = (function ()
         }
         
         focusTileSprite();
+    }
+    
+    public.getCurrentTileId = function asmapui_getCurrentTileId()
+    {
+        return m_currentTileId;
     }
     
     var focusTileSprite = function asmapui_focusTileSprite()

@@ -112,6 +112,8 @@ function Resize()
     g_app.renderer.view.style.left = 0;
     g_app.renderer.view.style.top = 0;
     g_app.renderer.resize(width, height);
+    
+    ASMAPUI.resize();
 }
 
 function WaitingState()
@@ -242,25 +244,61 @@ var ASMAPUI = (function ()
         g_app.stage.addChild(m_uiLayer);
         m_uiLayer.interactive = false;
         
+        public.resize();
+    }
+    
+    public.resize = function asmapui_resize()
+    {
+        if (typeof m_uiLayer === 'undefined')
+        {
+            return;
+        }
+        
+        var landscape = MMAPRENDER.isOrientationLandscape();
+        
+        m_uiLayer.removeChildren();
+        
         var maxHeight = 0;
+        var maxWidth = 0;
         var tileEnums = Object.values(MMAPDATA.C_TILEENUM);
         for (var i in tileEnums)
         {
             var tileId = tileEnums[i];
             var sprite = createTileSprite(tileId);
             m_uiLayer.addChild(sprite);
-            sprite.x = i*sprite.width;
-            sprite.y = getLayerHeight() - sprite.height;
-            if (maxHeight < sprite.height)
+            if (landscape)
             {
-                maxHeight = sprite.height;
+                sprite.x = getLayerWidth() - sprite.width;
+                sprite.y = i*sprite.height;
+                if (maxWidth < sprite.width)
+                {
+                    maxWidth = sprite.width;
+                }
+                maxHeight = getLayerHeight();
             }
+            else
+            {
+                sprite.x = i*sprite.width;
+                sprite.y = getLayerHeight() - sprite.height;
+                if (maxHeight < sprite.height)
+                {
+                    maxHeight = sprite.height;
+                }
+                maxWidth = getLayerWidth();
+            }
+            
         }
         
-        var background = createMenuBackground(maxHeight);
+        var background = createMenuBackground(maxWidth, maxHeight);
         m_uiLayer.addChildAt(background, 0);
-        background.y = getLayerHeight() - background.height;
-        
+        if (landscape)
+        {
+            background.x = getLayerWidth() - background.width;
+        }
+        else
+        {
+            background.y = getLayerHeight() - background.height;
+        }
     }
     
     var getLayerWidth = function asmapui_getLayerWidth()
@@ -283,7 +321,7 @@ var ASMAPUI = (function ()
         return sprite;
     }
     
-    var createMenuBackground = function asmapui_createMenuBackground(height)
+    var createMenuBackground = function asmapui_createMenuBackground(width, height)
     {
         var graphics = new PIXI.Graphics();
 
@@ -293,11 +331,12 @@ var ASMAPUI = (function ()
         graphics.lineStyle(1, black);
         
         var H = height;
+        var W = width;
 
         // draw a rectangle
         graphics.moveTo(0, 0);
-        graphics.lineTo(getLayerWidth(), 0);
-        graphics.lineTo(getLayerWidth(), H);
+        graphics.lineTo(W, 0);
+        graphics.lineTo(W, H);
         graphics.lineTo(0, H);
         
         graphics.endFill();
@@ -1187,6 +1226,12 @@ var MMAPRENDER = (function ()
             var texture = g_app.renderer.generateTexture(graphics);
             PIXI.utils.TextureCache[textureName] = texture;
         }
+    }
+    
+    public.isOrientationLandscape = function mmaprender_isOrientationLandscape()
+    {
+        var landscape = g_app.renderer.width > g_app.renderer.height;
+        return landscape;
     }
 
     var viewWidth = function mmaprender_viewWidth()

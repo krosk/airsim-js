@@ -216,6 +216,14 @@ var ASMAP = (function ()
     var doSingleClick = function asmap_doSingleClick(x, y)
     {
         var selectedId = ASMAPUI.getCurrentTileId();
+        if (selectedId == MMAPDATA.C_TILEENUM.ROAD)
+        {
+            ASROAD.addRoad(x, y);
+        }
+        else
+        {
+            ASROAD.removeRoad(x, y);
+        }
         MMAPDATA.setTileId(x, y, selectedId);
     }
     
@@ -368,6 +376,137 @@ var ASMAPUI = (function ()
     {
         m_currentTileId = tileId;
         focusTileSprite();
+    }
+    
+    return public;
+})();
+// ---------------------
+var ASROAD = (function ()
+{
+    var public = {};
+    
+    var m_network = {};
+    
+    // connected: [] cantor index
+    // congestion: 1 = free, 0 = locked
+    // max speed: 50
+    // cost = max speed * congestion
+    
+    const C_TO = {
+        N: 0,
+        E: 1,
+        S: 2,
+        W: 3
+    };
+    const C_XOFFSET = [-1, 0, 1, 0];
+    const C_YOFFSET = [0, 1, 0, -1];
+    const C_FROM = [2, 3, 0, 1];
+    
+    public.initialize = function asroad_initialize(width, height)
+    {
+        
+    }
+    
+    var mathCantor = function asroad_mathCantor(X, Y)
+    {
+        return (X + Y) * (X + Y + 1) / 2 + Y;
+    }
+
+    var mathReverseCantorPair = function asroad_mathReverseCantorPair(z)
+    {
+        var pair = [];
+        var t = Math.floor((-1 + Math.sqrt(1 + 8 * z)) / 2);
+        var x = t * (t + 3) / 2 - z;
+        var y = z - t * (t + 1) / 2;
+        pair[0] = x;
+        pair[1] = y;
+        return pair;
+    }
+    
+    var setNewRoad = function asroad_setNewRoad()
+    {
+        var road = {
+            connectTo : [,,,],
+            congestion : 1,
+            speed : 10
+        };
+
+        return road;
+    }
+    
+    var connectNodes = function asroad_connectNodes(x, y, d)
+    {
+        var from = mathCantor(x, y);
+        var to = mathCantor(x + C_XOFFSET[d], y + C_YOFFSET[d]);
+        if (hasRoad(from) && hasRoad(to))
+        {
+            m_network[from].connectTo[d] = to;
+            m_network[to].connectTo[C_FROM[d]] = from;
+        }
+    }
+    
+    var disconnectNodes = function asroad_disconnectNodes(x, y, d)
+    {
+        var from = mathCantor(x, y);
+        var to = mathCantor(x + C_XOFFSET[d], y + C_YOFFSET[d]);
+        if (hasRoad(from))
+        {
+            delete m_network[from].connectTo[d];
+        }
+        if (hasRoad(to))
+        {
+            delete m_network[to].connectTo[C_FROM[d]];
+        }
+    }
+    
+    var hasRoad = function asroad_hasRoad(i)
+    {
+        return !((typeof m_network[i] === 'undefined') || (m_network[i] == null));
+    }
+    
+    var getNeighbour = function asroad_getNeighbour(x, y)
+    {
+        var lookup = [,,,];
+        var addIfValid = function(x, y, i)
+        {
+            if (isValidCoordinates(x, y))
+            {
+                lookup[i] = mathCantor(x, y);
+            }
+        };
+        addIfValid(x - 1, y);
+        addIfValid(x, y - 1);
+        addIfValid(x + 1, y);
+        addIfValid(x, y + 1);
+        return lookup;
+    }
+
+    public.addRoad = function asroad_addRoad(x, y)
+    {
+        var index = mathCantor(x, y);
+        if (!hasRoad(index))
+        {
+            m_network[index] = setNewRoad();
+        }
+        connectNodes(x, y, C_TO.N);
+        connectNodes(x, y, C_TO.E);
+        connectNodes(x, y, C_TO.S);
+        connectNodes(x, y, C_TO.W);
+        console.log(m_network);
+    }
+
+    public.removeRoad = function asroad_removeRoad(x, y)
+    {
+        var index = mathCantor(x, y);
+        if (!hasRoad(index))
+        {
+            return;
+        }
+        disconnectNodes(x, y, C_TO.N);
+        disconnectNodes(x, y, C_TO.E);
+        disconnectNodes(x, y, C_TO.S);
+        disconnectNodes(x, y, C_TO.W);
+        delete m_network[index];
     }
     
     return public;
@@ -1443,7 +1582,7 @@ var MMAPRENDER = (function ()
         var tileCoords = 't(' + tileX + ',' + tileY + ') ';
         var batchCoords = 'b(' + MMAPBATCH.getTileXToBatchX(tileX) + ',' + MMAPBATCH.getTileYToBatchY(tileY) + ') ';
         var batchCount = 'B(' + MMAPBATCH.getBatchCount() + '/' + MMAPBATCH.getBatchTotalCount() + ') ';
-        g_counter.innerHTML = mapCoords + batchCount;
+        g_counter.innerHTML = mapCoords + tileCoords + batchCount;
     }
 
     public.setCameraScale = function mmaprender_setCameraScale(scaleX, scaleY)

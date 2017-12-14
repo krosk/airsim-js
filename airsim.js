@@ -191,6 +191,7 @@ var ASMAP = (function ()
 
     public.initialize = function asmap_initialize(w, h)
     {
+        ASZONE.initializeTexture();
         MMAPDATA.initialize(w, h);
         MMAPRENDER.initialize(doSingleClick, doDoubleClick);
         ASMAPUI.initialize();
@@ -492,7 +493,6 @@ var ASROAD = (function ()
         connectNodes(x, y, C_TO.E);
         connectNodes(x, y, C_TO.S);
         connectNodes(x, y, C_TO.W);
-        console.log(m_network);
     }
 
     public.removeRoad = function asroad_removeRoad(x, y)
@@ -1264,9 +1264,120 @@ var MMAPTOUCH = (function ()
     return public;
 })();
 
+var ASZONE = (function ()
+{
+    var public = {};
+    
+    var TEXTURE_BASE_SIZE_X = 64;
+    var TEXTURE_BASE_SIZE_Y = 32;
+    
+    public.initializeTexture = function aszone_initializeTexture()
+    {
+        var values = Object.values(MMAPDATA.C_TILEENUM);
+        for (var i in values)
+        {
+            var id = values[i] | 0;
+            var textureName = public.getTileTextureName(id);
+            var graphics = createTexture(id);
+            var texture = g_app.renderer.generateTexture(graphics);
+            PIXI.utils.TextureCache[textureName] = texture;
+        }
+    }
+    
+    public.getTileTextureName = function aszone_getTileTextureName(tileId)
+    {
+        return "aszone-" + tileId;
+    }
+    
+    var getColor = function aszone_getColor(r, g, b)
+    {
+        return (r) * 2**16 + (g) * 2**8 + (b);
+    }
+    
+    var getCityColor = function aszone_getCityColor(n)
+    {
+        var type = MMAPDATA.C_TILEENUM;
+        if (n == type.DIRT)
+        {
+            return getColor(121, 85, 72); // dirt
+        }
+        else if (n == type.ROAD)
+        {
+            return getColor(158, 158, 158); // road
+        }
+        else if (n == type.RESLOW)
+        {
+            return getColor(76, 175, 80); // r
+        }
+        else if (n == type.COMLOW)
+        {
+            return getColor(33, 150, 243); // c
+        }
+        else if (n == type.INDLOW)
+        {
+            return getColor(255, 235, 59); // i
+        }
+        return getColor(255, 0, 0);
+    }
+    
+    var getCityTextureHeight = function aszone_getCityTextureHeight(n)
+    {
+        var type = MMAPDATA.C_TILEENUM;
+        if (n == type.ROAD)
+        {
+            return 6;
+        }
+        else if (n == type.RESLOW)
+        {
+            return 9; // r
+        }
+        else if (n == type.COMLOW)
+        {
+            return 12; // c
+        }
+        else if (n == type.INDLOW)
+        {
+            return 15; // i
+        }
+        return 3;
+    }
+    
+    var createTexture = function aszone_createTexture(id)
+    {
+        var graphics = new PIXI.Graphics();
+
+        var color = getCityColor(id);
+        var black = 0x000000;
+        graphics.beginFill(color);
+        graphics.lineStyle(1, black);
+
+        var M = 0; // margin
+        var H = getCityTextureHeight(id);
+
+        // draw a rectangle
+        graphics.moveTo(TEXTURE_BASE_SIZE_X / 2, M);
+        graphics.lineTo(M, TEXTURE_BASE_SIZE_Y / 2);
+        graphics.lineTo(M, TEXTURE_BASE_SIZE_Y / 2 + H);
+        graphics.lineTo(TEXTURE_BASE_SIZE_X / 2, TEXTURE_BASE_SIZE_Y - M + H);
+        graphics.lineTo(TEXTURE_BASE_SIZE_X - M, TEXTURE_BASE_SIZE_Y / 2 + H);
+        graphics.lineTo(TEXTURE_BASE_SIZE_X - M, TEXTURE_BASE_SIZE_Y / 2);
+        graphics.lineTo(TEXTURE_BASE_SIZE_X / 2, M);
+        graphics.moveTo(TEXTURE_BASE_SIZE_X / 2, TEXTURE_BASE_SIZE_Y - 2 * M + M);
+        graphics.lineTo(M, TEXTURE_BASE_SIZE_Y / 2);
+        graphics.moveTo(TEXTURE_BASE_SIZE_X / 2, TEXTURE_BASE_SIZE_Y - 2 * M + M);
+        graphics.lineTo(TEXTURE_BASE_SIZE_X - M, TEXTURE_BASE_SIZE_Y / 2);
+
+        return graphics;
+    }
+    
+    return public;
+})();
+
 var MMAPRENDER = (function ()
 {
     var public = {};
+    
+    var m_renderModule = ASZONE;
 
     //var TEXTURE_BASE_SIZE_X = 130;
     //var TEXTURE_BASE_SIZE_Y = 66;
@@ -1304,101 +1415,6 @@ var MMAPRENDER = (function ()
         var g = getRainbowProfile(n) << 8;
         var b = getRainbowProfile(n + 0xFF * 4);
         return r + g + b;
-    }
-    
-    var getColor = function mmaprender_getColor(r, g, b)
-    {
-        return (r) * 2**16 + (g) * 2**8 + (b);
-    }
-    
-    var getCityColor = function mmaprender_getCityColor(n)
-    {
-        var type = MMAPDATA.C_TILEENUM;
-        if (n == type.DIRT)
-        {
-            return getColor(121, 85, 72); // dirt
-        }
-        else if (n == type.ROAD)
-        {
-            return getColor(158, 158, 158); // road
-        }
-        else if (n == type.RESLOW)
-        {
-            return getColor(76, 175, 80); // r
-        }
-        else if (n == type.COMLOW)
-        {
-            return getColor(33, 150, 243); // c
-        }
-        else if (n == type.INDLOW)
-        {
-            return getColor(255, 235, 59); // i
-        }
-        return getColor(255, 0, 0);
-    }
-    
-    var getCityTextureHeight = function mmaprender_getCityTextureHeight(n)
-    {
-        var type = MMAPDATA.C_TILEENUM;
-        if (n == type.ROAD)
-        {
-            return 6;
-        }
-        else if (n == type.RESLOW)
-        {
-            return 9; // r
-        }
-        else if (n == type.COMLOW)
-        {
-            return 12; // c
-        }
-        else if (n == type.INDLOW)
-        {
-            return 15; // i
-        }
-        return 3;
-    }
-
-    public.createTexture = function mmaprender_createTexture(id)
-    {
-        var graphics = new PIXI.Graphics();
-
-        var color = getCityColor(id);
-        var black = 0x000000;
-        graphics.beginFill(color);
-        graphics.lineStyle(1, black);
-
-        var M = 0; // margin
-        var H = getCityTextureHeight(id);
-
-        // draw a rectangle
-        graphics.moveTo(TEXTURE_BASE_SIZE_X / 2, M);
-        graphics.lineTo(M, TEXTURE_BASE_SIZE_Y / 2);
-        graphics.lineTo(M, TEXTURE_BASE_SIZE_Y / 2 + H);
-        graphics.lineTo(TEXTURE_BASE_SIZE_X / 2, TEXTURE_BASE_SIZE_Y - M + H);
-        graphics.lineTo(TEXTURE_BASE_SIZE_X - M, TEXTURE_BASE_SIZE_Y / 2 + H);
-        graphics.lineTo(TEXTURE_BASE_SIZE_X - M, TEXTURE_BASE_SIZE_Y / 2);
-        graphics.lineTo(TEXTURE_BASE_SIZE_X / 2, M);
-        graphics.moveTo(TEXTURE_BASE_SIZE_X / 2, TEXTURE_BASE_SIZE_Y - 2 * M + M);
-        graphics.lineTo(M, TEXTURE_BASE_SIZE_Y / 2);
-        graphics.moveTo(TEXTURE_BASE_SIZE_X / 2, TEXTURE_BASE_SIZE_Y - 2 * M + M);
-        graphics.lineTo(TEXTURE_BASE_SIZE_X - M, TEXTURE_BASE_SIZE_Y / 2);
-
-        return graphics;
-    }
-
-    var initializeTexture = function mmaprender_initializeTexture()
-    {
-        //for (i = 0; i < MMAPDATA.C_MAXTILEID; i++)
-        var values = Object.values(MMAPDATA.C_TILEENUM);
-        for (var i in values)
-        {
-            var id = values[i] | 0;
-            var textureName = public.getTileTextureName(id);
-            var graphics = public.createTexture(id);
-            var texture = g_app.renderer.generateTexture(graphics);
-            PIXI.utils.TextureCache[textureName] = texture;
-        }
     }
     
     public.isOrientationLandscape = function mmaprender_isOrientationLandscape()
@@ -1452,12 +1468,11 @@ var MMAPRENDER = (function ()
         MMAPBATCH.initialize();
         m_singleClickCallback = singleClick;
         m_doubleClickCallback = doubleClick;
-        initializeTexture();
     }
-
+    
     public.getTileTextureName = function mmaprender_getTileTextureName(tileId)
     {
-        return "mytile" + tileId;
+        return m_renderModule.getTileTextureName(tileId);
     }
 
     // sprites are rendered at their

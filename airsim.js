@@ -192,7 +192,7 @@ var ASMAP = (function ()
     public.initialize = function asmap_initialize(w, h)
     {
         ASZONE.initializeTexture();
-        MMAPDATA.initialize(w, h);
+        MMAPDATA.initialize(w, h, ASZONE);
         MMAPRENDER.initialize(doSingleClick, doDoubleClick);
         ASMAPUI.initialize();
     }
@@ -217,7 +217,7 @@ var ASMAP = (function ()
     var doSingleClick = function asmap_doSingleClick(x, y)
     {
         var selectedId = ASMAPUI.getCurrentTileId();
-        if (selectedId == MMAPDATA.C_TILEENUM.ROAD)
+        if (selectedId == ASZONE.C_TILEENUM.ROAD)
         {
             ASROAD.addRoad(x, y);
         }
@@ -513,7 +513,8 @@ var ASROAD = (function ()
 })();
 // ---------------------
 // only responsible for holding tile id
-// and size
+// and size, and is data entry point for
+// render
 var MMAPDATA = (function ()
 {
     var public = {};
@@ -522,20 +523,12 @@ var MMAPDATA = (function ()
     var m_mapChangeLog = [];
     var m_mapTableSizeX = 0;
     var m_mapTableSizeY = 0;
+    
+    var m_dataLibrary;
 
-    var m_pfgrid = {};
-
-    public.C_TILEENUM = {
-        NONE: 0,
-        DIRT: 1,
-        ROAD: 3,
-        RESLOW: 10,
-        COMLOW: 20,
-        INDLOW: 30
-    }
     public.getZoningTile = function mmapdata_getZoningTile()
     {
-        var C = public.C_TILEENUM;
+        var C = ASZONE.C_TILEENUM;
         return [
             C.DIRT, C.ROAD, 
             C.RESLOW, C.COMLOW, C.INDLOW
@@ -549,17 +542,17 @@ var MMAPDATA = (function ()
     {
         return m_mapTableSizeY;
     }
-    public.initialize = function mmapdata_initialize(x, y)
+    public.initialize = function mmapdata_initialize(x, y, dataLibrary)
     {
         m_mapTableSizeX = x;
         m_mapTableSizeY = y;
-        m_pfgrid = new ASPF.Grid(x, y);
+        m_dataLibrary = dataLibrary;
         
         for (var x = 0; x < m_mapTableSizeX; x++)
         {
             for (var y = 0; y < m_mapTableSizeY; y++)
             {
-                var defaultId = public.C_TILEENUM.DIRT;
+                var defaultId = m_dataLibrary.C_TILEENUM.DEFAULT;
                 var batchX = MMAPBATCH.getTileXToBatchX(x);
                 var batchY = MMAPBATCH.getTileYToBatchY(y);
                 var odd = (batchX + batchY) % 2;
@@ -569,7 +562,7 @@ var MMAPDATA = (function ()
     }
     public.isValidTileId = function mmapdata_isValidTileId(id)
     {
-        var index = Object.values(public.C_TILEENUM).indexOf(id)
+        var index = Object.values(m_dataLibrary.C_TILEENUM).indexOf(id)
         return index > -1;
     }
     public.getRandomTileId = function mmapdata_getRandomTileId()
@@ -599,8 +592,7 @@ var MMAPDATA = (function ()
             var index = tile.x * m_mapTableSizeY + tile.y;
             m_mapTableData[index] = tile.id;
 
-            var walkable = isTileIdTypeWalkable(tile.id);
-            m_pfgrid.setWalkableAt(tile.x, tile.y, walkable);
+            // possible callbacks here
             output.push(tile);
         }
         m_mapChangeLog = [];
@@ -610,7 +602,7 @@ var MMAPDATA = (function ()
     {
         if (!public.isValidTileId(newId))
         {
-            newId = public.C_TILEENUM.NONE;
+            newId = m_dataLibrary.C_TILEENUM.NONE;
         }
         var tile =
         {
@@ -625,10 +617,10 @@ var MMAPDATA = (function ()
         var index = tileX * m_mapTableSizeY + tileY;
         return m_mapTableData[index];
     }
-    var isTileIdTypeWalkable = function mmapdata_isTileIdTypeWalkable(id)
-    {
-        return id <= public.C_TILEENUM.ROAD;
-    }
+    //var isTileIdTypeWalkable = function mmapdata_isTileIdTypeWalkable(id)
+    //{
+    //    return id <= m_dataLibrary.C_TILEENUM.ROAD;
+    //}
     public.isValidCoordinates = function mmapdata_isValidCoordinates(tileX, tileY)
     {
         var isOutOfBound = tileX < 0 || tileX >= public.getMapTableSizeX() || tileY < 0 || tileY >= public.getMapTableSizeY();
@@ -1271,9 +1263,19 @@ var ASZONE = (function ()
     var TEXTURE_BASE_SIZE_X = 64;
     var TEXTURE_BASE_SIZE_Y = 32;
     
+    public.C_TILEENUM = {
+        NONE: 0,
+        DEFAULT: 1,
+        DIRT: 1,
+        ROAD: 3,
+        RESLOW: 10,
+        COMLOW: 20,
+        INDLOW: 30
+    }
+    
     public.initializeTexture = function aszone_initializeTexture()
     {
-        var values = Object.values(MMAPDATA.C_TILEENUM);
+        var values = Object.values(public.C_TILEENUM);
         for (var i in values)
         {
             var id = values[i] | 0;
@@ -1296,7 +1298,7 @@ var ASZONE = (function ()
     
     var getCityColor = function aszone_getCityColor(n)
     {
-        var type = MMAPDATA.C_TILEENUM;
+        var type = public.C_TILEENUM;
         if (n == type.DIRT)
         {
             return getColor(121, 85, 72); // dirt
@@ -1322,7 +1324,7 @@ var ASZONE = (function ()
     
     var getCityTextureHeight = function aszone_getCityTextureHeight(n)
     {
-        var type = MMAPDATA.C_TILEENUM;
+        var type = public.C_TILEENUM;
         if (n == type.ROAD)
         {
             return 6;

@@ -192,6 +192,7 @@ var ASMAP = (function ()
     public.initialize = function asmap_initialize(w, h)
     {
         ASZONE.initializeTexture();
+        ASROAD.initializeTexture();
         MMAPDATA.initialize(w, h, ASZONE);
         MMAPRENDER.initialize(doSingleClick, doDoubleClick);
         ASMAPUI.initialize();
@@ -401,9 +402,88 @@ var ASROAD = (function ()
     const C_YOFFSET = [0, 1, 0, -1];
     const C_FROM = [2, 3, 0, 1];
     
+    public.C_TILEENUM = {
+        NONE: 0,
+        LOW: 1,
+        MID: 2,
+        HIG: 3
+    }
+    
     public.initialize = function asroad_initialize(width, height)
     {
         
+    }
+    
+    public.initializeTexture = function asroad_initializeTexture()
+    {
+        var values = Object.values(public.C_TILEENUM);
+        for (var i in values)
+        {
+            var id = values[i] | 0;
+            var textureName = public.getTileTextureName(id);
+            var graphics = createTexture(id);
+            var texture = g_app.renderer.generateTexture(graphics);
+            PIXI.utils.TextureCache[textureName] = texture;
+        }
+    }
+    
+    public.getTileTextureName = function asroad_getTileTextureName(tileId)
+    {
+        return "asroad-" + tileId;
+    }
+    
+    var getColor = function asroad_getColor(r, g, b)
+    {
+        return (r) * 2**16 + (g) * 2**8 + (b);
+    }
+    
+    var getTrafficColor = function asroad_getTrafficColor(n)
+    {
+        var type = public.C_TILEENUM;
+        if (n == type.LOW)
+        {
+            return getColor(76, 175, 80);
+        }
+        else if (n == type.MID)
+        {
+            return getColor(255, 235, 59);
+        }
+        else if (n == type.HIG)
+        {
+            return getColor(255, 50, 50); // r
+        }
+        return getColor(255, 255, 255);
+    }
+    
+    var createTexture = function asroad_createTexture(id)
+    {
+        var graphics = new PIXI.Graphics();
+        
+        var C_TEXTURE_BASE_SIZE_X = MMAPRENDER.getTextureBaseSizeX();
+        var C_TEXTURE_BASE_SIZE_Y = MMAPRENDER.getTextureBaseSizeY();
+
+        var color = getTrafficColor(id);
+        var black = 0x000000;
+        graphics.beginFill(color);
+        graphics.lineStyle(1, black);
+
+        var M = 0; // margin
+        var H = 3;
+
+        // draw a rectangle
+        graphics.moveTo(C_TEXTURE_BASE_SIZE_X / 2, M);
+        graphics.lineTo(M, C_TEXTURE_BASE_SIZE_Y / 2);
+        graphics.lineTo(M, C_TEXTURE_BASE_SIZE_Y / 2 + H);
+        graphics.lineTo(C_TEXTURE_BASE_SIZE_X / 2, C_TEXTURE_BASE_SIZE_Y - M + H);
+        graphics.lineTo(C_TEXTURE_BASE_SIZE_X - M, C_TEXTURE_BASE_SIZE_Y / 2 + H);
+        graphics.lineTo(C_TEXTURE_BASE_SIZE_X - M, C_TEXTURE_BASE_SIZE_Y / 2);
+        graphics.lineTo(C_TEXTURE_BASE_SIZE_X / 2, M);
+        graphics.moveTo(C_TEXTURE_BASE_SIZE_X / 2, C_TEXTURE_BASE_SIZE_Y - 2 * M + M);
+        graphics.lineTo(M, C_TEXTURE_BASE_SIZE_Y / 2);
+        graphics.moveTo(C_TEXTURE_BASE_SIZE_X / 2, C_TEXTURE_BASE_SIZE_Y - 2 * M + M);
+        graphics.lineTo(C_TEXTURE_BASE_SIZE_X - M, C_TEXTURE_BASE_SIZE_Y / 2);
+
+        return graphics;
     }
     
     var mathCantor = function asroad_mathCantor(X, Y)
@@ -491,6 +571,7 @@ var ASROAD = (function ()
         connectNodes(x, y, C_TO.E);
         connectNodes(x, y, C_TO.S);
         connectNodes(x, y, C_TO.W);
+        console.log('add road');
     }
 
     public.removeRoad = function asroad_removeRoad(x, y)
@@ -1268,9 +1349,6 @@ var ASZONE = (function ()
 {
     var public = {};
     
-    var TEXTURE_BASE_SIZE_X = 64;
-    var TEXTURE_BASE_SIZE_Y = 32;
-    
     public.C_TILEENUM = {
         NONE: 0,
         DEFAULT: 1,
@@ -1355,6 +1433,9 @@ var ASZONE = (function ()
     var createTexture = function aszone_createTexture(id)
     {
         var graphics = new PIXI.Graphics();
+        
+        var C_TEXTURE_BASE_SIZE_X = MMAPRENDER.getTextureBaseSizeX();
+        var C_TEXTURE_BASE_SIZE_Y = MMAPRENDER.getTextureBaseSizeY();
 
         var color = getCityColor(id);
         var black = 0x000000;
@@ -1365,17 +1446,17 @@ var ASZONE = (function ()
         var H = getCityTextureHeight(id);
 
         // draw a rectangle
-        graphics.moveTo(TEXTURE_BASE_SIZE_X / 2, M);
-        graphics.lineTo(M, TEXTURE_BASE_SIZE_Y / 2);
-        graphics.lineTo(M, TEXTURE_BASE_SIZE_Y / 2 + H);
-        graphics.lineTo(TEXTURE_BASE_SIZE_X / 2, TEXTURE_BASE_SIZE_Y - M + H);
-        graphics.lineTo(TEXTURE_BASE_SIZE_X - M, TEXTURE_BASE_SIZE_Y / 2 + H);
-        graphics.lineTo(TEXTURE_BASE_SIZE_X - M, TEXTURE_BASE_SIZE_Y / 2);
-        graphics.lineTo(TEXTURE_BASE_SIZE_X / 2, M);
-        graphics.moveTo(TEXTURE_BASE_SIZE_X / 2, TEXTURE_BASE_SIZE_Y - 2 * M + M);
-        graphics.lineTo(M, TEXTURE_BASE_SIZE_Y / 2);
-        graphics.moveTo(TEXTURE_BASE_SIZE_X / 2, TEXTURE_BASE_SIZE_Y - 2 * M + M);
-        graphics.lineTo(TEXTURE_BASE_SIZE_X - M, TEXTURE_BASE_SIZE_Y / 2);
+        graphics.moveTo(C_TEXTURE_BASE_SIZE_X / 2, M);
+        graphics.lineTo(M, C_TEXTURE_BASE_SIZE_Y / 2);
+        graphics.lineTo(M, C_TEXTURE_BASE_SIZE_Y / 2 + H);
+        graphics.lineTo(C_TEXTURE_BASE_SIZE_X / 2, C_TEXTURE_BASE_SIZE_Y - M + H);
+        graphics.lineTo(C_TEXTURE_BASE_SIZE_X - M, C_TEXTURE_BASE_SIZE_Y / 2 + H);
+        graphics.lineTo(C_TEXTURE_BASE_SIZE_X - M, C_TEXTURE_BASE_SIZE_Y / 2);
+        graphics.lineTo(C_TEXTURE_BASE_SIZE_X / 2, M);
+        graphics.moveTo(C_TEXTURE_BASE_SIZE_X / 2, C_TEXTURE_BASE_SIZE_Y - 2 * M + M);
+        graphics.lineTo(M, C_TEXTURE_BASE_SIZE_Y / 2);
+        graphics.moveTo(C_TEXTURE_BASE_SIZE_X / 2, C_TEXTURE_BASE_SIZE_Y - 2 * M + M);
+        graphics.lineTo(C_TEXTURE_BASE_SIZE_X - M, C_TEXTURE_BASE_SIZE_Y / 2);
 
         return graphics;
     }
@@ -1387,11 +1468,19 @@ var MMAPRENDER = (function ()
 {
     var public = {};
 
-    //var TEXTURE_BASE_SIZE_X = 130;
-    //var TEXTURE_BASE_SIZE_Y = 66;
+    //var C_TEXTURE_BASE_SIZE_X = 130;
+    //var C_TEXTURE_BASE_SIZE_Y = 66;
 
-    var TEXTURE_BASE_SIZE_X = 64;
-    var TEXTURE_BASE_SIZE_Y = 32;
+    var C_TEXTURE_BASE_SIZE_X = 64;
+    var C_TEXTURE_BASE_SIZE_Y = 32;
+    public.getTextureBaseSizeX = function mmaprender_getTextureBaseSizeX()
+    {
+        return C_TEXTURE_BASE_SIZE_X;
+    }
+    public.getTextureBaseSizeY = function mmaprender_getTextureBaseSizeY()
+    {
+        return C_TEXTURE_BASE_SIZE_Y;
+    }
     public.C_MIN_ZOOM = 0.25;
 
     var getRainbowProfile = function mmaprender_getRainbowProfile(n)
@@ -1492,12 +1581,12 @@ var MMAPRENDER = (function ()
 
     var tileToMapX = function (tileX, tileY)
     {
-        return TEXTURE_BASE_SIZE_X / 2 * (tileX - tileY);
+        return C_TEXTURE_BASE_SIZE_X / 2 * (tileX - tileY);
     }
 
     var tileToMapY = function (tileX, tileY)
     {
-        return TEXTURE_BASE_SIZE_Y / 2 * (tileX + tileY);
+        return C_TEXTURE_BASE_SIZE_Y / 2 * (tileX + tileY);
     }
 
     // not to be used to check selection
@@ -1505,12 +1594,12 @@ var MMAPRENDER = (function ()
     // nor z level
     var mapToTileX = function (mapX, mapY)
     {
-        return mapX / TEXTURE_BASE_SIZE_X + (mapY + 1 + TEXTURE_BASE_SIZE_Y) / TEXTURE_BASE_SIZE_Y;
+        return mapX / C_TEXTURE_BASE_SIZE_X + (mapY + 1 + C_TEXTURE_BASE_SIZE_Y) / C_TEXTURE_BASE_SIZE_Y;
     }
 
     var mapToTileY = function (mapX, mapY)
     {
-        return (mapY + 1 + TEXTURE_BASE_SIZE_Y) / TEXTURE_BASE_SIZE_Y - mapX / TEXTURE_BASE_SIZE_X;
+        return (mapY + 1 + C_TEXTURE_BASE_SIZE_Y) / C_TEXTURE_BASE_SIZE_Y - mapX / C_TEXTURE_BASE_SIZE_X;
     }
 
     var getScreenToMapX = function mmaprender_getScreenToMapX(screenX)
@@ -1685,8 +1774,8 @@ var MMAPRENDER = (function ()
     var getBatchIndexInScreen = function mmaprender_getBatchIndexInScreen()
     {
         var minBatchEdge = Math.min(MMAPBATCH.C_BATCH_SIZE_X, MMAPBATCH.C_BATCH_SIZE_Y);
-        var deltaScreenX = minBatchEdge * TEXTURE_BASE_SIZE_X * m_cameraScaleX;
-        var deltaScreenY = minBatchEdge * TEXTURE_BASE_SIZE_Y * m_cameraScaleY;
+        var deltaScreenX = minBatchEdge * C_TEXTURE_BASE_SIZE_X * m_cameraScaleX;
+        var deltaScreenY = minBatchEdge * C_TEXTURE_BASE_SIZE_Y * m_cameraScaleY;
 
         var maxScreenX = viewWidth();
         var maxScreenY = viewHeight();
@@ -1723,8 +1812,8 @@ var MMAPRENDER = (function ()
     var getBatchIndexInScreen2 = function mmaprender_getBatchIndexInScreen2()
     {
         var minBatchEdge = Math.min(MMAPBATCH.C_BATCH_SIZE_X, MMAPBATCH.C_BATCH_SIZE_Y);
-        var deltaScreenX = minBatchEdge * TEXTURE_BASE_SIZE_X * m_cameraScaleX;
-        var deltaScreenY = minBatchEdge * TEXTURE_BASE_SIZE_Y * m_cameraScaleY;
+        var deltaScreenX = minBatchEdge * C_TEXTURE_BASE_SIZE_X * m_cameraScaleX;
+        var deltaScreenY = minBatchEdge * C_TEXTURE_BASE_SIZE_Y * m_cameraScaleY;
 
         var totalStepX = Math.floor(viewWidth() / deltaScreenX) + 2;
         var totalStepY = Math.floor(viewHeight() / deltaScreenY) + 2;

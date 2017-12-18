@@ -209,9 +209,7 @@ var ASMAP = (function ()
 
     public.update = function asmap_update(dt, time)
     {
-        //MMAPDATA.randomizeTile(1);
-        var changedTile = MMAPDATA.commitChangeLog();
-        MMAPRENDER.update(dt, time, changedTile);
+        MMAPRENDER.update(dt, time);
     }
     
     var doSingleClick = function asmap_doSingleClick(x, y)
@@ -534,6 +532,15 @@ var MMAPDATA = (function ()
             C.RESLOW, C.COMLOW, C.INDLOW
         ];
     }
+    public.getDataLibrary = function mmapdata_getDataLibrary()
+    {
+        return m_dataLibrary;
+    }
+    public.switchData = function mmapdata_switchData(data, dataLibrary)
+    {
+        m_dataLibrary = dataLibrary;
+        m_mapChangeLog = data;
+    }
     public.getMapTableSizeX = function mmapdata_getMapTableSizeX()
     {
         return m_mapTableSizeX;
@@ -585,7 +592,7 @@ var MMAPDATA = (function ()
     }
     public.commitChangeLog = function mmapdata_commitChangeLog()
     {
-        var output = [];
+        var updatedTiles = [];// convention [x, y, x, y, ...]
         for (var i = 0; i < m_mapChangeLog.length; i++)
         {
             var tile = m_mapChangeLog[i];
@@ -593,10 +600,11 @@ var MMAPDATA = (function ()
             m_mapTableData[index] = tile.id;
 
             // possible callbacks here
-            output.push(tile);
+            updatedTiles.push(tile.x);
+            updatedTiles.push(tile.y);
         }
         m_mapChangeLog = [];
-        return output;
+        return updatedTiles;
     }
     public.setTileId = function mmapdata_setTileId(x, y, newId)
     {
@@ -1058,10 +1066,10 @@ var MMAPBATCH = (function ()
     {
         var centerBatchX = public.getTileXToBatchX(centerTileX);
         var centerBatchY = public.getTileYToBatchY(centerTileY);
-        for (var i = 0; i < updatedTiles.length; i++)
+        for (var i = 0; i < updatedTiles.length; i+=2)
         {
-            var tileX = updatedTiles[i].x;
-            var tileY = updatedTiles[i].y;
+            var tileX = updatedTiles[i];
+            var tileY = updatedTiles[i+1];
             var batchX = public.getTileXToBatchX(tileX);
             var batchY = public.getTileYToBatchY(tileY);
             if (Math.abs(batchX - centerBatchX) <= radius && Math.abs(batchY - centerBatchY) <= radius)
@@ -1378,8 +1386,6 @@ var ASZONE = (function ()
 var MMAPRENDER = (function ()
 {
     var public = {};
-    
-    var m_renderModule = ASZONE;
 
     //var TEXTURE_BASE_SIZE_X = 130;
     //var TEXTURE_BASE_SIZE_Y = 66;
@@ -1474,7 +1480,7 @@ var MMAPRENDER = (function ()
     
     public.getTileTextureName = function mmaprender_getTileTextureName(tileId)
     {
-        return m_renderModule.getTileTextureName(tileId);
+        return MMAPDATA.getDataLibrary().getTileTextureName(tileId);
     }
 
     // sprites are rendered at their
@@ -1847,8 +1853,10 @@ var MMAPRENDER = (function ()
     public.C_MINBATCHPERCALL = 1;
     public.C_MAXBATCHPERCALL = 800;
 
-    public.update = function mmaprender_update(dt, tile, updatedTiles)
+    public.update = function mmaprender_update(dt, tile)
     {
+        var updatedTiles = MMAPDATA.commitChangeLog();
+        
         // remarks: one single call to texture change
         // is likely to cause a complete refresh of the
         // m_mapDisplay container, even if the

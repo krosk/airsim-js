@@ -411,6 +411,7 @@ var ASROAD = (function ()
     var getNetworkIndex = function asroad_getNetworkIndex(x, y)
     {
         return MUTIL.mathCantor(x, y);
+        //return x * MMAPDATA.getMapTableSizeY() + y;
     }
     
     // connected: [] cantor index
@@ -595,7 +596,7 @@ var MMAPDATA = (function ()
     var m_mapTableData = [];
     var getMapTableDataIndex = function mmapdata_getMapTableDataIndex(x, y)
     {
-        return x * m_mapTableSizeY + y;
+        return x * public.getMapTableSizeY() + y;
     }
     var m_mapChangeLog = [];
     
@@ -728,10 +729,15 @@ var MMAPBATCH = (function ()
     public.getBatchMapIndex = function mmapbatch_getBatchMapIndex(batchX, batchY)
     {
         return MUTIL.mathCantor(batchX, batchY);
+        //return batchX * MMAPDATA.getMapTableSizeY() + batchY;
     }
     public.getBatchMapIndexReverse = function mmapbatch_getBatchMapIndexReverse(batchIndex)
     {
         return MUTIL.mathReverseCantorPair(batchIndex);
+        /*var pair = [];
+        pair[0] = (batchIndex / MMAPDATA.getMapTableSizeY()) | 0;
+        pair[1] = batchIndex - pair[0] * MMAPDATA.getMapTableSizeY();
+        return pair;*/
     }
     
     // sprites grouped by batch
@@ -740,6 +746,7 @@ var MMAPBATCH = (function ()
     var getMapSpriteIdIndex = function mmapbatch_getMapSpriteIdIndex(x, y)
     {
         return MUTIL.mathCantor(x, y);
+        //return x * MMAPDATA.getMapTableSizeY() + y;
     }
 
     public.C_BATCH_SIZE_X = 8;
@@ -1061,7 +1068,7 @@ var MMAPBATCH = (function ()
                 var startTileY = public.getBatchYToStartTileY(batchY);
                 if (batchX >= 0 && batchY >= 0 && MMAPDATA.isValidCoordinates(startTileX, startTileY))
                 {
-                    var index = public.mathCantor(batchX, batchY);
+                    var index = public.getBatchMapIndex(batchX, batchY);
                     if (typeof flag[index] === 'undefined')
                     {
                         flag[index] = {};
@@ -1087,7 +1094,7 @@ var MMAPBATCH = (function ()
                 var startTileY = public.getBatchYToStartTileY(batchY);
                 if (batchX >= 0 && batchY >= 0 && MMAPDATA.isValidCoordinates(startTileX, startTileY))
                 {
-                    var index = public.mathCantor(batchX, batchY);
+                    var index = public.getBatchMapIndex(batchX, batchY);
                     batchList.push(index);
                 }
             }
@@ -1772,7 +1779,7 @@ var MMAPRENDER = (function ()
                 var tileY = Math.floor(getScreenToTileY(stepScreenX, stepScreenY));
                 var batchX = MMAPBATCH.getTileXToBatchX(tileX);
                 var batchY = MMAPBATCH.getTileYToBatchY(tileY);
-                batchList.push(MMAPBATCH.mathCantor(batchX, batchY));
+                batchList.push(MMAPBATCH.getBatchMapIndex(batchX, batchY));
             }
         }
 
@@ -1784,7 +1791,7 @@ var MMAPRENDER = (function ()
                 var tileY = Math.floor(getScreenToTileY(stepScreenX, stepScreenY));
                 var batchX = MMAPBATCH.getTileXToBatchX(tileX);
                 var batchY = MMAPBATCH.getTileYToBatchY(tileY);
-                batchList.push(MMAPBATCH.mathCantor(batchX, batchY));
+                batchList.push(MMAPBATCH.getBatchMapIndex(batchX, batchY));
             }
         }
 

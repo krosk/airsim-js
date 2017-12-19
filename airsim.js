@@ -183,7 +183,29 @@ function Update()
         //console.log(g_frameCounter);
     }
 }
+// ---------------------
+var MUTIL = (function ()
+{
+    var public = {};
+    
+    public.mathCantor = function mutil_mathCantor(X, Y)
+    {
+        return (X + Y) * (X + Y + 1) / 2 + Y;
+    }
 
+    public.mathReverseCantorPair = function mutil_mathReverseCantorPair(z)
+    {
+        var pair = [];
+        var t = Math.floor((-1 + Math.sqrt(1 + 8 * z)) / 2);
+        var x = t * (t + 3) / 2 - z;
+        var y = z - t * (t + 1) / 2;
+        pair[0] = x;
+        pair[1] = y;
+        return pair;
+    }
+    
+    return public;
+})();
 // ---------------------
 var ASMAP = (function ()
 {
@@ -386,6 +408,10 @@ var ASROAD = (function ()
     var public = {};
     
     var m_network = {};
+    var getNetworkIndex = function asroad_getNetworkIndex(x, y)
+    {
+        return MUTIL.mathCantor(x, y);
+    }
     
     // connected: [] cantor index
     // congestion: 1 = free, 0 = locked
@@ -486,22 +512,6 @@ var ASROAD = (function ()
         return graphics;
     }
     
-    var mathCantor = function asroad_mathCantor(X, Y)
-    {
-        return (X + Y) * (X + Y + 1) / 2 + Y;
-    }
-
-    var mathReverseCantorPair = function asroad_mathReverseCantorPair(z)
-    {
-        var pair = [];
-        var t = Math.floor((-1 + Math.sqrt(1 + 8 * z)) / 2);
-        var x = t * (t + 3) / 2 - z;
-        var y = z - t * (t + 1) / 2;
-        pair[0] = x;
-        pair[1] = y;
-        return pair;
-    }
-    
     var setNewRoad = function asroad_setNewRoad()
     {
         var road = {
@@ -515,8 +525,8 @@ var ASROAD = (function ()
     
     var connectNodes = function asroad_connectNodes(x, y, d)
     {
-        var from = mathCantor(x, y);
-        var to = mathCantor(x + C_XOFFSET[d], y + C_YOFFSET[d]);
+        var from = getNetworkIndex(x, y);
+        var to = getNetworkIndex(x + C_XOFFSET[d], y + C_YOFFSET[d]);
         if (hasRoad(from) && hasRoad(to))
         {
             m_network[from].connectTo[d] = to;
@@ -526,8 +536,8 @@ var ASROAD = (function ()
     
     var disconnectNodes = function asroad_disconnectNodes(x, y, d)
     {
-        var from = mathCantor(x, y);
-        var to = mathCantor(x + C_XOFFSET[d], y + C_YOFFSET[d]);
+        var from = getNetworkIndex(x, y);
+        var to = getNetworkIndex(x + C_XOFFSET[d], y + C_YOFFSET[d]);
         if (hasRoad(from))
         {
             delete m_network[from].connectTo[d];
@@ -543,26 +553,9 @@ var ASROAD = (function ()
         return !((typeof m_network[i] === 'undefined') || (m_network[i] == null));
     }
     
-    var getNeighbour = function asroad_getNeighbour(x, y)
-    {
-        var lookup = [,,,];
-        var addIfValid = function(x, y, i)
-        {
-            if (isValidCoordinates(x, y))
-            {
-                lookup[i] = mathCantor(x, y);
-            }
-        };
-        addIfValid(x - 1, y);
-        addIfValid(x, y - 1);
-        addIfValid(x + 1, y);
-        addIfValid(x, y + 1);
-        return lookup;
-    }
-
     public.addRoad = function asroad_addRoad(x, y)
     {
-        var index = mathCantor(x, y);
+        var index = getNetworkIndex(x, y);
         if (!hasRoad(index))
         {
             m_network[index] = setNewRoad();
@@ -571,12 +564,11 @@ var ASROAD = (function ()
         connectNodes(x, y, C_TO.E);
         connectNodes(x, y, C_TO.S);
         connectNodes(x, y, C_TO.W);
-        console.log('add road');
     }
 
     public.removeRoad = function asroad_removeRoad(x, y)
     {
-        var index = mathCantor(x, y);
+        var index = getNetworkIndex(x, y);
         if (!hasRoad(index))
         {
             return;
@@ -598,10 +590,15 @@ var MMAPDATA = (function ()
 {
     var public = {};
 
-    var m_mapTableData = [];
-    var m_mapChangeLog = [];
     var m_mapTableSizeX = 0;
     var m_mapTableSizeY = 0;
+    var m_mapTableData = [];
+    var getMapTableDataIndex = function mmapdata_getMapTableDataIndex(x, y)
+    {
+        return x * m_mapTableSizeY + y;
+    }
+    var m_mapChangeLog = [];
+    
     
     var m_dataLibrary;
 
@@ -674,15 +671,17 @@ var MMAPDATA = (function ()
     public.commitChangeLog = function mmapdata_commitChangeLog()
     {
         var updatedTiles = [];// convention [x, y, x, y, ...]
-        for (var i = 0; i < m_mapChangeLog.length; i++)
+        for (var i = 0; i < m_mapChangeLog.length; i+=3)
         {
-            var tile = m_mapChangeLog[i];
-            var index = tile.x * m_mapTableSizeY + tile.y;
-            m_mapTableData[index] = tile.id;
+            var tileX = m_mapChangeLog[i];
+            var tileY = m_mapChangeLog[i + 1];
+            var tileId = m_mapChangeLog[i + 2];
+            var index = getMapTableDataIndex(tileX, tileY);
+            m_mapTableData[index] = tileId;
 
             // possible callbacks here
-            updatedTiles.push(tile.x);
-            updatedTiles.push(tile.y);
+            updatedTiles.push(tileX);
+            updatedTiles.push(tileY);
         }
         m_mapChangeLog = [];
         return updatedTiles;
@@ -693,17 +692,13 @@ var MMAPDATA = (function ()
         {
             newId = m_dataLibrary.C_TILEENUM.NONE;
         }
-        var tile =
-        {
-            x: x,
-            y: y,
-            id: newId
-        };
-        m_mapChangeLog.push(tile);
+        m_mapChangeLog.push(x);
+        m_mapChangeLog.push(y);
+        m_mapChangeLog.push(newId);
     }
     public.getTileId = function mmapdata_getTileId(tileX, tileY)
     {
-        var index = tileX * m_mapTableSizeY + tileY;
+        var index = getMapTableDataIndex(tileX, tileY);
         return m_mapTableData[index];
     }
     //var isTileIdTypeWalkable = function mmapdata_isTileIdTypeWalkable(id)
@@ -730,31 +725,28 @@ var MMAPBATCH = (function ()
     var m_mapSpriteBatch = [];
     var m_mapSpriteBatchCount = 0;
     var m_mapSpriteBatchLifetime = {}; // cantor index
+    public.getBatchMapIndex = function mmapbatch_getBatchMapIndex(batchX, batchY)
+    {
+        return MUTIL.mathCantor(batchX, batchY);
+    }
+    public.getBatchMapIndexReverse = function mmapbatch_getBatchMapIndexReverse(batchIndex)
+    {
+        return MUTIL.mathReverseCantorPair(batchIndex);
+    }
+    
     // sprites grouped by batch
     // in batchMapIndex order
     var m_mapSpriteId = []; // mapIndex
+    var getMapSpriteIdIndex = function mmapbatch_getMapSpriteIdIndex(x, y)
+    {
+        return MUTIL.mathCantor(x, y);
+    }
 
     public.C_BATCH_SIZE_X = 8;
     public.C_BATCH_SIZE_Y = 8;
     
     public.C_BATCH_LIFETIME = 60;
     public.C_MAX_BATCH_COUNT = 300;
-
-    public.mathCantor = function mmapbatch_mathCantor(X, Y)
-    {
-        return (X + Y) * (X + Y + 1) / 2 + Y;
-    }
-
-    public.mathReverseCantorPair = function mmapbatch_mathReverseCantorPair(z)
-    {
-        var pair = [];
-        var t = Math.floor((-1 + Math.sqrt(1 + 8 * z)) / 2);
-        var x = t * (t + 3) / 2 - z;
-        var y = z - t * (t + 1) / 2;
-        pair[0] = x;
-        pair[1] = y;
-        return pair;
-    }
 
     public.initialize = function mmapbatch_initialize()
     {
@@ -771,22 +763,12 @@ var MMAPBATCH = (function ()
     {
         var X = Math.floor(tileX / public.C_BATCH_SIZE_X);
         var Y = Math.floor(tileY / public.C_BATCH_SIZE_Y);
-        return getBatchMapIndex(X, Y);
-    }
-
-    var getBatchMapIndex = function mmapbatch_getBatchMapIndex(batchX, batchY)
-    {
-        return public.mathCantor(batchX, batchY);
-    }
-
-    var getSpriteMapIndex = function mmapbatch_getSpriteMapIndex(tileX, tileY)
-    {
-        return public.mathCantor(tileX, tileY);
+        return public.getBatchMapIndex(X, Y);
     }
 
     var findIndexForNewBatch = function mmapbatch_findIndexForNewBatch(batchX, batchY)
     {
-        var batchMapIndex = getBatchMapIndex(batchX, batchY);
+        var batchMapIndex = public.getBatchMapIndex(batchX, batchY);
         var arrayIndex = batchMapIndex;
         while (arrayIndex >= 0)
         {
@@ -871,7 +853,7 @@ var MMAPBATCH = (function ()
     // batch exists <=> sprite exists
     var getBatch = function mmapbatch_getBatch(batchX, batchY)
     {
-        var batchMapIndex = getBatchMapIndex(batchX, batchY);
+        var batchMapIndex = public.getBatchMapIndex(batchX, batchY);
         if (!hasBatch(batchX, batchY))
         {
             var batch = buildBatch();
@@ -904,7 +886,7 @@ var MMAPBATCH = (function ()
                     var sprite = getSpriteFromBatch(batch, x - cTileX, y - cTileY);
                     sprite.visible = true;
 
-                    var spriteMapIndex = getSpriteMapIndex(x, y)
+                    var spriteMapIndex = getMapSpriteIdIndex(x, y)
                     m_mapSpriteId[spriteMapIndex] = -1;
                 }
             }
@@ -919,7 +901,7 @@ var MMAPBATCH = (function ()
             var batch = getBatch(batchX, batchY);
             m_mapLayer.removeChild(batch);
             
-            var batchMapIndex = getBatchMapIndex(batchX, batchY);
+            var batchMapIndex = public.getBatchMapIndex(batchX, batchY);
             delete m_mapSpriteBatch[batchMapIndex];
             m_mapSpriteBatchCount--;
             delete m_mapSpriteBatchLifetime[batchMapIndex];
@@ -934,7 +916,7 @@ var MMAPBATCH = (function ()
             {
                 for (var y = cTileY; y < eTileY; y++)
                 {
-                    var spriteMapIndex = getSpriteMapIndex(x, y)
+                    var spriteMapIndex = getMapSpriteIdIndex(x, y)
                     delete m_mapSpriteId[spriteMapIndex];
                 }
             }
@@ -952,7 +934,7 @@ var MMAPBATCH = (function ()
 
     var hasBatch = function mmapbatch_hasBatch(batchX, batchY)
     {
-        var mapIndex = getBatchMapIndex(batchX, batchY);
+        var mapIndex = public.getBatchMapIndex(batchX, batchY);
         return hasBatchByIndex(mapIndex);
     }
     
@@ -970,7 +952,7 @@ var MMAPBATCH = (function ()
 
     public.setSprite = function mmapbatch_setSprite(tileX, tileY, id, x, y)
     {
-        var spriteMapIndex = getSpriteMapIndex(tileX, tileY);
+        var spriteMapIndex = getMapSpriteIdIndex(tileX, tileY);
         var batchX = public.getTileXToBatchX(tileX);
         var batchY = public.getTileYToBatchY(tileY);
         if (!hasSprite(tileX, tileY))
@@ -1132,7 +1114,7 @@ var MMAPBATCH = (function ()
         for (var i in keys)
         {
             var k = keys[i];
-            var pair = public.mathReverseCantorPair(k);
+            var pair = public.getBatchMapIndexReverse(k);
             var batchX = pair[0];
             var batchY = pair[1];
             var exists = hasBatch(batchX, batchY);
@@ -1155,7 +1137,7 @@ var MMAPBATCH = (function ()
             var batchY = public.getTileYToBatchY(tileY);
             if (Math.abs(batchX - centerBatchX) <= radius && Math.abs(batchY - centerBatchY) <= radius)
             {
-                var mapIndex = getBatchMapIndex(batchX, batchY);
+                var mapIndex = public.getBatchMapIndex(batchX, batchY);
                 if (typeof flag[mapIndex] === 'undefined')
                 {
                     flag[mapIndex] = {};
@@ -1838,11 +1820,11 @@ var MMAPRENDER = (function ()
                 // however batchY + 1 may be, so check only upon adding
                 if (batchX >= 0 && batchY >= 0)
                 {
-                    batchList.push(MMAPBATCH.mathCantor(batchX, batchY));
+                    batchList.push(MMAPBATCH.getBatchMapIndex(batchX, batchY));
                 }
                 if (batchX >= 0 && batchY + 1 >= 0)
                 {
-                    batchList.push(MMAPBATCH.mathCantor(batchX, batchY + 1));
+                    batchList.push(MMAPBATCH.getBatchMapIndex(batchX, batchY + 1));
                 }
             }
         }
@@ -1861,7 +1843,7 @@ var MMAPRENDER = (function ()
         for (var i in keys)
         {
             var k = keys[i];
-            var pair = MMAPBATCH.mathReverseCantorPair(k);
+            var pair = MMAPBATCH.getBatchMapIndexReverse(k);
             var batchX = pair[0];
             var batchY = pair[1];
             var textureFlag = batchFlag[k].loadTexture;
@@ -1883,7 +1865,7 @@ var MMAPRENDER = (function ()
         for (var i in orderedKeys)
         {
             var k = orderedKeys[i];
-            var pair = MMAPBATCH.mathReverseCantorPair(k);
+            var pair = MMAPBATCH.getBatchMapIndexReverse(k);
             var batchX = pair[0];
             var batchY = pair[1];
             var textureFlag = batchFlag[k].loadTexture;
@@ -1933,7 +1915,7 @@ var MMAPRENDER = (function ()
         return true;
     }
 
-    // hold cantor indicies
+    // hold getBatchMapIndex
     var m_batchFlag = {};
     var m_batchPerCall = 1;
     var m_lastTime = 0;

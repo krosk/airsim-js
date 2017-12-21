@@ -246,7 +246,7 @@ var ASMAP = (function ()
         {
             ASROAD.removeRoad(x, y);
         }
-        MMAPDATA.setTileId(x, y, selectedId);
+        ASZONE.addZone(x, y, selectedId);
     }
     
     var doDoubleClick = function asmap_doDoubleClick(x, y)
@@ -677,9 +677,7 @@ var MMAPDATA = (function ()
             var tileX = m_mapChangeLog[i];
             var tileY = m_mapChangeLog[i + 1];
             var tileId = m_mapChangeLog[i + 2];
-            var index = getMapTableDataIndex(tileX, tileY);
-            m_mapTableData[index] = tileId;
-
+            
             // possible callbacks here
             updatedTiles.push(tileX);
             updatedTiles.push(tileY);
@@ -693,6 +691,9 @@ var MMAPDATA = (function ()
         {
             newId = m_dataLibrary.C_TILEENUM.NONE;
         }
+        var index = getMapTableDataIndex(x, y);
+        m_mapTableData[index] = newId;
+
         m_mapChangeLog.push(x);
         m_mapChangeLog.push(y);
         m_mapChangeLog.push(newId);
@@ -1448,6 +1449,19 @@ var ASZONE = (function ()
         graphics.lineTo(C_TEXTURE_BASE_SIZE_X - M, C_TEXTURE_BASE_SIZE_Y / 2);
 
         return graphics;
+    }
+    
+    public.dataLayer = [];
+    public.getDataIndex = function aszone_dataLayer(x, y)
+    {
+        return MUTIL.mathCantor(x, y);
+    }
+    public.dataChangeLog = [];
+    
+    public.addZone = function aszone_setZone(x, y, zone)
+    {
+        
+        MMAPDATA.setTileId(x, y, zone);
     }
     
     return public;

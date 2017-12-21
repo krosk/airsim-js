@@ -584,16 +584,18 @@ var ASROAD = (function ()
     return public;
 })();
 // ---------------------
-// only responsible for holding tile id
-// and size, and is data entry point for
-// render
+// wrapper for data layers to interface
+// with mmap render
 var MMAPDATA = (function ()
 {
     var public = {};
 
     var m_mapTableSizeX = 0;
     var m_mapTableSizeY = 0;
-    var m_mapTableData = [];
+    var getMapTableData = function mmapdata_getMapTableData()
+    {
+        return m_dataLibrary.getDataLayer();
+    }
     var getMapTableDataIndex = function mmapdata_getMapTableDataIndex(x, y)
     {
         return x * public.getMapTableSizeY() + y;
@@ -684,7 +686,7 @@ var MMAPDATA = (function ()
             newId = m_dataLibrary.C_TILEENUM.NONE;
         }
         var index = getMapTableDataIndex(x, y);
-        m_mapTableData[index] = newId;
+        getMapTableData()[index] = newId;
 
         m_mapChangeLog.push(x);
         m_mapChangeLog.push(y);
@@ -693,7 +695,7 @@ var MMAPDATA = (function ()
     public.getTileId = function mmapdata_getTileId(tileX, tileY)
     {
         var index = getMapTableDataIndex(tileX, tileY);
-        return m_mapTableData[index];
+        return getMapTableData()[index];
     }
     //var isTileIdTypeWalkable = function mmapdata_isTileIdTypeWalkable(id)
     //{
@@ -1452,16 +1454,17 @@ var ASZONE = (function ()
         ];
     }
     
-    public.dataLayer = [];
-    public.getDataIndex = function aszone_dataLayer(x, y)
+    var m_dataLayer = [];
+    public.getDataLayer = function aszone_getDataLayer()
+    {
+        return m_dataLayer;
+    }
+    public.getDataIndex = function aszone_getDataIndex(x, y)
     {
         return MUTIL.mathCantor(x, y);
     }
-    public.dataChangeLog = [];
-    
     public.addZone = function aszone_setZone(x, y, zone)
     {
-        
         MMAPDATA.setTileId(x, y, zone);
     }
     

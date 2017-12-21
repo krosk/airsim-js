@@ -289,7 +289,7 @@ var ASMAPUI = (function ()
         
         var maxHeight = 0;
         var maxWidth = 0;
-        var tileEnums = MMAPDATA.getZoningTile();
+        var tileEnums = ASZONE.getZoningTile();
         for (var i in tileEnums)
         {
             var tileId = tileEnums[i];
@@ -603,14 +603,6 @@ var MMAPDATA = (function ()
     
     var m_dataLibrary;
 
-    public.getZoningTile = function mmapdata_getZoningTile()
-    {
-        var C = ASZONE.C_TILEENUM;
-        return [
-            C.DIRT, C.ROAD, 
-            C.RESLOW, C.COMLOW, C.INDLOW
-        ];
-    }
     public.getDataLibrary = function mmapdata_getDataLibrary()
     {
         return m_dataLibrary;
@@ -653,7 +645,7 @@ var MMAPDATA = (function ()
     }
     public.getRandomTileId = function mmapdata_getRandomTileId()
     {
-        var tileEnumValues = public.getZoningTile();
+        var tileEnumValues = ASZONE.getZoningTile();
         var tileEnumCount = tileEnumValues.length;
         var randomIndex = Math.floor(Math.random() * tileEnumCount);
         var randomId = tileEnumValues[randomIndex];
@@ -1449,6 +1441,15 @@ var ASZONE = (function ()
         graphics.lineTo(C_TEXTURE_BASE_SIZE_X - M, C_TEXTURE_BASE_SIZE_Y / 2);
 
         return graphics;
+    }
+    
+    public.getZoningTile = function aszone_getZoningTile()
+    {
+        var C = public.C_TILEENUM;
+        return [
+            C.DIRT, C.ROAD, 
+            C.RESLOW, C.COMLOW, C.INDLOW
+        ];
     }
     
     public.dataLayer = [];

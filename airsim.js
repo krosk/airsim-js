@@ -213,6 +213,7 @@ var ASMAP = (function ()
 
     public.initialize = function asmap_initialize(w, h)
     {
+        ASZONE.initialize(w, h);
         ASZONE.initializeTexture();
         ASROAD.initializeTexture();
         MMAPDATA.initialize(w, h, ASZONE);
@@ -594,11 +595,13 @@ var MMAPDATA = (function ()
     var m_mapTableSizeY = 0;
     var getMapTableData = function mmapdata_getMapTableData()
     {
-        return m_dataLibrary.getDataLayer();
+        var dataLayer = m_dataLibrary.getDataLayer();
+        return dataLayer;
     }
     var getMapTableDataIndex = function mmapdata_getMapTableDataIndex(x, y)
     {
-        return x * public.getMapTableSizeY() + y;
+        //return x * public.getMapTableSizeY() + y;
+        return m_dataLibrary.getDataIndex(x, y);
     }
     var m_mapChangeLog = [];
     
@@ -627,18 +630,6 @@ var MMAPDATA = (function ()
         m_mapTableSizeX = x;
         m_mapTableSizeY = y;
         m_dataLibrary = dataLibrary;
-        
-        for (var x = 0; x < m_mapTableSizeX; x++)
-        {
-            for (var y = 0; y < m_mapTableSizeY; y++)
-            {
-                var defaultId = m_dataLibrary.C_TILEENUM.DEFAULT;
-                var batchX = MMAPBATCH.getTileXToBatchX(x);
-                var batchY = MMAPBATCH.getTileYToBatchY(y);
-                var odd = (batchX + batchY) % 2;
-                public.setTileId(x, y, defaultId);
-            }
-        }
     }
     public.isValidTileId = function mmapdata_isValidTileId(id)
     {
@@ -666,11 +657,10 @@ var MMAPDATA = (function ()
     public.commitChangeLog = function mmapdata_commitChangeLog()
     {
         var updatedTiles = [];// convention [x, y, x, y, ...]
-        for (var i = 0; i < m_mapChangeLog.length; i+=3)
+        for (var i = 0; i < m_mapChangeLog.length; i+=2)
         {
             var tileX = m_mapChangeLog[i];
             var tileY = m_mapChangeLog[i + 1];
-            var tileId = m_mapChangeLog[i + 2];
             
             // possible callbacks here
             updatedTiles.push(tileX);
@@ -679,23 +669,20 @@ var MMAPDATA = (function ()
         m_mapChangeLog = [];
         return updatedTiles;
     }
-    public.setTileId = function mmapdata_setTileId(x, y, newId)
+    public.refreshTile = function mmapdata_refreshTile(x, y)
     {
-        if (!public.isValidTileId(newId))
-        {
-            newId = m_dataLibrary.C_TILEENUM.NONE;
-        }
-        var index = getMapTableDataIndex(x, y);
-        getMapTableData()[index] = newId;
-
         m_mapChangeLog.push(x);
         m_mapChangeLog.push(y);
-        m_mapChangeLog.push(newId);
     }
     public.getTileId = function mmapdata_getTileId(tileX, tileY)
     {
         var index = getMapTableDataIndex(tileX, tileY);
-        return getMapTableData()[index];
+        var id = getMapTableData()[index];
+        if (typeof id === 'undefined')
+        {
+            throw 'mmapData get uninitialized ' + index + ' ' + m_dataLibrary.getName();
+        }
+        return id;
     }
     //var isTileIdTypeWalkable = function mmapdata_isTileIdTypeWalkable(id)
     //{
@@ -1333,6 +1320,11 @@ var ASZONE = (function ()
 {
     var public = {};
     
+    public.getName = function aszone_getName()
+    {
+        return 'aszone';
+    }
+    
     public.C_TILEENUM = {
         NONE: 0,
         DEFAULT: 1,
@@ -1453,6 +1445,29 @@ var ASZONE = (function ()
             C.RESLOW, C.COMLOW, C.INDLOW
         ];
     }
+    var isValidZone = function aszone_isValidZone(id)
+    {
+        var index = Object.values(public.C_TILEENUM).indexOf(id);
+        return index > -1;
+    }
+    
+    // -------------
+    var m_zoneTableSizeX = 0;
+    var m_zoneTableSizeY = 0;
+    public.initialize = function aszone_initialize(tableSizeX, tableSizeY)
+    {
+        m_zoneTableSizeX = tableSizeX;
+        m_zoneTableSizeY = tableSizeY;
+        
+        for (var x = 0; x < tableSizeX; x++)
+        {
+            for (var y = 0; y < tableSizeY; y++)
+            {
+                var defaultId = public.C_TILEENUM.DEFAULT;
+                public.addZone(x, y, defaultId);
+            }
+        }
+    }
     
     var m_dataLayer = [];
     public.getDataLayer = function aszone_getDataLayer()
@@ -1465,7 +1480,14 @@ var ASZONE = (function ()
     }
     public.addZone = function aszone_setZone(x, y, zone)
     {
-        MMAPDATA.setTileId(x, y, zone);
+        if (!isValidZone(zone))
+        {
+            return;
+            //zone = public.C_TILEENUM.NONE;
+        }
+        var index = public.getDataIndex(x, y);
+        public.getDataLayer()[index] = zone;
+        MMAPDATA.refreshTile(x, y);
     }
     
     return public;

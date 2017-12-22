@@ -154,7 +154,7 @@ function pfFormatTestGrid(grid, w, h)
 function StartState()
 {
     console.log("Start");
-    ASMAP.initialize(16, 16);
+    ASMAP.initialize(256, 256);
     pfFormatTestGrid(ASMAP.Grid, ASMAP.Width, ASMAP.Height);
     for (i = 1; i < 0xFF * 12; i++)
     {
@@ -740,8 +740,8 @@ var MMAPBATCH = (function ()
         //return x * MMAPDATA.getMapTableSizeY() + y;
     }
 
-    public.C_BATCH_SIZE_X = 4;
-    public.C_BATCH_SIZE_Y = 4;
+    public.C_BATCH_SIZE_X = 8;
+    public.C_BATCH_SIZE_Y = 8;
     
     public.C_BATCH_LIFETIME = 60;
     public.C_MAX_BATCH_COUNT = 300;
@@ -838,6 +838,11 @@ var MMAPBATCH = (function ()
     public.getBatchTotalCount = function mmapbatch_getBatchTotalCount()
     {
         return m_buildBatchTotalCount;
+    }
+    
+    public.getBatchPoolCount = function mmapbatch_getBatchPoolCount()
+    {
+        return m_buildBatchPool.length;
     }
     
     var getSpriteFromBatch = function mmapbatch_getSpriteFromBatch(batch, iTileX, iTileY)
@@ -1748,7 +1753,7 @@ var MMAPRENDER = (function ()
         var mapCoords = 'm(' + (m_cameraMapX | 0) + ',' + (m_cameraMapY | 0) + ',' + cameraScale + ') ';
         var tileCoords = 't(' + tileX + ',' + tileY + ') ';
         var batchCoords = 'b(' + MMAPBATCH.getTileXToBatchX(tileX) + ',' + MMAPBATCH.getTileYToBatchY(tileY) + ') ';
-        var batchCount = 'B(' + MMAPBATCH.getBatchCount() + '/' + MMAPBATCH.getBatchTotalCount() + ') ';
+        var batchCount = 'B(' + MMAPBATCH.getBatchCount() + '+' + MMAPBATCH.getBatchPoolCount() + '/' + MMAPBATCH.getBatchTotalCount() + ') ';
         g_counter.innerHTML = mapCoords + tileCoords + batchCount;
     }
 
@@ -2124,7 +2129,8 @@ var MMAPRENDER = (function ()
             console.log(time3 - time2 + 'f');
         }
         */
-        MMAPBATCH.printMapLayerState();
+        
+        //MMAPBATCH.printMapLayerState();
 
         m_cameraMapXRendered = m_cameraMapX;
         m_cameraMapYRendered = m_cameraMapY;

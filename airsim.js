@@ -225,7 +225,7 @@ var ASMAP = (function ()
         ASZONE.initialize(w, h);
         ASZONE.initializeTexture();
         ASROAD.initializeTexture();
-        MMAPDATA.initialize(w, h, ASZONE);
+        MMAPDATA.initialize(w, h, ASROAD);
         MMAPRENDER.initialize(doSingleClick, doDoubleClick);
         ASMAPUI.initialize();
     }
@@ -370,7 +370,7 @@ var ASMAPUI = (function ()
     
     var createTileSprite = function asmapui_createButton(tileId)
     {
-        var textureName = MMAPRENDER.getTileTextureName(tileId);
+        var textureName = ASZONE.getTileTextureName(tileId);
         var textureCache = PIXI.utils.TextureCache[textureName];
         var sprite = new PIXI.Sprite(textureCache);
         sprite.interactive = true;

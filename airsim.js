@@ -145,7 +145,7 @@ function pfFormatTestGrid(grid, w, h)
 function StartState()
 {
     console.log("Start");
-    ASMAP.initialize(256, 256);
+    ASMAP.initialize(16, 16);
     pfFormatTestGrid(ASMAP.Grid, ASMAP.Width, ASMAP.Height);
     for (i = 1; i < 0xFF * 12; i++)
     {
@@ -731,8 +731,8 @@ var MMAPBATCH = (function ()
         //return x * MMAPDATA.getMapTableSizeY() + y;
     }
 
-    public.C_BATCH_SIZE_X = 8;
-    public.C_BATCH_SIZE_Y = 8;
+    public.C_BATCH_SIZE_X = 4;
+    public.C_BATCH_SIZE_Y = 4;
     
     public.C_BATCH_LIFETIME = 60;
     public.C_MAX_BATCH_COUNT = 300;

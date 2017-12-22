@@ -14,6 +14,15 @@ var Benchmark = require('benchmark');
             g_debugOverlay.innerHTML += msg + "<br>";
         }
     }
+    
+    console.clear = function ()
+    {
+        if (typeof g_debugOverlay != 'undefined')
+        {
+            //exLog.apply(this, arguments);
+            g_debugOverlay.innerHTML = "";
+        }
+    }
 })();
 
 // function naming conventions
@@ -834,6 +843,23 @@ var MMAPBATCH = (function ()
     var getSpriteFromBatch = function mmapbatch_getSpriteFromBatch(batch, iTileX, iTileY)
     {
         return batch.getChildAt(iTileY + iTileX * public.C_BATCH_SIZE_Y);
+    }
+    
+    public.printMapLayerState = function mmapbatch_printMapLayerState()
+    {
+        console.clear();
+        var keys = Object.keys(m_mapSpriteBatch);
+        for (var i in keys)
+        {
+            var id = keys[i];
+            var pair = public.getBatchMapIndexReverse(id);
+            var batchX = pair[0];
+            var batchY = pair[1];
+            if (hasBatchByIndex(id))
+            {
+                console.log(batchX + '.' + batchY + '.' + public.getBatchTotalCount());
+            }
+        }
     }
 
     // create one if none exists, excepted 
@@ -1865,11 +1891,12 @@ var MMAPRENDER = (function ()
                 var batchY = MMAPBATCH.getTileYToBatchY(tileY);
                 // note: tileX and tileY ay not be valid coordinates,
                 // however batchY + 1 may be, so check only upon adding
-                if (batchX >= 0 && batchY >= 0)
+                if (MMAPDATA.isValidCoordinates(tileX, tileY))
                 {
                     batchList.push(MMAPBATCH.getBatchMapIndex(batchX, batchY));
                 }
-                if (batchX >= 0 && batchY + 1 >= 0)
+                var tileYAlt = MMAPBATCH.getBatchYToStartTileY(batchY + 1);
+                if (MMAPDATA.isValidCoordinates(tileX, tileYAlt))
                 {
                     batchList.push(MMAPBATCH.getBatchMapIndex(batchX, batchY + 1));
                 }
@@ -2097,6 +2124,7 @@ var MMAPRENDER = (function ()
             console.log(time3 - time2 + 'f');
         }
         */
+        MMAPBATCH.printMapLayerState();
 
         m_cameraMapXRendered = m_cameraMapX;
         m_cameraMapYRendered = m_cameraMapY;

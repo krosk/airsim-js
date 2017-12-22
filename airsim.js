@@ -577,7 +577,11 @@ var ASZONE = (function ()
     }
     public.getDataId = function aszone_getDataId(x, y)
     {
-        return m_dataLayer[getDataIndex(x, y)];
+        return getDataLayer()[getDataIndex(x, y)];
+    }
+    var setDataId = function aszone_setDataId(x, y, zone)
+    {
+        getDataLayer()[getDataIndex(x, y)] = zone;
     }
     //----------------
     public.setZone = function aszone_setZone(x, y, zone)
@@ -586,8 +590,7 @@ var ASZONE = (function ()
         {
             return;
         }
-        var index = getDataIndex(x, y);
-        getDataLayer()[index] = zone;
+        var index = setDataId(x, y, zone);
         // update other systems
         if (zone == public.C_TILEENUM.ROAD)
         {
@@ -636,18 +639,36 @@ var ASROAD = (function ()
         HIG: 3
     }
     
-    var m_dataLayer = [];
+    var m_trafficDensity = [];
     var getDataLayer = function asroad_getDataLayer()
     {
-        return m_dataLayer;
+        return m_trafficDensity;
     }
     var getDataIndex = function asroad_getDataIndex(x, y)
     {
         return MUTIL.mathCantor(x, y);
     }
+    
+    // for display
     public.getDataId = function asroad_getDataId(x, y)
     {
-        return m_dataLayer[getDataIndex(x, y)];
+        var value = getDataLayer()[getDataIndex(x, y)];
+        if (value > 60)
+        {
+            return public.C_TILEENUM.HIG;
+        }
+        else if (value > 30)
+        {
+            return public.C_TILEENUM.MID;
+        }
+        else if (value > 0)
+        {
+            return public.C_TILEENUM.LOW;
+        }
+        else
+        {
+            return public.C_TILEENUM.NONE;
+        }
     }
     public.initialize = function asroad_initialize(tableSizeX, tableSizeY)
     {

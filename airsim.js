@@ -256,7 +256,7 @@ var ASMAP = (function ()
         {
             ASROAD.removeRoad(x, y);
         }
-        ASZONE.addZone(x, y, selectedId);
+        ASZONE.setZone(x, y, selectedId);
     }
     
     var doDoubleClick = function asmap_doDoubleClick(x, y)
@@ -561,29 +561,42 @@ var ASZONE = (function ()
             for (var y = 0; y < tableSizeY; y++)
             {
                 var defaultId = public.C_TILEENUM.DEFAULT;
-                public.addZone(x, y, defaultId);
+                public.setZone(x, y, defaultId);
             }
         }
     }
     
     var m_dataLayer = [];
-    public.getDataLayer = function aszone_getDataLayer()
+    var getDataLayer = function aszone_getDataLayer()
     {
         return m_dataLayer;
     }
-    public.getDataIndex = function aszone_getDataIndex(x, y)
+    var getDataIndex = function aszone_getDataIndex(x, y)
     {
         return MUTIL.mathCantor(x, y);
     }
-    public.addZone = function aszone_setZone(x, y, zone)
+    public.getDataId = function aszone_getDataId(x, y)
+    {
+        return m_dataLayer[getDataIndex(x, y)];
+    }
+    //----------------
+    public.setZone = function aszone_setZone(x, y, zone)
     {
         if (!isValidZone(zone))
         {
             return;
-            //zone = public.C_TILEENUM.NONE;
         }
-        var index = public.getDataIndex(x, y);
-        public.getDataLayer()[index] = zone;
+        var index = getDataIndex(x, y);
+        getDataLayer()[index] = zone;
+        // update other systems
+        if (zone == public.C_TILEENUM.ROAD)
+        {
+            ASROAD.addRoad(x, y);
+        }
+        else
+        {
+            ASROAD.removeRoad(x, y);
+        }
         MMAPDATA.refreshTile(x, y);
     }
     
@@ -623,9 +636,28 @@ var ASROAD = (function ()
         HIG: 3
     }
     
-    public.initialize = function asroad_initialize(width, height)
+    var m_dataLayer = [];
+    var getDataLayer = function asroad_getDataLayer()
     {
-        
+        return m_dataLayer;
+    }
+    var getDataIndex = function asroad_getDataIndex(x, y)
+    {
+        return MUTIL.mathCantor(x, y);
+    }
+    public.getDataId = function asroad_getDataId(x, y)
+    {
+        return m_dataLayer[getDataIndex(x, y)];
+    }
+    public.initialize = function asroad_initialize(tableSizeX, tableSizeY)
+    {
+        for (var x = 0; x < tableSizeX; x++)
+        {
+            for (var y = 0; y < tableSizeY; y++)
+            {
+                public.removeRoad(x, y);
+            }
+        }
     }
     
     public.initializeTexture = function asroad_initializeTexture()
@@ -752,10 +784,16 @@ var ASROAD = (function ()
         connectNodes(x, y, C_TO.E);
         connectNodes(x, y, C_TO.S);
         connectNodes(x, y, C_TO.W);
+        
+        var dataIndex = getDataIndex(x, y);
+        getDataLayer()[dataIndex] = public.C_TILEENUM.LOW;
     }
 
     public.removeRoad = function asroad_removeRoad(x, y)
     {
+        var dataIndex = getDataIndex(x, y);
+        getDataLayer()[dataIndex] = public.C_TILEENUM.NONE;
+        
         var index = getNetworkIndex(x, y);
         if (!hasRoad(index))
         {
@@ -779,18 +817,7 @@ var MMAPDATA = (function ()
 
     var m_mapTableSizeX = 0;
     var m_mapTableSizeY = 0;
-    var getMapTableData = function mmapdata_getMapTableData()
-    {
-        var dataLayer = m_dataLibrary.getDataLayer();
-        return dataLayer;
-    }
-    var getMapTableDataIndex = function mmapdata_getMapTableDataIndex(x, y)
-    {
-        //return x * public.getMapTableSizeY() + y;
-        return m_dataLibrary.getDataIndex(x, y);
-    }
     var m_mapChangeLog = [];
-    
     
     var m_dataLibrary;
 
@@ -862,8 +889,7 @@ var MMAPDATA = (function ()
     }
     public.getTileId = function mmapdata_getTileId(tileX, tileY)
     {
-        var index = getMapTableDataIndex(tileX, tileY);
-        var id = getMapTableData()[index];
+        var id = m_dataLibrary.getDataId(tileX, tileY); //getMapTableData()[index];
         if (typeof id === 'undefined')
         {
             throw 'mmapData get uninitialized ' + index + ' ' + m_dataLibrary.getName();

@@ -225,7 +225,7 @@ var ASMAP = (function ()
         ASZONE.initialize(w, h);
         ASZONE.initializeTexture();
         ASROAD.initializeTexture();
-        MMAPDATA.initialize(w, h, ASROAD);
+        MMAPDATA.initialize(w, h, ASZONE);
         MMAPRENDER.initialize(doSingleClick, doDoubleClick);
         ASMAPUI.initialize();
     }
@@ -272,15 +272,19 @@ var ASMAPUI = (function ()
     var public = {};
     
     var m_uiLayer;
-    var m_uiSpriteTable = {};
+    var m_uiTileSpriteTable = {};
+    var m_uiViewSpriteTable = {};
     
     var m_currentTileId = 0;
+    var m_currentViewId = 0;
     
     public.initialize = function asmapui_initialize()
     {
         m_uiLayer = new PIXI.Container();
         g_app.stage.addChild(m_uiLayer);
         m_uiLayer.interactive = false;
+        
+        m_currentViewId = ASZONE.getViewTile()[0];
         
         public.resize();
     }
@@ -295,8 +299,10 @@ var ASMAPUI = (function ()
         var landscape = MMAPRENDER.isOrientationLandscape();
         
         m_uiLayer.removeChildren();
-        m_uiSpriteTable = {};
+        m_uiTileSpriteTable = {};
+        m_uiViewSpriteTable = {};
         
+        var c = 0;
         var maxHeight = 0;
         var maxWidth = 0;
         var tileEnums = ASZONE.getZoningTile();
@@ -305,11 +311,11 @@ var ASMAPUI = (function ()
             var tileId = tileEnums[i];
             var sprite = createTileSprite(tileId);
             m_uiLayer.addChild(sprite);
-            m_uiSpriteTable[tileId] = sprite;
+            m_uiTileSpriteTable[tileId] = sprite;
             if (landscape)
             {
                 sprite.x = getLayerWidth() - sprite.width;
-                sprite.y = i*sprite.height;
+                sprite.y = c*sprite.height;
                 if (maxWidth < sprite.width)
                 {
                     maxWidth = sprite.width;
@@ -318,7 +324,8 @@ var ASMAPUI = (function ()
             }
             else
             {
-                sprite.x = i*sprite.width;
+                sprite.x = c*sprite.width;
+                console.log(sprite.width);
                 sprite.y = getLayerHeight() - sprite.height;
                 if (maxHeight < sprite.height)
                 {
@@ -326,7 +333,38 @@ var ASMAPUI = (function ()
                 }
                 maxWidth = getLayerWidth();
             }
-            
+            c++;
+        }
+        
+        var viewEnums = ASZONE.getViewTile();
+        var tileMaxI = tileEnums.length;
+        for (var i in viewEnums)
+        {
+            var viewId = viewEnums[i];
+            var sprite = createViewSprite(viewId);
+            m_uiLayer.addChild(sprite);
+            m_uiViewSpriteTable[viewId] = sprite;
+            if (landscape)
+            {
+                sprite.x = getLayerWidth() - sprite.width;
+                sprite.y = c*sprite.height;
+                if (maxWidth < sprite.width)
+                {
+                    maxWidth = sprite.width;
+                }
+                maxHeight = getLayerHeight();
+            }
+            else
+            {
+                sprite.x = c*sprite.width;
+                sprite.y = getLayerHeight() - sprite.height;
+                if (maxHeight < sprite.height)
+                {
+                    maxHeight = sprite.height;
+                }
+                maxWidth = getLayerWidth();
+            }
+            c++;
         }
         
         var background = createMenuBackground(maxWidth, maxHeight);
@@ -341,6 +379,7 @@ var ASMAPUI = (function ()
         }
         
         focusTileSprite();
+        focusViewSprite();
     }
     
     public.getCurrentTileId = function asmapui_getCurrentTileId()
@@ -348,14 +387,30 @@ var ASMAPUI = (function ()
         return m_currentTileId;
     }
     
+    public.getCurrentViewId = function asmapui_getCurrentViewId()
+    {
+        return m_currentViewId;
+    }
+    
     var focusTileSprite = function asmapui_focusTileSprite()
     {
-        var keys = Object.keys(m_uiSpriteTable);
+        var keys = Object.keys(m_uiTileSpriteTable);
         for (var i in keys)
         {
             var id = keys[i];
-            var sprite = m_uiSpriteTable[id];
+            var sprite = m_uiTileSpriteTable[id];
             sprite.alpha = id == m_currentTileId ? 1 : 0.25 ;
+        }
+    }
+    
+    var focusViewSprite = function asmapui_focusViewSprite()
+    {
+        var keys = Object.keys(m_uiViewSpriteTable);
+        for (var i in keys)
+        {
+            var id = keys[i];
+            var sprite = m_uiViewSpriteTable[id];
+            sprite.alpha = id == m_currentViewId ? 1 : 0.25 ;
         }
     }
     
@@ -368,14 +423,25 @@ var ASMAPUI = (function ()
         return g_app.renderer.height;
     }
     
-    var createTileSprite = function asmapui_createButton(tileId)
+    var createTileSprite = function asmapui_createTileSprite(tileId)
     {
         var textureName = ASZONE.getTileTextureName(tileId);
         var textureCache = PIXI.utils.TextureCache[textureName];
         var sprite = new PIXI.Sprite(textureCache);
         sprite.interactive = true;
         sprite.on('pointerdown',
-            function(e){onSpritePress(e, tileId);});
+            function(e){onTileSpritePress(e, tileId);});
+        return sprite;
+    }
+    
+    var createViewSprite = function asmapui_createViewSprite(viewId)
+    {
+        var textureName = ASZONE.getTileTextureName(viewId);
+        var textureCache = PIXI.utils.TextureCache[textureName];
+        var sprite = new PIXI.Sprite(textureCache);
+        sprite.interactive = true;
+        sprite.on('pointerdown',
+            function(e){onViewSpritePress(e, viewId);});
         return sprite;
     }
     
@@ -404,10 +470,16 @@ var ASMAPUI = (function ()
         return sprite;
     }
     
-    var onSpritePress = function asmapui_onSpritePress(event, tileId)
+    var onTileSpritePress = function asmapui_onTileSpritePress(event, tileId)
     {
         m_currentTileId = tileId;
         focusTileSprite();
+    }
+    
+    var onViewSpritePress = function asmapui_onViewSpritePress(event, viewId)
+    {
+        m_currentViewId = viewId;
+        focusViewSprite();
     }
     
     return public;
@@ -542,6 +614,15 @@ var ASZONE = (function ()
             C.RESLOW, C.COMLOW, C.INDLOW
         ];
     }
+    
+    public.getViewTile = function aszone_getViewTile()
+    {
+        var C = public.C_TILEENUM;
+        return [
+            C.RESLOW, C.ROAD
+        ];
+    }
+    
     var isValidZone = function aszone_isValidZone(id)
     {
         var index = Object.values(public.C_TILEENUM).indexOf(id);

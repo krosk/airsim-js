@@ -325,7 +325,6 @@ var ASMAPUI = (function ()
             else
             {
                 sprite.x = c*sprite.width;
-                console.log(sprite.width);
                 sprite.y = getLayerHeight() - sprite.height;
                 if (maxHeight < sprite.height)
                 {
@@ -478,8 +477,17 @@ var ASMAPUI = (function ()
     
     var onViewSpritePress = function asmapui_onViewSpritePress(event, viewId)
     {
+        var refresh = m_currentViewId != viewId;
         m_currentViewId = viewId;
         focusViewSprite();
+        if (refresh && m_currentViewId == 10)
+        {
+            MMAPDATA.switchData(ASZONE);
+        }
+        else if (refresh && m_currentViewId == 3)
+        {
+            MMAPDATA.switchData(ASROAD);
+        }
     }
     
     return public;
@@ -690,6 +698,11 @@ var ASZONE = (function ()
 var ASROAD = (function ()
 {
     var public = {};
+    
+    public.getName = function asroad_getName()
+    {
+        return 'asroad';
+    }
     
     var m_network = {};
     var getNetworkIndex = function asroad_getNetworkIndex(x, y)
@@ -927,10 +940,11 @@ var MMAPDATA = (function ()
     {
         return m_dataLibrary;
     }
-    public.switchData = function mmapdata_switchData(data, dataLibrary)
+    public.switchData = function mmapdata_switchData(dataLibrary)
     {
         m_dataLibrary = dataLibrary;
-        m_mapChangeLog = data;
+        m_mapChangeLog = [0, 0];
+        console.log("switch to " + m_dataLibrary.getName());
     }
     public.getMapTableSizeX = function mmapdata_getMapTableSizeX()
     {

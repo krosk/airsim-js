@@ -943,8 +943,8 @@ var MMAPDATA = (function ()
     public.switchData = function mmapdata_switchData(dataLibrary)
     {
         m_dataLibrary = dataLibrary;
-        m_mapChangeLog = [0, 0];
-        console.log("switch to " + m_dataLibrary.getName());
+        m_mapChangeLog = [-1];
+        //console.log("switch to " + m_dataLibrary.getName());
     }
     public.getMapTableSizeX = function mmapdata_getMapTableSizeX()
     {
@@ -985,6 +985,11 @@ var MMAPDATA = (function ()
     }
     public.commitChangeLog = function mmapdata_commitChangeLog()
     {
+        if (m_mapChangeLog.length == 1)
+        {
+            m_mapChangeLog = [];
+            return [-1]; // refresh all
+        }
         var updatedTiles = [];// convention [x, y, x, y, ...]
         for (var i = 0; i < m_mapChangeLog.length; i+=2)
         {
@@ -1447,7 +1452,7 @@ var MMAPBATCH = (function ()
         }
     }
 
-    public.setTextureFlagInNewBatch = function mmapbatch_setTextureFlagInNewBatch(flag)
+    public.setTextureFlagInNewBatch = function mmapbatch_setTextureFlagInNewBatch(flag, refreshCall)
     {
         var keys = Object.keys(flag);
         for (var i in keys)
@@ -1457,7 +1462,7 @@ var MMAPBATCH = (function ()
             var batchX = pair[0];
             var batchY = pair[1];
             var exists = hasBatch(batchX, batchY);
-            if (!exists)
+            if (!exists || refreshCall)
             {
                 flag[k].loadTexture = true;
             }
@@ -2140,6 +2145,7 @@ var MMAPRENDER = (function ()
     var m_batchFlag = {};
     var m_batchPerCall = 1;
     var m_lastTime = 0;
+    var m_refreshCall = true;
 
     public.C_FPS = 30;
     public.C_MINBATCHPERCALL = 1;
@@ -2148,6 +2154,11 @@ var MMAPRENDER = (function ()
     public.update = function mmaprender_update(dt, tile)
     {
         var updatedTiles = MMAPDATA.commitChangeLog();
+        if (updatedTiles.length == 1)
+        {
+            m_refreshCall = true;
+            updatedTiles = [];
+        }
         
         // remarks: one single call to texture change
         // is likely to cause a complete refresh of the
@@ -2192,8 +2203,9 @@ var MMAPRENDER = (function ()
 
         updateCameraVelocity();
 
-        if (m_cameraBatchListRendered === null){
-
+        if (m_cameraBatchListRendered === null)
+        {
+            
         }
         else
         {
@@ -2222,7 +2234,8 @@ var MMAPRENDER = (function ()
         var time1 = Date.now();
 
         MMAPBATCH.setTextureFlagInNewBatch(
-        m_batchFlag);
+        m_batchFlag,
+        m_refreshCall);
 
         MMAPBATCH.setTextureFlagInRadiusAndUpdatedTiles(
         m_batchFlag,
@@ -2282,6 +2295,7 @@ var MMAPRENDER = (function ()
         m_cameraCenterTileYRendered = currentCenterTileY;
         m_cameraBatchRadiusRendered = currentBatchRadius;
         m_cameraBatchListRendered = currentBatchList;
+        m_refreshCall = false;
     }
     
     public.processSingleClick = function mmaprender_processSingleClick(screenX, screenY)

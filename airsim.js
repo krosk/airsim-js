@@ -33,6 +33,13 @@ var g_state = WaitingState;
 
 function OnReady()
 {
+    fetch("./program.wasm")
+        .then(response => {
+            console.log('ok');
+        }).catch(error => {
+            console.log(error);
+        });
+    
     g_stats = new Stats();
 
     g_updateTimestamp = Date.now();

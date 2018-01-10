@@ -257,6 +257,7 @@ var ASMAP = (function ()
             ASROAD.removeRoad(x, y);
         }
         ASZONE.setZone(x, y, selectedId);
+        MMAPDATA.refreshTile(x, y);
     }
     
     var doDoubleClick = function asmap_doDoubleClick(x, y)
@@ -689,7 +690,6 @@ var ASZONE = (function ()
         {
             ASROAD.removeRoad(x, y);
         }
-        MMAPDATA.refreshTile(x, y);
     }
     
     return public;
@@ -733,20 +733,11 @@ var ASROAD = (function ()
         HIG: 3
     }
     
-    var m_trafficDensity = [];
-    var getDataLayer = function asroad_getDataLayer()
-    {
-        return m_trafficDensity;
-    }
-    var getDataIndex = function asroad_getDataIndex(x, y)
-    {
-        return MUTIL.mathCantor(x, y);
-    }
-    
     // for display
     public.getDataId = function asroad_getDataId(x, y)
     {
-        var value = getDataLayer()[getDataIndex(x, y)];
+        var index = getNetworkIndex(x, y);
+        var value = hasRoad(index) ? m_network[index].congestion : 0;
         if (value > 60)
         {
             return public.C_TILEENUM.HIG;
@@ -899,16 +890,10 @@ var ASROAD = (function ()
         connectNodes(x, y, C_TO.E);
         connectNodes(x, y, C_TO.S);
         connectNodes(x, y, C_TO.W);
-        
-        var dataIndex = getDataIndex(x, y);
-        getDataLayer()[dataIndex] = public.C_TILEENUM.LOW;
     }
 
     public.removeRoad = function asroad_removeRoad(x, y)
     {
-        var dataIndex = getDataIndex(x, y);
-        getDataLayer()[dataIndex] = public.C_TILEENUM.NONE;
-        
         var index = getNetworkIndex(x, y);
         if (!hasRoad(index))
         {

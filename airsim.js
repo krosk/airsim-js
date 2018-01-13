@@ -26,18 +26,38 @@ var Benchmark = require('benchmark');
 })();
 
 // from https://github.com/github/fetch/pull/92#issuecomment-140665932
-function fetchLocal(url) {
-  return new Promise(function(resolve, reject) {
-    var xhr = new XMLHttpRequest
-    xhr.onload = function() {
-      resolve(new Response(xhr.responseText, {status: xhr.status}))
-    }
-    xhr.onerror = function() {
-      reject(new TypeError('Local request failed'))
-    }
-    xhr.open('GET', url)
-    xhr.send(null)
-  })
+function fetchLocal(url)
+{
+    return new Promise(function(resolve, reject)
+    {
+        var xhr = new XMLHttpRequest;
+        xhr.onload = function()
+        {
+            function contains(value, searchFor)
+            {
+                return (value || '').indexOf(searchFor) > -1;
+            }
+            
+            if (xhr.status == 0)
+            {
+                resolve(xhr.responseText);
+            }
+            else
+            {
+                resolve(
+                    new Response(xhr.responseText, {status: xhr.status})
+                );
+            }
+        }
+        xhr.onerror = function()
+        {
+            reject(
+                new TypeError('Local request failed')
+            );
+        }
+        xhr.open('GET', url);
+        xhr.send(null);
+    });
 }
 
 // function naming conventions
@@ -51,13 +71,13 @@ function OnReady()
     var localFetch = false;
     fetch("program.wasm")
     .then(response => {
-        console.log('ok');
+        console.log('fetched wasm');
     }).catch(error => {
-        console.log(error);
         fetchLocal("program.wasm")
-        .then(response => {
-            console.log('ok');
-        }).catch(error => {
+        .then(function(response){
+            console.log('fetched wasm');
+        }).catch(function(error){
+            console.log('failed to fetch wasm');
             console.log(error);
         });
     });

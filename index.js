@@ -15,8 +15,13 @@ function loadHtmlWrapper(webView)
 {
     webView.getSettings().setJavaScriptEnabled(true);
     webView.clearCache(true);
-    
-    webView.loadUrl("file://" + 
-        JsUrl.toPath("scriptit://ProjectSim/index.htm"));
+    /*
+    var client = new JavaAdapter(WebViewClient, {
+        shouldInterceptRequest: function() {}
+    });
+    webView.setWebViewClient(client);
+    */
+    var url = "file:///" + JsUrl.toPath("scriptit://ProjectSim/index.htm");
+    webView.loadUrl(url);
 }
 

@@ -25,6 +25,21 @@ var Benchmark = require('benchmark');
     }
 })();
 
+// from https://github.com/github/fetch/pull/92#issuecomment-140665932
+function fetchLocal(url) {
+  return new Promise(function(resolve, reject) {
+    var xhr = new XMLHttpRequest
+    xhr.onload = function() {
+      resolve(new Response(xhr.responseText, {status: xhr.status}))
+    }
+    xhr.onerror = function() {
+      reject(new TypeError('Local request failed'))
+    }
+    xhr.open('GET', url)
+    xhr.send(null)
+  })
+}
+
 // function naming conventions
 // Change state: verb
 // no change: get
@@ -33,12 +48,19 @@ var g_state = WaitingState;
 
 function OnReady()
 {
-    fetch("./program.wasm")
+    var localFetch = false;
+    fetch("program.wasm")
+    .then(response => {
+        console.log('ok');
+    }).catch(error => {
+        console.log(error);
+        fetchLocal("program.wasm")
         .then(response => {
             console.log('ok');
         }).catch(error => {
             console.log(error);
         });
+    });
     
     g_stats = new Stats();
 

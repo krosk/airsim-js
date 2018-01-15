@@ -765,13 +765,6 @@ var ASROAD = (function ()
         return 'asroad';
     }
     
-    var m_network = {};
-    var getNetworkIndex = function asroad_getNetworkIndex(x, y)
-    {
-        return MUTIL.mathCantor(x, y);
-        //return x * MMAPDATA.getMapTableSizeY() + y;
-    }
-    
     // connected: [] cantor index
     // congestion: 1 = free, 0 = locked
     // max speed: 50
@@ -792,39 +785,6 @@ var ASROAD = (function ()
         LOW: 1,
         MID: 2,
         HIG: 3
-    }
-    
-    // for display
-    public.getDataId = function asroad_getDataId(x, y)
-    {
-        var index = getNetworkIndex(x, y);
-        var value = hasRoad(index) ? m_network[index].congestion : 0;
-        if (value > 60)
-        {
-            return public.C_TILEENUM.HIG;
-        }
-        else if (value > 30)
-        {
-            return public.C_TILEENUM.MID;
-        }
-        else if (value > 0)
-        {
-            return public.C_TILEENUM.LOW;
-        }
-        else
-        {
-            return public.C_TILEENUM.NONE;
-        }
-    }
-    public.initialize = function asroad_initialize(tableSizeX, tableSizeY)
-    {
-        for (var x = 0; x < tableSizeX; x++)
-        {
-            for (var y = 0; y < tableSizeY; y++)
-            {
-                public.removeRoad(x, y);
-            }
-        }
     }
     
     public.initializeTexture = function asroad_initializeTexture()
@@ -897,6 +857,49 @@ var ASROAD = (function ()
         graphics.lineTo(C_TEXTURE_BASE_SIZE_X - M, C_TEXTURE_BASE_SIZE_Y / 2);
 
         return graphics;
+    }
+    
+    // ----------------
+    
+    var m_network = {};
+    var getNetworkIndex = function asroad_getNetworkIndex(x, y)
+    {
+        return MUTIL.mathCantor(x, y);
+        //return x * MMAPDATA.getMapTableSizeY() + y;
+    }
+    
+    public.initialize = function asroad_initialize(tableSizeX, tableSizeY)
+    {
+        for (var x = 0; x < tableSizeX; x++)
+        {
+            for (var y = 0; y < tableSizeY; y++)
+            {
+                public.removeRoad(x, y);
+            }
+        }
+    }
+    
+    // for display
+    public.getDataId = function asroad_getDataId(x, y)
+    {
+        var index = getNetworkIndex(x, y);
+        var value = hasRoad(index) ? m_network[index].congestion : 0;
+        if (value > 60)
+        {
+            return public.C_TILEENUM.HIG;
+        }
+        else if (value > 30)
+        {
+		    return public.C_TILEENUM.MID;
+	    }
+	    else if (value > 0)
+	    {
+		    return public.C_TILEENUM.LOW;
+	    }
+	    else
+	    {
+		    return public.C_TILEENUM.NONE;
+	    }
     }
     
     var setNewRoad = function asroad_setNewRoad()

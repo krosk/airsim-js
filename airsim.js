@@ -1650,6 +1650,7 @@ var MMAPTOUCH = (function ()
             m_startScaleX = _this.scale.x;
             m_startScaleY = _this.scale.y;
 
+            var wasZooming = m_zooming;
             m_dragging = true;
             m_zooming = false;
             m_startDistance = 0;
@@ -1660,7 +1661,7 @@ var MMAPTOUCH = (function ()
 
             if (m_touchData.length == 1)
             {
-                if (!m_clickTimeout)
+                if (!m_clickTimeout && !wasZooming)
                 {
                     m_clickTimeout = true;
                     setTimeout(clickDecisionTimeout, C_CLICKDELAYMS);

@@ -60,26 +60,38 @@ function fetchLocal(url)
     });
 }
 
+function adaptativeFetch(url)
+{
+    return fetch(url)
+    .then(response => {
+        console.log('fetch success');
+        return response;
+    }).catch(error => {
+        return fetchLocal("program.wasm")
+	    .then(response => {
+            console.log('xhr request success');
+            return response;
+        }).catch(error => {
+            console.log('failed to fetch');
+            console.log(error);
+            reject(error);
+	    });
+	});
+}
+
 // function naming conventions
 // Change state: verb
 // no change: get
 
 var g_state = WaitingState;
+var g_engineLoaded = false;
 
 function OnReady()
 {
-    var localFetch = false;
-    fetch("program.wasm")
+    adaptativeFetch("program.wasm")
     .then(response => {
-        console.log('fetched wasm');
-    }).catch(error => {
-        fetchLocal("program.wasm")
-        .then(function(response){
-            console.log('fetched wasm');
-        }).catch(function(error){
-            console.log('failed to fetch wasm');
-            console.log(error);
-        });
+        response;
+        g_engineLoaded = true;
     });
     
     g_stats = new Stats();

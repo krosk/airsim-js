@@ -1,0 +1,299 @@
+Simulation engine simcity like
+
+Road 1x1, serves also electricity and water
+Road coverage 3x3
+Building 1x1 for now, needs to be under road coverage
+Road as connected component, each road a list of 1 tile building linked to it
+Multiple tile building are cumulating their cost to a master tile, which will be the road connection
+
+
+Demand RCI
+Should be a local demand
+
+Lot
+* Level 
+Indicates potency to meed demand
+Capped by density
+Increase if conditions met
+
+Residential lot
+*** Level 0
+* Provides
+Nothing
+* Requires
+1 Water
+1 Electricity
+Road
+4 r demand
+
+*** Level 1
+* Provides
+4 r unit
+2 c demand
+2 i demand
+* Requires
+1 Water
+1 Electricity
+Road
+6r demand
+
+*** Level 2
+* Provides
+10 r units
+6 c demand
+4 i demand
+* Requires
+2 water
+2 electricity
+8 demand met
+
+
+* Commercial Lot
+*** Level 0
+* Provides
+Nothing
+* Requires
+1 Water
+1 Electricity
+Road
+4 c demand
+*** Level 1
+* Provides
+4 c unit
+4 r demand
+2 i demand
+* Requires
+1 Water
+1 Electricity
+Road
+2 demand met
+
+
+Demand RCIO
+Demand defined as the difference between actual unit and target unit.
+time taken to raise level if requirement reached, then a new lot if none in waiting
+
+
+asks 8r
+Plop 2 residentials
+electricity water road met
+8 r, asks 4c 4i
+Plop 1 commercial
+8r 4c, asks 4r 6i
+Plop 1 industrial
+8r 4c 4i, asks 8r 2c 2i
+Plop 1 residential
+12r 4c 4i, asks 4r 4c 4i
+Plop 1 commercial 1 industrial
+12r 8c 8i, asks 12r 2c 2i
+Plop 1 residential
+16r 8c 8i, asks 8r 4c 4i
+Plop 1 commercial 1 industrial
+16r 12c 12i, asks 16r 2c 2i
+Plop 1 residential
+20r 12c 12i, asks 12r 4c 4i
+Plop 1 commercial 1 industrial
+20r 16c 16i, asks 20r 2c 2i
+Plop 5 residential
+40r 16c 16i, asks 0r 12c 12i
+Plop 1 commercial 1 industrial
+40r 20c 20i, asks 8r 10c 10i
+
+
+
+
+4 res = 16r asks 8c 8i
+2 com = 8c asks 4r 4i
+2 ind = 8i asks 4r 4c
+
+10 res = 40r asks 20c 20i
+5 com = 20c asks 20r 10i
+5 ind = 20i asks 20r 10c
+
+
+
+Algorithm for RCIO resolution
+
+Road network
+Electricity/water
+Each road can ask used and total capacity
+Disconnected roads have different capacity
+
+Function master check
+Get next candidate for resolution
+Check maintenance requirements
+If maintenance requirements not met
+  Downgrade? Disable? Provide no income? Upkeep cost? finish
+Check level up requirements
+If level up requirements met
+  Upgrade, finish
+
+
+Function check maintenance requirements
+If none
+  Finish ok
+if need electricity
+  If used > total capacity
+    Finish no
+If need water
+  If used > total capacity
+    Finish no
+
+Function check level up requirements
+if need road
+  if no road, Finish no
+If need electricity
+  If not enough free capacity
+    Finish no
+  Add usage
+if need water
+  If not enough free capacity
+    Finish no
+  Add usage
+
+
+
+Alternative
+Process the simulation by type
+
+Ratio of power/water grid determines income percentage.
+
+Building residential has a requirement to have 
+access to x commercial, x industrial. 
+Remove all previous traffic. 
+One traffic itinerary is set as a list of 
+waypoints. 
+Remove all traffic itinerary. 
+Note that removing a road will not remove the 
+traffic itineraries that go through this 
+deleted road. 
+They will naturally be deleted the next time 
+the building is resolved. 
+Starting from building location, 
+explore the grid to find free commercial 
+capacity, free industrial capacity, 
+taking into account the existing traffic. 
+Once a building is found, add an itinerary. 
+Add back congestion level.
+
+For converging to an optimal solution and 
+reduce traffic,  two buildings with overlapping 
+traffic could exchange itineraries that cross 
+each other. 
+
+
+
+Webassembly
+Input output of webassembly is arraybuffer 
+based. Hence each module (zone, road) must 
+expose uint32array for the datalayer, and 
+the wrapper for the module will colorize it 
+accordingly.
+Since modules have interaction, the web 
+assembly instance is a master object that 
+provides multiple datalayers.
+
+
+Search algorithm
+Traversing the road capacity requires to know
+when to stop, otherwise there will be a lot of
+empty traversal. A optimal solution would be
+a asroad api that provides the next search
+to perform, upon a function call. This requires
+to have in input a state, upon which to build.
+A step of the algorithm is to have the list of
+edges (from, to, cumulative cost) to be explored.
+Lowest cost element is traversed, and returns
+next edges to explore.
+
+example
+a-b-c
+  d
+  e-f
+Starts at d
+in: db1, de2 - d
+out: de2, ba2, bc3 - d, b
+in: ...
+out: ba2, ef3, bc3 - d, b, e
+in: ...
+out: ef3, bc3 - d, b, e, a
+
+What to do in case of cycles?
+There needs to be an history of traversed nodes
+in input too. Better not to make it a state
+for future async calls or simultaneous searches.
+
+Async calls
+Multi threading and webassembly specs have not
+been specified yet. However, wasm input is to
+be copied into the memory of the webassembly
+instance, hence you cannot perform simultaneous
+searches on the same module with two different
+sets of inputs. So the problem of keeping the
+state as an input may be not relevant, since
+providing an input already changes the state
+of the wasm module. An alternative may be to
+clone the instance then run a search so
+there is distinct memory zones where the
+algorithm is working. This is compatible with
+Javascript which needs cloning before
+performing a search anyway.
+There are two key data
+- graph traversal data which is mutable
+- graph data which is immutable and shared
+
+
+So the two objects are:
+- explored nodes
+- next edges to visit
+
+Should we keep it sorted?
+Not necessarily, as long as the minimal cost
+is being processed. The only thing is it will
+need to scan the whole input for the minimal
+cost. Appending by insert sort to always keep
+the list sorted may be worthwhile? No, because
+it will make indices change, see below.
+
+Problem of path reconstruct
+When a road has free capacity, it needs to
+have an itinerary from start to end.
+The itinerary can be built by reversing the
+graph.
+If the traversal data structure only grows, and
+is never sorted, then it is possible to
+reconstruct a itinerary because indices will
+never change.
+An edge requires a parent edge so it can be
+reversed.
+
+
+So far, the structure is a growing data structure
+with a collection of edge, with:
+from node index
+to node index
+cumulated cost
+parent edge
+processed flag
+
+Algorithm goes like this:
+
+function getNextEdge()
+retrieve minimal cost unprocessed edge XC
+append next edges
+  from XC
+  to XN
+  cumulated cost of XC + congestion of XN
+  index of XC in traversal
+  false
+set XC processed flag
+return index of XC in traversal
+
+function pathRetrieval(index of destination)
+list
+while (XC has parent)
+  add XC to list
+  XC = XC from parent index of XC in traversal
+end
+return list
+

@@ -943,6 +943,20 @@ var ASROAD = (function ()
         return !((typeof m_network[i] === 'undefined') || (m_network[i] == null));
     }
     
+    var isConnectedTo = function asroad_isConnectedTo(from, d)
+    {
+        if (!hasRoad(from))
+        {
+            return -1;
+        }
+        var to = m_network[from].connectTo[d];
+        if (!hasRoad(to))
+        {
+            return -1;
+        }
+        return m_network[from].connectTo[d];
+    }
+    
     public.addRoad = function asroad_addRoad(x, y)
     {
         var index = getNetworkIndex(x, y);
@@ -968,6 +982,113 @@ var ASROAD = (function ()
         disconnectNodes(x, y, C_TO.S);
         disconnectNodes(x, y, C_TO.W);
         delete m_network[index];
+    }
+    
+    // struct is
+    // array = [
+    //   last explored index,
+    //   number of edges
+    //   collection of edges * 5
+    //   ]
+    var getTraversalCurrentIndex = function asroad_getTraversalCurrentIndex(data)
+    {
+        return data[0];
+    }
+    var setTraversalCurrentIndex = function asroad_setTraversalCurrentIndex(data, value)
+    {
+        data[0] = value;
+    }
+    var setTraversalEdgeCount = function asroad_setTraversalEdgeCount(data, value)
+    {
+        data[1] = value;
+    }
+    var incrementTraversalEdgeCount = function asroad_incrementTraversalEdgeCount(data)
+    {
+        return data[1]++;
+    }
+    var getTraversalCost = function asroas_getTraversalCost(data, index)
+    {
+        return data[index*5 + C_TR.COST];
+    }
+    var setTraversalProcessed = function asroad_setTraversalProcessed(data, index)
+    {
+        data[index*5 + C_TR.PROCESSED] = 1;
+    }
+    var isTraversalProcessed = function asroad_isTraversalProcessed(data, index)
+    {
+        return data[index*5 + C_TR.PROCESSED] = 1;
+    }
+    var getTraversalTo = function asroad_getTraversalTo(data, index)
+    {
+        return data[index*5 + C_TR.TO];
+    }
+    
+    public.initializeTraversal = function asroad_initializeTraversal(from)
+    {
+        var data = [];
+        setTraversalCurrentIndex(data, -1);
+        setTraversalEdgeCount(data, 0);
+        if (hasRoad(from))
+        {
+            expandTraversal(data, from, C_N);
+            expandTraversal(data, from, C_E);
+            expandTraversal(data, from, C_S);
+            expandTraversal(data, from, C_N);
+        }
+        return data;
+    }
+    
+    var C_TR = {
+        FROM: 2,
+        TO: 3,
+        COST: 4,
+        PARENT: 5,
+        PROCESSED: 6
+    };
+    
+    var expandTraversal = function asroad_expandTraversal(data, from, d)
+    {
+        var to = isConnectedTo(from, d);
+        if (to >= 0)
+        {
+            var index = getTraversalCurrentIndex(data);
+            var congestion = m_network[to].congestion;
+            if (index >= 0)
+            {
+                congestion += getTraversalCost(data, index);
+                setTraversalProcessed(data, index);
+            }
+            incrementTraversalEdgeCount(data);
+            data.push(from);
+            data.push(to);
+            data.push(congestion);
+            data.push(index);
+            data.push(0);
+        }
+    }
+    
+    public.getNextStepTraversal = function asroad_getNextStepTraversal(data)
+    {
+        // get minimum cost
+        var edgeCount = getTraversalEdgeCount(data);
+        var minCost = getTraversalCost(data, 0);
+        var minIndex = 0;
+        for (var i = 1; i < edgeCount; i++)
+        {
+            var localCost = getTraversalCost(data, i);
+            var isProcessed = getTraversalProcesed(data, i);
+            if (localCost < getTraversalCost(data, minIndex))
+            {
+                minIndex = i;
+                minCost = localCost;
+            }
+        }
+        var to = getTraversalTo(data, minIndex);
+        expandTraversal(data, to, C_N);
+        expandTraversal(data, to, C_E);
+        expandTraversal(data, to, C_S);
+        expandTraversal(data, to, C_N);
+        return minIndex;
     }
     
     return public;

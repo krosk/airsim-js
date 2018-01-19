@@ -353,6 +353,7 @@ var ASMAPUI = (function ()
         
         m_currentViewId = ASZONE.getViewTile()[0];
         m_currentZoneId = ASZONE.getZoneTile()[0];
+        m_currentRoadId = ASROAD.getRoadTile()[0];
         
         public.resize();
     }
@@ -439,12 +440,16 @@ var ASMAPUI = (function ()
         var maxWidth = 0;
         var zoneEnums = ASZONE.getZoneTile();
         buildMenu(zoneEnums, m_uiZoneSpriteTable, createZoneSprite, 1);
+        
+        var roadEnums = ASROAD.getRoadTile();
+        buildMenu(roadEnums, m_uiRoadSpriteTable, createRoadSprite, 1);
 
         var viewEnums = ASZONE.getViewTile();
         buildMenu(viewEnums, m_uiViewSpriteTable, createViewSprite, 0);
         
         focusZoneSprite();
         focusViewSprite();
+        focusRoadSprite();
     }
     
     public.getCurrentZoneId = function asmapui_getCurrentZoneId()
@@ -455,6 +460,11 @@ var ASMAPUI = (function ()
     public.getCurrentViewId = function asmapui_getCurrentViewId()
     {
         return m_currentViewId;
+    }
+    
+    public.getCurrentRoadId = function asmapui_getCurrentRoadId()
+    {
+        return m_currentRoadId;
     }
     
     var focusZoneSprite = function asmapui_focusZoneSprite()
@@ -483,6 +493,20 @@ var ASMAPUI = (function ()
         }
     }
     
+    var focusRoadSprite = function asmapui_focusRoadSprite()
+    {
+        var keys = Object.keys(m_uiRoadSpriteTable);
+        var viewEnums = ASZONE.getViewTile();
+        for (var i in keys)
+        {
+            var id = keys[i];
+            var sprite = m_uiRoadSpriteTable[id];
+            sprite.alpha = id == m_currentRoadId ? 1 : 0.25;
+            // tile visible only if viewId is build mode
+            sprite.visible = m_currentViewId == viewEnums[1] ? true : false;
+        }
+    }
+    
     var getLayerWidth = function asmapui_getLayerWidth()
     {
         return g_app.renderer.width;
@@ -492,26 +516,30 @@ var ASMAPUI = (function ()
         return g_app.renderer.height;
     }
     
-    var createZoneSprite = function asmapui_createZoneSprite(tileId)
+    var createSprite = function asmapui_createSprite(id, callback, library)
     {
-        var textureName = ASZONE.getTileTextureName(tileId);
+        var textureName = library.getTileTextureName(id);
         var textureCache = PIXI.utils.TextureCache[textureName];
         var sprite = new PIXI.Sprite(textureCache);
         sprite.interactive = true;
         sprite.on('pointerdown',
-            function(e){onZoneSpritePress(e, tileId);});
+            function(e){callback(e, id);});
         return sprite;
+    }
+    
+    var createZoneSprite = function asmapui_createZoneSprite(tileId)
+    {
+        return createSprite(tileId, onZoneSpritePress, ASZONE);
     }
     
     var createViewSprite = function asmapui_createViewSprite(viewId)
     {
-        var textureName = ASZONE.getTileTextureName(viewId);
-        var textureCache = PIXI.utils.TextureCache[textureName];
-        var sprite = new PIXI.Sprite(textureCache);
-        sprite.interactive = true;
-        sprite.on('pointerdown',
-            function(e){onViewSpritePress(e, viewId);});
-        return sprite;
+        return createSprite(viewId, onViewSpritePress, ASZONE);
+    }
+    
+    var createRoadSprite = function asmapui_createRoadSprite(roadId)
+    {
+        return createSprite(roadId, onRoadSpritePress, ASROAD);
     }
     
     var createMenuBackground = function asmapui_createMenuBackground(width, height)
@@ -551,6 +579,7 @@ var ASMAPUI = (function ()
         m_currentViewId = viewId;
         focusViewSprite();
         focusZoneSprite();
+        focusRoadSprite();
         if (refresh && m_currentViewId == 10)
         {
             MMAPDATA.switchData(ASZONE);
@@ -559,6 +588,12 @@ var ASMAPUI = (function ()
         {
             MMAPDATA.switchData(ASROAD);
         }
+    }
+    
+    var onRoadSpritePress = function asmapui_onRoadSpritePress(event, roadId)
+    {
+        m_currentRoadId = roadId;
+        focusRoadSprite();
     }
     
     return public;
@@ -866,6 +901,14 @@ var ASROAD = (function ()
         graphics.lineTo(C_TEXTURE_BASE_SIZE_X - M, C_TEXTURE_BASE_SIZE_Y / 2);
 
         return graphics;
+    }
+    
+    public.getRoadTile = function asroad_getRoadTile()
+    {
+        var C = public.C_TILEENUM;
+        return [
+            C.LOW, C.MID, C.HIG
+        ];
     }
     
     // ----------------

@@ -351,6 +351,68 @@ var ASMAPUI = (function ()
         public.resize();
     }
     
+    var buildMenu = function asmapui_buildMenu(tileEnums, tileTable, tileFunction, level)
+    {
+        var landscape = MMAPRENDER.isOrientationLandscape();
+        var c = 0;
+        var backgroundWidth = 0;
+        var backgroundHeight = 0;
+        var maxWidth = 0;
+        var maxHeight = 0;
+        for (var i in tileEnums)
+        {
+            var tileId = tileEnums[i];
+            var sprite = tileFunction(tileId);
+            m_uiLayer.addChild(sprite);
+            tileTable[tileId] = sprite;
+            if (maxWidth < sprite.width)
+            {
+                maxWidth = sprite.width;
+            }
+            if (maxHeight < sprite.height)
+            {
+                maxHeight = sprite.height;
+            }
+        }
+        if (landscape)
+        {
+            backgroundWidth = maxWidth;
+            backgroundHeight = getLayerHeight();
+        }
+        else
+        {
+            backgroundWidth = getLayerWidth();
+            backgroundHeight = maxHeight;
+        }
+        for (var i in tileEnums)
+        {
+            var tileId = tileEnums[i];
+            var sprite = tileTable[tileId];
+            if (landscape)
+            {
+                sprite.x = getLayerWidth() - maxWidth*(1+level);
+                sprite.y = c*maxHeight;
+            }
+            else
+            {
+                sprite.x = c*maxWidth;
+                sprite.y = getLayerHeight() - maxHeight*(1+level);
+            }
+            c++;
+        }
+        
+        var background = createMenuBackground(backgroundWidth, backgroundHeight);
+        m_uiLayer.addChildAt(background, 0);
+        if (landscape)
+        {
+            background.x = getLayerWidth() - background.width * (1+level);
+        }
+        else
+        {
+            background.y = getLayerHeight() - background.height * (1+level);
+        }
+    }
+    
     public.resize = function asmapui_resize()
     {
         if (typeof m_uiLayer === 'undefined')
@@ -368,76 +430,10 @@ var ASMAPUI = (function ()
         var maxHeight = 0;
         var maxWidth = 0;
         var tileEnums = ASZONE.getZoningTile();
-        for (var i in tileEnums)
-        {
-            var tileId = tileEnums[i];
-            var sprite = createTileSprite(tileId);
-            m_uiLayer.addChild(sprite);
-            m_uiTileSpriteTable[tileId] = sprite;
-            if (landscape)
-            {
-                sprite.x = getLayerWidth() - sprite.width;
-                sprite.y = c*sprite.height;
-                if (maxWidth < sprite.width)
-                {
-                    maxWidth = sprite.width;
-                }
-                maxHeight = getLayerHeight();
-            }
-            else
-            {
-                sprite.x = c*sprite.width;
-                sprite.y = getLayerHeight() - sprite.height;
-                if (maxHeight < sprite.height)
-                {
-                    maxHeight = sprite.height;
-                }
-                maxWidth = getLayerWidth();
-            }
-            c++;
-        }
-        
+        buildMenu(tileEnums, m_uiTileSpriteTable, createTileSprite, 0);
+
         var viewEnums = ASZONE.getViewTile();
-        var tileMaxI = tileEnums.length;
-        for (var i in viewEnums)
-        {
-            var viewId = viewEnums[i];
-            var sprite = createViewSprite(viewId);
-            m_uiLayer.addChild(sprite);
-            m_uiViewSpriteTable[viewId] = sprite;
-            if (landscape)
-            {
-                sprite.x = getLayerWidth() - sprite.width;
-                sprite.y = c*sprite.height;
-                if (maxWidth < sprite.width)
-                {
-                    maxWidth = sprite.width;
-                }
-                maxHeight = getLayerHeight();
-            }
-            else
-            {
-                sprite.x = c*sprite.width;
-                sprite.y = getLayerHeight() - sprite.height;
-                if (maxHeight < sprite.height)
-                {
-                    maxHeight = sprite.height;
-                }
-                maxWidth = getLayerWidth();
-            }
-            c++;
-        }
-        
-        var background = createMenuBackground(maxWidth, maxHeight);
-        m_uiLayer.addChildAt(background, 0);
-        if (landscape)
-        {
-            background.x = getLayerWidth() - background.width;
-        }
-        else
-        {
-            background.y = getLayerHeight() - background.height;
-        }
+        buildMenu(viewEnums, m_uiViewSpriteTable, createViewSprite, 1);
         
         focusTileSprite();
         focusViewSprite();

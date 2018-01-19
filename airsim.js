@@ -339,6 +339,7 @@ var ASMAPUI = (function ()
     var m_uiLayer;
     var m_uiTileSpriteTable = {};
     var m_uiViewSpriteTable = {};
+    var m_uiRoadSpriteTable = {};
     
     var m_currentTileId = 0;
     var m_currentViewId = 0;
@@ -376,6 +377,7 @@ var ASMAPUI = (function ()
             {
                 maxHeight = sprite.height;
             }
+            sprite.visible = false;
         }
         if (landscape)
         {
@@ -428,6 +430,7 @@ var ASMAPUI = (function ()
         m_uiLayer.removeChildren();
         m_uiTileSpriteTable = {};
         m_uiViewSpriteTable = {};
+        m_uiRoadSpriteTable = {};
         
         var c = 0;
         var maxHeight = 0;
@@ -455,11 +458,14 @@ var ASMAPUI = (function ()
     var focusTileSprite = function asmapui_focusTileSprite()
     {
         var keys = Object.keys(m_uiTileSpriteTable);
+        var viewEnums = ASZONE.getViewTile();
         for (var i in keys)
         {
             var id = keys[i];
             var sprite = m_uiTileSpriteTable[id];
-            sprite.alpha = id == m_currentTileId ? 1 : 0.25 ;
+            sprite.alpha = id == m_currentTileId ? 1 : 0.25;
+            // tile visible only if viewId is build mode
+            sprite.visible = m_currentViewId == viewEnums[0] ? true : false;
         }
     }
     
@@ -470,7 +476,8 @@ var ASMAPUI = (function ()
         {
             var id = keys[i];
             var sprite = m_uiViewSpriteTable[id];
-            sprite.alpha = id == m_currentViewId ? 1 : 0.25 ;
+            sprite.alpha = id == m_currentViewId ? 1 : 0.25;
+            sprite.visible = true;
         }
     }
     
@@ -541,6 +548,7 @@ var ASMAPUI = (function ()
         var refresh = m_currentViewId != viewId;
         m_currentViewId = viewId;
         focusViewSprite();
+        focusTileSprite();
         if (refresh && m_currentViewId == 10)
         {
             MMAPDATA.switchData(ASZONE);

@@ -308,17 +308,20 @@ var ASMAP = (function ()
     
     var doSingleClick = function asmap_doSingleClick(x, y)
     {
-        var selectedId = ASMAPUI.getCurrentZoneId();
-        if (selectedId == ASZONE.C_TILEENUM.ROAD)
+        if (ASMAPUI.isZoneMode())
         {
-            ASROAD.addRoad(x, y);
+            var selectedId = ASMAPUI.getCurrentZoneId();
+            if (selectedId == ASZONE.C_TILEENUM.ROAD)
+            {
+                ASROAD.addRoad(x, y);
+            }
+             else
+            {
+                ASROAD.removeRoad(x, y);
+            }
+            ASZONE.setZone(x, y, selectedId);
+            MMAPDATA.refreshTile(x, y);
         }
-        else
-        {
-            ASROAD.removeRoad(x, y);
-        }
-        ASZONE.setZone(x, y, selectedId);
-        MMAPDATA.refreshTile(x, y);
     }
     
     var doDoubleClick = function asmap_doDoubleClick(x, y)
@@ -457,6 +460,18 @@ var ASMAPUI = (function ()
         return m_currentZoneId;
     }
     
+    public.isZoneMode = function asmapui_isZoneMode()
+    {
+        var viewEnums = ASZONE.getViewTile();
+        return m_currentViewId == viewEnums[0];
+    }
+    
+    public.isRoadMode = function asmapui_isRoadMode()
+    {
+        var viewEnums = ASZONE.getViewTile();
+        return m_currentViewId == viewEnums[1];
+    }
+    
     public.getCurrentViewId = function asmapui_getCurrentViewId()
     {
         return m_currentViewId;
@@ -470,14 +485,12 @@ var ASMAPUI = (function ()
     var focusZoneSprite = function asmapui_focusZoneSprite()
     {
         var keys = Object.keys(m_uiZoneSpriteTable);
-        var viewEnums = ASZONE.getViewTile();
         for (var i in keys)
         {
             var id = keys[i];
             var sprite = m_uiZoneSpriteTable[id];
             sprite.alpha = id == m_currentZoneId ? 1 : 0.25;
-            // tile visible only if viewId is build mode
-            sprite.visible = m_currentViewId == viewEnums[0] ? true : false;
+            sprite.visible = public.isZoneMode();
         }
     }
     
@@ -496,14 +509,12 @@ var ASMAPUI = (function ()
     var focusRoadSprite = function asmapui_focusRoadSprite()
     {
         var keys = Object.keys(m_uiRoadSpriteTable);
-        var viewEnums = ASZONE.getViewTile();
         for (var i in keys)
         {
             var id = keys[i];
             var sprite = m_uiRoadSpriteTable[id];
             sprite.alpha = id == m_currentRoadId ? 1 : 0.25;
-            // tile visible only if viewId is build mode
-            sprite.visible = m_currentViewId == viewEnums[1] ? true : false;
+            sprite.visible = public.isRoadMode();
         }
     }
     

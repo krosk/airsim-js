@@ -308,7 +308,7 @@ var ASMAP = (function ()
     
     var doSingleClick = function asmap_doSingleClick(x, y)
     {
-        var selectedId = ASMAPUI.getCurrentTileId();
+        var selectedId = ASMAPUI.getCurrentZoneId();
         if (selectedId == ASZONE.C_TILEENUM.ROAD)
         {
             ASROAD.addRoad(x, y);
@@ -337,12 +337,13 @@ var ASMAPUI = (function ()
     var C_ICON_WIDTH = 64;
     
     var m_uiLayer;
-    var m_uiTileSpriteTable = {};
+    var m_uiZoneSpriteTable = {};
     var m_uiViewSpriteTable = {};
     var m_uiRoadSpriteTable = {};
     
-    var m_currentTileId = 0;
+    var m_currentZoneId = 0;
     var m_currentViewId = 0;
+    var m_currentRoadId = 0;
     
     public.initialize = function asmapui_initialize()
     {
@@ -351,6 +352,7 @@ var ASMAPUI = (function ()
         m_uiLayer.interactive = false;
         
         m_currentViewId = ASZONE.getViewTile()[0];
+        m_currentZoneId = ASZONE.getZoneTile()[0];
         
         public.resize();
     }
@@ -428,26 +430,26 @@ var ASMAPUI = (function ()
         var landscape = MMAPRENDER.isOrientationLandscape();
         
         m_uiLayer.removeChildren();
-        m_uiTileSpriteTable = {};
+        m_uiZoneSpriteTable = {};
         m_uiViewSpriteTable = {};
         m_uiRoadSpriteTable = {};
         
         var c = 0;
         var maxHeight = 0;
         var maxWidth = 0;
-        var tileEnums = ASZONE.getZoningTile();
-        buildMenu(tileEnums, m_uiTileSpriteTable, createTileSprite, 1);
+        var zoneEnums = ASZONE.getZoneTile();
+        buildMenu(zoneEnums, m_uiZoneSpriteTable, createZoneSprite, 1);
 
         var viewEnums = ASZONE.getViewTile();
         buildMenu(viewEnums, m_uiViewSpriteTable, createViewSprite, 0);
         
-        focusTileSprite();
+        focusZoneSprite();
         focusViewSprite();
     }
     
-    public.getCurrentTileId = function asmapui_getCurrentTileId()
+    public.getCurrentZoneId = function asmapui_getCurrentZoneId()
     {
-        return m_currentTileId;
+        return m_currentZoneId;
     }
     
     public.getCurrentViewId = function asmapui_getCurrentViewId()
@@ -455,15 +457,15 @@ var ASMAPUI = (function ()
         return m_currentViewId;
     }
     
-    var focusTileSprite = function asmapui_focusTileSprite()
+    var focusZoneSprite = function asmapui_focusZoneSprite()
     {
-        var keys = Object.keys(m_uiTileSpriteTable);
+        var keys = Object.keys(m_uiZoneSpriteTable);
         var viewEnums = ASZONE.getViewTile();
         for (var i in keys)
         {
             var id = keys[i];
-            var sprite = m_uiTileSpriteTable[id];
-            sprite.alpha = id == m_currentTileId ? 1 : 0.25;
+            var sprite = m_uiZoneSpriteTable[id];
+            sprite.alpha = id == m_currentZoneId ? 1 : 0.25;
             // tile visible only if viewId is build mode
             sprite.visible = m_currentViewId == viewEnums[0] ? true : false;
         }
@@ -490,14 +492,14 @@ var ASMAPUI = (function ()
         return g_app.renderer.height;
     }
     
-    var createTileSprite = function asmapui_createTileSprite(tileId)
+    var createZoneSprite = function asmapui_createZoneSprite(tileId)
     {
         var textureName = ASZONE.getTileTextureName(tileId);
         var textureCache = PIXI.utils.TextureCache[textureName];
         var sprite = new PIXI.Sprite(textureCache);
         sprite.interactive = true;
         sprite.on('pointerdown',
-            function(e){onTileSpritePress(e, tileId);});
+            function(e){onZoneSpritePress(e, tileId);});
         return sprite;
     }
     
@@ -537,10 +539,10 @@ var ASMAPUI = (function ()
         return sprite;
     }
     
-    var onTileSpritePress = function asmapui_onTileSpritePress(event, tileId)
+    var onZoneSpritePress = function asmapui_onZoneSpritePress(event, zoneId)
     {
-        m_currentTileId = tileId;
-        focusTileSprite();
+        m_currentZoneId = zoneId;
+        focusZoneSprite();
     }
     
     var onViewSpritePress = function asmapui_onViewSpritePress(event, viewId)
@@ -548,7 +550,7 @@ var ASMAPUI = (function ()
         var refresh = m_currentViewId != viewId;
         m_currentViewId = viewId;
         focusViewSprite();
-        focusTileSprite();
+        focusZoneSprite();
         if (refresh && m_currentViewId == 10)
         {
             MMAPDATA.switchData(ASZONE);
@@ -683,7 +685,7 @@ var ASZONE = (function ()
         return graphics;
     }
     
-    public.getZoningTile = function aszone_getZoningTile()
+    public.getZoneTile = function aszone_getZoneTile()
     {
         var C = public.C_TILEENUM;
         return [
@@ -1144,7 +1146,7 @@ var MMAPDATA = (function ()
     }
     public.getRandomTileId = function mmapdata_getRandomTileId()
     {
-        var tileEnumValues = ASZONE.getZoningTile();
+        var tileEnumValues = ASZONE.getZoneTile();
         var tileEnumCount = tileEnumValues.length;
         var randomIndex = Math.floor(Math.random() * tileEnumCount);
         var randomId = tileEnumValues[randomIndex];

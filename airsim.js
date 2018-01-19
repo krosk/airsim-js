@@ -333,6 +333,9 @@ var ASMAPUI = (function ()
 {
     var public = {};
     
+    var C_ICON_HEIGHT = 48;
+    var C_ICON_WIDTH = 64;
+    
     var m_uiLayer;
     var m_uiTileSpriteTable = {};
     var m_uiViewSpriteTable = {};
@@ -376,13 +379,13 @@ var ASMAPUI = (function ()
         }
         if (landscape)
         {
-            backgroundWidth = maxWidth;
+            backgroundWidth = C_ICON_WIDTH;
             backgroundHeight = getLayerHeight();
         }
         else
         {
             backgroundWidth = getLayerWidth();
-            backgroundHeight = maxHeight;
+            backgroundHeight = C_ICON_HEIGHT;
         }
         for (var i in tileEnums)
         {
@@ -390,13 +393,13 @@ var ASMAPUI = (function ()
             var sprite = tileTable[tileId];
             if (landscape)
             {
-                sprite.x = getLayerWidth() - maxWidth*(1+level);
+                sprite.x = getLayerWidth() - backgroundWidth*(1+level);
                 sprite.y = c*maxHeight;
             }
             else
             {
                 sprite.x = c*maxWidth;
-                sprite.y = getLayerHeight() - maxHeight*(1+level);
+                sprite.y = getLayerHeight() - backgroundHeight*(1+level);
             }
             c++;
         }
@@ -430,10 +433,10 @@ var ASMAPUI = (function ()
         var maxHeight = 0;
         var maxWidth = 0;
         var tileEnums = ASZONE.getZoningTile();
-        buildMenu(tileEnums, m_uiTileSpriteTable, createTileSprite, 0);
+        buildMenu(tileEnums, m_uiTileSpriteTable, createTileSprite, 1);
 
         var viewEnums = ASZONE.getViewTile();
-        buildMenu(viewEnums, m_uiViewSpriteTable, createViewSprite, 1);
+        buildMenu(viewEnums, m_uiViewSpriteTable, createViewSprite, 0);
         
         focusTileSprite();
         focusViewSprite();

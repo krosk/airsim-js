@@ -306,21 +306,48 @@ var ASMAP = (function ()
         MMAPRENDER.update(dt, time);
     }
     
+    var doZoneViewSingleClick = function asmap_doZoneViewSingleClick(x, y)
+    {
+        var selectedId = ASMAPUI.getCurrentZoneId();
+        if (selectedId == ASZONE.C_TILEENUM.ROAD)
+        {
+            ASROAD.addRoad(x, y);
+        }
+         else
+        {
+            ASROAD.removeRoad(x, y);
+        }
+        ASZONE.setZone(x, y, selectedId);
+        MMAPDATA.refreshTile(x, y);
+    }
+    
+    var doRoadViewSingleClick = function asmap_doRoadViewSingleClick(x, y)
+    {
+        console.log(x + ' ' + y);
+        var selectedId = ASMAPUI.getCurrentRoadId();
+        if (selectedId == ASROAD.C_TILEENUM.LOW)
+        {
+            console.log('reset traversal');
+        }
+        else if (selectedId == ASROAD.C_TILEENUM.MID)
+        {
+            console.log('start traversal');
+        }
+        else if (selectedId == ASROAD.C_TILEENUM.HIG)
+        {
+            console.log('increment traversal');
+        }
+    }
+    
     var doSingleClick = function asmap_doSingleClick(x, y)
     {
         if (ASMAPUI.isZoneMode())
         {
-            var selectedId = ASMAPUI.getCurrentZoneId();
-            if (selectedId == ASZONE.C_TILEENUM.ROAD)
-            {
-                ASROAD.addRoad(x, y);
-            }
-             else
-            {
-                ASROAD.removeRoad(x, y);
-            }
-            ASZONE.setZone(x, y, selectedId);
-            MMAPDATA.refreshTile(x, y);
+            doZoneViewSingleClick(x, y);
+        }
+        if (ASMAPUI.isRoadMode())
+        {
+            doRoadViewSingleClick(x, y);
         }
     }
     

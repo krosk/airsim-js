@@ -321,21 +321,24 @@ var ASMAP = (function ()
         MMAPDATA.refreshTile(x, y);
     }
     
+    var m_roadTraversalTemp;
+    
     var doRoadViewSingleClick = function asmap_doRoadViewSingleClick(x, y)
     {
-        console.log(x + ' ' + y);
         var selectedId = ASMAPUI.getCurrentRoadId();
         if (selectedId == ASROAD.C_TILEENUM.LOW)
         {
-            console.log('reset traversal');
+            m_roadTraversalTemp = ASROAD.initializeTraversal(x, y);
+            console.log('start traversal x' + x + 'y' + y + 'c' + m_roadTraversalTemp);
         }
         else if (selectedId == ASROAD.C_TILEENUM.MID)
         {
-            console.log('start traversal');
+            var next = ASROAD.getNextStepTraversal(m_roadTraversalTemp);
+            console.log('incre traversal ' + next + 'c' + m_roadTraversalTemp);
         }
         else if (selectedId == ASROAD.C_TILEENUM.HIG)
         {
-            console.log('increment traversal');
+            console.log('finish traversal');
         }
     }
     
@@ -958,6 +961,11 @@ var ASROAD = (function ()
         //return x * MMAPDATA.getMapTableSizeY() + y;
     }
     
+    var getXYFromNetworkIndex = function asroad_getXYFromNetworkIndex(index)
+    {
+        return MUTIL.mathReverseCantorPair(index);
+    }
+    
     public.initialize = function asroad_initialize(tableSizeX, tableSizeY)
     {
         for (var x = 0; x < tableSizeX; x++)
@@ -972,6 +980,10 @@ var ASROAD = (function ()
     // for display
     public.getDataId = function asroad_getDataId(x, y)
     {
+        if (x < 0 || y < 0)
+        {
+            return 0;
+        }
         var index = getNetworkIndex(x, y);
         var value = hasRoad(index) ? m_network[index].congestion : 0;
         if (value > 60)
@@ -1005,8 +1017,19 @@ var ASROAD = (function ()
     
     var connectNodes = function asroad_connectNodes(x, y, d)
     {
+        if (x < 0 || y < 0)
+        {
+            return;
+        }
         var from = getNetworkIndex(x, y);
-        var to = getNetworkIndex(x + C_XOFFSET[d], y + C_YOFFSET[d]);
+        var xd = x + C_XOFFSET[d];
+        var yd = y + C_YOFFSET[d];
+        if (xd < 0 || yd < 0)
+        {
+            return;
+        }
+        var to = getNetworkIndex(xd, yd);
+        //console.log('connectnode x'+x+'y'+y+'xd'+xd+'yd'+yd);
         if (hasRoad(from) && hasRoad(to))
         {
             m_network[from].connectTo[d] = to;
@@ -1016,8 +1039,18 @@ var ASROAD = (function ()
     
     var disconnectNodes = function asroad_disconnectNodes(x, y, d)
     {
+        if (x < 0 || y < 0)
+        {
+            return;
+        }
         var from = getNetworkIndex(x, y);
-        var to = getNetworkIndex(x + C_XOFFSET[d], y + C_YOFFSET[d]);
+        var xd = x + C_XOFFSET[d];
+        var yd = y + C_YOFFSET[d];
+        if (xd < 0 || yd < 0)
+        {
+            return;
+        }
+        var to = getNetworkIndex(xd, yd);
         if (hasRoad(from))
         {
             delete m_network[from].connectTo[d];
@@ -1044,11 +1077,16 @@ var ASROAD = (function ()
         {
             return -1;
         }
+        //console.log('isConnectedTo f' + from + 't' + to + 'c' + m_network[from].connectTo);
         return m_network[from].connectTo[d];
     }
     
     public.addRoad = function asroad_addRoad(x, y)
     {
+        if (x < 0 || y < 0)
+        {
+            return;
+        }
         var index = getNetworkIndex(x, y);
         if (!hasRoad(index))
         {
@@ -1062,6 +1100,10 @@ var ASROAD = (function ()
 
     public.removeRoad = function asroad_removeRoad(x, y)
     {
+        if (x < 0 || y < 0)
+        {
+            return;
+        }
         var index = getNetworkIndex(x, y);
         if (!hasRoad(index))
         {
@@ -1088,13 +1130,17 @@ var ASROAD = (function ()
     {
         data[0] = value;
     }
+    var getTraversalEdgeCount = function asroad_getTraversalEdgeCount(data)
+    {
+        return data[1];
+    }
     var setTraversalEdgeCount = function asroad_setTraversalEdgeCount(data, value)
     {
         data[1] = value;
     }
     var incrementTraversalEdgeCount = function asroad_incrementTraversalEdgeCount(data)
     {
-        return data[1]++;
+        data[1] = data[1] + 1;
     }
     var getTraversalCost = function asroas_getTraversalCost(data, index)
     {
@@ -1106,24 +1152,25 @@ var ASROAD = (function ()
     }
     var isTraversalProcessed = function asroad_isTraversalProcessed(data, index)
     {
-        return data[index*5 + C_TR.PROCESSED] = 1;
+        return data[index*5 + C_TR.PROCESSED];
     }
     var getTraversalTo = function asroad_getTraversalTo(data, index)
     {
         return data[index*5 + C_TR.TO];
     }
     
-    public.initializeTraversal = function asroad_initializeTraversal(from)
+    public.initializeTraversal = function asroad_initializeTraversal(fromX, fromY)
     {
+        var from = getNetworkIndex(fromX, fromY);
         var data = [];
         setTraversalCurrentIndex(data, -1);
         setTraversalEdgeCount(data, 0);
         if (hasRoad(from))
         {
-            expandTraversal(data, from, C_N);
-            expandTraversal(data, from, C_E);
-            expandTraversal(data, from, C_S);
-            expandTraversal(data, from, C_N);
+            expandTraversal(data, from, C_TO.N);
+            expandTraversal(data, from, C_TO.E);
+            expandTraversal(data, from, C_TO.S);
+            expandTraversal(data, from, C_TO.W);
         }
         return data;
     }
@@ -1138,6 +1185,7 @@ var ASROAD = (function ()
     
     var expandTraversal = function asroad_expandTraversal(data, from, d)
     {
+        //console.log('expandTraversal d' + data + 'f' + from + 'd' + d);
         var to = isConnectedTo(from, d);
         if (to >= 0)
         {
@@ -1162,23 +1210,33 @@ var ASROAD = (function ()
         // get minimum cost
         var edgeCount = getTraversalEdgeCount(data);
         var minCost = getTraversalCost(data, 0);
-        var minIndex = 0;
-        for (var i = 1; i < edgeCount; i++)
+        var minIndex = -1;
+        for (var i = 0; i < edgeCount; i++)
         {
             var localCost = getTraversalCost(data, i);
-            var isProcessed = getTraversalProcesed(data, i);
-            if (localCost < getTraversalCost(data, minIndex))
+            var isProcessed = isTraversalProcessed(data, i);
+            //console.log('i' + i + 'c' + localCost + 'p' + isProcessed);
+            if (isProcessed == 0 && (minIndex == -1 || localCost < getTraversalCost(data, minIndex)))
             {
                 minIndex = i;
                 minCost = localCost;
             }
         }
-        var to = getTraversalTo(data, minIndex);
-        expandTraversal(data, to, C_N);
-        expandTraversal(data, to, C_E);
-        expandTraversal(data, to, C_S);
-        expandTraversal(data, to, C_N);
-        return minIndex;
+        if (minIndex >= 0)
+        {
+            //console.log('minIndex ' + minIndex);
+            var to = getTraversalTo(data, minIndex);
+            expandTraversal(data, to, C_TO.N);
+            expandTraversal(data, to, C_TO.E);
+            expandTraversal(data, to, C_TO.S);
+            expandTraversal(data, to, C_TO.W);
+            setTraversalCurrentIndex(data, minIndex);
+            return getXYFromNetworkIndex(minIndex);
+        }
+        else
+        {
+            return [-1, -1];
+        }
     }
     
     return public;

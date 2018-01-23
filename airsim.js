@@ -334,7 +334,7 @@ var ASMAP = (function ()
         else if (selectedId == ASROAD.C_TILEENUM.MID)
         {
             var next = ASROAD.getNextStepTraversal(m_roadTraversalTemp);
-            console.log('incre traversal ' + next + 'c' + m_roadTraversalTemp);
+            console.log('incre traversal x' + next[0] + 'y' + next[1] + 'c' + m_roadTraversalTemp);
         }
         else if (selectedId == ASROAD.C_TILEENUM.HIG)
         {
@@ -1158,6 +1158,10 @@ var ASROAD = (function ()
     {
         return data[index*5 + C_TR.TO];
     }
+    var getTraversalFrom = function asroad_getTraversalFrom(data, index)
+    {
+        return data[index*5 + C_TR.FROM];
+    }
     
     public.initializeTraversal = function asroad_initializeTraversal(fromX, fromY)
     {
@@ -1167,10 +1171,10 @@ var ASROAD = (function ()
         setTraversalEdgeCount(data, 0);
         if (hasRoad(from))
         {
-            expandTraversal(data, from, C_TO.N);
-            expandTraversal(data, from, C_TO.E);
-            expandTraversal(data, from, C_TO.S);
-            expandTraversal(data, from, C_TO.W);
+            expandTraversal(data, from, isConnectedTo(from, C_TO.N));
+            expandTraversal(data, from, isConnectedTo(from, C_TO.E));
+            expandTraversal(data, from, isConnectedTo(from, C_TO.S));
+            expandTraversal(data, from, isConnectedTo(from, C_TO.W));
         }
         return data;
     }
@@ -1183,10 +1187,9 @@ var ASROAD = (function ()
         PROCESSED: 6
     };
     
-    var expandTraversal = function asroad_expandTraversal(data, from, d)
+    var expandTraversal = function asroad_expandTraversal(data, from, to)
     {
-        //console.log('expandTraversal d' + data + 'f' + from + 'd' + d);
-        var to = isConnectedTo(from, d);
+        //console.log('expandTraversal d' + data + 'f' + from + 't' + to);
         if (to >= 0)
         {
             var index = getTraversalCurrentIndex(data);
@@ -1194,7 +1197,7 @@ var ASROAD = (function ()
             if (index >= 0)
             {
                 congestion += getTraversalCost(data, index);
-                setTraversalProcessed(data, index);
+                //setTraversalProcessed(data, index);
             }
             incrementTraversalEdgeCount(data);
             data.push(from);
@@ -1211,10 +1214,13 @@ var ASROAD = (function ()
         var edgeCount = getTraversalEdgeCount(data);
         var minCost = getTraversalCost(data, 0);
         var minIndex = -1;
+        var traversed = {};
         for (var i = 0; i < edgeCount; i++)
         {
             var localCost = getTraversalCost(data, i);
             var isProcessed = isTraversalProcessed(data, i);
+            var from = getTraversalFrom(data, i);
+            traversed[from] = 1;
             //console.log('i' + i + 'c' + localCost + 'p' + isProcessed);
             if (isProcessed == 0 && (minIndex == -1 || localCost < getTraversalCost(data, minIndex)))
             {
@@ -1225,13 +1231,23 @@ var ASROAD = (function ()
         if (minIndex >= 0)
         {
             //console.log('minIndex ' + minIndex);
+            //console.log('traversed ' + traversed);
             var to = getTraversalTo(data, minIndex);
-            expandTraversal(data, to, C_TO.N);
-            expandTraversal(data, to, C_TO.E);
-            expandTraversal(data, to, C_TO.S);
-            expandTraversal(data, to, C_TO.W);
+            var expandIfNotTraversed = function (data, to, d)
+            {
+                var toTo = isConnectedTo(to, d);
+                if (traversed[toTo] != 1)
+                {
+                    expandTraversal(data, to, toTo);
+                }
+            }
             setTraversalCurrentIndex(data, minIndex);
-            return getXYFromNetworkIndex(minIndex);
+            setTraversalProcessed(data, minIndex);
+            expandIfNotTraversed(data, to, C_TO.N);
+            expandIfNotTraversed(data, to, C_TO.E);
+            expandIfNotTraversed(data, to, C_TO.S);
+            expandIfNotTraversed(data, to, C_TO.W);
+            return getXYFromNetworkIndex(to);
         }
         else
         {

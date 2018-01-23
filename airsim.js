@@ -1005,15 +1005,15 @@ var ASROAD = (function ()
     var getDataIdByTraversalState = function asroad_getTileByTraversalState(index)
     {
         var value = hasRoad(index) ? m_network[index].debug : 0;
-        if (value >= 3)
+        if (value >= 103)
         {
-            return public.C_TILEENUM.HIG; // current
+            return public.C_TILEENUM.HIG; // in queue and processed
         }
-        else if (value >= 2)
+        else if (value >= 102)
         {
-            return public.C_TILEENUM.MID; // in queue and processed
+            return public.C_TILEENUM.MID; // current
         }
-        else if (value >= 1)
+        else if (value >= 101)
         {
         	return public.C_TILEENUM.LOW; // in queue
         }
@@ -1046,7 +1046,7 @@ var ASROAD = (function ()
             connectTo : [,,,],
             congestion : 1,
             speed : 10,
-            debug : 0
+            debug : public.C_TILEENUM.LOW
         };
 
         return road;
@@ -1212,7 +1212,7 @@ var ASROAD = (function ()
             expandTraversal(data, from, isConnectedTo(from, C_TO.E));
             expandTraversal(data, from, isConnectedTo(from, C_TO.S));
             expandTraversal(data, from, isConnectedTo(from, C_TO.W));
-            m_network[from].debug = 3;
+            m_network[from].debug = public.C_TILEENUM.HIG;
         }
         return data;
     }
@@ -1237,6 +1237,7 @@ var ASROAD = (function ()
                 congestion += getTraversalCost(data, index);
                 //setTraversalProcessed(data, index);
             }
+            m_network[to].debug = public.C_TILEENUM.MID;
             incrementTraversalEdgeCount(data);
             data.push(from);
             data.push(to);
@@ -1259,7 +1260,7 @@ var ASROAD = (function ()
             var isProcessed = isTraversalProcessed(data, i);
             var from = getTraversalFrom(data, i);
             traversed[from] = 1;
-            m_network[from].debug = isProcessed ? 2 : 1;
+            //m_network[from].debug = isProcessed ? 2 : 1;
             //console.log('i' + i + 'c' + localCost + 'p' + isProcessed);
             if (isProcessed == 0 && (minIndex == -1 || localCost < getTraversalCost(data, minIndex)))
             {
@@ -1275,14 +1276,14 @@ var ASROAD = (function ()
             var expandIfNotTraversed = function (data, to, d)
             {
                 var toTo = isConnectedTo(to, d);
-                if (traversed[toTo] != 1)
+                if (toTo > 0 && traversed[toTo] != 1)
                 {
                     expandTraversal(data, to, toTo);
                 }
             }
             setTraversalCurrentIndex(data, minIndex);
             setTraversalProcessed(data, minIndex);
-            m_network[to].debug = 3;
+            m_network[to].debug = public.C_TILEENUM.HIG;
             expandIfNotTraversed(data, to, C_TO.N);
             expandIfNotTraversed(data, to, C_TO.E);
             expandIfNotTraversed(data, to, C_TO.S);
@@ -1291,6 +1292,7 @@ var ASROAD = (function ()
         }
         else
         {
+            console.log('end');
             return [-1, -1];
         }
     }

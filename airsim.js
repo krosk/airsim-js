@@ -340,7 +340,7 @@ var ASMAP = (function ()
         {
             console.log('finish traversal');
         }
-        //MAPDATA.refreshTile(x, y);
+        MMAPDATA.refreshAllTiles();
     }
     
     var doSingleClick = function asmap_doSingleClick(x, y)
@@ -1259,7 +1259,7 @@ var ASROAD = (function ()
             var isProcessed = isTraversalProcessed(data, i);
             var from = getTraversalFrom(data, i);
             traversed[from] = 1;
-            m_network[from] = isProcessed ? 2 : 1;
+            m_network[from].debug = isProcessed ? 2 : 1;
             //console.log('i' + i + 'c' + localCost + 'p' + isProcessed);
             if (isProcessed == 0 && (minIndex == -1 || localCost < getTraversalCost(data, minIndex)))
             {
@@ -1317,7 +1317,7 @@ var MMAPDATA = (function ()
     public.switchData = function mmapdata_switchData(dataLibrary)
     {
         m_dataLibrary = dataLibrary;
-        m_mapChangeLog = [-1];
+        public.refreshAllTiles();
         //console.log("switch to " + m_dataLibrary.getName());
     }
     public.getMapTableSizeX = function mmapdata_getMapTableSizeX()
@@ -1376,6 +1376,10 @@ var MMAPDATA = (function ()
         }
         m_mapChangeLog = [];
         return updatedTiles;
+    }
+    public.refreshAllTiles = function mmapdata_refreshAllTiles()
+    {
+        m_mapChangeLog = [-1];
     }
     public.refreshTile = function mmapdata_refreshTile(x, y)
     {

@@ -338,8 +338,13 @@ var ASMAP = (function ()
         }
         else if (selectedId == ASROAD.C_TILEENUM.HIG)
         {
-            ASROAD.getTraversalPath(m_roadTraversalTemp);
-            console.log('finish traversal');
+            var pathXY = ASROAD.getTraversalPath(m_roadTraversalTemp);
+            //console.log('finish traversal');
+            console.log(pathXY);
+        }
+        else if (selectedId == ASROAD.C_TILEENUM.NONE)
+        {
+            ASROAD.resetTraversalPath(m_roadTraversalTemp);
         }
         MMAPDATA.refreshAllTiles();
     }
@@ -950,7 +955,7 @@ var ASROAD = (function ()
     {
         var C = public.C_TILEENUM;
         return [
-            C.LOW, C.MID, C.HIG
+            C.LOW, C.MID, C.HIG, C.NONE
         ];
     }
     
@@ -1018,9 +1023,13 @@ var ASROAD = (function ()
         {
         	return public.C_TILEENUM.LOW; // in queue
         }
-        else
+        else if (value >= 0)
         {
         	return public.C_TILEENUM.NONE; // unexplored
+        }
+        else
+        {
+            console.log('getTileByTraversalState error ' + index);
         }
     }
     
@@ -1161,11 +1170,11 @@ var ASROAD = (function ()
     //   number of edges,
     //   collection of edges * 5
     //   ]
-    var getTraversalStartingPoint = function asroaf_getTraversalStartinhPoint(data)
+    var getTraversalStart = function asroaf_getTraversalStart(data)
     {
         return data[0];
     }
-    var setTraversalStartingPoint = function asroad_setTraversalStartingPoint(data, value)
+    var setTraversalStart = function asroad_setTraversalStart(data, value)
     {
         data[0] = value;
     }
@@ -1218,7 +1227,7 @@ var ASROAD = (function ()
     {
         var from = getNetworkIndex(fromX, fromY);
         var data = [];
-        setTraversalStartingPoint(data, from);
+        setTraversalStart(data, from);
         setTraversalCurrentIndex(data, -1);
         setTraversalEdgeCount(data, 0);
         if (hasRoad(from))
@@ -1264,6 +1273,11 @@ var ASROAD = (function ()
     
     public.getNextStepTraversal = function asroad_getNextStepTraversal(data)
     {
+        if (!validateTraversalData(data))
+        {
+            console.log('invalid');
+            return [-1, -1];
+        }
         // get minimum cost
         var edgeCount = getTraversalEdgeCount(data);
         var minCost = getTraversalCost(data, 0);
@@ -1314,6 +1328,11 @@ var ASROAD = (function ()
     
     public.getTraversalPath = function asroad_getTraversalPath(data)
     {
+        if (!validateTraversalData(data))
+        {
+            console.log('invalid');
+            return [-1, -1];
+        }
         var reversePathIndices = [];
         var lastIndex = getTraversalCurrentIndex(data);
         //console.log(data);
@@ -1332,7 +1351,7 @@ var ASROAD = (function ()
             var index = reversePathIndices[i];
             if (index == -1)
             {
-                var fromStart = getTraversalStartingPoint(data);
+                var fromStart = getTraversalStart(data);
                 reversePathFromTo.push(fromStart);
                 //console.log(fromStart);
             }
@@ -1355,7 +1374,35 @@ var ASROAD = (function ()
             pathFromToXY.push(xy[0]);
             pathFromToXY.push(xy[1]);
         }
-        console.log(pathFromToXY);
+        //console.log(pathFromToXY);
+        return pathFromToXY;
+    }
+    
+    public.resetTraversalPath = function asroad_resetTraversalPath(data)
+    {
+        if (validateTraversalData(data))
+        {
+            var edgeCount = getTraversalEdgeCount(data);
+            for (var i = 0; i < edgeCount; i++)
+            {
+                var from = getTraversalFrom(data, i);
+                var to = getTraversalTo(data, i);
+                m_network[from].debug = public.C_TILEENUM.LOW;
+                m_network[to].debug = public.C_TILEENUM.LOW;
+            }
+            var fromStart = getTraversalStart(data);
+            m_network[fromStart].debug = public.C_TILEENUM.LOW;
+        }
+        delete data;
+    }
+    
+    var validateTraversalData = function adroad_validateTraversalData(data)
+    {
+        if (typeof data === 'undefined' || data == null)
+        {
+            return false;
+        }
+        return true;
     }
     
     return public;

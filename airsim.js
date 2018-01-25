@@ -338,6 +338,7 @@ var ASMAP = (function ()
         }
         else if (selectedId == ASROAD.C_TILEENUM.HIG)
         {
+            ASROAD.getTraversalPath(m_roadTraversalTemp);
             console.log('finish traversal');
         }
         MMAPDATA.refreshAllTiles();
@@ -1155,29 +1156,38 @@ var ASROAD = (function ()
     
     // struct is
     // array = [
+    //   from of starting point
     //   last explored index,
-    //   number of edges
+    //   number of edges,
     //   collection of edges * 5
     //   ]
-    var getTraversalCurrentIndex = function asroad_getTraversalCurrentIndex(data)
+    var getTraversalStartingPoint = function asroaf_getTraversalStartinhPoint(data)
     {
         return data[0];
     }
-    var setTraversalCurrentIndex = function asroad_setTraversalCurrentIndex(data, value)
+    var setTraversalStartingPoint = function asroad_setTraversalStartingPoint(data, value)
     {
         data[0] = value;
     }
-    var getTraversalEdgeCount = function asroad_getTraversalEdgeCount(data)
+    var getTraversalCurrentIndex = function asroad_getTraversalCurrentIndex(data)
     {
         return data[1];
     }
-    var setTraversalEdgeCount = function asroad_setTraversalEdgeCount(data, value)
+    var setTraversalCurrentIndex = function asroad_setTraversalCurrentIndex(data, value)
     {
         data[1] = value;
     }
+    var getTraversalEdgeCount = function asroad_getTraversalEdgeCount(data)
+    {
+        return data[2];
+    }
+    var setTraversalEdgeCount = function asroad_setTraversalEdgeCount(data, value)
+    {
+        data[2] = value;
+    }
     var incrementTraversalEdgeCount = function asroad_incrementTraversalEdgeCount(data)
     {
-        data[1] = data[1] + 1;
+        data[2] = data[2] + 1;
     }
     var getTraversalCost = function asroas_getTraversalCost(data, index)
     {
@@ -1199,11 +1209,16 @@ var ASROAD = (function ()
     {
         return data[index*5 + C_TR.FROM];
     }
+    var getTraversalParent = function asroad_getTraversalParent(data, index)
+    {
+        return data[index*5 + C_TR.PARENT];
+    }
     
     public.initializeTraversal = function asroad_initializeTraversal(fromX, fromY)
     {
         var from = getNetworkIndex(fromX, fromY);
         var data = [];
+        setTraversalStartingPoint(data, from);
         setTraversalCurrentIndex(data, -1);
         setTraversalEdgeCount(data, 0);
         if (hasRoad(from))
@@ -1218,11 +1233,11 @@ var ASROAD = (function ()
     }
     
     var C_TR = {
-        FROM: 2,
-        TO: 3,
-        COST: 4,
-        PARENT: 5,
-        PROCESSED: 6
+        FROM: 3,
+        TO: 4,
+        COST: 5,
+        PARENT: 6,
+        PROCESSED: 7
     };
     
     var expandTraversal = function asroad_expandTraversal(data, from, to)
@@ -1276,7 +1291,7 @@ var ASROAD = (function ()
             var expandIfNotTraversed = function (data, to, d)
             {
                 var toTo = isConnectedTo(to, d);
-                if (toTo > 0 && traversed[toTo] != 1)
+                if (toTo >= 0 && traversed[toTo] != 1)
                 {
                     expandTraversal(data, to, toTo);
                 }
@@ -1295,6 +1310,52 @@ var ASROAD = (function ()
             console.log('end');
             return [-1, -1];
         }
+    }
+    
+    public.getTraversalPath = function asroad_getTraversalPath(data)
+    {
+        var reversePathIndices = [];
+        var lastIndex = getTraversalCurrentIndex(data);
+        //console.log(data);
+        //console.log(lastIndex);
+        while (lastIndex >= 0)
+        {
+            reversePathIndices.push(lastIndex);
+            lastIndex = getTraversalParent(data, lastIndex);
+            //console.log(lastIndex);
+        }
+        reversePathIndices.push(lastIndex); // last one is -1
+        //console.log(reversePathIndices);
+        var reversePathFromTo = [];
+        for (var i = 0; i < reversePathIndices.length; i++)
+        {
+            var index = reversePathIndices[i];
+            if (index == -1)
+            {
+                var fromStart = getTraversalStartingPoint(data);
+                reversePathFromTo.push(fromStart);
+                //console.log(fromStart);
+            }
+            else
+            {
+                var from = getTraversalFrom(data, index);
+                var to = getTraversalTo(data, index);
+                reversePathFromTo.push(to);
+                //reversePathFromTo.push(from);
+            }
+        }
+        //console.log(reversePathFromTo);
+        var pathFromTo = [];
+        var pathFromToXY = [];
+        while (reversePathFromTo.length > 0)
+        {
+            var index = reversePathFromTo.pop();
+            pathFromTo.push(index);
+            var xy = getXYFromNetworkIndex(index);
+            pathFromToXY.push(xy[0]);
+            pathFromToXY.push(xy[1]);
+        }
+        console.log(pathFromToXY);
     }
     
     return public;

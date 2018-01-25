@@ -1403,6 +1403,18 @@ var ASROAD = (function ()
     
     return public;
 })();
+
+var ASRICO = (function ()
+{
+    var public = {};
+    
+    public.getName = function asrico_getName()
+    {
+        return 'asrico';
+    }
+    
+    return public;
+})();
 // ---------------------
 // wrapper for data layers to interface
 // with mmap render

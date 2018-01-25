@@ -810,21 +810,17 @@ var ASZONE = (function ()
     }
     
     var m_dataLayer = [];
-    var getDataLayer = function aszone_getDataLayer()
-    {
-        return m_dataLayer;
-    }
     var getDataIndex = function aszone_getDataIndex(x, y)
     {
         return MUTIL.mathCantor(x, y);
     }
     public.getDataId = function aszone_getDataId(x, y)
     {
-        return getDataLayer()[getDataIndex(x, y)];
+        return m_dataLayer[getDataIndex(x, y)];
     }
     var setDataId = function aszone_setDataId(x, y, zone)
     {
-        getDataLayer()[getDataIndex(x, y)] = zone;
+        m_dataLayer[getDataIndex(x, y)] = zone;
     }
     //----------------
     public.setZone = function aszone_setZone(x, y, zone)

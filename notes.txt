@@ -151,6 +151,17 @@ if need water
     Finish no
   Add usage
 
+A building provides units to a road.
+A building has demand, starts from the nearest
+road, and explore until it finds a free road
+with free units.
+If a building is removed, its units are removed
+from its road and during the next cycle, a
+building that used the road will remove
+the full amount of the demand from it.
+Number will go below capacity.
+
+The rico statistics are hold in road.
 
 
 Alternative
@@ -180,6 +191,76 @@ For converging to an optimal solution and
 reduce traffic,  two buildings with overlapping 
 traffic could exchange itineraries that cross 
 each other. 
+
+Building resolution happens in cycle.
+The scanning is arbitrary and starts at the
+beginning of the map.
+It iterates over the map index by index.
+Alternatively, it can also moves in a building
+queue, but the logic of adding and removing
+from the queue must be solid. In any case,
+best is just a function that returns the next
+tile to resolve (there may be no buildings).
+Placing a building or replacing it will
+update its sprite, but not its simulation data.
+The simulation data is updated only upon
+resolution.
+The simulation data will hold a different state
+than what is shown upon a change but it is fine.
+
+A building has an object that holds all the data
+it needs for its resolution? or is it through
+data tables? If it is table then
+Zone id table, 8 bit or 16 bit
+Density table, 8 bit
+Pollution table, 8 bit
+Congestion table (road), 8 bit
+Speed table (road), 8 bit
+Debug table (road), 8 bit
+RICO offer * 4 (road), 8 or 16 bit
+Connect tables * 4 (road), 8 bit ot bitmask
+
+
+Using everything as table may be worthwhile,
+but memory consuming?
+Road admittedly only consumes, conservatively
+a third of the map.
+May be interesting to use unsigned int array
+tables if they are faster, even limited
+to 255 with 8 bit values
+
+Connect to is 4 direction, which requires only
+4 bits, so a number from 0 to 15 is enough
+
+
+Road network is an example of not array table
+based, but hash table based. Array table may
+be fine for data that is one value per index.
+Hash table will be
+necessary for more complex data. A consideration
+is the size required for holding a table with
+mostly empty data. Todo search hash vs array
+memory consumption.
+In term of performance, holey array have 10%
+the efficiency of a packed array. A holey
+array is one where there is an undefined
+object in the mix.
+
+Note that the scheme of using cantor indexing
+has a big overhead (twice memory reserved vs
+compact indexing while only half of it is used)
+but it allows extending.
+If extending is a goal, then it may be better
+to segment the grid into sub units, sub units
+have compact indexing while unit grid is hash
+based?
+
+
+
+Resolving a building works as such:
+If residential
+  remove all traffic itinerary
+  
 
 
 
@@ -296,4 +377,6 @@ while (XC has parent)
   XC = XC from parent index of XC in traversal
 end
 return list
+
+
 

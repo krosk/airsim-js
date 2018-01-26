@@ -737,35 +737,17 @@ var ASZONE = (function ()
         return 3;
     }
     
+    var getCityTextureMargin = function aszone_getCityTextureMargin(id)
+    {
+        return 0;
+    }
+    
     var createTexture = function aszone_createTexture(id)
     {
-        var graphics = new PIXI.Graphics();
-        
-        var C_TEXTURE_BASE_SIZE_X = MMAPRENDER.getTextureBaseSizeX();
-        var C_TEXTURE_BASE_SIZE_Y = MMAPRENDER.getTextureBaseSizeY();
-
         var color = getCityColor(id);
-        var black = 0x000000;
-        graphics.beginFill(color);
-        graphics.lineStyle(1, black);
-
-        var M = 0; // margin
-        var H = getCityTextureHeight(id);
-
-        // draw a rectangle
-        graphics.moveTo(C_TEXTURE_BASE_SIZE_X / 2, M);
-        graphics.lineTo(M, C_TEXTURE_BASE_SIZE_Y / 2);
-        graphics.lineTo(M, C_TEXTURE_BASE_SIZE_Y / 2 + H);
-        graphics.lineTo(C_TEXTURE_BASE_SIZE_X / 2, C_TEXTURE_BASE_SIZE_Y - M + H);
-        graphics.lineTo(C_TEXTURE_BASE_SIZE_X - M, C_TEXTURE_BASE_SIZE_Y / 2 + H);
-        graphics.lineTo(C_TEXTURE_BASE_SIZE_X - M, C_TEXTURE_BASE_SIZE_Y / 2);
-        graphics.lineTo(C_TEXTURE_BASE_SIZE_X / 2, M);
-        graphics.moveTo(C_TEXTURE_BASE_SIZE_X / 2, C_TEXTURE_BASE_SIZE_Y - 2 * M + M);
-        graphics.lineTo(M, C_TEXTURE_BASE_SIZE_Y / 2);
-        graphics.moveTo(C_TEXTURE_BASE_SIZE_X / 2, C_TEXTURE_BASE_SIZE_Y - 2 * M + M);
-        graphics.lineTo(C_TEXTURE_BASE_SIZE_X - M, C_TEXTURE_BASE_SIZE_Y / 2);
-
-        return graphics;
+        var margin = getCityTextureMargin(id);
+        var height = getCityTextureHeight(id);
+        return MMAPRENDER.createTexture(color, margin, height);
     }
     
     public.getZoneTile = function aszone_getZoneTile()
@@ -916,35 +898,22 @@ var ASROAD = (function ()
         return getColor(255, 255, 255);
     }
     
+    var getTrafficTextureMargin = function asroad_getTrafficTextureMargin(id)
+    {
+        return 0;
+    }
+    
+    var getTrafficTextureHeight = function asroad_getTrafficTextureHeight(id)
+    {
+        return 3;
+    }
+    
     var createTexture = function asroad_createTexture(id)
     {
-        var graphics = new PIXI.Graphics();
-        
-        var C_TEXTURE_BASE_SIZE_X = MMAPRENDER.getTextureBaseSizeX();
-        var C_TEXTURE_BASE_SIZE_Y = MMAPRENDER.getTextureBaseSizeY();
-
         var color = getTrafficColor(id);
-        var black = 0x000000;
-        graphics.beginFill(color);
-        graphics.lineStyle(1, black);
-
-        var M = 0; // margin
-        var H = 3;
-
-        // draw a rectangle
-        graphics.moveTo(C_TEXTURE_BASE_SIZE_X / 2, M);
-        graphics.lineTo(M, C_TEXTURE_BASE_SIZE_Y / 2);
-        graphics.lineTo(M, C_TEXTURE_BASE_SIZE_Y / 2 + H);
-        graphics.lineTo(C_TEXTURE_BASE_SIZE_X / 2, C_TEXTURE_BASE_SIZE_Y - M + H);
-        graphics.lineTo(C_TEXTURE_BASE_SIZE_X - M, C_TEXTURE_BASE_SIZE_Y / 2 + H);
-        graphics.lineTo(C_TEXTURE_BASE_SIZE_X - M, C_TEXTURE_BASE_SIZE_Y / 2);
-        graphics.lineTo(C_TEXTURE_BASE_SIZE_X / 2, M);
-        graphics.moveTo(C_TEXTURE_BASE_SIZE_X / 2, C_TEXTURE_BASE_SIZE_Y - 2 * M + M);
-        graphics.lineTo(M, C_TEXTURE_BASE_SIZE_Y / 2);
-        graphics.moveTo(C_TEXTURE_BASE_SIZE_X / 2, C_TEXTURE_BASE_SIZE_Y - 2 * M + M);
-        graphics.lineTo(C_TEXTURE_BASE_SIZE_X - M, C_TEXTURE_BASE_SIZE_Y / 2);
-
-        return graphics;
+        var margin = getTrafficTextureMargin(id);
+        var height = getTrafficTextureHeight(id);
+        return MMAPRENDER.createTexture(color, margin, height);
     }
     
     public.getRoadTile = function asroad_getRoadTile()
@@ -2274,6 +2243,36 @@ var MMAPRENDER = (function ()
     public.getTileTextureName = function mmaprender_getTileTextureName(tileId)
     {
         return MMAPDATA.getDataLibrary().getTileTextureName(tileId);
+    }
+    
+    public.createTexture = function mmaprender_createTexture(color, margin, height)
+    {
+        var graphics = new PIXI.Graphics();
+        
+        var C_TEXTURE_BASE_SIZE_X = MMAPRENDER.getTextureBaseSizeX();
+        var C_TEXTURE_BASE_SIZE_Y = MMAPRENDER.getTextureBaseSizeY();
+    
+        var black = 0x000000;
+        graphics.beginFill(color);
+        graphics.lineStyle(1, black);
+    
+        var M = margin; // margin
+        var H = height;
+    
+        // draw a rectangle
+        graphics.moveTo(C_TEXTURE_BASE_SIZE_X / 2, M);
+        graphics.lineTo(M, C_TEXTURE_BASE_SIZE_Y / 2);
+        graphics.lineTo(M, C_TEXTURE_BASE_SIZE_Y / 2 + H);
+        graphics.lineTo(C_TEXTURE_BASE_SIZE_X / 2, C_TEXTURE_BASE_SIZE_Y - M + H);
+        graphics.lineTo(C_TEXTURE_BASE_SIZE_X - M, C_TEXTURE_BASE_SIZE_Y / 2 + H);
+        graphics.lineTo(C_TEXTURE_BASE_SIZE_X - M, C_TEXTURE_BASE_SIZE_Y / 2);
+        graphics.lineTo(C_TEXTURE_BASE_SIZE_X / 2, M);
+        graphics.moveTo(C_TEXTURE_BASE_SIZE_X / 2, C_TEXTURE_BASE_SIZE_Y - 2 * M + M);
+        graphics.lineTo(M, C_TEXTURE_BASE_SIZE_Y / 2);
+        graphics.moveTo(C_TEXTURE_BASE_SIZE_X / 2, C_TEXTURE_BASE_SIZE_Y - 2 * M + M);
+        graphics.lineTo(C_TEXTURE_BASE_SIZE_X - M, C_TEXTURE_BASE_SIZE_Y / 2);
+    
+        return graphics;
     }
 
     // sprites are rendered at their

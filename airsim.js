@@ -2393,11 +2393,12 @@ var MMAPRENDER = (function ()
         var tileY = getCenterTileY();
         var cameraScale = (m_cameraScaleX * 100) | 0;
         
+        var memUsage = 'o(' + performance.memory.usedJSHeapSize / 1000 + ')';
         var mapCoords = 'm(' + (m_cameraMapX | 0) + ',' + (m_cameraMapY | 0) + ',' + cameraScale + ') ';
         var tileCoords = 't(' + tileX + ',' + tileY + ') ';
         var batchCoords = 'b(' + MMAPBATCH.getTileXToBatchX(tileX) + ',' + MMAPBATCH.getTileYToBatchY(tileY) + ') ';
         var batchCount = 'B(' + MMAPBATCH.getBatchCount() + '+' + MMAPBATCH.getBatchPoolCount() + '/' + MMAPBATCH.getBatchTotalCount() + ') ';
-        g_counter.innerHTML = mapCoords + tileCoords + batchCount;
+        g_counter.innerHTML = mapCoords + tileCoords + batchCount + memUsage;
     }
 
     public.setCameraScale = function mmaprender_setCameraScale(scaleX, scaleY)

@@ -198,7 +198,13 @@ beginning of the map.
 It iterates over the map index by index.
 Alternatively, it can also moves in a building
 queue, but the logic of adding and removing
-from the queue must be solid. In any case,
+from the queue must be solid. An example can
+be a queue that grows as building are added
+in fifo way. As a building is destroyed,
+the tile is added to the queue, and scanning
+an empty tile will just make it not queued the
+next time. This way, scanning is performed
+in a more economical method. In any case,
 best is just a function that returns the next
 tile to resolve (there may be no buildings).
 Placing a building or replacing it will
@@ -220,17 +226,19 @@ Debug table (road), 8 bit
 RICO offer * 4 (road), 8 or 16 bit
 Connect tables * 4 (road), 8 bit ot bitmask
 
-
 Using everything as table may be worthwhile,
 but memory consuming?
 Road admittedly only consumes, conservatively
 a third of the map.
 May be interesting to use unsigned int array
 tables if they are faster, even limited
-to 255 with 8 bit values
+to 255 with 8 bit values for memory constraint.
 
 Connect to is 4 direction, which requires only
-4 bits, so a number from 0 to 15 is enough
+4 bits, so a number from 0 to 15 is enough.
+However, current implementation is holding the
+index of the connected route, not just a flag.
+
 
 
 Road network is an example of not array table
@@ -253,7 +261,52 @@ but it allows extending.
 If extending is a goal, then it may be better
 to segment the grid into sub units, sub units
 have compact indexing while unit grid is hash
-based?
+based? Display would be limited to
+a sub unit.
+Sim city 4 small city is 64x64, large city 
+is 256x256. It allows region play so there
+is that too. But for starters, it is fine,
+hence there would be no need to support
+extending dynamically, and so a static
+indexing would work. However, extending
+will be based on region play, So there is
+the connection between regions to take into
+account. One could say, if a region is a
+similation state, then it could be loaded,
+churned into the engine, and updated without
+having to display anything.
+And so, keeping a sub unit to be 256*256 would
+be memory efficient for data tables.
+Junction roads between sub units however
+need to be smart. For now, a road holds the unit
+capacity provided by direct adjacents buildings.
+A building having demands will explore the
+network to feed on road capacity.
+For subunits junctions, it can be thought as
+checkpoints. Once all buildings have been served,
+roads with remaining capacity can route to
+these junctions and add up the free capacity
+of that node + actual cost to fill that capacity
+(on the sub unit provider).
+Then on resolution of the neighbour subunit
+(consumer), a traversal that explore the
+junction will interpret it as a road with
+free capacity (associated with a cost).
+A difficulty resides in knowing whether to
+settle with the junction, or to keep going.
+As you see, a junction has many costs possible
+so it does not fare well with bfs exploration.
+Indeed in bfs it is supposed to resolve the
+demand on a tile that is next candidate for
+lowest cost. A solution would be to populate
+the junction with many connections, not only
+one road.
+Once the consumer side has finished, the
+provider side needs to update its congestion.
+The junction becomes a consumer that has demand,
+and must be processed as such by exploring the
+network and add back congestion to the roads.
+
 
 
 

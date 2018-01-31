@@ -864,7 +864,8 @@ var ASZONE = (function ()
 
     var getDataIndex = function aszone_getDataIndex(x, y)
     {
-        return MUTIL.mathCantor(x, y);
+        //return MUTIL.mathCantor(x, y);
+        return x*m_zoneTableSizeY + y;
     }
     public.getDataId = function aszone_getDataId(x, y)
     {

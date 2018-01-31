@@ -636,6 +636,19 @@ var ASMAPUI = (function ()
         focusZoneSprite();
     }
     
+    var refreshMapDisplay = function asmapui_refreshMapDisplay()
+    {
+        var viewEnums = ASZONE.getViewTile()
+        if (m_currentViewId == viewEnums[0])
+        {
+            MMAPDATA.switchData(ASZONE);
+        }
+        else if (m_currentViewId == viewEnums[1])
+        {
+            MMAPDATA.switchData(ASROAD);
+        }
+    }
+    
     var onViewSpritePress = function asmapui_onViewSpritePress(event, viewId)
     {
         var refresh = m_currentViewId != viewId;
@@ -644,13 +657,9 @@ var ASMAPUI = (function ()
         focusZoneSprite();
         focusRoadSprite();
         focusSaveSprite();
-        if (refresh && m_currentViewId == 10)
+        if (refresh)
         {
-            MMAPDATA.switchData(ASZONE);
-        }
-        else if (refresh && m_currentViewId == 3)
-        {
-            MMAPDATA.switchData(ASROAD);
+            refreshMapDisplay();
         }
     }
     
@@ -664,6 +673,28 @@ var ASMAPUI = (function ()
     {
         m_currentSaveId = saveId;
         focusSaveSprite();
+        var saveEnums = ASZONE.getSaveTile();
+        if (m_currentSaveId == saveEnums[0])
+        {
+            //console.log("Saving");
+            var aszoneData = ASZONE.getSerializable();
+            localStorage.setItem('ASZONE', aszoneData);
+            var asroadData = ASROAD.getSerializable();
+            localStorage.setItem('ASROAD', asroadData);
+            console.log("Saved");
+        }
+        else if (m_currentSaveId == saveEnums[1])
+        {
+            //console.log("Loading");
+            var aszoneData = localStorage.getItem('ASZONE');
+            ASZONE.setSerializable(aszoneData);
+            var asroadData = localStorage.getItem('ASROAD');
+            ASROAD.setSerializable(asroadData);
+            console.log("Loaded");
+            //var viewEnums = ASZONE.getViewTile();
+            //m_currentViewId = viewEnums[0];
+            //refreshMapDisplay();
+        }
     }
     
     return public;
@@ -822,6 +853,14 @@ var ASZONE = (function ()
     }
     
     var m_dataLayer = [];
+    public.getSerializable = function aszone_getSerializable()
+    {
+        return JSON.stringify(m_dataLayer);
+    }
+    public.setSerializable = function aszobe_setSerializable(string)
+    {
+        m_dataLayer = JSON.parse(string);
+    }
 
     var getDataIndex = function aszone_getDataIndex(x, y)
     {
@@ -962,6 +1001,14 @@ var ASROAD = (function ()
     {
         return MUTIL.mathCantor(x, y);
         //return x * MMAPDATA.getMapTableSizeY() + y;
+    }
+    public.getSerializable = function asroad_getSerializable()
+    {
+        return JSON.stringify(m_network);
+    }
+    public.setSerializable = function adroad_setSerializable(string)
+    {
+        m_network = JSON.parse(string);
     }
     
     var getXYFromNetworkIndex = function asroad_getXYFromNetworkIndex(index)

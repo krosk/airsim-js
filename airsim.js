@@ -380,10 +380,12 @@ var ASMAPUI = (function ()
     var m_uiZoneSpriteTable = {};
     var m_uiViewSpriteTable = {};
     var m_uiRoadSpriteTable = {};
+    var m_uiSaveSpriteTable = {};
     
     var m_currentZoneId = 0;
     var m_currentViewId = 0;
     var m_currentRoadId = 0;
+    var m_currentSaveId = 0;
     
     public.initialize = function asmapui_initialize()
     {
@@ -394,6 +396,7 @@ var ASMAPUI = (function ()
         m_currentViewId = ASZONE.getViewTile()[0];
         m_currentZoneId = ASZONE.getZoneTile()[0];
         m_currentRoadId = ASROAD.getRoadTile()[0];
+        m_currentSaveId = ASZONE.getSaveTile()[0];
         
         public.resize();
     }
@@ -474,6 +477,7 @@ var ASMAPUI = (function ()
         m_uiZoneSpriteTable = {};
         m_uiViewSpriteTable = {};
         m_uiRoadSpriteTable = {};
+        m_uiSaveSpriteTable = {};
         
         var c = 0;
         var maxHeight = 0;
@@ -483,6 +487,9 @@ var ASMAPUI = (function ()
         
         var roadEnums = ASROAD.getRoadTile();
         buildMenu(roadEnums, m_uiRoadSpriteTable, createRoadSprite, 1);
+        
+        var saveEnums = ASZONE.getSaveTile();
+        buildMenu(saveEnums, m_uiSaveSpriteTable, createSaveSprite, 1);
 
         var viewEnums = ASZONE.getViewTile();
         buildMenu(viewEnums, m_uiViewSpriteTable, createViewSprite, 0);
@@ -490,6 +497,7 @@ var ASMAPUI = (function ()
         focusZoneSprite();
         focusViewSprite();
         focusRoadSprite();
+        focusSaveSprite();
     }
     
     public.getCurrentZoneId = function asmapui_getCurrentZoneId()
@@ -509,6 +517,12 @@ var ASMAPUI = (function ()
         return m_currentViewId == viewEnums[1];
     }
     
+    public.isSaveMode = function asmapui_isSaveMode()
+    {
+        var viewEnums = ASZONE.getViewTile();
+        return m_currentViewId == viewEnums[2];
+    }
+    
     public.getCurrentViewId = function asmapui_getCurrentViewId()
     {
         return m_currentViewId;
@@ -519,40 +533,36 @@ var ASMAPUI = (function ()
         return m_currentRoadId;
     }
     
-    var focusZoneSprite = function asmapui_focusZoneSprite()
+    var focusSprite = function asmapui_focusSprite(spriteTable, currentId, visible)
     {
-        var keys = Object.keys(m_uiZoneSpriteTable);
+        var keys = Object.keys(spriteTable);
         for (var i in keys)
         {
             var id = keys[i];
-            var sprite = m_uiZoneSpriteTable[id];
-            sprite.alpha = id == m_currentZoneId ? 1 : 0.25;
-            sprite.visible = public.isZoneMode();
+            var sprite = spriteTable[id];
+            sprite.alpha = id == currentId ? 1 : 0.25;
+            sprite.visible = visible;
         }
+    }
+    
+    var focusZoneSprite = function asmapui_focusZoneSprite()
+    {
+        focusSprite(m_uiZoneSpriteTable, m_currentZoneId, public.isZoneMode());
     }
     
     var focusViewSprite = function asmapui_focusViewSprite()
     {
-        var keys = Object.keys(m_uiViewSpriteTable);
-        for (var i in keys)
-        {
-            var id = keys[i];
-            var sprite = m_uiViewSpriteTable[id];
-            sprite.alpha = id == m_currentViewId ? 1 : 0.25;
-            sprite.visible = true;
-        }
+        focusSprite(m_uiViewSpriteTable, m_currentViewId, true);
     }
     
     var focusRoadSprite = function asmapui_focusRoadSprite()
     {
-        var keys = Object.keys(m_uiRoadSpriteTable);
-        for (var i in keys)
-        {
-            var id = keys[i];
-            var sprite = m_uiRoadSpriteTable[id];
-            sprite.alpha = id == m_currentRoadId ? 1 : 0.25;
-            sprite.visible = public.isRoadMode();
-        }
+        focusSprite(m_uiRoadSpriteTable, m_currentRoadId, public.isRoadMode());
+    }
+    
+    var focusSaveSprite = function asmapui_focusSaveSprite()
+    {
+        focusSprite(m_uiSaveSpriteTable, m_currentSaveId, public.isSaveMode());
     }
     
     var getLayerWidth = function asmapui_getLayerWidth()
@@ -588,6 +598,11 @@ var ASMAPUI = (function ()
     var createRoadSprite = function asmapui_createRoadSprite(roadId)
     {
         return createSprite(roadId, onRoadSpritePress, ASROAD);
+    }
+    
+    var createSaveSprite = function asmapui_createSaveSprite(saveId)
+    {
+        return createSprite(saveId, onSaveSpritePress, ASZONE);
     }
     
     var createMenuBackground = function asmapui_createMenuBackground(width, height)
@@ -628,6 +643,7 @@ var ASMAPUI = (function ()
         focusViewSprite();
         focusZoneSprite();
         focusRoadSprite();
+        focusSaveSprite();
         if (refresh && m_currentViewId == 10)
         {
             MMAPDATA.switchData(ASZONE);
@@ -642,6 +658,12 @@ var ASMAPUI = (function ()
     {
         m_currentRoadId = roadId;
         focusRoadSprite();
+    }
+    
+    var onSaveSpritePress = function asmapui_onSaveSpritePress(event, saveId)
+    {
+        m_currentSaveId = saveId;
+        focusSaveSprite();
     }
     
     return public;
@@ -763,7 +785,15 @@ var ASZONE = (function ()
     {
         var C = public.C_TILEENUM;
         return [
-            C.RESLOW, C.ROAD
+            C.RESLOW, C.ROAD, C.COMLOW
+        ];
+    }
+    
+    public.getSaveTile = function aszone_getSaveTile()
+    {
+        var C = public.C_TILEENUM;
+        return [
+            C.COMLOW, C.RESLOW
         ];
     }
     
@@ -792,6 +822,7 @@ var ASZONE = (function ()
     }
     
     var m_dataLayer = [];
+
     var getDataIndex = function aszone_getDataIndex(x, y)
     {
         return MUTIL.mathCantor(x, y);

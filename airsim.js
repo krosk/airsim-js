@@ -709,59 +709,36 @@ var ASSTATE = (function()
     var m_zoneState = [];
     var m_roadState = {};
     
-    var getIndex = function asstate_getIndex(x, y)
+    public.getIndex = function asstate_getIndex(x, y)
     {
         //return MUTIL.mathCantor(x, y);
         return x*m_tableSizeY + y;
     }
     
-    var getXYFromIndex = function asstate_getXYFromIndex(index)
+    public.getXYFromIndex = function asstate_getXYFromIndex(index)
     {
         //return MUTIL.mathReverseCantorPair(index);
-        return [index / m_tableSizeY, index % m_tableSizeY]
+        return [(index / m_tableSizeY) | 0, index % m_tableSizeY];
     }
     
-    public.C_ID = {
-        ZONE : 0,
-        ROAD : 1,
-        SPEED : 2,
-        DEBUG : 3,
-        CONNECT : 4
-    }
-    
-    public.getDataAt = function asstate_getDataAt(field, x, y)
+    public.getDataZoneAtIndex = function asstate_getDataZoneAtIndex(index)
     {
-        var index = getIndex(x, y);
-        if (field == public.C_ID.ZONE)
-        {
-            return m_zoneState[index];
-        }
-        /*
-        if (typeof m_dataState[index] === 'undefined' || m_dataState[index] == null)
-        {
-            console.log('no data at x' + x + ' y' + y);
-            throw 'no data at' + index;
-        }
-        return m_dataState[index][field];
-        */
+        return m_zoneState[index];
     }
     
-    public.setDataAt = function asstate_setDataAt(field, x, y, data)
+    public.setDataZoneAtIndex = function asstate_setDataZoneAtIndex(index, data)
     {
-        var index = getIndex(x, y);
-        if (field == public.C_ID.ZONE)
-        {
-            m_zoneState[index] = data;
-            return;
-        }
-        /*
-        if (typeof m_dataState[index] === 'undefined' || m_dataState[index] == null)
-        {
-            console.log('no data at x' + x + ' y' + y);
-            throw 'no data at' + index;
-        }
-        m_dataState[index][field] = data;
-        */
+        m_zoneState[index] = data;
+    }
+    
+    public.getDataRoadAtIndex = function asstate_getDataRoadAtIndex(index)
+    {
+        return m_roadState[index];
+    }
+    
+    public.setDataRoadAtIndex = function asstate_setDataRoadAtIndex(index, data)
+    {
+        m_roadState[index] = data;
     }
     
     var m_tableSizeX = 0;
@@ -774,7 +751,7 @@ var ASSTATE = (function()
         {
             for (var y = 0; y < m_tableSizeY; y++)
             {
-                var index = getIndex(x, y);
+                var index = public.getIndex(x, y);
                 //m_dataState[index] = [];
             }
         }
@@ -792,12 +769,14 @@ var ASSTATE = (function()
     
     public.getSerializable = function asstate_getSerializable()
     {
-        return JSON.stringify(m_zoneState);
+        return JSON.stringify([m_zoneState, m_roadState]);
     }
     
     public.setSerializable = function asstate_setSerializable(string)
     {
-        m_zoneState = JSON.parse(string);
+        var master = JSON.parse(string);
+        m_zoneState = master[0];
+        m_roadState = master[1];
     }
     
     return public;
@@ -941,9 +920,11 @@ var ASZONE = (function ()
     // -------------
     public.initialize = function aszone_initialize()
     {
-        for (var x = 0; x < ASSTATE.getTableSizeX(); x++)
+        const tableSizeX = ASSTATE.getTableSizeX();
+        const tableSizeY = ASSTATE.getTableSizeY();
+        for (var x = 0; x < tableSizeX; x++)
         {
-            for (var y = 0; y < ASSTATE.getTableSizeY(); y++)
+            for (var y = 0; y < tableSizeY; y++)
             {
                 var defaultId = public.C_TILEENUM.DEFAULT;
                 public.setZone(x, y, defaultId);
@@ -953,11 +934,13 @@ var ASZONE = (function ()
 
     public.getDataId = function aszone_getDataId(x, y)
     {
-        return ASSTATE.getDataAt(ASSTATE.C_ID.ZONE, x, y);
+        const index = ASSTATE.getIndex(x, y);
+        return ASSTATE.getDataZoneAtIndex(index);
     }
     var setDataId = function aszone_setDataId(x, y, zone)
     {
-        ASSTATE.setDataAt(ASSTATE.C_ID.ZONE, x, y, zone);
+        const index = ASSTATE.getIndex(x, y);
+        ASSTATE.setDataZoneAtIndex(index, zone);
     }
     //----------------
     public.setZone = function aszone_setZone(x, y, zone)
@@ -966,7 +949,7 @@ var ASZONE = (function ()
         {
             return;
         }
-        var index = setDataId(x, y, zone);
+        const index = setDataId(x, y, zone);
         // update other systems
         if (zone == public.C_TILEENUM.ROAD)
         {
@@ -1081,26 +1064,6 @@ var ASROAD = (function ()
     
     // ----------------
     
-    var m_network = {};
-    var getNetworkIndex = function asroad_getNetworkIndex(x, y)
-    {
-        return MUTIL.mathCantor(x, y);
-        //return x * MMAPDATA.getMapTableSizeY() + y;
-    }
-    public.getSerializable = function asroad_getSerializable()
-    {
-        return JSON.stringify(m_network);
-    }
-    public.setSerializable = function adroad_setSerializable(string)
-    {
-        m_network = JSON.parse(string);
-    }
-    
-    var getXYFromNetworkIndex = function asroad_getXYFromNetworkIndex(index)
-    {
-        return MUTIL.mathReverseCantorPair(index);
-    }
-    
     public.initialize = function asroad_initialize(tableSizeX, tableSizeY)
     {
         for (var x = 0; x < tableSizeX; x++)
@@ -1117,7 +1080,7 @@ var ASROAD = (function ()
     // for display
     var getDataIdByCongestion = function asroad_getTileByCongestion(index)
     {
-        var value = hasRoad(index) ? m_network[index].congestion : 0;
+        var value = hasRoad(index) ? ASSTATE.getDataRoadAtIndex(index).congestion : 0;
         if (value > 60)
         {
             return public.C_TILEENUM.HIG;
@@ -1138,7 +1101,7 @@ var ASROAD = (function ()
     
     var getDataIdByTraversalState = function asroad_getTileByTraversalState(index)
     {
-        var value = hasRoad(index) ? m_network[index].debug : 0;
+        var value = hasRoad(index) ? ASSTATE.getDataRoadAtIndex(index).debug : 0;
         if (value >= 103)
         {
             return public.C_TILEENUM.HIG; // in queue and processed
@@ -1167,7 +1130,7 @@ var ASROAD = (function ()
         {
             return 0;
         }
-        var index = getNetworkIndex(x, y);
+        const index = ASSTATE.getIndex(x, y);
         if (C_DEBUG_TRAVERSAL)
         {
             return getDataIdByTraversalState(index);
@@ -1196,19 +1159,19 @@ var ASROAD = (function ()
         {
             return;
         }
-        var from = getNetworkIndex(x, y);
+        var from = ASSTATE.getIndex(x, y);
         var xd = x + C_XOFFSET[d];
         var yd = y + C_YOFFSET[d];
         if (xd < 0 || yd < 0)
         {
             return;
         }
-        var to = getNetworkIndex(xd, yd);
+        var to = ASSTATE.getIndex(xd, yd);
         //console.log('connectnode x'+x+'y'+y+'xd'+xd+'yd'+yd);
         if (hasRoad(from) && hasRoad(to))
         {
-            m_network[from].connectTo[d] = to;
-            m_network[to].connectTo[C_FROM[d]] = from;
+            ASSTATE.getDataRoadAtIndex(from).connectTo[d] = to;
+            ASSTATE.getDataRoadAtIndex(to).connectTo[C_FROM[d]] = from;
         }
     }
     
@@ -1218,27 +1181,28 @@ var ASROAD = (function ()
         {
             return;
         }
-        var from = getNetworkIndex(x, y);
+        var from = ASSTATE.getIndex(x, y);
         var xd = x + C_XOFFSET[d];
         var yd = y + C_YOFFSET[d];
         if (xd < 0 || yd < 0)
         {
             return;
         }
-        var to = getNetworkIndex(xd, yd);
+        var to = ASSTATE.getIndex(xd, yd);
         if (hasRoad(from))
         {
-            delete m_network[from].connectTo[d];
+            delete ASSTATE.getDataRoadAtIndex(from).connectTo[d];
         }
         if (hasRoad(to))
         {
-            delete m_network[to].connectTo[C_FROM[d]];
+            delete ASSTATE.getDataRoadAtIndex(to).connectTo[C_FROM[d]];
         }
     }
     
     var hasRoad = function asroad_hasRoad(i)
     {
-        return !((typeof m_network[i] === 'undefined') || (m_network[i] == null));
+        var data = ASSTATE.getDataRoadAtIndex(i);
+        return !((typeof data === 'undefined') || (data == null));
     }
     
     var isConnectedTo = function asroad_isConnectedTo(from, d)
@@ -1247,13 +1211,13 @@ var ASROAD = (function ()
         {
             return -1;
         }
-        var to = m_network[from].connectTo[d];
+        var to = ASSTATE.getDataRoadAtIndex(from).connectTo[d];
         if (!hasRoad(to))
         {
             return -1;
         }
         //console.log('isConnectedTo f' + from + 't' + to + 'c' + m_network[from].connectTo);
-        return m_network[from].connectTo[d];
+        return ASSTATE.getDataRoadAtIndex(from).connectTo[d];
     }
     
     public.addRoad = function asroad_addRoad(x, y)
@@ -1262,10 +1226,10 @@ var ASROAD = (function ()
         {
             return;
         }
-        var index = getNetworkIndex(x, y);
+        var index = ASSTATE.getIndex(x, y);
         if (!hasRoad(index))
         {
-            m_network[index] = setNewRoad();
+            ASSTATE.setDataRoadAtIndex(index, setNewRoad());
         }
         connectNodes(x, y, C_TO.N);
         connectNodes(x, y, C_TO.E);
@@ -1279,7 +1243,7 @@ var ASROAD = (function ()
         {
             return;
         }
-        var index = getNetworkIndex(x, y);
+        var index = ASSTATE.getIndex(x, y);
         if (!hasRoad(index))
         {
             return;
@@ -1288,7 +1252,7 @@ var ASROAD = (function ()
         disconnectNodes(x, y, C_TO.E);
         disconnectNodes(x, y, C_TO.S);
         disconnectNodes(x, y, C_TO.W);
-        delete m_network[index];
+        delete ASSTATE.getDataRoadAtIndex(index);
     }
     
     // struct is
@@ -1353,7 +1317,7 @@ var ASROAD = (function ()
     
     public.initializeTraversal = function asroad_initializeTraversal(fromX, fromY)
     {
-        var from = getNetworkIndex(fromX, fromY);
+        var from = ASSTATE.getIndex(fromX, fromY);
         var data = [];
         setTraversalStart(data, from);
         setTraversalCurrentIndex(data, -1);
@@ -1364,7 +1328,7 @@ var ASROAD = (function ()
             expandTraversal(data, from, isConnectedTo(from, C_TO.E));
             expandTraversal(data, from, isConnectedTo(from, C_TO.S));
             expandTraversal(data, from, isConnectedTo(from, C_TO.W));
-            m_network[from].debug = public.C_TILEENUM.HIG;
+            ASSTATE.getDataRoadAtIndex(from).debug = public.C_TILEENUM.HIG;
         }
         return data;
     }
@@ -1383,13 +1347,13 @@ var ASROAD = (function ()
         if (to >= 0)
         {
             var index = getTraversalCurrentIndex(data);
-            var congestion = m_network[to].congestion;
+            var congestion = ASSTATE.getDataRoadAtIndex(to).congestion;
             if (index >= 0)
             {
                 congestion += getTraversalCost(data, index);
                 //setTraversalProcessed(data, index);
             }
-            m_network[to].debug = public.C_TILEENUM.MID;
+            ASSTATE.getDataRoadAtIndex(to).debug = public.C_TILEENUM.MID;
             incrementTraversalEdgeCount(data);
             data.push(from);
             data.push(to);
@@ -1440,12 +1404,12 @@ var ASROAD = (function ()
             }
             setTraversalCurrentIndex(data, minIndex);
             setTraversalProcessed(data, minIndex);
-            m_network[to].debug = public.C_TILEENUM.HIG;
+            ASSTATE.getDataRoadAtIndex(to).debug = public.C_TILEENUM.HIG;
             expandIfNotTraversed(data, to, C_TO.N);
             expandIfNotTraversed(data, to, C_TO.E);
             expandIfNotTraversed(data, to, C_TO.S);
             expandIfNotTraversed(data, to, C_TO.W);
-            return getXYFromNetworkIndex(to);
+            return ASSTATE.getXYFromIndex(to);
         }
         else
         {
@@ -1498,7 +1462,7 @@ var ASROAD = (function ()
         {
             var index = reversePathFromTo.pop();
             pathFromTo.push(index);
-            var xy = getXYFromNetworkIndex(index);
+            var xy = ASSTATE.getXYFromIndex(index);
             pathFromToXY.push(xy[0]);
             pathFromToXY.push(xy[1]);
         }
@@ -1515,16 +1479,16 @@ var ASROAD = (function ()
             {
                 var from = getTraversalFrom(data, i);
                 var to = getTraversalTo(data, i);
-                m_network[from].debug = public.C_TILEENUM.LOW;
-                m_network[to].debug = public.C_TILEENUM.LOW;
+                ASSTATE.getDataRoadAtIndex(from).debug = public.C_TILEENUM.LOW;
+                AASTATE.getDataRoadAtIndex(to).debug = public.C_TILEENUM.LOW;
             }
             var fromStart = getTraversalStart(data);
-            m_network[fromStart].debug = public.C_TILEENUM.LOW;
+            ASSTATE.getDataRoadByIndex(fromStart).debug = public.C_TILEENUM.LOW;
         }
         delete data;
     }
     
-    var validateTraversalData = function adroad_validateTraversalData(data)
+    var validateTraversalData = function asroad_validateTraversalData(data)
     {
         if (typeof data === 'undefined' || data == null)
         {
@@ -1547,6 +1511,7 @@ var ASRICO = (function ()
     
     return public;
 })();
+
 // ---------------------
 // wrapper for data layers to interface
 // with mmap render

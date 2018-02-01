@@ -283,7 +283,8 @@ var ASMAP = (function ()
 
     public.initialize = function asmap_initialize(w, h)
     {
-        ASZONE.initialize(w, h);
+        ASSTATE.initialize(w, h);
+        ASZONE.initialize();
         ASZONE.initializeTexture();
         ASROAD.initializeTexture();
         MMAPDATA.initialize(w, h, ASZONE);
@@ -677,19 +678,19 @@ var ASMAPUI = (function ()
         if (m_currentSaveId == saveEnums[0])
         {
             //console.log("Saving");
-            var aszoneData = ASZONE.getSerializable();
-            localStorage.setItem('ASZONE', aszoneData);
-            var asroadData = ASROAD.getSerializable();
-            localStorage.setItem('ASROAD', asroadData);
+            var asstateData = ASSTATE.getSerializable();
+            localStorage.setItem('ASSTATE', asstateData);
+            //var asroadData = ASROAD.getSerializable();
+            //localStorage.setItem('ASROAD', asroadData);
             console.log("Saved");
         }
         else if (m_currentSaveId == saveEnums[1])
         {
             //console.log("Loading");
-            var aszoneData = localStorage.getItem('ASZONE');
-            ASZONE.setSerializable(aszoneData);
-            var asroadData = localStorage.getItem('ASROAD');
-            ASROAD.setSerializable(asroadData);
+            var asstateData = localStorage.getItem('ASSTATE');
+            ASSTATE.setSerializable(asstateData);
+            //var asroadData = localStorage.getItem('ASROAD');
+            //ASROAD.setSerializable(asroadData);
             console.log("Loaded");
             //var viewEnums = ASZONE.getViewTile();
             //m_currentViewId = viewEnums[0];
@@ -699,6 +700,109 @@ var ASMAPUI = (function ()
     
     return public;
 })();
+// ---------------------
+var ASSTATE = (function()
+{
+    var public = {};
+    
+    //var m_dataState = [];
+    var m_zoneState = [];
+    var m_roadState = {};
+    
+    var getIndex = function asstate_getIndex(x, y)
+    {
+        //return MUTIL.mathCantor(x, y);
+        return x*m_tableSizeY + y;
+    }
+    
+    var getXYFromIndex = function asstate_getXYFromIndex(index)
+    {
+        //return MUTIL.mathReverseCantorPair(index);
+        return [index / m_tableSizeY, index % m_tableSizeY]
+    }
+    
+    public.C_ID = {
+        ZONE : 0,
+        ROAD : 1,
+        SPEED : 2,
+        DEBUG : 3,
+        CONNECT : 4
+    }
+    
+    public.getDataAt = function asstate_getDataAt(field, x, y)
+    {
+        var index = getIndex(x, y);
+        if (field == public.C_ID.ZONE)
+        {
+            return m_zoneState[index];
+        }
+        /*
+        if (typeof m_dataState[index] === 'undefined' || m_dataState[index] == null)
+        {
+            console.log('no data at x' + x + ' y' + y);
+            throw 'no data at' + index;
+        }
+        return m_dataState[index][field];
+        */
+    }
+    
+    public.setDataAt = function asstate_setDataAt(field, x, y, data)
+    {
+        var index = getIndex(x, y);
+        if (field == public.C_ID.ZONE)
+        {
+            m_zoneState[index] = data;
+            return;
+        }
+        /*
+        if (typeof m_dataState[index] === 'undefined' || m_dataState[index] == null)
+        {
+            console.log('no data at x' + x + ' y' + y);
+            throw 'no data at' + index;
+        }
+        m_dataState[index][field] = data;
+        */
+    }
+    
+    var m_tableSizeX = 0;
+    var m_tableSizeY = 0;
+    public.initialize = function asstate_initialize(tableSizeX, tableSizeY)
+    {
+        m_tableSizeX = tableSizeX;
+        m_tableSizeY = tableSizeY;
+        for (var x = 0; x < m_tableSizeX; x++)
+        {
+            for (var y = 0; y < m_tableSizeY; y++)
+            {
+                var index = getIndex(x, y);
+                //m_dataState[index] = [];
+            }
+        }
+    }
+    
+    public.getTableSizeX = function asstate_getTableSizeX()
+    {
+        return m_tableSizeX;
+    }
+    
+    public.getTableSizeY = function asstate_getTableSizeY()
+    {
+        return m_tableSizeY;
+    }
+    
+    public.getSerializable = function asstate_getSerializable()
+    {
+        return JSON.stringify(m_zoneState);
+    }
+    
+    public.setSerializable = function asstate_setSerializable(string)
+    {
+        m_zoneState = JSON.parse(string);
+    }
+    
+    return public;
+})();
+
 // ---------------------
 var ASZONE = (function ()
 {
@@ -835,45 +939,25 @@ var ASZONE = (function ()
     }
     
     // -------------
-    var m_zoneTableSizeX = 0;
-    var m_zoneTableSizeY = 0;
-    public.initialize = function aszone_initialize(tableSizeX, tableSizeY)
+    public.initialize = function aszone_initialize()
     {
-        m_zoneTableSizeX = tableSizeX;
-        m_zoneTableSizeY = tableSizeY;
-        
-        for (var x = 0; x < tableSizeX; x++)
+        for (var x = 0; x < ASSTATE.getTableSizeX(); x++)
         {
-            for (var y = 0; y < tableSizeY; y++)
+            for (var y = 0; y < ASSTATE.getTableSizeY(); y++)
             {
                 var defaultId = public.C_TILEENUM.DEFAULT;
                 public.setZone(x, y, defaultId);
             }
         }
     }
-    
-    var m_dataLayer = [];
-    public.getSerializable = function aszone_getSerializable()
-    {
-        return JSON.stringify(m_dataLayer);
-    }
-    public.setSerializable = function aszobe_setSerializable(string)
-    {
-        m_dataLayer = JSON.parse(string);
-    }
 
-    var getDataIndex = function aszone_getDataIndex(x, y)
-    {
-        //return MUTIL.mathCantor(x, y);
-        return x*m_zoneTableSizeY + y;
-    }
     public.getDataId = function aszone_getDataId(x, y)
     {
-        return m_dataLayer[getDataIndex(x, y)];
+        return ASSTATE.getDataAt(ASSTATE.C_ID.ZONE, x, y);
     }
     var setDataId = function aszone_setDataId(x, y, zone)
     {
-        m_dataLayer[getDataIndex(x, y)] = zone;
+        ASSTATE.setDataAt(ASSTATE.C_ID.ZONE, x, y, zone);
     }
     //----------------
     public.setZone = function aszone_setZone(x, y, zone)
@@ -1474,7 +1558,7 @@ var MMAPDATA = (function ()
     var m_mapTableSizeY = 0;
     var m_mapChangeLog = [];
     
-    var m_dataLibrary;
+    var m_dataLibrary; // module such as ASZONE
 
     public.getDataLibrary = function mmapdata_getDataLibrary()
     {
@@ -1557,7 +1641,7 @@ var MMAPDATA = (function ()
         var id = m_dataLibrary.getDataId(tileX, tileY); //getMapTableData()[index];
         if (typeof id === 'undefined')
         {
-            throw 'mmapData get uninitialized ' + index + ' ' + m_dataLibrary.getName();
+            throw 'mmapData get uninitialized ' + id + ' ' + m_dataLibrary.getName();
         }
         return id;
     }

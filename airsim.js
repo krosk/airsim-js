@@ -398,8 +398,8 @@ let ASMAPUI = (function ()
         
         m_currentViewId = ASZONE.viewTile[0];
         m_currentZoneId = ASZONE.zoneTile[0];
-        m_currentRoadId = ASROAD.getRoadTile()[0];
-        m_currentSaveId = ASZONE.esaveTile[0];
+        m_currentRoadId = ASROAD.roadTile[0];
+        m_currentSaveId = ASZONE.saveTile[0];
         
         public.resize();
     }
@@ -488,7 +488,7 @@ let ASMAPUI = (function ()
         let zoneEnums = ASZONE.zoneTile;
         buildMenu(zoneEnums, m_uiZoneSpriteTable, createZoneSprite, 1);
         
-        let roadEnums = ASROAD.getRoadTile();
+        let roadEnums = ASROAD.roadTile;
         buildMenu(roadEnums, m_uiRoadSpriteTable, createRoadSprite, 1);
         
         let saveEnums = ASZONE.saveTile;
@@ -817,50 +817,22 @@ let ASZONE = (function ()
         return (r) * 2**16 + (g) * 2**8 + (b);
     }
     
-    let getCityColor = function aszone_getCityColor(n)
-    {
-        if (n == C.DIRT)
-        {
-            return getColor(121, 85, 72); // dirt
-        }
-        else if (n == C.ROAD)
-        {
-            return getColor(158, 158, 158); // road
-        }
-        else if (n == C.RESLOW)
-        {
-            return getColor(76, 175, 80); // r
-        }
-        else if (n == C.COMLOW)
-        {
-            return getColor(33, 150, 243); // c
-        }
-        else if (n == C.INDLOW)
-        {
-            return getColor(255, 235, 59); // i
-        }
-        return getColor(255, 0, 0);
+    const C_CITYCOLOR = {
+        [C.NONE] : getColor(255, 0, 0),
+        [C.DIRT] : getColor(121, 85, 72),
+        [C.ROAD] : getColor(158, 158, 158),
+        [C.RESLOW] : getColor(76, 175, 80),
+        [C.COMLOW] : getColor(33, 150, 243),
+        [C.INDLOW] : getColor(255, 235, 59)
     }
     
-    let getCityTextureHeight = function aszone_getCityTextureHeight(n)
-    {
-        if (n == C.ROAD)
-        {
-            return 6;
-        }
-        else if (n == C.RESLOW)
-        {
-            return 9; // r
-        }
-        else if (n == C.COMLOW)
-        {
-            return 12; // c
-        }
-        else if (n == C.INDLOW)
-        {
-            return 15; // i
-        }
-        return 3;
+    const C_CITYHEIGHT = {
+        [C.NONE] : 0,
+        [C.DIRT] : 3,
+        [C.ROAD] : 6,
+        [C.RESLOW] : 9,
+        [C.COMLOW] : 12,
+        [C.INDLOW] : 15
     }
     
     let getCityTextureMargin = function aszone_getCityTextureMargin(id)
@@ -870,9 +842,9 @@ let ASZONE = (function ()
     
     let createTexture = function aszone_createTexture(id)
     {
-        let color = getCityColor(id);
+        let color = C_CITYCOLOR[id];
         let margin = getCityTextureMargin(id);
-        let height = getCityTextureHeight(id);
+        let height = C_CITYHEIGHT[id];
         return MMAPRENDER.createTexture(color, margin, height);
     }
     
@@ -975,11 +947,11 @@ let ASROAD = (function ()
         MID: 102,
         HIG: 103
     }
-    const C_TILEENUM = public.C_TILEENUM;
+    const C = public.C_TILEENUM;
     
     public.initializeTexture = function asroad_initializeTexture()
     {
-        let values = Object.values(C_TILEENUM);
+        let values = Object.values(C);
         for (let i in values)
         {
             let id = values[i] | 0;
@@ -1000,23 +972,12 @@ let ASROAD = (function ()
         return (r) * 2**16 + (g) * 2**8 + (b);
     }
     
-    let getTrafficColor = function asroad_getTrafficColor(n)
-    {
-        let type = C_TILEENUM;
-        if (n == type.LOW)
-        {
-            return getColor(76, 175, 80);
-        }
-        else if (n == type.MID)
-        {
-            return getColor(255, 235, 59);
-        }
-        else if (n == type.HIG)
-        {
-            return getColor(255, 50, 50); // r
-        }
-        return getColor(255, 255, 255);
-    }
+    const C_TRAFFICCOLOR = {
+        [C.NONE] : getColor(255, 255, 255),
+        [C.LOW] : getColor(76, 175, 80),
+        [C.MID] : getColor(25, 235, 59),
+        [C.HIG] : getColor(255, 50, 50)
+    };
     
     let getTrafficTextureMargin = function asroad_getTrafficTextureMargin(id)
     {
@@ -1030,19 +991,18 @@ let ASROAD = (function ()
     
     let createTexture = function asroad_createTexture(id)
     {
-        let color = getTrafficColor(id);
+        let color = C_TRAFFICCOLOR[id];
         let margin = getTrafficTextureMargin(id);
         let height = getTrafficTextureHeight(id);
         return MMAPRENDER.createTexture(color, margin, height);
     }
     
-    public.getRoadTile = function asroad_getRoadTile()
-    {
-        let C = C_TILEENUM;
-        return [
-            C.LOW, C.MID, C.HIG, C.NONE
-        ];
-    }
+    public.roadTile = [
+        C.LOW,
+        C.MID,
+        C.HIG,
+        C.NONE
+    ];
     
     // ----------------
     
@@ -1065,19 +1025,19 @@ let ASROAD = (function ()
         let value = hasRoad(index) ? ASSTATE.getDataRoadAtIndex(index).congestion : 0;
         if (value > 60)
         {
-            return C_TILEENUM.HIG;
+            return C.HIG;
         }
         else if (value > 30)
         {
-            return C_TILEENUM.MID;
+            return C.MID;
         }
         else if (value > 0)
         {
-        	return C_TILEENUM.LOW;
+        	return C.LOW;
         }
         else
         {
-        	return C_TILEENUM.NONE;
+        	return C.NONE;
         }
     }
     
@@ -1086,19 +1046,19 @@ let ASROAD = (function ()
         let value = hasRoad(index) ? ASSTATE.getDataRoadAtIndex(index).debug : 0;
         if (value >= 103)
         {
-            return C_TILEENUM.HIG; // in queue and processed
+            return C.HIG; // in queue and processed
         }
         else if (value >= 102)
         {
-            return C_TILEENUM.MID; // current
+            return C.MID; // current
         }
         else if (value >= 101)
         {
-        	return C_TILEENUM.LOW; // in queue
+        	return C.LOW; // in queue
         }
         else if (value >= 0)
         {
-        	return C_TILEENUM.NONE; // unexplored
+        	return C.NONE; // unexplored
         }
         else
         {
@@ -1129,7 +1089,7 @@ let ASROAD = (function ()
             connectTo : [,,,],
             congestion : 1,
             speed : 10,
-            debug : C_TILEENUM.LOW
+            debug : C.LOW
         };
 
         return road;
@@ -1461,11 +1421,11 @@ let ASROAD = (function ()
             {
                 let from = getTraversalFrom(data, i);
                 let to = getTraversalTo(data, i);
-                ASSTATE.getDataRoadAtIndex(from).debug = C_TILEENUM.LOW;
-                ASSTATE.getDataRoadAtIndex(to).debug = C_TILEENUM.LOW;
+                ASSTATE.getDataRoadAtIndex(from).debug = C.LOW;
+                ASSTATE.getDataRoadAtIndex(to).debug = C.LOW;
             }
             let fromStart = getTraversalStart(data);
-            ASSTATE.getDataRoadAtIndex(fromStart).debug = C_TILEENUM.LOW;
+            ASSTATE.getDataRoadAtIndex(fromStart).debug = C.LOW;
         }
         delete data;
     }

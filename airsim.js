@@ -394,10 +394,10 @@ let ASMAPUI = (function ()
         g_app.stage.addChild(m_uiLayer);
         m_uiLayer.interactive = false;
         
-        m_currentViewId = ASZONE.getViewTile()[0];
-        m_currentZoneId = ASZONE.getZoneTile()[0];
+        m_currentViewId = ASZONE.viewTile[0];
+        m_currentZoneId = ASZONE.zoneTile[0];
         m_currentRoadId = ASROAD.getRoadTile()[0];
-        m_currentSaveId = ASZONE.getSaveTile()[0];
+        m_currentSaveId = ASZONE.saveTile[0];
         
         public.resize();
     }
@@ -483,16 +483,16 @@ let ASMAPUI = (function ()
         let c = 0;
         let maxHeight = 0;
         let maxWidth = 0;
-        let zoneEnums = ASZONE.getZoneTile();
+        let zoneEnums = ASZONE.zoneTile;
         buildMenu(zoneEnums, m_uiZoneSpriteTable, createZoneSprite, 1);
         
         let roadEnums = ASROAD.getRoadTile();
         buildMenu(roadEnums, m_uiRoadSpriteTable, createRoadSprite, 1);
         
-        let saveEnums = ASZONE.getSaveTile();
+        let saveEnums = ASZONE.saveTile;
         buildMenu(saveEnums, m_uiSaveSpriteTable, createSaveSprite, 1);
 
-        let viewEnums = ASZONE.getViewTile();
+        let viewEnums = ASZONE.viewTile;
         buildMenu(viewEnums, m_uiViewSpriteTable, createViewSprite, 0);
         
         focusZoneSprite();
@@ -508,19 +508,19 @@ let ASMAPUI = (function ()
     
     public.isZoneMode = function asmapui_isZoneMode()
     {
-        let viewEnums = ASZONE.getViewTile();
+        const viewEnums = ASZONE.viewTile;
         return m_currentViewId == viewEnums[0];
     }
     
     public.isRoadMode = function asmapui_isRoadMode()
     {
-        let viewEnums = ASZONE.getViewTile();
+        let viewEnums = ASZONE.viewTile;
         return m_currentViewId == viewEnums[1];
     }
     
     public.isSaveMode = function asmapui_isSaveMode()
     {
-        let viewEnums = ASZONE.getViewTile();
+        let viewEnums = ASZONE.viewTile;
         return m_currentViewId == viewEnums[2];
     }
     
@@ -639,7 +639,7 @@ let ASMAPUI = (function ()
     
     let refreshMapDisplay = function asmapui_refreshMapDisplay()
     {
-        let viewEnums = ASZONE.getViewTile()
+        let viewEnums = ASZONE.viewTile;
         if (m_currentViewId == viewEnums[0])
         {
             MMAPDATA.switchData(ASZONE);
@@ -674,7 +674,7 @@ let ASMAPUI = (function ()
     {
         m_currentSaveId = saveId;
         focusSaveSprite();
-        let saveEnums = ASZONE.getSaveTile();
+        let saveEnums = ASZONE.saveTile;
         if (m_currentSaveId == saveEnums[0])
         {
             //console.log("Saving");
@@ -692,7 +692,7 @@ let ASMAPUI = (function ()
             //let asroadData = localStorage.getItem('ASROAD');
             //ASROAD.setSerializable(asroadData);
             console.log("Loaded");
-            //let viewEnums = ASZONE.getViewTile();
+            //let viewEnums = ASZONE.viewTile;
             //m_currentViewId = viewEnums[0];
             //refreshMapDisplay();
         }
@@ -790,11 +790,11 @@ let ASZONE = (function ()
         COMLOW: 20,
         INDLOW: 30
     }
-    const C_TILEENUM = public.C_TILEENUM;
+    const C = public.C_TILEENUM;
     
     public.initializeTexture = function aszone_initializeTexture()
     {
-        let values = Object.values(C_TILEENUM);
+        let values = Object.values(C);
         for (let i in values)
         {
             let id = values[i] | 0;
@@ -817,7 +817,6 @@ let ASZONE = (function ()
     
     let getCityColor = function aszone_getCityColor(n)
     {
-        const C = C_TILEENUM;
         if (n == C.DIRT)
         {
             return getColor(121, 85, 72); // dirt
@@ -843,7 +842,6 @@ let ASZONE = (function ()
     
     let getCityTextureHeight = function aszone_getCityTextureHeight(n)
     {
-        const C = C_TILEENUM;
         if (n == C.ROAD)
         {
             return 6;
@@ -876,34 +874,28 @@ let ASZONE = (function ()
         return MMAPRENDER.createTexture(color, margin, height);
     }
     
-    public.getZoneTile = function aszone_getZoneTile()
-    {
-        let C = C_TILEENUM;
-        return [
-            C.DIRT, C.ROAD, 
-            C.RESLOW, C.COMLOW, C.INDLOW
-        ];
-    }
+    public.zoneTile = [
+        C.DIRT,
+        C.ROAD, 
+        C.RESLOW,
+        C.COMLOW,
+        C.INDLOW
+    ];
     
-    public.getViewTile = function aszone_getViewTile()
-    {
-        let C = C_TILEENUM;
-        return [
-            C.RESLOW, C.ROAD, C.COMLOW
-        ];
-    }
+    public.viewTile = [
+        C.RESLOW,
+        C.ROAD,
+        C.COMLOW
+    ];
     
-    public.getSaveTile = function aszone_getSaveTile()
-    {
-        let C = C_TILEENUM;
-        return [
-            C.COMLOW, C.RESLOW
-        ];
-    }
+    public.saveTile = [
+        C.COMLOW,
+        C.RESLOW
+    ];
     
     let isValidZone = function aszone_isValidZone(id)
     {
-        let index = Object.values(C_TILEENUM).indexOf(id);
+        let index = Object.values(C).indexOf(id);
         return index > -1;
     }
     
@@ -916,7 +908,7 @@ let ASZONE = (function ()
         {
             for (let y = 0; y < tableSizeY; y++)
             {
-                let defaultId = C_TILEENUM.DEFAULT;
+                let defaultId = C.DEFAULT;
                 public.setZone(x, y, defaultId);
             }
         }
@@ -941,7 +933,7 @@ let ASZONE = (function ()
         }
         const index = setDataId(x, y, zone);
         // update other systems
-        if (zone == C_TILEENUM.ROAD)
+        if (zone == C.ROAD)
         {
             ASROAD.addRoad(x, y);
         }
@@ -1539,7 +1531,7 @@ let MMAPDATA = (function ()
     }
     public.getRandomTileId = function mmapdata_getRandomTileId()
     {
-        let tileEnumValues = ASZONE.getZoneTile();
+        let tileEnumValues = ASZONE.zoneTile;
         let tileEnumCount = tileEnumValues.length;
         let randomIndex = Math.floor(Math.random() * tileEnumCount);
         let randomId = tileEnumValues[randomIndex];

@@ -707,9 +707,14 @@ let ASSTATE = (function()
 {
     let public = {};
     
-    //let m_dataState = [];
+    let m_dataState = [];
     let m_zoneState = [];
     let m_roadState = {};
+    
+    const C = {
+        ZONE : 0,
+        ROAD : 1
+    }
     
     public.getIndex = function asstate_getIndex(x, y)
     {
@@ -725,22 +730,28 @@ let ASSTATE = (function()
     
     public.getDataZoneAtIndex = function asstate_getDataZoneAtIndex(index)
     {
-        return m_zoneState[index];
+        //return m_zoneState[index];
+        return m_dataState[index][C.ZONE];
     }
     
     public.setDataZoneAtIndex = function asstate_setDataZoneAtIndex(index, data)
     {
-        m_zoneState[index] = data;
+        m_dataState[index][C.ZONE] = data;
     }
     
     public.getDataRoadAtIndex = function asstate_getDataRoadAtIndex(index)
     {
-        return m_roadState[index];
+        if (typeof m_dataState[index] === 'undefined' || m_dataState[index] == null)
+        {
+            console.log('getDataRoadAtIndex error dataState at ' + index);
+            return;
+        }
+        return m_dataState[index][C.ROAD];
     }
     
     public.setDataRoadAtIndex = function asstate_setDataRoadAtIndex(index, data)
     {
-        m_roadState[index] = data;
+        m_dataState[index][C.ROAD] = data;
     }
     
     let m_tableSizeX = 0;
@@ -749,6 +760,14 @@ let ASSTATE = (function()
     {
         m_tableSizeX = tableSizeX;
         m_tableSizeY = tableSizeY;
+        for (let x = 0; x < m_tableSizeX; x++)
+        {
+            for (let y = 0; y < m_tableSizeY; y++)
+            {
+                var index = public.getIndex(x, y);
+                m_dataState[index] = [];
+            }
+        }
     }
     
     public.getTableSizeX = function asstate_getTableSizeX()
@@ -763,14 +782,16 @@ let ASSTATE = (function()
     
     public.getSerializable = function asstate_getSerializable()
     {
-        return JSON.stringify([m_zoneState, m_roadState]);
+        //return JSON.stringify([m_zoneState, m_roadState]);
+        return JSON.stringify(m_dataState);
     }
     
     public.setSerializable = function asstate_setSerializable(string)
     {
         let master = JSON.parse(string);
-        m_zoneState = master[0];
-        m_roadState = master[1];
+        //m_zoneState = master[0];
+        //m_roadState = master[1];
+        m_dataState = master;
     }
     
     return public;
@@ -1143,6 +1164,10 @@ let ASROAD = (function ()
     
     let hasRoad = function asroad_hasRoad(i)
     {
+        if (typeof i === 'undefined' || i == null || i < 0)
+        {
+            return false;
+        }
         let data = ASSTATE.getDataRoadAtIndex(i);
         return !((typeof data === 'undefined') || (data == null));
     }
@@ -1286,7 +1311,7 @@ let ASROAD = (function ()
     let expandTraversal = function asroad_expandTraversal(data, from, to)
     {
         //console.log('expandTraversal d' + data + 'f' + from + 't' + to);
-        if (to >= 0)
+        if (hasRoad(to))
         {
             let index = getTraversalCurrentIndex(data);
             let congestion = ASSTATE.getDataRoadAtIndex(to).congestion;
@@ -1346,6 +1371,11 @@ let ASROAD = (function ()
             }
             setTraversalCurrentIndex(data, minIndex);
             setTraversalProcessed(data, minIndex);
+            if (!hasRoad(to))
+            {
+                throw 'traversal wrong target';
+                return [-1, -1];
+            }
             ASSTATE.getDataRoadAtIndex(to).debug = public.C_TILEENUM.HIG;
             expandIfNotTraversed(data, to, C_TO.N);
             expandIfNotTraversed(data, to, C_TO.E);
@@ -1421,11 +1451,20 @@ let ASROAD = (function ()
             {
                 let from = getTraversalFrom(data, i);
                 let to = getTraversalTo(data, i);
-                ASSTATE.getDataRoadAtIndex(from).debug = C.LOW;
-                ASSTATE.getDataRoadAtIndex(to).debug = C.LOW;
+                if (hasRoad(from))
+                {
+                    ASSTATE.getDataRoadAtIndex(from).debug = C.LOW;
+                }
+                if (hasRoad(to))
+                {
+                    ASSTATE.getDataRoadAtIndex(to).debug = C.LOW;
+                }
             }
             let fromStart = getTraversalStart(data);
-            ASSTATE.getDataRoadAtIndex(fromStart).debug = C.LOW;
+            if (hasRoad(fromStart))
+            {
+                ASSTATE.getDataRoadAtIndex(fromStart).debug = C.LOW;
+            }
         }
         delete data;
     }

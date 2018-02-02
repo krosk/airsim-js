@@ -1,10 +1,10 @@
-var Nano = require('nano-ecs')();
-var PF = require('pathfinding');
-var Benchmark = require('benchmark');
+let Nano = require('nano-ecs')();
+let PF = require('pathfinding');
+let Benchmark = require('benchmark');
 
 (function ()
 {
-    var exLog = console.log;
+    let exLog = console.log;
     console.log = function (msg)
     {
         exLog.apply(this, arguments);
@@ -30,7 +30,7 @@ function fetchLocal(url)
 {
     return new Promise(function(resolve, reject)
     {
-        var xhr = new XMLHttpRequest;
+        let xhr = new XMLHttpRequest;
         xhr.onload = function()
         {
             function contains(value, searchFor)
@@ -83,8 +83,8 @@ function adaptativeFetch(url)
 // Change state: verb
 // no change: get
 
-var g_state = WaitingState;
-var g_engineLoaded = false;
+let g_state = WaitingState;
+let g_engineLoaded = false;
 
 function OnReady()
 {
@@ -102,7 +102,7 @@ function OnReady()
 
     PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
 
-    var amount = (g_app.renderer instanceof PIXI.WebGLRenderer) ? 100 : 5;
+    let amount = (g_app.renderer instanceof PIXI.WebGLRenderer) ? 100 : 5;
     if (amount == 5)
     {
         //g_app.renderer.context.mozImageSmoothingEnabled = false
@@ -176,8 +176,8 @@ function LoaderSetup()
 function Resize()
 {
     console.log('resizing');
-    var width = window.innerWidth - 8;
-    var height = window.innerHeight - 8;
+    let width = window.innerWidth - 8;
+    let height = window.innerHeight - 8;
 
     g_app.renderer.view.style.left = 0;
     g_app.renderer.view.style.top = 0;
@@ -193,10 +193,10 @@ function WaitingState()
 
 function AddPaxRandom()
 {
-    var width = ASMAP.getWidth();
-    var height = ASMAP.getHeight();
-    var x = Math.floor(Math.random() * width);
-    var y = Math.floor(Math.random() * height);
+    let width = ASMAP.getWidth();
+    let height = ASMAP.getHeight();
+    let x = Math.floor(Math.random() * width);
+    let y = Math.floor(Math.random() * height);
     ASPAX.create(x, y);
 }
 
@@ -231,9 +231,9 @@ function EngineState()
     //ASRANDOMMOVE.update(g_updateDelta, g_updateTimestamp);
 }
 
-var g_frameCounter = 0;
-var g_updateTimestamp = Date.now();
-var g_updateDelta = 0;
+let g_frameCounter = 0;
+let g_updateTimestamp = Date.now();
+let g_updateDelta = 0;
 
 function Update()
 {
@@ -243,7 +243,7 @@ function Update()
     g_state();
     g_stats.end();
     g_frameCounter++;
-    var endUpdateTimestamp = Date.now() - g_updateTimestamp;
+    let endUpdateTimestamp = Date.now() - g_updateTimestamp;
     if (endUpdateTimestamp > 1000 / 60.0)
     {
         //console.log(endUpdateTimestamp);
@@ -254,9 +254,9 @@ function Update()
     }
 }
 // ---------------------
-var MUTIL = (function ()
+let MUTIL = (function ()
 {
-    var public = {};
+    let public = {};
     
     public.mathCantor = function mutil_mathCantor(X, Y)
     {
@@ -265,10 +265,10 @@ var MUTIL = (function ()
 
     public.mathReverseCantorPair = function mutil_mathReverseCantorPair(z)
     {
-        var pair = [];
-        var t = Math.floor((-1 + Math.sqrt(1 + 8 * z)) / 2);
-        var x = t * (t + 3) / 2 - z;
-        var y = z - t * (t + 1) / 2;
+        let pair = [];
+        let t = Math.floor((-1 + Math.sqrt(1 + 8 * z)) / 2);
+        let x = t * (t + 3) / 2 - z;
+        let y = z - t * (t + 1) / 2;
         pair[0] = x;
         pair[1] = y;
         return pair;
@@ -277,9 +277,9 @@ var MUTIL = (function ()
     return public;
 })();
 // ---------------------
-var ASMAP = (function ()
+let ASMAP = (function ()
 {
-    var public = {};
+    let public = {};
 
     public.initialize = function asmap_initialize(w, h)
     {
@@ -307,9 +307,9 @@ var ASMAP = (function ()
         MMAPRENDER.update(dt, time);
     }
     
-    var doZoneViewSingleClick = function asmap_doZoneViewSingleClick(x, y)
+    let doZoneViewSingleClick = function asmap_doZoneViewSingleClick(x, y)
     {
-        var selectedId = ASMAPUI.getCurrentZoneId();
+        let selectedId = ASMAPUI.getCurrentZoneId();
         if (selectedId == ASZONE.C_TILEENUM.ROAD)
         {
             ASROAD.addRoad(x, y);
@@ -322,11 +322,11 @@ var ASMAP = (function ()
         MMAPDATA.refreshTile(x, y);
     }
     
-    var m_roadTraversalTemp;
+    let m_roadTraversalTemp;
     
-    var doRoadViewSingleClick = function asmap_doRoadViewSingleClick(x, y)
+    let doRoadViewSingleClick = function asmap_doRoadViewSingleClick(x, y)
     {
-        var selectedId = ASMAPUI.getCurrentRoadId();
+        let selectedId = ASMAPUI.getCurrentRoadId();
         if (selectedId == ASROAD.C_TILEENUM.LOW)
         {
             m_roadTraversalTemp = ASROAD.initializeTraversal(x, y);
@@ -334,12 +334,12 @@ var ASMAP = (function ()
         }
         else if (selectedId == ASROAD.C_TILEENUM.MID)
         {
-            var next = ASROAD.getNextStepTraversal(m_roadTraversalTemp);
+            let next = ASROAD.getNextStepTraversal(m_roadTraversalTemp);
             //console.log('incre traversal x' + next[0] + 'y' + next[1] + 'c' + m_roadTraversalTemp);
         }
         else if (selectedId == ASROAD.C_TILEENUM.HIG)
         {
-            var pathXY = ASROAD.getTraversalPath(m_roadTraversalTemp);
+            let pathXY = ASROAD.getTraversalPath(m_roadTraversalTemp);
             //console.log('finish traversal');
             console.log(pathXY);
         }
@@ -350,7 +350,7 @@ var ASMAP = (function ()
         MMAPDATA.refreshAllTiles();
     }
     
-    var doSingleClick = function asmap_doSingleClick(x, y)
+    let doSingleClick = function asmap_doSingleClick(x, y)
     {
         if (ASMAPUI.isZoneMode())
         {
@@ -362,7 +362,7 @@ var ASMAP = (function ()
         }
     }
     
-    var doDoubleClick = function asmap_doDoubleClick(x, y)
+    let doDoubleClick = function asmap_doDoubleClick(x, y)
     {
         console.log('d' + x + ',' + y);
     }
@@ -370,23 +370,23 @@ var ASMAP = (function ()
     return public;
 })();
 // ---------------------
-var ASMAPUI = (function ()
+let ASMAPUI = (function ()
 {
-    var public = {};
+    let public = {};
     
-    var C_ICON_HEIGHT = 48;
-    var C_ICON_WIDTH = 64;
+    let C_ICON_HEIGHT = 48;
+    let C_ICON_WIDTH = 64;
     
-    var m_uiLayer;
-    var m_uiZoneSpriteTable = {};
-    var m_uiViewSpriteTable = {};
-    var m_uiRoadSpriteTable = {};
-    var m_uiSaveSpriteTable = {};
+    let m_uiLayer;
+    let m_uiZoneSpriteTable = {};
+    let m_uiViewSpriteTable = {};
+    let m_uiRoadSpriteTable = {};
+    let m_uiSaveSpriteTable = {};
     
-    var m_currentZoneId = 0;
-    var m_currentViewId = 0;
-    var m_currentRoadId = 0;
-    var m_currentSaveId = 0;
+    let m_currentZoneId = 0;
+    let m_currentViewId = 0;
+    let m_currentRoadId = 0;
+    let m_currentSaveId = 0;
     
     public.initialize = function asmapui_initialize()
     {
@@ -402,18 +402,18 @@ var ASMAPUI = (function ()
         public.resize();
     }
     
-    var buildMenu = function asmapui_buildMenu(tileEnums, tileTable, tileFunction, level)
+    let buildMenu = function asmapui_buildMenu(tileEnums, tileTable, tileFunction, level)
     {
-        var landscape = MMAPRENDER.isOrientationLandscape();
-        var c = 0;
-        var backgroundWidth = 0;
-        var backgroundHeight = 0;
-        var maxWidth = 0;
-        var maxHeight = 0;
-        for (var i in tileEnums)
+        let landscape = MMAPRENDER.isOrientationLandscape();
+        let c = 0;
+        let backgroundWidth = 0;
+        let backgroundHeight = 0;
+        let maxWidth = 0;
+        let maxHeight = 0;
+        for (let i in tileEnums)
         {
-            var tileId = tileEnums[i];
-            var sprite = tileFunction(tileId);
+            let tileId = tileEnums[i];
+            let sprite = tileFunction(tileId);
             m_uiLayer.addChild(sprite);
             tileTable[tileId] = sprite;
             if (maxWidth < sprite.width)
@@ -436,10 +436,10 @@ var ASMAPUI = (function ()
             backgroundWidth = getLayerWidth();
             backgroundHeight = C_ICON_HEIGHT;
         }
-        for (var i in tileEnums)
+        for (let i in tileEnums)
         {
-            var tileId = tileEnums[i];
-            var sprite = tileTable[tileId];
+            let tileId = tileEnums[i];
+            let sprite = tileTable[tileId];
             if (landscape)
             {
                 sprite.x = getLayerWidth() - backgroundWidth*(1+level);
@@ -453,7 +453,7 @@ var ASMAPUI = (function ()
             c++;
         }
         
-        var background = createMenuBackground(backgroundWidth, backgroundHeight);
+        let background = createMenuBackground(backgroundWidth, backgroundHeight);
         m_uiLayer.addChildAt(background, 0);
         if (landscape)
         {
@@ -472,7 +472,7 @@ var ASMAPUI = (function ()
             return;
         }
         
-        var landscape = MMAPRENDER.isOrientationLandscape();
+        let landscape = MMAPRENDER.isOrientationLandscape();
         
         m_uiLayer.removeChildren();
         m_uiZoneSpriteTable = {};
@@ -480,19 +480,19 @@ var ASMAPUI = (function ()
         m_uiRoadSpriteTable = {};
         m_uiSaveSpriteTable = {};
         
-        var c = 0;
-        var maxHeight = 0;
-        var maxWidth = 0;
-        var zoneEnums = ASZONE.getZoneTile();
+        let c = 0;
+        let maxHeight = 0;
+        let maxWidth = 0;
+        let zoneEnums = ASZONE.getZoneTile();
         buildMenu(zoneEnums, m_uiZoneSpriteTable, createZoneSprite, 1);
         
-        var roadEnums = ASROAD.getRoadTile();
+        let roadEnums = ASROAD.getRoadTile();
         buildMenu(roadEnums, m_uiRoadSpriteTable, createRoadSprite, 1);
         
-        var saveEnums = ASZONE.getSaveTile();
+        let saveEnums = ASZONE.getSaveTile();
         buildMenu(saveEnums, m_uiSaveSpriteTable, createSaveSprite, 1);
 
-        var viewEnums = ASZONE.getViewTile();
+        let viewEnums = ASZONE.getViewTile();
         buildMenu(viewEnums, m_uiViewSpriteTable, createViewSprite, 0);
         
         focusZoneSprite();
@@ -508,19 +508,19 @@ var ASMAPUI = (function ()
     
     public.isZoneMode = function asmapui_isZoneMode()
     {
-        var viewEnums = ASZONE.getViewTile();
+        let viewEnums = ASZONE.getViewTile();
         return m_currentViewId == viewEnums[0];
     }
     
     public.isRoadMode = function asmapui_isRoadMode()
     {
-        var viewEnums = ASZONE.getViewTile();
+        let viewEnums = ASZONE.getViewTile();
         return m_currentViewId == viewEnums[1];
     }
     
     public.isSaveMode = function asmapui_isSaveMode()
     {
-        var viewEnums = ASZONE.getViewTile();
+        let viewEnums = ASZONE.getViewTile();
         return m_currentViewId == viewEnums[2];
     }
     
@@ -534,89 +534,89 @@ var ASMAPUI = (function ()
         return m_currentRoadId;
     }
     
-    var focusSprite = function asmapui_focusSprite(spriteTable, currentId, visible)
+    let focusSprite = function asmapui_focusSprite(spriteTable, currentId, visible)
     {
-        var keys = Object.keys(spriteTable);
-        for (var i in keys)
+        let keys = Object.keys(spriteTable);
+        for (let i in keys)
         {
-            var id = keys[i];
-            var sprite = spriteTable[id];
+            let id = keys[i];
+            let sprite = spriteTable[id];
             sprite.alpha = id == currentId ? 1 : 0.25;
             sprite.visible = visible;
         }
     }
     
-    var focusZoneSprite = function asmapui_focusZoneSprite()
+    let focusZoneSprite = function asmapui_focusZoneSprite()
     {
         focusSprite(m_uiZoneSpriteTable, m_currentZoneId, public.isZoneMode());
     }
     
-    var focusViewSprite = function asmapui_focusViewSprite()
+    let focusViewSprite = function asmapui_focusViewSprite()
     {
         focusSprite(m_uiViewSpriteTable, m_currentViewId, true);
     }
     
-    var focusRoadSprite = function asmapui_focusRoadSprite()
+    let focusRoadSprite = function asmapui_focusRoadSprite()
     {
         focusSprite(m_uiRoadSpriteTable, m_currentRoadId, public.isRoadMode());
     }
     
-    var focusSaveSprite = function asmapui_focusSaveSprite()
+    let focusSaveSprite = function asmapui_focusSaveSprite()
     {
         focusSprite(m_uiSaveSpriteTable, m_currentSaveId, public.isSaveMode());
     }
     
-    var getLayerWidth = function asmapui_getLayerWidth()
+    let getLayerWidth = function asmapui_getLayerWidth()
     {
         return g_app.renderer.width;
     }
-    var getLayerHeight = function asmap_getLayerHeight()
+    let getLayerHeight = function asmap_getLayerHeight()
     {
         return g_app.renderer.height;
     }
     
-    var createSprite = function asmapui_createSprite(id, callback, library)
+    let createSprite = function asmapui_createSprite(id, callback, library)
     {
-        var textureName = library.getTileTextureName(id);
-        var textureCache = PIXI.utils.TextureCache[textureName];
-        var sprite = new PIXI.Sprite(textureCache);
+        let textureName = library.getTileTextureName(id);
+        let textureCache = PIXI.utils.TextureCache[textureName];
+        let sprite = new PIXI.Sprite(textureCache);
         sprite.interactive = true;
         sprite.on('pointerdown',
             function(e){callback(e, id);});
         return sprite;
     }
     
-    var createZoneSprite = function asmapui_createZoneSprite(tileId)
+    let createZoneSprite = function asmapui_createZoneSprite(tileId)
     {
         return createSprite(tileId, onZoneSpritePress, ASZONE);
     }
     
-    var createViewSprite = function asmapui_createViewSprite(viewId)
+    let createViewSprite = function asmapui_createViewSprite(viewId)
     {
         return createSprite(viewId, onViewSpritePress, ASZONE);
     }
     
-    var createRoadSprite = function asmapui_createRoadSprite(roadId)
+    let createRoadSprite = function asmapui_createRoadSprite(roadId)
     {
         return createSprite(roadId, onRoadSpritePress, ASROAD);
     }
     
-    var createSaveSprite = function asmapui_createSaveSprite(saveId)
+    let createSaveSprite = function asmapui_createSaveSprite(saveId)
     {
         return createSprite(saveId, onSaveSpritePress, ASZONE);
     }
     
-    var createMenuBackground = function asmapui_createMenuBackground(width, height)
+    let createMenuBackground = function asmapui_createMenuBackground(width, height)
     {
-        var graphics = new PIXI.Graphics();
+        let graphics = new PIXI.Graphics();
 
-        var black = 0x000000;
-        var white = 0xFFFFFF;
+        let black = 0x000000;
+        let white = 0xFFFFFF;
         graphics.beginFill(white);
         graphics.lineStyle(1, black);
         
-        var H = height;
-        var W = width;
+        let H = height;
+        let W = width;
 
         // draw a rectangle
         graphics.moveTo(0, 0);
@@ -626,20 +626,20 @@ var ASMAPUI = (function ()
         
         graphics.endFill();
         
-        var texture = g_app.renderer.generateTexture(graphics);
-        var sprite = new PIXI.Sprite(texture)
+        let texture = g_app.renderer.generateTexture(graphics);
+        let sprite = new PIXI.Sprite(texture)
         return sprite;
     }
     
-    var onZoneSpritePress = function asmapui_onZoneSpritePress(event, zoneId)
+    let onZoneSpritePress = function asmapui_onZoneSpritePress(event, zoneId)
     {
         m_currentZoneId = zoneId;
         focusZoneSprite();
     }
     
-    var refreshMapDisplay = function asmapui_refreshMapDisplay()
+    let refreshMapDisplay = function asmapui_refreshMapDisplay()
     {
-        var viewEnums = ASZONE.getViewTile()
+        let viewEnums = ASZONE.getViewTile()
         if (m_currentViewId == viewEnums[0])
         {
             MMAPDATA.switchData(ASZONE);
@@ -650,9 +650,9 @@ var ASMAPUI = (function ()
         }
     }
     
-    var onViewSpritePress = function asmapui_onViewSpritePress(event, viewId)
+    let onViewSpritePress = function asmapui_onViewSpritePress(event, viewId)
     {
-        var refresh = m_currentViewId != viewId;
+        let refresh = m_currentViewId != viewId;
         m_currentViewId = viewId;
         focusViewSprite();
         focusZoneSprite();
@@ -664,35 +664,35 @@ var ASMAPUI = (function ()
         }
     }
     
-    var onRoadSpritePress = function asmapui_onRoadSpritePress(event, roadId)
+    let onRoadSpritePress = function asmapui_onRoadSpritePress(event, roadId)
     {
         m_currentRoadId = roadId;
         focusRoadSprite();
     }
     
-    var onSaveSpritePress = function asmapui_onSaveSpritePress(event, saveId)
+    let onSaveSpritePress = function asmapui_onSaveSpritePress(event, saveId)
     {
         m_currentSaveId = saveId;
         focusSaveSprite();
-        var saveEnums = ASZONE.getSaveTile();
+        let saveEnums = ASZONE.getSaveTile();
         if (m_currentSaveId == saveEnums[0])
         {
             //console.log("Saving");
-            var asstateData = ASSTATE.getSerializable();
+            let asstateData = ASSTATE.getSerializable();
             localStorage.setItem('ASSTATE', asstateData);
-            //var asroadData = ASROAD.getSerializable();
+            //let asroadData = ASROAD.getSerializable();
             //localStorage.setItem('ASROAD', asroadData);
             console.log("Saved");
         }
         else if (m_currentSaveId == saveEnums[1])
         {
             //console.log("Loading");
-            var asstateData = localStorage.getItem('ASSTATE');
+            let asstateData = localStorage.getItem('ASSTATE');
             ASSTATE.setSerializable(asstateData);
-            //var asroadData = localStorage.getItem('ASROAD');
+            //let asroadData = localStorage.getItem('ASROAD');
             //ASROAD.setSerializable(asroadData);
             console.log("Loaded");
-            //var viewEnums = ASZONE.getViewTile();
+            //let viewEnums = ASZONE.getViewTile();
             //m_currentViewId = viewEnums[0];
             //refreshMapDisplay();
         }
@@ -701,13 +701,13 @@ var ASMAPUI = (function ()
     return public;
 })();
 // ---------------------
-var ASSTATE = (function()
+let ASSTATE = (function()
 {
-    var public = {};
+    let public = {};
     
-    //var m_dataState = [];
-    var m_zoneState = [];
-    var m_roadState = {};
+    //let m_dataState = [];
+    let m_zoneState = [];
+    let m_roadState = {};
     
     public.getIndex = function asstate_getIndex(x, y)
     {
@@ -741,8 +741,8 @@ var ASSTATE = (function()
         m_roadState[index] = data;
     }
     
-    var m_tableSizeX = 0;
-    var m_tableSizeY = 0;
+    let m_tableSizeX = 0;
+    let m_tableSizeY = 0;
     public.initialize = function asstate_initialize(tableSizeX, tableSizeY)
     {
         m_tableSizeX = tableSizeX;
@@ -766,7 +766,7 @@ var ASSTATE = (function()
     
     public.setSerializable = function asstate_setSerializable(string)
     {
-        var master = JSON.parse(string);
+        let master = JSON.parse(string);
         m_zoneState = master[0];
         m_roadState = master[1];
     }
@@ -775,9 +775,9 @@ var ASSTATE = (function()
 })();
 
 // ---------------------
-var ASZONE = (function ()
+let ASZONE = (function ()
 {
-    var public = {};
+    let public = {};
     
     public.C_NAME = 'aszone';
     
@@ -794,13 +794,13 @@ var ASZONE = (function ()
     
     public.initializeTexture = function aszone_initializeTexture()
     {
-        var values = Object.values(C_TILEENUM);
-        for (var i in values)
+        let values = Object.values(C_TILEENUM);
+        for (let i in values)
         {
-            var id = values[i] | 0;
-            var textureName = public.getTileTextureName(id);
-            var graphics = createTexture(id);
-            var texture = g_app.renderer.generateTexture(graphics);
+            let id = values[i] | 0;
+            let textureName = public.getTileTextureName(id);
+            let graphics = createTexture(id);
+            let texture = g_app.renderer.generateTexture(graphics);
             PIXI.utils.TextureCache[textureName] = texture;
         }
     }
@@ -810,12 +810,12 @@ var ASZONE = (function ()
         return public.C_NAME + tileId;
     }
     
-    var getColor = function aszone_getColor(r, g, b)
+    let getColor = function aszone_getColor(r, g, b)
     {
         return (r) * 2**16 + (g) * 2**8 + (b);
     }
     
-    var getCityColor = function aszone_getCityColor(n)
+    let getCityColor = function aszone_getCityColor(n)
     {
         const C = C_TILEENUM;
         if (n == C.DIRT)
@@ -841,7 +841,7 @@ var ASZONE = (function ()
         return getColor(255, 0, 0);
     }
     
-    var getCityTextureHeight = function aszone_getCityTextureHeight(n)
+    let getCityTextureHeight = function aszone_getCityTextureHeight(n)
     {
         const C = C_TILEENUM;
         if (n == C.ROAD)
@@ -863,22 +863,22 @@ var ASZONE = (function ()
         return 3;
     }
     
-    var getCityTextureMargin = function aszone_getCityTextureMargin(id)
+    let getCityTextureMargin = function aszone_getCityTextureMargin(id)
     {
         return 0;
     }
     
-    var createTexture = function aszone_createTexture(id)
+    let createTexture = function aszone_createTexture(id)
     {
-        var color = getCityColor(id);
-        var margin = getCityTextureMargin(id);
-        var height = getCityTextureHeight(id);
+        let color = getCityColor(id);
+        let margin = getCityTextureMargin(id);
+        let height = getCityTextureHeight(id);
         return MMAPRENDER.createTexture(color, margin, height);
     }
     
     public.getZoneTile = function aszone_getZoneTile()
     {
-        var C = C_TILEENUM;
+        let C = C_TILEENUM;
         return [
             C.DIRT, C.ROAD, 
             C.RESLOW, C.COMLOW, C.INDLOW
@@ -887,7 +887,7 @@ var ASZONE = (function ()
     
     public.getViewTile = function aszone_getViewTile()
     {
-        var C = C_TILEENUM;
+        let C = C_TILEENUM;
         return [
             C.RESLOW, C.ROAD, C.COMLOW
         ];
@@ -895,15 +895,15 @@ var ASZONE = (function ()
     
     public.getSaveTile = function aszone_getSaveTile()
     {
-        var C = C_TILEENUM;
+        let C = C_TILEENUM;
         return [
             C.COMLOW, C.RESLOW
         ];
     }
     
-    var isValidZone = function aszone_isValidZone(id)
+    let isValidZone = function aszone_isValidZone(id)
     {
-        var index = Object.values(C_TILEENUM).indexOf(id);
+        let index = Object.values(C_TILEENUM).indexOf(id);
         return index > -1;
     }
     
@@ -912,11 +912,11 @@ var ASZONE = (function ()
     {
         const tableSizeX = ASSTATE.getTableSizeX();
         const tableSizeY = ASSTATE.getTableSizeY();
-        for (var x = 0; x < tableSizeX; x++)
+        for (let x = 0; x < tableSizeX; x++)
         {
-            for (var y = 0; y < tableSizeY; y++)
+            for (let y = 0; y < tableSizeY; y++)
             {
-                var defaultId = C_TILEENUM.DEFAULT;
+                let defaultId = C_TILEENUM.DEFAULT;
                 public.setZone(x, y, defaultId);
             }
         }
@@ -927,7 +927,7 @@ var ASZONE = (function ()
         const index = ASSTATE.getIndex(x, y);
         return ASSTATE.getDataZoneAtIndex(index);
     }
-    var setDataId = function aszone_setDataId(x, y, zone)
+    let setDataId = function aszone_setDataId(x, y, zone)
     {
         const index = ASSTATE.getIndex(x, y);
         ASSTATE.setDataZoneAtIndex(index, zone);
@@ -954,9 +954,9 @@ var ASZONE = (function ()
     return public;
 })();
 
-var ASROAD = (function ()
+let ASROAD = (function ()
 {
-    var public = {};
+    let public = {};
     
     public.C_NAME = 'asroad';
     
@@ -985,13 +985,13 @@ var ASROAD = (function ()
     
     public.initializeTexture = function asroad_initializeTexture()
     {
-        var values = Object.values(C_TILEENUM);
-        for (var i in values)
+        let values = Object.values(C_TILEENUM);
+        for (let i in values)
         {
-            var id = values[i] | 0;
-            var textureName = public.getTileTextureName(id);
-            var graphics = createTexture(id);
-            var texture = g_app.renderer.generateTexture(graphics);
+            let id = values[i] | 0;
+            let textureName = public.getTileTextureName(id);
+            let graphics = createTexture(id);
+            let texture = g_app.renderer.generateTexture(graphics);
             PIXI.utils.TextureCache[textureName] = texture;
         }
     }
@@ -1001,14 +1001,14 @@ var ASROAD = (function ()
         return public.C_NAME + tileId;
     }
     
-    var getColor = function asroad_getColor(r, g, b)
+    let getColor = function asroad_getColor(r, g, b)
     {
         return (r) * 2**16 + (g) * 2**8 + (b);
     }
     
-    var getTrafficColor = function asroad_getTrafficColor(n)
+    let getTrafficColor = function asroad_getTrafficColor(n)
     {
-        var type = C_TILEENUM;
+        let type = C_TILEENUM;
         if (n == type.LOW)
         {
             return getColor(76, 175, 80);
@@ -1024,27 +1024,27 @@ var ASROAD = (function ()
         return getColor(255, 255, 255);
     }
     
-    var getTrafficTextureMargin = function asroad_getTrafficTextureMargin(id)
+    let getTrafficTextureMargin = function asroad_getTrafficTextureMargin(id)
     {
         return 0;
     }
     
-    var getTrafficTextureHeight = function asroad_getTrafficTextureHeight(id)
+    let getTrafficTextureHeight = function asroad_getTrafficTextureHeight(id)
     {
         return 3;
     }
     
-    var createTexture = function asroad_createTexture(id)
+    let createTexture = function asroad_createTexture(id)
     {
-        var color = getTrafficColor(id);
-        var margin = getTrafficTextureMargin(id);
-        var height = getTrafficTextureHeight(id);
+        let color = getTrafficColor(id);
+        let margin = getTrafficTextureMargin(id);
+        let height = getTrafficTextureHeight(id);
         return MMAPRENDER.createTexture(color, margin, height);
     }
     
     public.getRoadTile = function asroad_getRoadTile()
     {
-        var C = C_TILEENUM;
+        let C = C_TILEENUM;
         return [
             C.LOW, C.MID, C.HIG, C.NONE
         ];
@@ -1054,21 +1054,21 @@ var ASROAD = (function ()
     
     public.initialize = function asroad_initialize(tableSizeX, tableSizeY)
     {
-        for (var x = 0; x < tableSizeX; x++)
+        for (let x = 0; x < tableSizeX; x++)
         {
-            for (var y = 0; y < tableSizeY; y++)
+            for (let y = 0; y < tableSizeY; y++)
             {
                 public.removeRoad(x, y);
             }
         }
     }
     
-    var C_DEBUG_TRAVERSAL = true;
+    let C_DEBUG_TRAVERSAL = true;
     
     // for display
-    var getDataIdByCongestion = function asroad_getTileByCongestion(index)
+    let getDataIdByCongestion = function asroad_getTileByCongestion(index)
     {
-        var value = hasRoad(index) ? ASSTATE.getDataRoadAtIndex(index).congestion : 0;
+        let value = hasRoad(index) ? ASSTATE.getDataRoadAtIndex(index).congestion : 0;
         if (value > 60)
         {
             return C_TILEENUM.HIG;
@@ -1087,9 +1087,9 @@ var ASROAD = (function ()
         }
     }
     
-    var getDataIdByTraversalState = function asroad_getTileByTraversalState(index)
+    let getDataIdByTraversalState = function asroad_getTileByTraversalState(index)
     {
-        var value = hasRoad(index) ? ASSTATE.getDataRoadAtIndex(index).debug : 0;
+        let value = hasRoad(index) ? ASSTATE.getDataRoadAtIndex(index).debug : 0;
         if (value >= 103)
         {
             return C_TILEENUM.HIG; // in queue and processed
@@ -1129,9 +1129,9 @@ var ASROAD = (function ()
         }
     }
     
-    var setNewRoad = function asroad_setNewRoad()
+    let setNewRoad = function asroad_setNewRoad()
     {
-        var road = {
+        let road = {
             connectTo : [,,,],
             congestion : 1,
             speed : 10,
@@ -1141,20 +1141,20 @@ var ASROAD = (function ()
         return road;
     }
     
-    var connectNodes = function asroad_connectNodes(x, y, d)
+    let connectNodes = function asroad_connectNodes(x, y, d)
     {
         if (x < 0 || y < 0)
         {
             return;
         }
-        var from = ASSTATE.getIndex(x, y);
-        var xd = x + C_XOFFSET[d];
-        var yd = y + C_YOFFSET[d];
+        let from = ASSTATE.getIndex(x, y);
+        let xd = x + C_XOFFSET[d];
+        let yd = y + C_YOFFSET[d];
         if (xd < 0 || yd < 0)
         {
             return;
         }
-        var to = ASSTATE.getIndex(xd, yd);
+        let to = ASSTATE.getIndex(xd, yd);
         //console.log('connectnode x'+x+'y'+y+'xd'+xd+'yd'+yd);
         if (hasRoad(from) && hasRoad(to))
         {
@@ -1163,20 +1163,20 @@ var ASROAD = (function ()
         }
     }
     
-    var disconnectNodes = function asroad_disconnectNodes(x, y, d)
+    let disconnectNodes = function asroad_disconnectNodes(x, y, d)
     {
         if (x < 0 || y < 0)
         {
             return;
         }
-        var from = ASSTATE.getIndex(x, y);
-        var xd = x + C_XOFFSET[d];
-        var yd = y + C_YOFFSET[d];
+        let from = ASSTATE.getIndex(x, y);
+        let xd = x + C_XOFFSET[d];
+        let yd = y + C_YOFFSET[d];
         if (xd < 0 || yd < 0)
         {
             return;
         }
-        var to = ASSTATE.getIndex(xd, yd);
+        let to = ASSTATE.getIndex(xd, yd);
         if (hasRoad(from))
         {
             delete ASSTATE.getDataRoadAtIndex(from).connectTo[d];
@@ -1187,19 +1187,19 @@ var ASROAD = (function ()
         }
     }
     
-    var hasRoad = function asroad_hasRoad(i)
+    let hasRoad = function asroad_hasRoad(i)
     {
-        var data = ASSTATE.getDataRoadAtIndex(i);
+        let data = ASSTATE.getDataRoadAtIndex(i);
         return !((typeof data === 'undefined') || (data == null));
     }
     
-    var isConnectedTo = function asroad_isConnectedTo(from, d)
+    let isConnectedTo = function asroad_isConnectedTo(from, d)
     {
         if (!hasRoad(from))
         {
             return -1;
         }
-        var to = ASSTATE.getDataRoadAtIndex(from).connectTo[d];
+        let to = ASSTATE.getDataRoadAtIndex(from).connectTo[d];
         if (!hasRoad(to))
         {
             return -1;
@@ -1214,7 +1214,7 @@ var ASROAD = (function ()
         {
             return;
         }
-        var index = ASSTATE.getIndex(x, y);
+        let index = ASSTATE.getIndex(x, y);
         if (!hasRoad(index))
         {
             ASSTATE.setDataRoadAtIndex(index, setNewRoad());
@@ -1231,7 +1231,7 @@ var ASROAD = (function ()
         {
             return;
         }
-        var index = ASSTATE.getIndex(x, y);
+        let index = ASSTATE.getIndex(x, y);
         if (!hasRoad(index))
         {
             return;
@@ -1250,63 +1250,63 @@ var ASROAD = (function ()
     //   number of edges,
     //   collection of edges * 5
     //   ]
-    var getTraversalStart = function asroaf_getTraversalStart(data)
+    let getTraversalStart = function asroaf_getTraversalStart(data)
     {
         return data[0];
     }
-    var setTraversalStart = function asroad_setTraversalStart(data, value)
+    let setTraversalStart = function asroad_setTraversalStart(data, value)
     {
         data[0] = value;
     }
-    var getTraversalCurrentIndex = function asroad_getTraversalCurrentIndex(data)
+    let getTraversalCurrentIndex = function asroad_getTraversalCurrentIndex(data)
     {
         return data[1];
     }
-    var setTraversalCurrentIndex = function asroad_setTraversalCurrentIndex(data, value)
+    let setTraversalCurrentIndex = function asroad_setTraversalCurrentIndex(data, value)
     {
         data[1] = value;
     }
-    var getTraversalEdgeCount = function asroad_getTraversalEdgeCount(data)
+    let getTraversalEdgeCount = function asroad_getTraversalEdgeCount(data)
     {
         return data[2];
     }
-    var setTraversalEdgeCount = function asroad_setTraversalEdgeCount(data, value)
+    let setTraversalEdgeCount = function asroad_setTraversalEdgeCount(data, value)
     {
         data[2] = value;
     }
-    var incrementTraversalEdgeCount = function asroad_incrementTraversalEdgeCount(data)
+    let incrementTraversalEdgeCount = function asroad_incrementTraversalEdgeCount(data)
     {
         data[2] = data[2] + 1;
     }
-    var getTraversalCost = function asroas_getTraversalCost(data, index)
+    let getTraversalCost = function asroas_getTraversalCost(data, index)
     {
         return data[index*5 + C_TR.COST];
     }
-    var setTraversalProcessed = function asroad_setTraversalProcessed(data, index)
+    let setTraversalProcessed = function asroad_setTraversalProcessed(data, index)
     {
         data[index*5 + C_TR.PROCESSED] = 1;
     }
-    var isTraversalProcessed = function asroad_isTraversalProcessed(data, index)
+    let isTraversalProcessed = function asroad_isTraversalProcessed(data, index)
     {
         return data[index*5 + C_TR.PROCESSED];
     }
-    var getTraversalTo = function asroad_getTraversalTo(data, index)
+    let getTraversalTo = function asroad_getTraversalTo(data, index)
     {
         return data[index*5 + C_TR.TO];
     }
-    var getTraversalFrom = function asroad_getTraversalFrom(data, index)
+    let getTraversalFrom = function asroad_getTraversalFrom(data, index)
     {
         return data[index*5 + C_TR.FROM];
     }
-    var getTraversalParent = function asroad_getTraversalParent(data, index)
+    let getTraversalParent = function asroad_getTraversalParent(data, index)
     {
         return data[index*5 + C_TR.PARENT];
     }
     
     public.initializeTraversal = function asroad_initializeTraversal(fromX, fromY)
     {
-        var from = ASSTATE.getIndex(fromX, fromY);
-        var data = [];
+        let from = ASSTATE.getIndex(fromX, fromY);
+        let data = [];
         setTraversalStart(data, from);
         setTraversalCurrentIndex(data, -1);
         setTraversalEdgeCount(data, 0);
@@ -1329,13 +1329,13 @@ var ASROAD = (function ()
         PROCESSED: 7
     };
     
-    var expandTraversal = function asroad_expandTraversal(data, from, to)
+    let expandTraversal = function asroad_expandTraversal(data, from, to)
     {
         //console.log('expandTraversal d' + data + 'f' + from + 't' + to);
         if (to >= 0)
         {
-            var index = getTraversalCurrentIndex(data);
-            var congestion = ASSTATE.getDataRoadAtIndex(to).congestion;
+            let index = getTraversalCurrentIndex(data);
+            let congestion = ASSTATE.getDataRoadAtIndex(to).congestion;
             if (index >= 0)
             {
                 congestion += getTraversalCost(data, index);
@@ -1359,15 +1359,15 @@ var ASROAD = (function ()
             return [-1, -1];
         }
         // get minimum cost
-        var edgeCount = getTraversalEdgeCount(data);
-        var minCost = getTraversalCost(data, 0);
-        var minIndex = -1;
-        var traversed = {};
-        for (var i = 0; i < edgeCount; i++)
+        let edgeCount = getTraversalEdgeCount(data);
+        let minCost = getTraversalCost(data, 0);
+        let minIndex = -1;
+        let traversed = {};
+        for (let i = 0; i < edgeCount; i++)
         {
-            var localCost = getTraversalCost(data, i);
-            var isProcessed = isTraversalProcessed(data, i);
-            var from = getTraversalFrom(data, i);
+            let localCost = getTraversalCost(data, i);
+            let isProcessed = isTraversalProcessed(data, i);
+            let from = getTraversalFrom(data, i);
             traversed[from] = 1;
             //m_network[from].debug = isProcessed ? 2 : 1;
             //console.log('i' + i + 'c' + localCost + 'p' + isProcessed);
@@ -1381,10 +1381,10 @@ var ASROAD = (function ()
         {
             //console.log('minIndex ' + minIndex);
             //console.log('traversed ' + traversed);
-            var to = getTraversalTo(data, minIndex);
-            var expandIfNotTraversed = function (data, to, d)
+            let to = getTraversalTo(data, minIndex);
+            let expandIfNotTraversed = function (data, to, d)
             {
-                var toTo = isConnectedTo(to, d);
+                let toTo = isConnectedTo(to, d);
                 if (toTo >= 0 && traversed[toTo] != 1)
                 {
                     expandTraversal(data, to, toTo);
@@ -1413,8 +1413,8 @@ var ASROAD = (function ()
             console.log('invalid');
             return [-1, -1];
         }
-        var reversePathIndices = [];
-        var lastIndex = getTraversalCurrentIndex(data);
+        let reversePathIndices = [];
+        let lastIndex = getTraversalCurrentIndex(data);
         //console.log(data);
         //console.log(lastIndex);
         while (lastIndex >= 0)
@@ -1425,32 +1425,32 @@ var ASROAD = (function ()
         }
         reversePathIndices.push(lastIndex); // last one is -1
         //console.log(reversePathIndices);
-        var reversePathFromTo = [];
-        for (var i = 0; i < reversePathIndices.length; i++)
+        let reversePathFromTo = [];
+        for (let i = 0; i < reversePathIndices.length; i++)
         {
-            var index = reversePathIndices[i];
+            let index = reversePathIndices[i];
             if (index == -1)
             {
-                var fromStart = getTraversalStart(data);
+                let fromStart = getTraversalStart(data);
                 reversePathFromTo.push(fromStart);
                 //console.log(fromStart);
             }
             else
             {
-                var from = getTraversalFrom(data, index);
-                var to = getTraversalTo(data, index);
+                let from = getTraversalFrom(data, index);
+                let to = getTraversalTo(data, index);
                 reversePathFromTo.push(to);
                 //reversePathFromTo.push(from);
             }
         }
         //console.log(reversePathFromTo);
-        var pathFromTo = [];
-        var pathFromToXY = [];
+        let pathFromTo = [];
+        let pathFromToXY = [];
         while (reversePathFromTo.length > 0)
         {
-            var index = reversePathFromTo.pop();
+            let index = reversePathFromTo.pop();
             pathFromTo.push(index);
-            var xy = ASSTATE.getXYFromIndex(index);
+            let xy = ASSTATE.getXYFromIndex(index);
             pathFromToXY.push(xy[0]);
             pathFromToXY.push(xy[1]);
         }
@@ -1462,21 +1462,21 @@ var ASROAD = (function ()
     {
         if (validateTraversalData(data))
         {
-            var edgeCount = getTraversalEdgeCount(data);
-            for (var i = 0; i < edgeCount; i++)
+            let edgeCount = getTraversalEdgeCount(data);
+            for (let i = 0; i < edgeCount; i++)
             {
-                var from = getTraversalFrom(data, i);
-                var to = getTraversalTo(data, i);
+                let from = getTraversalFrom(data, i);
+                let to = getTraversalTo(data, i);
                 ASSTATE.getDataRoadAtIndex(from).debug = C_TILEENUM.LOW;
                 ASSTATE.getDataRoadAtIndex(to).debug = C_TILEENUM.LOW;
             }
-            var fromStart = getTraversalStart(data);
+            let fromStart = getTraversalStart(data);
             ASSTATE.getDataRoadAtIndex(fromStart).debug = C_TILEENUM.LOW;
         }
         delete data;
     }
     
-    var validateTraversalData = function asroad_validateTraversalData(data)
+    let validateTraversalData = function asroad_validateTraversalData(data)
     {
         if (typeof data === 'undefined' || data == null)
         {
@@ -1488,9 +1488,9 @@ var ASROAD = (function ()
     return public;
 })();
 
-var ASRICO = (function ()
+let ASRICO = (function ()
 {
-    var public = {};
+    let public = {};
     
     return public;
 })();
@@ -1498,15 +1498,15 @@ var ASRICO = (function ()
 // ---------------------
 // wrapper for data layers to interface
 // with mmap render
-var MMAPDATA = (function ()
+let MMAPDATA = (function ()
 {
-    var public = {};
+    let public = {};
 
-    var m_mapTableSizeX = 0;
-    var m_mapTableSizeY = 0;
-    var m_mapChangeLog = [];
+    let m_mapTableSizeX = 0;
+    let m_mapTableSizeY = 0;
+    let m_mapChangeLog = [];
     
-    var m_dataLibrary; // module such as ASZONE
+    let m_dataLibrary; // module such as ASZONE
 
     public.getDataLibrary = function mmapdata_getDataLibrary()
     {
@@ -1534,24 +1534,24 @@ var MMAPDATA = (function ()
     }
     public.isValidTileId = function mmapdata_isValidTileId(id)
     {
-        var index = Object.values(m_dataLibrary.C_TILEENUM).indexOf(id)
+        let index = Object.values(m_dataLibrary.C_TILEENUM).indexOf(id)
         return index > -1;
     }
     public.getRandomTileId = function mmapdata_getRandomTileId()
     {
-        var tileEnumValues = ASZONE.getZoneTile();
-        var tileEnumCount = tileEnumValues.length;
-        var randomIndex = Math.floor(Math.random() * tileEnumCount);
-        var randomId = tileEnumValues[randomIndex];
+        let tileEnumValues = ASZONE.getZoneTile();
+        let tileEnumCount = tileEnumValues.length;
+        let randomIndex = Math.floor(Math.random() * tileEnumCount);
+        let randomId = tileEnumValues[randomIndex];
         return randomId;
     }
     public.randomizeTile = function (count)
     {
-        for (var i = 0; i < count; i++)
+        for (let i = 0; i < count; i++)
         {
-            var x = Math.floor(m_mapTableSizeX * Math.random());
-            var y = Math.floor(m_mapTableSizeY * Math.random());
-            var id = public.getRandomTileId();
+            let x = Math.floor(m_mapTableSizeX * Math.random());
+            let y = Math.floor(m_mapTableSizeY * Math.random());
+            let id = public.getRandomTileId();
             public.setTileId(x, y, id);
         }
     }
@@ -1562,11 +1562,11 @@ var MMAPDATA = (function ()
             m_mapChangeLog = [];
             return [-1]; // refresh all
         }
-        var updatedTiles = [];// convention [x, y, x, y, ...]
-        for (var i = 0; i < m_mapChangeLog.length; i+=2)
+        let updatedTiles = [];// convention [x, y, x, y, ...]
+        for (let i = 0; i < m_mapChangeLog.length; i+=2)
         {
-            var tileX = m_mapChangeLog[i];
-            var tileY = m_mapChangeLog[i + 1];
+            let tileX = m_mapChangeLog[i];
+            let tileY = m_mapChangeLog[i + 1];
             
             // possible callbacks here
             updatedTiles.push(tileX);
@@ -1586,20 +1586,20 @@ var MMAPDATA = (function ()
     }
     public.getTileId = function mmapdata_getTileId(tileX, tileY)
     {
-        var id = m_dataLibrary.getDataId(tileX, tileY); //getMapTableData()[index];
+        let id = m_dataLibrary.getDataId(tileX, tileY); //getMapTableData()[index];
         if (typeof id === 'undefined')
         {
             throw 'mmapData get uninitialized ' + id + ' ' + m_dataLibrary.C_NAME;
         }
         return id;
     }
-    //var isTileIdTypeWalkable = function mmapdata_isTileIdTypeWalkable(id)
+    //let isTileIdTypeWalkable = function mmapdata_isTileIdTypeWalkable(id)
     //{
     //    return id <= m_dataLibrary.C_TILEENUM.ROAD;
     //}
     public.isValidCoordinates = function mmapdata_isValidCoordinates(tileX, tileY)
     {
-        var isOutOfBound = tileX < 0 || tileX >= public.getMapTableSizeX() || tileY < 0 || tileY >= public.getMapTableSizeY();
+        let isOutOfBound = tileX < 0 || tileX >= public.getMapTableSizeX() || tileY < 0 || tileY >= public.getMapTableSizeY();
         return !isOutOfBound;
     }
 
@@ -1608,15 +1608,15 @@ var MMAPDATA = (function ()
 
 // a map batch regroups multiple tiles
 // abstraction layer for pixi container and sprite
-var MMAPBATCH = (function ()
+let MMAPBATCH = (function ()
 {
-    var public = {};
+    let public = {};
 
-    var m_mapLayer;
+    let m_mapLayer;
 
-    var m_mapSpriteBatch = [];
-    var m_mapSpriteBatchCount = 0;
-    var m_mapSpriteBatchLifetime = {}; // cantor index
+    let m_mapSpriteBatch = [];
+    let m_mapSpriteBatchCount = 0;
+    let m_mapSpriteBatchLifetime = {}; // cantor index
     public.getBatchMapIndex = function mmapbatch_getBatchMapIndex(batchX, batchY)
     {
         return MUTIL.mathCantor(batchX, batchY);
@@ -1625,7 +1625,7 @@ var MMAPBATCH = (function ()
     public.getBatchMapIndexReverse = function mmapbatch_getBatchMapIndexReverse(batchIndex)
     {
         return MUTIL.mathReverseCantorPair(batchIndex);
-        /*var pair = [];
+        /*let pair = [];
         pair[0] = (batchIndex / MMAPDATA.getMapTableSizeY()) | 0;
         pair[1] = batchIndex - pair[0] * MMAPDATA.getMapTableSizeY();
         return pair;*/
@@ -1633,8 +1633,8 @@ var MMAPBATCH = (function ()
     
     // sprites grouped by batch
     // in batchMapIndex order
-    var m_mapSpriteId = []; // mapIndex
-    var getMapSpriteIdIndex = function mmapbatch_getMapSpriteIdIndex(x, y)
+    let m_mapSpriteId = []; // mapIndex
+    let getMapSpriteIdIndex = function mmapbatch_getMapSpriteIdIndex(x, y)
     {
         return MUTIL.mathCantor(x, y);
         //return x * MMAPDATA.getMapTableSizeY() + y;
@@ -1657,22 +1657,22 @@ var MMAPBATCH = (function ()
         m_mapLayer.on('pointerup', MMAPTOUCH.onMapDisplayDragEnd);
     }
 
-    var getBatchMapIndexByTile = function mmapbatch_getBatchMapIndexByTile(tileX, tileY)
+    let getBatchMapIndexByTile = function mmapbatch_getBatchMapIndexByTile(tileX, tileY)
     {
-        var X = Math.floor(tileX / public.C_BATCH_SIZE_X);
-        var Y = Math.floor(tileY / public.C_BATCH_SIZE_Y);
+        let X = Math.floor(tileX / public.C_BATCH_SIZE_X);
+        let Y = Math.floor(tileY / public.C_BATCH_SIZE_Y);
         return public.getBatchMapIndex(X, Y);
     }
 
-    var findIndexForNewBatch = function mmapbatch_findIndexForNewBatch(batchX, batchY)
+    let findIndexForNewBatch = function mmapbatch_findIndexForNewBatch(batchX, batchY)
     {
-        var batchMapIndex = public.getBatchMapIndex(batchX, batchY);
-        var arrayIndex = batchMapIndex;
+        let batchMapIndex = public.getBatchMapIndex(batchX, batchY);
+        let arrayIndex = batchMapIndex;
         while (arrayIndex >= 0)
         {
             if (hasBatchByIndex(arrayIndex))
             {
-                var batch = m_mapSpriteBatch[arrayIndex];
+                let batch = m_mapSpriteBatch[arrayIndex];
                 return m_mapLayer.getChildIndex(batch) + 1;
             }
             arrayIndex--;
@@ -1684,7 +1684,7 @@ var MMAPBATCH = (function ()
     {
         if (hasBatch(batchX, batchY))
         {
-            var batch = getBatch(batchX, batchY);
+            let batch = getBatch(batchX, batchY);
             return m_mapLayer.getChildIndex(batch);
         }
         else
@@ -1694,7 +1694,7 @@ var MMAPBATCH = (function ()
     }
 
     /*
-    var setSpriteInteraction = function mmapbatch_setSpriteInteraction(sprite)
+    let setSpriteInteraction = function mmapbatch_setSpriteInteraction(sprite)
     {
         sprite.interactive = true;
         sprite.on('pointerdown', MMAPTOUCH.onSpriteDisplayDragStart);
@@ -1704,21 +1704,21 @@ var MMAPBATCH = (function ()
     }
     */
     
-    var m_buildBatchPool = [];
-    var m_buildBatchTotalCount = 0;
-    var buildBatch = function mmapbatch_buildBatch()
+    let m_buildBatchPool = [];
+    let m_buildBatchTotalCount = 0;
+    let buildBatch = function mmapbatch_buildBatch()
     {
         if (m_buildBatchPool.length <= 0)
         {
             m_buildBatchTotalCount++;
-            var batch = new PIXI.Container();
-            for (var x = 0; x < public.C_BATCH_SIZE_X; x++)
+            let batch = new PIXI.Container();
+            for (let x = 0; x < public.C_BATCH_SIZE_X; x++)
             {
-                for (var y = 0; y < public.C_BATCH_SIZE_Y; y++)
+                for (let y = 0; y < public.C_BATCH_SIZE_Y; y++)
                 {
-                    var textureName = MMAPRENDER.getTileTextureName(0);
-                    var textureCache = PIXI.utils.TextureCache[textureName];
-                    var sprite = new PIXI.Sprite(textureCache);
+                    let textureName = MMAPRENDER.getTileTextureName(0);
+                    let textureCache = PIXI.utils.TextureCache[textureName];
+                    let sprite = new PIXI.Sprite(textureCache);
 
                     sprite.visible = true;
 
@@ -1745,7 +1745,7 @@ var MMAPBATCH = (function ()
         return m_buildBatchPool.length;
     }
     
-    var getSpriteFromBatch = function mmapbatch_getSpriteFromBatch(batch, iTileX, iTileY)
+    let getSpriteFromBatch = function mmapbatch_getSpriteFromBatch(batch, iTileX, iTileY)
     {
         return batch.getChildAt(iTileY + iTileX * public.C_BATCH_SIZE_Y);
     }
@@ -1753,13 +1753,13 @@ var MMAPBATCH = (function ()
     public.printMapLayerState = function mmapbatch_printMapLayerState()
     {
         console.clear();
-        var keys = Object.keys(m_mapSpriteBatch);
-        for (var i in keys)
+        let keys = Object.keys(m_mapSpriteBatch);
+        for (let i in keys)
         {
-            var id = keys[i];
-            var pair = public.getBatchMapIndexReverse(id);
-            var batchX = pair[0];
-            var batchY = pair[1];
+            let id = keys[i];
+            let pair = public.getBatchMapIndexReverse(id);
+            let batchX = pair[0];
+            let batchY = pair[1];
             if (hasBatchByIndex(id))
             {
                 console.log(batchX + '.' + batchY + '.' + public.getBatchTotalCount());
@@ -1771,42 +1771,42 @@ var MMAPBATCH = (function ()
     // if coordinates are negative.
     // batch has z-ordered sprites
     // batch exists <=> sprite exists
-    var getBatch = function mmapbatch_getBatch(batchX, batchY)
+    let getBatch = function mmapbatch_getBatch(batchX, batchY)
     {
-        var batchMapIndex = public.getBatchMapIndex(batchX, batchY);
+        let batchMapIndex = public.getBatchMapIndex(batchX, batchY);
         if (!hasBatch(batchX, batchY))
         {
-            var batch = buildBatch();
+            let batch = buildBatch();
 
             batch.visible = false;
 
             batch.cacheAsBitmap = true;
 
-            var addIndex = findIndexForNewBatch(batchX, batchY);
+            let addIndex = findIndexForNewBatch(batchX, batchY);
             //console.log(addIndex);
 
             m_mapLayer.addChildAt(batch, addIndex);
 
-            //var batchCount = m_mapLayer.children.length;
+            //let batchCount = m_mapLayer.children.length;
 
             m_mapSpriteBatch[batchMapIndex] = batch;
             m_mapSpriteBatchLifetime[batchMapIndex] = public.C_BATCH_LIFETIME;
             m_mapSpriteBatchCount++;
 
-            var cTileX = public.getBatchXToStartTileX(batchX);
-            var cTileY = public.getBatchYToStartTileY(batchY);
+            let cTileX = public.getBatchXToStartTileX(batchX);
+            let cTileY = public.getBatchYToStartTileY(batchY);
             //console.log('created container for ' + cTileX + ',' + cTileY + ',' + batchCount);
 
-            var eTileX = public.getBatchXToEndTileX(batchX);
-            var eTileY = public.getBatchYToEndTileY(batchY);
-            for (var x = cTileX; x < eTileX; x++)
+            let eTileX = public.getBatchXToEndTileX(batchX);
+            let eTileY = public.getBatchYToEndTileY(batchY);
+            for (let x = cTileX; x < eTileX; x++)
             {
-                for (var y = cTileY; y < eTileY; y++)
+                for (let y = cTileY; y < eTileY; y++)
                 {
-                    var sprite = getSpriteFromBatch(batch, x - cTileX, y - cTileY);
+                    let sprite = getSpriteFromBatch(batch, x - cTileX, y - cTileY);
                     sprite.visible = true;
 
-                    var spriteMapIndex = getMapSpriteIdIndex(x, y)
+                    let spriteMapIndex = getMapSpriteIdIndex(x, y)
                     m_mapSpriteId[spriteMapIndex] = -1;
                 }
             }
@@ -1818,25 +1818,25 @@ var MMAPBATCH = (function ()
     {
         if (hasBatch(batchX, batchY))
         {
-            var batch = getBatch(batchX, batchY);
+            let batch = getBatch(batchX, batchY);
             m_mapLayer.removeChild(batch);
             
-            var batchMapIndex = public.getBatchMapIndex(batchX, batchY);
+            let batchMapIndex = public.getBatchMapIndex(batchX, batchY);
             delete m_mapSpriteBatch[batchMapIndex];
             m_mapSpriteBatchCount--;
             delete m_mapSpriteBatchLifetime[batchMapIndex];
             
-            var options = {children: true};
+            let options = {children: true};
 
-            var cTileX = public.getBatchXToStartTileX(batchX);
-            var cTileY = public.getBatchYToStartTileY(batchY);
-            var eTileX = public.getBatchXToEndTileX(batchX);
-            var eTileY = public.getBatchYToEndTileY(batchY);
-            for (var x = cTileX; x < eTileX; x++)
+            let cTileX = public.getBatchXToStartTileX(batchX);
+            let cTileY = public.getBatchYToStartTileY(batchY);
+            let eTileX = public.getBatchXToEndTileX(batchX);
+            let eTileY = public.getBatchYToEndTileY(batchY);
+            for (let x = cTileX; x < eTileX; x++)
             {
-                for (var y = cTileY; y < eTileY; y++)
+                for (let y = cTileY; y < eTileY; y++)
                 {
-                    var spriteMapIndex = getMapSpriteIdIndex(x, y)
+                    let spriteMapIndex = getMapSpriteIdIndex(x, y)
                     delete m_mapSpriteId[spriteMapIndex];
                 }
             }
@@ -1847,14 +1847,14 @@ var MMAPBATCH = (function ()
         }
     }
 
-    var hasBatchByIndex = function mmapbatch_hasBatchByIndex(batchMapIndex)
+    let hasBatchByIndex = function mmapbatch_hasBatchByIndex(batchMapIndex)
     {
         return !(typeof m_mapSpriteBatch[batchMapIndex] === 'undefined' || m_mapSpriteBatch[batchMapIndex] == null);
     }
 
-    var hasBatch = function mmapbatch_hasBatch(batchX, batchY)
+    let hasBatch = function mmapbatch_hasBatch(batchX, batchY)
     {
-        var mapIndex = public.getBatchMapIndex(batchX, batchY);
+        let mapIndex = public.getBatchMapIndex(batchX, batchY);
         return hasBatchByIndex(mapIndex);
     }
     
@@ -1863,33 +1863,33 @@ var MMAPBATCH = (function ()
         return m_mapSpriteBatchCount;
     }
 
-    var hasSprite = function mmapbatch_hasSprite(tileX, tileY)
+    let hasSprite = function mmapbatch_hasSprite(tileX, tileY)
     {
-        var batchX = public.getTileXToBatchX(tileX);
-        var batchY = public.getTileYToBatchY(tileY);
+        let batchX = public.getTileXToBatchX(tileX);
+        let batchY = public.getTileYToBatchY(tileY);
         return hasBatch(batchX, batchY);
     }
 
     public.setSprite = function mmapbatch_setSprite(tileX, tileY, id, x, y)
     {
-        var spriteMapIndex = getMapSpriteIdIndex(tileX, tileY);
-        var batchX = public.getTileXToBatchX(tileX);
-        var batchY = public.getTileYToBatchY(tileY);
+        let spriteMapIndex = getMapSpriteIdIndex(tileX, tileY);
+        let batchX = public.getTileXToBatchX(tileX);
+        let batchY = public.getTileYToBatchY(tileY);
         if (!hasSprite(tileX, tileY))
         {
-            var batch = getBatch(batchX, batchY);
+            let batch = getBatch(batchX, batchY);
         }
         // it is likely this
         if (m_mapSpriteId[spriteMapIndex] != id)
         {
-            var batch = getBatch(batchX, batchY);
+            let batch = getBatch(batchX, batchY);
             batch.cacheAsBitmap = false;
 
-            var cTileX = public.getBatchXToStartTileX(batchX);
-            var cTileY = public.getBatchYToStartTileY(batchY);
-            var textureName = MMAPRENDER.getTileTextureName(id);
-            var textureCache = PIXI.utils.TextureCache[textureName];
-            var sprite = getSpriteFromBatch(batch, tileX - cTileX, tileY - cTileY);
+            let cTileX = public.getBatchXToStartTileX(batchX);
+            let cTileY = public.getBatchYToStartTileY(batchY);
+            let textureName = MMAPRENDER.getTileTextureName(id);
+            let textureCache = PIXI.utils.TextureCache[textureName];
+            let sprite = getSpriteFromBatch(batch, tileX - cTileX, tileY - cTileY);
             sprite.setTexture(textureCache);
             sprite.x = x - sprite.width / 2;
             sprite.y = y - sprite.height;
@@ -1962,26 +1962,26 @@ var MMAPBATCH = (function ()
 
     public.setBatchScale = function mmapbatch_setBatchScale(batchX, batchY, scaleX, scaleY)
     {
-        var batch = getBatch(batchX, batchY);
+        let batch = getBatch(batchX, batchY);
         batch.scale.x = scaleX;
         batch.scale.y = scaleY;
     }
 
     public.setVisibilityFlagInRadius = function mmapbatch_setVisibilityFlagInRadius(flag, centerTileX, centerTileY, radius, flagValue)
     {
-        var centerBatchX = public.getTileXToBatchX(centerTileX);
-        var centerBatchY = public.getTileYToBatchY(centerTileY);
-        for (var i = -radius; i <= radius; i++)
+        let centerBatchX = public.getTileXToBatchX(centerTileX);
+        let centerBatchY = public.getTileYToBatchY(centerTileY);
+        for (let i = -radius; i <= radius; i++)
         {
-            for (var j = -radius; j <= radius; j++)
+            for (let j = -radius; j <= radius; j++)
             {
-                var batchX = centerBatchX + i;
-                var batchY = centerBatchY + j;
-                var startTileX = public.getBatchXToStartTileX(batchX);
-                var startTileY = public.getBatchYToStartTileY(batchY);
+                let batchX = centerBatchX + i;
+                let batchY = centerBatchY + j;
+                let startTileX = public.getBatchXToStartTileX(batchX);
+                let startTileY = public.getBatchYToStartTileY(batchY);
                 if (batchX >= 0 && batchY >= 0 && MMAPDATA.isValidCoordinates(startTileX, startTileY))
                 {
-                    var index = public.getBatchMapIndex(batchX, batchY);
+                    let index = public.getBatchMapIndex(batchX, batchY);
                     if (typeof flag[index] === 'undefined')
                     {
                         flag[index] = {};
@@ -1994,20 +1994,20 @@ var MMAPBATCH = (function ()
 
     public.getBatchIndexInRadius = function mmapbatch_getBatchIndexInRadius(centerTileX, centerTileY, radius)
     {
-        var batchList = [];
-        var centerBatchX = public.getTileXToBatchX(centerTileX);
-        var centerBatchY = public.getTileYToBatchY(centerTileY);
-        for (var i = -radius; i <= radius; i++)
+        let batchList = [];
+        let centerBatchX = public.getTileXToBatchX(centerTileX);
+        let centerBatchY = public.getTileYToBatchY(centerTileY);
+        for (let i = -radius; i <= radius; i++)
         {
-            for (var j = -radius; j <= radius; j++)
+            for (let j = -radius; j <= radius; j++)
             {
-                var batchX = centerBatchX + i;
-                var batchY = centerBatchY + j;
-                var startTileX = public.getBatchXToStartTileX(batchX);
-                var startTileY = public.getBatchYToStartTileY(batchY);
+                let batchX = centerBatchX + i;
+                let batchY = centerBatchY + j;
+                let startTileX = public.getBatchXToStartTileX(batchX);
+                let startTileY = public.getBatchYToStartTileY(batchY);
                 if (batchX >= 0 && batchY >= 0 && MMAPDATA.isValidCoordinates(startTileX, startTileY))
                 {
-                    var index = public.getBatchMapIndex(batchX, batchY);
+                    let index = public.getBatchMapIndex(batchX, batchY);
                     batchList.push(index);
                 }
             }
@@ -2017,9 +2017,9 @@ var MMAPBATCH = (function ()
 
     public.setVisibilityFlagInList = function mmapbatch_setVisibilityFlagInList(flag, batchList, flagValue)
     {
-        for (var i in batchList)
+        for (let i in batchList)
         {
-            var batchMapIndex = batchList[i];
+            let batchMapIndex = batchList[i];
             if (typeof flag[batchMapIndex] === 'undefined')
             {
                 flag[batchMapIndex] = {};
@@ -2030,14 +2030,14 @@ var MMAPBATCH = (function ()
 
     public.setTextureFlagInNewBatch = function mmapbatch_setTextureFlagInNewBatch(flag, refreshCall)
     {
-        var keys = Object.keys(flag);
-        for (var i in keys)
+        let keys = Object.keys(flag);
+        for (let i in keys)
         {
-            var k = keys[i];
-            var pair = public.getBatchMapIndexReverse(k);
-            var batchX = pair[0];
-            var batchY = pair[1];
-            var exists = hasBatch(batchX, batchY);
+            let k = keys[i];
+            let pair = public.getBatchMapIndexReverse(k);
+            let batchX = pair[0];
+            let batchY = pair[1];
+            let exists = hasBatch(batchX, batchY);
             if (!exists || refreshCall)
             {
                 flag[k].loadTexture = true;
@@ -2047,17 +2047,17 @@ var MMAPBATCH = (function ()
 
     public.setTextureFlagInRadiusAndUpdatedTiles = function mmapbatch_setTextureFlagInRadiusAndUpdatedTiles(flag, centerTileX, centerTileY, radius, updatedTiles)
     {
-        var centerBatchX = public.getTileXToBatchX(centerTileX);
-        var centerBatchY = public.getTileYToBatchY(centerTileY);
-        for (var i = 0; i < updatedTiles.length; i+=2)
+        let centerBatchX = public.getTileXToBatchX(centerTileX);
+        let centerBatchY = public.getTileYToBatchY(centerTileY);
+        for (let i = 0; i < updatedTiles.length; i+=2)
         {
-            var tileX = updatedTiles[i];
-            var tileY = updatedTiles[i+1];
-            var batchX = public.getTileXToBatchX(tileX);
-            var batchY = public.getTileYToBatchY(tileY);
+            let tileX = updatedTiles[i];
+            let tileY = updatedTiles[i+1];
+            let batchX = public.getTileXToBatchX(tileX);
+            let batchY = public.getTileYToBatchY(tileY);
             if (Math.abs(batchX - centerBatchX) <= radius && Math.abs(batchY - centerBatchY) <= radius)
             {
-                var mapIndex = public.getBatchMapIndex(batchX, batchY);
+                let mapIndex = public.getBatchMapIndex(batchX, batchY);
                 if (typeof flag[mapIndex] === 'undefined')
                 {
                     flag[mapIndex] = {};
@@ -2069,15 +2069,15 @@ var MMAPBATCH = (function ()
     
     public.setLifetimeFlagInList = function mmapbatch_setLifetimeFlagInList(flag, batchList)
     {
-        for (var i in batchList)
+        for (let i in batchList)
         {
-            var index = batchList[i];
+            let index = batchList[i];
             m_mapSpriteBatchLifetime[index] = public.C_BATCH_LIFETIME;
         }
-        var keys = Object.keys(m_mapSpriteBatchLifetime);
-        for (var i in keys)
+        let keys = Object.keys(m_mapSpriteBatchLifetime);
+        for (let i in keys)
         {
-            var mapIndex = keys[i];
+            let mapIndex = keys[i];
             m_mapSpriteBatchLifetime[mapIndex]--;
             if (m_mapSpriteBatchLifetime[mapIndex] <= 0)
             {
@@ -2094,25 +2094,25 @@ var MMAPBATCH = (function ()
 })();
 
 // sub unit of MMAPRENDER
-var MMAPTOUCH = (function ()
+let MMAPTOUCH = (function ()
 {
-    var public = {};
+    let public = {};
 
-    var m_touchData = [];
-    var m_dragging = false;
-    var m_zooming = false;
-    var m_startScaleX = 1;
-    var m_startScaleY = 1;
-    var m_startDistance = 0;
-    var m_startPointerScreen = {};
-    var m_startCameraMapX = 0;
-    var m_startCameraMapY = 0;
+    let m_touchData = [];
+    let m_dragging = false;
+    let m_zooming = false;
+    let m_startScaleX = 1;
+    let m_startScaleY = 1;
+    let m_startDistance = 0;
+    let m_startPointerScreen = {};
+    let m_startCameraMapX = 0;
+    let m_startCameraMapY = 0;
     // 
-    var m_clickTimeout = false;
-    var m_clickCount = 0;
-    var C_CLICKDELAYMS = 200;
+    let m_clickTimeout = false;
+    let m_clickCount = 0;
+    let C_CLICKDELAYMS = 200;
 
-    var getDistanceBetween = function mmaptouch_getDistanceBetween(pos1, pos2)
+    let getDistanceBetween = function mmaptouch_getDistanceBetween(pos1, pos2)
     {
         return Math.sqrt(Math.pow(pos2.x - pos1.x, 2) + Math.pow(pos2.y - pos1.y, 2));
     }
@@ -2126,7 +2126,7 @@ var MMAPTOUCH = (function ()
 
     public.onMapDisplayDragEnd = function mmaptouch_onMapDisplayDragEnd(event)
     {
-        var touchIndex = m_touchData.indexOf(event.data);
+        let touchIndex = m_touchData.indexOf(event.data);
         if (touchIndex >= 0)
         {
             m_touchData.splice(touchIndex, 1);
@@ -2143,7 +2143,7 @@ var MMAPTOUCH = (function ()
         }
     }
     
-    var clickDecisionTimeout = function mmaptouch_clickDecisionTimeout()
+    let clickDecisionTimeout = function mmaptouch_clickDecisionTimeout()
     {
         if (m_clickTimeout && m_touchData.length == 0)
         {
@@ -2160,7 +2160,7 @@ var MMAPTOUCH = (function ()
         m_clickTimeout = false;
     }
 
-    var mapDisplayDragRefresh = function mmaptouch_mapDisplayDragRefresh(_this)
+    let mapDisplayDragRefresh = function mmaptouch_mapDisplayDragRefresh(_this)
     {
         if (m_touchData.length == 0)
         {
@@ -2180,7 +2180,7 @@ var MMAPTOUCH = (function ()
             m_startScaleX = _this.scale.x;
             m_startScaleY = _this.scale.y;
 
-            var wasZooming = m_zooming;
+            let wasZooming = m_zooming;
             m_dragging = true;
             m_zooming = false;
             m_startDistance = 0;
@@ -2200,18 +2200,18 @@ var MMAPTOUCH = (function ()
         }
         if (m_touchData.length > 1)
         {
-            var pos1 = m_touchData[0].getLocalPosition(_this.parent);
-            var pos2 = m_touchData[1].getLocalPosition(_this.parent);
+            let pos1 = m_touchData[0].getLocalPosition(_this.parent);
+            let pos2 = m_touchData[1].getLocalPosition(_this.parent);
             m_startDistance = getDistanceBetween(pos1, pos2);
             m_zooming = true;
         }
     }
     
-    var disableClickTimeoutOnMove = function mmaptouch_disableClickTimeoutOnMove(p1, p2)
+    let disableClickTimeoutOnMove = function mmaptouch_disableClickTimeoutOnMove(p1, p2)
     {
         if (m_clickTimeout)
         {
-            var d = getDistanceBetween(p1, p2);
+            let d = getDistanceBetween(p1, p2);
             if (d > 4)
             {
                 m_clickTimeout = false;
@@ -2219,28 +2219,28 @@ var MMAPTOUCH = (function ()
         }
     }
 
-    var updateCameraDrag = function mmaptouch_updateCameraDrag(_this)
+    let updateCameraDrag = function mmaptouch_updateCameraDrag(_this)
     {
-        var pointerScreen = m_touchData[0].getLocalPosition(_this.parent);
+        let pointerScreen = m_touchData[0].getLocalPosition(_this.parent);
         if (m_zooming)
         {
-            var position2 = m_touchData[1].getLocalPosition(_this.parent);
-            var newDistance = getDistanceBetween(pointerScreen, position2);
-            var ratio = newDistance / m_startDistance;
-            var cameraScaleX = m_startScaleX * ratio;
-            var cameraScaleY = m_startScaleY * ratio;
+            let position2 = m_touchData[1].getLocalPosition(_this.parent);
+            let newDistance = getDistanceBetween(pointerScreen, position2);
+            let ratio = newDistance / m_startDistance;
+            let cameraScaleX = m_startScaleX * ratio;
+            let cameraScaleY = m_startScaleY * ratio;
 
             MMAPRENDER.setCameraScale(cameraScaleX, cameraScaleY);
         }
         
         disableClickTimeoutOnMove(pointerScreen, m_startPointerScreen);
 
-        var deltaPointerScreenX = m_startPointerScreen.x - pointerScreen.x;
-        var deltaPointerScreenY = m_startPointerScreen.y - pointerScreen.y;
+        let deltaPointerScreenX = m_startPointerScreen.x - pointerScreen.x;
+        let deltaPointerScreenY = m_startPointerScreen.y - pointerScreen.y;
 
         // camera moves according to differential movement of pointer
-        var cameraMapX = m_startCameraMapX + deltaPointerScreenX / MMAPRENDER.getCameraScaleX();
-        var cameraMapY = m_startCameraMapY + deltaPointerScreenY / MMAPRENDER.getCameraScaleY();
+        let cameraMapX = m_startCameraMapX + deltaPointerScreenX / MMAPRENDER.getCameraScaleX();
+        let cameraMapY = m_startCameraMapY + deltaPointerScreenY / MMAPRENDER.getCameraScaleY();
 
         MMAPRENDER.setCameraMap(cameraMapX, cameraMapY);
     }
@@ -2248,15 +2248,15 @@ var MMAPTOUCH = (function ()
     return public;
 })();
 
-var MMAPRENDER = (function ()
+let MMAPRENDER = (function ()
 {
-    var public = {};
+    let public = {};
 
-    //var C_TEXTURE_BASE_SIZE_X = 130;
-    //var C_TEXTURE_BASE_SIZE_Y = 66;
+    //let C_TEXTURE_BASE_SIZE_X = 130;
+    //let C_TEXTURE_BASE_SIZE_Y = 66;
 
-    var C_TEXTURE_BASE_SIZE_X = 64;
-    var C_TEXTURE_BASE_SIZE_Y = 32;
+    let C_TEXTURE_BASE_SIZE_X = 64;
+    let C_TEXTURE_BASE_SIZE_Y = 32;
     public.getTextureBaseSizeX = function mmaprender_getTextureBaseSizeX()
     {
         return C_TEXTURE_BASE_SIZE_X;
@@ -2267,9 +2267,9 @@ var MMAPRENDER = (function ()
     }
     public.C_MIN_ZOOM = 0.25;
 
-    var getRainbowProfile = function mmaprender_getRainbowProfile(n)
+    let getRainbowProfile = function mmaprender_getRainbowProfile(n)
     {
-        var total = 0xFF * 6;
+        let total = 0xFF * 6;
         n = n % total;
         if (n < 0xFF)
         {
@@ -2289,58 +2289,58 @@ var MMAPRENDER = (function ()
         }
     }
 
-    var getRainbowColor = function mmaprender_getRainbowColor(i, t)
+    let getRainbowColor = function mmaprender_getRainbowColor(i, t)
     {
-        var n = (0xFF * 6 * i / t);
-        var r = getRainbowProfile(n + 0xFF * 2) << 16;
-        var g = getRainbowProfile(n) << 8;
-        var b = getRainbowProfile(n + 0xFF * 4);
+        let n = (0xFF * 6 * i / t);
+        let r = getRainbowProfile(n + 0xFF * 2) << 16;
+        let g = getRainbowProfile(n) << 8;
+        let b = getRainbowProfile(n + 0xFF * 4);
         return r + g + b;
     }
     
     public.isOrientationLandscape = function mmaprender_isOrientationLandscape()
     {
-        var landscape = g_app.renderer.width > g_app.renderer.height;
+        let landscape = g_app.renderer.width > g_app.renderer.height;
         return landscape;
     }
 
-    var viewWidth = function mmaprender_viewWidth()
+    let viewWidth = function mmaprender_viewWidth()
     {
         return g_app.renderer.width;
     }
-    var viewHeight = function mmaprender_viewHeight()
+    let viewHeight = function mmaprender_viewHeight()
     {
         return g_app.renderer.height;
     }
-    var cameraScreenX = function ()
+    let cameraScreenX = function ()
     {
         return viewWidth() / 2;
     }
-    var cameraScreenY = function ()
+    let cameraScreenY = function ()
     {
         return viewHeight() / 2;
     }
 
-    var m_cameraMapX = 0;
-    var m_cameraMapY = 0;
-    var m_cameraScaleX = 1;
-    var m_cameraScaleY = 1;
+    let m_cameraMapX = 0;
+    let m_cameraMapY = 0;
+    let m_cameraScaleX = 1;
+    let m_cameraScaleY = 1;
 
-    var m_cameraMapVelocityX = 0;
-    var m_cameraMapVelocityY = 0;
-    var m_cameraScaleVelocity = 0;
+    let m_cameraMapVelocityX = 0;
+    let m_cameraMapVelocityY = 0;
+    let m_cameraScaleVelocity = 0;
 
-    var m_cameraMapXRendered = 0;
-    var m_cameraMapYRendered = 0;
-    var m_cameraScaleXRendered = 1;
-    var m_cameraScaleYRendered = 1;
-    var m_cameraCenterTileXRendered = null;
-    var m_cameraCenterTileYRendered = null;
-    var m_cameraBatchRadiusRendered = 1;
-    var m_cameraBatchListRendered = null;
+    let m_cameraMapXRendered = 0;
+    let m_cameraMapYRendered = 0;
+    let m_cameraScaleXRendered = 1;
+    let m_cameraScaleYRendered = 1;
+    let m_cameraCenterTileXRendered = null;
+    let m_cameraCenterTileYRendered = null;
+    let m_cameraBatchRadiusRendered = 1;
+    let m_cameraBatchListRendered = null;
     
-    var m_singleClickCallback;
-    var m_doubleClickCallback;
+    let m_singleClickCallback;
+    let m_doubleClickCallback;
 
     public.initialize = function mmaprender_initialize(singleClick, doubleClick)
     {
@@ -2358,17 +2358,17 @@ var MMAPRENDER = (function ()
     
     public.createTexture = function mmaprender_createTexture(color, margin, height)
     {
-        var graphics = new PIXI.Graphics();
+        let graphics = new PIXI.Graphics();
         
-        var C_TEXTURE_BASE_SIZE_X = MMAPRENDER.getTextureBaseSizeX();
-        var C_TEXTURE_BASE_SIZE_Y = MMAPRENDER.getTextureBaseSizeY();
+        let C_TEXTURE_BASE_SIZE_X = MMAPRENDER.getTextureBaseSizeX();
+        let C_TEXTURE_BASE_SIZE_Y = MMAPRENDER.getTextureBaseSizeY();
     
-        var black = 0x000000;
+        let black = 0x000000;
         graphics.beginFill(color);
         graphics.lineStyle(1, black);
     
-        var M = margin; // margin
-        var H = height;
+        let M = margin; // margin
+        let H = height;
     
         // draw a rectangle
         graphics.moveTo(C_TEXTURE_BASE_SIZE_X / 2, M);
@@ -2393,12 +2393,12 @@ var MMAPRENDER = (function ()
     // never change their position.
     // however the map container will move
 
-    var tileToMapX = function (tileX, tileY)
+    let tileToMapX = function (tileX, tileY)
     {
         return C_TEXTURE_BASE_SIZE_X / 2 * (tileX - tileY);
     }
 
-    var tileToMapY = function (tileX, tileY)
+    let tileToMapY = function (tileX, tileY)
     {
         return C_TEXTURE_BASE_SIZE_Y / 2 * (tileX + tileY);
     }
@@ -2406,44 +2406,44 @@ var MMAPRENDER = (function ()
     // not to be used to check selection
     // does not take into account sprite height
     // nor z level
-    var mapToTileX = function (mapX, mapY)
+    let mapToTileX = function (mapX, mapY)
     {
         return mapX / C_TEXTURE_BASE_SIZE_X + (mapY + 1 + C_TEXTURE_BASE_SIZE_Y) / C_TEXTURE_BASE_SIZE_Y;
     }
 
-    var mapToTileY = function (mapX, mapY)
+    let mapToTileY = function (mapX, mapY)
     {
         return (mapY + 1 + C_TEXTURE_BASE_SIZE_Y) / C_TEXTURE_BASE_SIZE_Y - mapX / C_TEXTURE_BASE_SIZE_X;
     }
 
-    var getScreenToMapX = function mmaprender_getScreenToMapX(screenX)
+    let getScreenToMapX = function mmaprender_getScreenToMapX(screenX)
     {
         return m_cameraMapX + (screenX - cameraScreenX()) / m_cameraScaleX;
     }
 
-    var getScreenToMapY = function mmaprender_getScreenToMapY(screenY)
+    let getScreenToMapY = function mmaprender_getScreenToMapY(screenY)
     {
         return m_cameraMapY + (screenY - cameraScreenY()) / m_cameraScaleY;
     }
 
-    var getScreenToTileX = function mmaprender_getScreenToTileX(screenX, screenY)
+    let getScreenToTileX = function mmaprender_getScreenToTileX(screenX, screenY)
     {
-        var mapX = getScreenToMapX(screenX);
-        var mapY = getScreenToMapY(screenY);
+        let mapX = getScreenToMapX(screenX);
+        let mapY = getScreenToMapY(screenY);
         return mapToTileX(mapX, mapY);
     }
 
-    var getScreenToTileY = function mmaprender_getScreenToTileY(screenX, screenY)
+    let getScreenToTileY = function mmaprender_getScreenToTileY(screenX, screenY)
     {
-        var mapX = getScreenToMapX(screenX);
-        var mapY = getScreenToMapY(screenY);
+        let mapX = getScreenToMapX(screenX);
+        let mapY = getScreenToMapY(screenY);
         return mapToTileY(mapX, mapY);
     }
 
     public.setTile = function mmaprender_setTile(tileX, tileY, id)
     {
-        var x = tileToMapX(tileX, tileY);
-        var y = tileToMapY(tileX, tileY);
+        let x = tileToMapX(tileX, tileY);
+        let y = tileToMapY(tileX, tileY);
         MMAPBATCH.setSprite(tileX, tileY, id, x, y);
     }
 
@@ -2469,17 +2469,17 @@ var MMAPRENDER = (function ()
     
     public.getTileZOrder = function mmaprender_getTileZOrder(tileX, tileY)
     {
-        var batchX = MMAPBATCH.getTileXToBatchX(tileX);
-        var batchY = MMAPBATCH.getTileYToBatchY(tileY);
+        let batchX = MMAPBATCH.getTileXToBatchX(tileX);
+        let batchY = MMAPBATCH.getTileYToBatchY(tileY);
         return MMAPBATCH.getBatchRenderIndex(batchX, batchY);
     }
 
-    var updateCameraVelocity = function mmaprender_updateCameraVelocity()
+    let updateCameraVelocity = function mmaprender_updateCameraVelocity()
     {
-        var cameraMapX = m_cameraMapX + m_cameraMapVelocityX / m_cameraScaleX;
-        var cameraMapY = m_cameraMapY + m_cameraMapVelocityY / m_cameraScaleY;
-        var cameraScaleX = m_cameraScaleX + m_cameraScaleVelocity;
-        var cameraScaleY = m_cameraScaleY + m_cameraScaleVelocity;
+        let cameraMapX = m_cameraMapX + m_cameraMapVelocityX / m_cameraScaleX;
+        let cameraMapY = m_cameraMapY + m_cameraMapVelocityY / m_cameraScaleY;
+        let cameraScaleX = m_cameraScaleX + m_cameraScaleVelocity;
+        let cameraScaleY = m_cameraScaleY + m_cameraScaleVelocity;
         public.setCameraScale(cameraScaleX, cameraScaleY);
         public.setCameraMap(cameraMapX, cameraMapY);
     }
@@ -2489,7 +2489,7 @@ var MMAPRENDER = (function ()
         m_cameraMapX = mapX;
         m_cameraMapY = mapY;
         
-        var mapLayer = MMAPBATCH.getMapLayer();
+        let mapLayer = MMAPBATCH.getMapLayer();
         mapLayer.pivot.x = m_cameraMapX;
         mapLayer.pivot.y = m_cameraMapY;
         mapLayer.x = viewWidth() / 2;
@@ -2500,15 +2500,15 @@ var MMAPRENDER = (function ()
     
     public.updateDebug = function mmaprender_updateDebug()
     {
-        var tileX = getCenterTileX();
-        var tileY = getCenterTileY();
-        var cameraScale = (m_cameraScaleX * 100) | 0;
+        let tileX = getCenterTileX();
+        let tileY = getCenterTileY();
+        let cameraScale = (m_cameraScaleX * 100) | 0;
         
-        var memUsage = 'o(' + performance.memory.usedJSHeapSize / 1000 + ')';
-        var mapCoords = 'm(' + (m_cameraMapX | 0) + ',' + (m_cameraMapY | 0) + ',' + cameraScale + ') ';
-        var tileCoords = 't(' + tileX + ',' + tileY + ') ';
-        var batchCoords = 'b(' + MMAPBATCH.getTileXToBatchX(tileX) + ',' + MMAPBATCH.getTileYToBatchY(tileY) + ') ';
-        var batchCount = 'B(' + MMAPBATCH.getBatchCount() + '+' + MMAPBATCH.getBatchPoolCount() + '/' + MMAPBATCH.getBatchTotalCount() + ') ';
+        let memUsage = 'o(' + performance.memory.usedJSHeapSize / 1000 + ')';
+        let mapCoords = 'm(' + (m_cameraMapX | 0) + ',' + (m_cameraMapY | 0) + ',' + cameraScale + ') ';
+        let tileCoords = 't(' + tileX + ',' + tileY + ') ';
+        let batchCoords = 'b(' + MMAPBATCH.getTileXToBatchX(tileX) + ',' + MMAPBATCH.getTileYToBatchY(tileY) + ') ';
+        let batchCount = 'B(' + MMAPBATCH.getBatchCount() + '+' + MMAPBATCH.getBatchPoolCount() + '/' + MMAPBATCH.getBatchTotalCount() + ') ';
         g_counter.innerHTML = mapCoords + tileCoords + batchCount + memUsage;
     }
 
@@ -2524,7 +2524,7 @@ var MMAPRENDER = (function ()
         {
             m_cameraScaleY = public.C_MIN_ZOOM;
         }
-        var mapLayer = MMAPBATCH.getMapLayer();
+        let mapLayer = MMAPBATCH.getMapLayer();
         mapLayer.scale.x = m_cameraScaleX;
         mapLayer.scale.y = m_cameraScaleY;
     }
@@ -2540,83 +2540,83 @@ var MMAPRENDER = (function ()
         m_cameraScaleVelocity = scaleVelocity;
     }
 
-    var getCenterTileX = function mmaprender_getCenterTileX()
+    let getCenterTileX = function mmaprender_getCenterTileX()
     {
         return Math.floor(getScreenToTileX(viewWidth() / 2, viewHeight() / 2));
     }
 
-    var getCenterTileY = function mmaprender_getCenterTileY()
+    let getCenterTileY = function mmaprender_getCenterTileY()
     {
         return Math.floor(getScreenToTileY(viewWidth() / 2, viewHeight() / 2));
     }
 
-    var getVisibleTileRadius = function mmaprender_getVisibleTileRadius()
+    let getVisibleTileRadius = function mmaprender_getVisibleTileRadius()
     {
-        var topLeftCornerTileX = Math.floor(getScreenToTileX(0, 0));
-        var topLeftCornerTileY = Math.floor(getScreenToTileY(0, 0));
+        let topLeftCornerTileX = Math.floor(getScreenToTileX(0, 0));
+        let topLeftCornerTileY = Math.floor(getScreenToTileY(0, 0));
 
-        var cornerToCenterTileDistance = Math.floor(Math.sqrt(Math.pow(topLeftCornerTileX - getCenterTileX(), 2) + Math.pow(topLeftCornerTileY - getCenterTileY(), 2)));
+        let cornerToCenterTileDistance = Math.floor(Math.sqrt(Math.pow(topLeftCornerTileX - getCenterTileX(), 2) + Math.pow(topLeftCornerTileY - getCenterTileY(), 2)));
         return cornerToCenterTileDistance;
     }
 
-    var getBatchRadiusForScreen = function mmaprender_getBatchRadiusForScreen(centerBatchX, centerBatchY, screenX, screenY)
+    let getBatchRadiusForScreen = function mmaprender_getBatchRadiusForScreen(centerBatchX, centerBatchY, screenX, screenY)
     {
-        var tileX = Math.floor(getScreenToTileX(screenX, screenY));
-        var tileY = Math.floor(getScreenToTileY(screenX, screenY));
-        var batchX = MMAPBATCH.getTileXToBatchX(tileX);
-        var batchY = MMAPBATCH.getTileYToBatchY(tileY);
+        let tileX = Math.floor(getScreenToTileX(screenX, screenY));
+        let tileY = Math.floor(getScreenToTileY(screenX, screenY));
+        let batchX = MMAPBATCH.getTileXToBatchX(tileX);
+        let batchY = MMAPBATCH.getTileYToBatchY(tileY);
         //console.log('rad ' + batchX + ' ' + batchY );
-        var deltaBatchX = centerBatchX - batchX;
-        var deltaBatchY = centerBatchY - batchY;
-        var batchRadius = Math.floor(Math.sqrt(Math.pow(deltaBatchX, 2) + Math.pow(deltaBatchY, 2))) + 1;
+        let deltaBatchX = centerBatchX - batchX;
+        let deltaBatchY = centerBatchY - batchY;
+        let batchRadius = Math.floor(Math.sqrt(Math.pow(deltaBatchX, 2) + Math.pow(deltaBatchY, 2))) + 1;
         return batchRadius;
     }
 
-    var getVisibleBatchRadius = function mmaprender_getVisibleBatchRadius()
+    let getVisibleBatchRadius = function mmaprender_getVisibleBatchRadius()
     {
-        var centerBatchX = MMAPBATCH.getTileXToBatchX(getCenterTileX());
-        var centerBatchY = MMAPBATCH.getTileYToBatchY(getCenterTileY());
+        let centerBatchX = MMAPBATCH.getTileXToBatchX(getCenterTileX());
+        let centerBatchY = MMAPBATCH.getTileYToBatchY(getCenterTileY());
 
-        var x = 0;
-        var y = 0;
-        var topLeftBatchRadius = getBatchRadiusForScreen(
+        let x = 0;
+        let y = 0;
+        let topLeftBatchRadius = getBatchRadiusForScreen(
         centerBatchX,
         centerBatchY,
         x, y);
         return topLeftBatchRadius;
     }
 
-    var getBatchIndexInScreen = function mmaprender_getBatchIndexInScreen()
+    let getBatchIndexInScreen = function mmaprender_getBatchIndexInScreen()
     {
-        var minBatchEdge = Math.min(MMAPBATCH.C_BATCH_SIZE_X, MMAPBATCH.C_BATCH_SIZE_Y);
-        var deltaScreenX = minBatchEdge * C_TEXTURE_BASE_SIZE_X * m_cameraScaleX;
-        var deltaScreenY = minBatchEdge * C_TEXTURE_BASE_SIZE_Y * m_cameraScaleY;
+        let minBatchEdge = Math.min(MMAPBATCH.C_BATCH_SIZE_X, MMAPBATCH.C_BATCH_SIZE_Y);
+        let deltaScreenX = minBatchEdge * C_TEXTURE_BASE_SIZE_X * m_cameraScaleX;
+        let deltaScreenY = minBatchEdge * C_TEXTURE_BASE_SIZE_Y * m_cameraScaleY;
 
-        var maxScreenX = viewWidth();
-        var maxScreenY = viewHeight();
+        let maxScreenX = viewWidth();
+        let maxScreenY = viewHeight();
 
-        var batchList = [];
+        let batchList = [];
 
-        for (var stepScreenX = 0; stepScreenX <= maxScreenX + deltaScreenX; stepScreenX += deltaScreenX)
+        for (let stepScreenX = 0; stepScreenX <= maxScreenX + deltaScreenX; stepScreenX += deltaScreenX)
         {
-            for (var stepScreenY = 0; stepScreenY <= maxScreenY + deltaScreenY; stepScreenY += deltaScreenY)
+            for (let stepScreenY = 0; stepScreenY <= maxScreenY + deltaScreenY; stepScreenY += deltaScreenY)
             {
-                var tileX = Math.floor(getScreenToTileX(stepScreenX, stepScreenY));
-                var tileY = Math.floor(getScreenToTileY(stepScreenX, stepScreenY));
-                var batchX = MMAPBATCH.getTileXToBatchX(tileX);
-                var batchY = MMAPBATCH.getTileYToBatchY(tileY);
+                let tileX = Math.floor(getScreenToTileX(stepScreenX, stepScreenY));
+                let tileY = Math.floor(getScreenToTileY(stepScreenX, stepScreenY));
+                let batchX = MMAPBATCH.getTileXToBatchX(tileX);
+                let batchY = MMAPBATCH.getTileYToBatchY(tileY);
                 batchList.push(MMAPBATCH.getBatchMapIndex(batchX, batchY));
             }
         }
 
-        for (var stepScreenX = -deltaScreenX / 2; stepScreenX <= maxScreenX + deltaScreenX; stepScreenX += deltaScreenX)
+        for (let stepScreenX = -deltaScreenX / 2; stepScreenX <= maxScreenX + deltaScreenX; stepScreenX += deltaScreenX)
         {
-            for (var stepScreenY = -deltaScreenY / 2; stepScreenY <= maxScreenY + deltaScreenY; stepScreenY += deltaScreenY)
+            for (let stepScreenY = -deltaScreenY / 2; stepScreenY <= maxScreenY + deltaScreenY; stepScreenY += deltaScreenY)
             {
-                var tileX = Math.floor(getScreenToTileX(stepScreenX, stepScreenY));
-                var tileY = Math.floor(getScreenToTileY(stepScreenX, stepScreenY));
-                var batchX = MMAPBATCH.getTileXToBatchX(tileX);
-                var batchY = MMAPBATCH.getTileYToBatchY(tileY);
+                let tileX = Math.floor(getScreenToTileX(stepScreenX, stepScreenY));
+                let tileY = Math.floor(getScreenToTileY(stepScreenX, stepScreenY));
+                let batchX = MMAPBATCH.getTileXToBatchX(tileX);
+                let batchY = MMAPBATCH.getTileYToBatchY(tileY);
                 batchList.push(MMAPBATCH.getBatchMapIndex(batchX, batchY));
             }
         }
@@ -2624,38 +2624,38 @@ var MMAPRENDER = (function ()
         return batchList;
     }
 
-    var getBatchIndexInScreen2 = function mmaprender_getBatchIndexInScreen2()
+    let getBatchIndexInScreen2 = function mmaprender_getBatchIndexInScreen2()
     {
-        var minBatchEdge = Math.min(MMAPBATCH.C_BATCH_SIZE_X, MMAPBATCH.C_BATCH_SIZE_Y);
-        var deltaScreenX = minBatchEdge * C_TEXTURE_BASE_SIZE_X * m_cameraScaleX;
-        var deltaScreenY = minBatchEdge * C_TEXTURE_BASE_SIZE_Y * m_cameraScaleY;
+        let minBatchEdge = Math.min(MMAPBATCH.C_BATCH_SIZE_X, MMAPBATCH.C_BATCH_SIZE_Y);
+        let deltaScreenX = minBatchEdge * C_TEXTURE_BASE_SIZE_X * m_cameraScaleX;
+        let deltaScreenY = minBatchEdge * C_TEXTURE_BASE_SIZE_Y * m_cameraScaleY;
 
-        var totalStepX = Math.floor(viewWidth() / deltaScreenX) + 2;
-        var totalStepY = Math.floor(viewHeight() / deltaScreenY) + 2;
+        let totalStepX = Math.floor(viewWidth() / deltaScreenX) + 2;
+        let totalStepY = Math.floor(viewHeight() / deltaScreenY) + 2;
 
-        var batchList = [];
+        let batchList = [];
 
-        var baseTileX = Math.floor(getScreenToTileX(0, 0));
-        var baseTileY = Math.floor(getScreenToTileY(0, 0));
+        let baseTileX = Math.floor(getScreenToTileX(0, 0));
+        let baseTileY = Math.floor(getScreenToTileY(0, 0));
 
         // tileY +\-
         // tileX -/+
-        for (var stepX = -1; stepX <= totalStepX; stepX += 1)
+        for (let stepX = -1; stepX <= totalStepX; stepX += 1)
         {
-            for (var stepY = -1; stepY <= totalStepY; stepY += 1)
+            for (let stepY = -1; stepY <= totalStepY; stepY += 1)
             {
                 // probably only works with square batch
-                var tileX = baseTileX + stepX * minBatchEdge + stepY * minBatchEdge;
-                var tileY = baseTileY - stepX * minBatchEdge + stepY * minBatchEdge;
-                var batchX = MMAPBATCH.getTileXToBatchX(tileX);
-                var batchY = MMAPBATCH.getTileYToBatchY(tileY);
+                let tileX = baseTileX + stepX * minBatchEdge + stepY * minBatchEdge;
+                let tileY = baseTileY - stepX * minBatchEdge + stepY * minBatchEdge;
+                let batchX = MMAPBATCH.getTileXToBatchX(tileX);
+                let batchY = MMAPBATCH.getTileYToBatchY(tileY);
                 // note: tileX and tileY ay not be valid coordinates,
                 // however batchY + 1 may be, so check only upon adding
                 if (MMAPDATA.isValidCoordinates(tileX, tileY))
                 {
                     batchList.push(MMAPBATCH.getBatchMapIndex(batchX, batchY));
                 }
-                var tileYAlt = MMAPBATCH.getBatchYToStartTileY(batchY + 1);
+                let tileYAlt = MMAPBATCH.getBatchYToStartTileY(batchY + 1);
                 if (MMAPDATA.isValidCoordinates(tileX, tileYAlt))
                 {
                     batchList.push(MMAPBATCH.getBatchMapIndex(batchX, batchY + 1));
@@ -2666,21 +2666,21 @@ var MMAPRENDER = (function ()
         return batchList;
     }
 
-    var processBatchFlag = function mmaprender_processBatchFlag(batchPerCall, batchFlag)
+    let processBatchFlag = function mmaprender_processBatchFlag(batchPerCall, batchFlag)
     {
-        var keys = Object.keys(batchFlag);
-        var count = 0;
-        var textureLoadCount = 0;
+        let keys = Object.keys(batchFlag);
+        let count = 0;
+        let textureLoadCount = 0;
         // pre order
-        var loadedTextureKeys = [];
-        var toLoadTextureKeys = [];
-        for (var i in keys)
+        let loadedTextureKeys = [];
+        let toLoadTextureKeys = [];
+        for (let i in keys)
         {
-            var k = keys[i];
-            var pair = MMAPBATCH.getBatchMapIndexReverse(k);
-            var batchX = pair[0];
-            var batchY = pair[1];
-            var textureFlag = batchFlag[k].loadTexture;
+            let k = keys[i];
+            let pair = MMAPBATCH.getBatchMapIndexReverse(k);
+            let batchX = pair[0];
+            let batchY = pair[1];
+            let textureFlag = batchFlag[k].loadTexture;
             if (textureFlag)
             {
                 toLoadTextureKeys.push(k);
@@ -2690,44 +2690,44 @@ var MMAPRENDER = (function ()
                 loadedTextureKeys.push(k);
             }
         }
-        var orderedKeys = loadedTextureKeys;
-        for (var i in toLoadTextureKeys)
+        let orderedKeys = loadedTextureKeys;
+        for (let i in toLoadTextureKeys)
         {
             orderedKeys.push(toLoadTextureKeys[i]);
             //break; // process only one texture load per call
         }
-        for (var i in orderedKeys)
+        for (let i in orderedKeys)
         {
-            var k = orderedKeys[i];
-            var pair = MMAPBATCH.getBatchMapIndexReverse(k);
-            var batchX = pair[0];
-            var batchY = pair[1];
-            var textureFlag = batchFlag[k].loadTexture;
+            let k = orderedKeys[i];
+            let pair = MMAPBATCH.getBatchMapIndexReverse(k);
+            let batchX = pair[0];
+            let batchY = pair[1];
+            let textureFlag = batchFlag[k].loadTexture;
             if (textureFlag)
             {
-                var startTileX = MMAPBATCH.getBatchXToStartTileX(batchX);
-                var startTileY = MMAPBATCH.getBatchYToStartTileY(batchY);
-                var endTileX = MMAPBATCH.getBatchXToEndTileX(batchX);
-                var endTileY = MMAPBATCH.getBatchYToEndTileY(batchY);
-                for (var x = startTileX; x < endTileX; x++)
+                let startTileX = MMAPBATCH.getBatchXToStartTileX(batchX);
+                let startTileY = MMAPBATCH.getBatchYToStartTileY(batchY);
+                let endTileX = MMAPBATCH.getBatchXToEndTileX(batchX);
+                let endTileY = MMAPBATCH.getBatchYToEndTileY(batchY);
+                for (let x = startTileX; x < endTileX; x++)
                 {
-                    for (var y = startTileY; y < endTileY; y++)
+                    for (let y = startTileY; y < endTileY; y++)
                     {
                         if (MMAPDATA.isValidCoordinates(x, y))
                         {
-                            var tileId = MMAPDATA.getTileId(x, y);
+                            let tileId = MMAPDATA.getTileId(x, y);
                             public.setTile(x, y, tileId);
                             count++;
                         }
                     }
                 }
             }
-            var visibleFlag = batchFlag[k].visible;
+            let visibleFlag = batchFlag[k].visible;
             if (typeof visibleFlag != 'undefined')
             {
                 MMAPBATCH.setBatchVisible(batchX, batchY, visibleFlag);
             }
-            var removeFlag = batchFlag[k].remove;
+            let removeFlag = batchFlag[k].remove;
             if (typeof removeFlag != 'undefined')
             {
                 MMAPBATCH.removeBatch(batchX, batchY);
@@ -2750,10 +2750,10 @@ var MMAPRENDER = (function ()
     }
 
     // hold getBatchMapIndex
-    var m_batchFlag = {};
-    var m_batchPerCall = 1;
-    var m_lastTime = 0;
-    var m_refreshCall = true;
+    let m_batchFlag = {};
+    let m_batchPerCall = 1;
+    let m_lastTime = 0;
+    let m_refreshCall = true;
 
     public.C_FPS = 30;
     public.C_MINBATCHPERCALL = 1;
@@ -2761,7 +2761,7 @@ var MMAPRENDER = (function ()
 
     public.update = function mmaprender_update(dt, tile)
     {
-        var updatedTiles = MMAPDATA.commitChangeLog();
+        let updatedTiles = MMAPDATA.commitChangeLog();
         if (updatedTiles.length == 1)
         {
             m_refreshCall = true;
@@ -2807,7 +2807,7 @@ var MMAPRENDER = (function ()
         // Note that a batch contains sprites so themselves
         // should also be deleted
 
-        var time0 = Date.now();
+        let time0 = Date.now();
 
         updateCameraVelocity();
 
@@ -2823,12 +2823,12 @@ var MMAPRENDER = (function ()
             false);
         }
 
-        var currentCenterTileX = getCenterTileX();
-        var currentCenterTileY = getCenterTileY();
-        var currentRadius = getVisibleTileRadius();
-        var currentBatchRadius = getVisibleBatchRadius();
+        let currentCenterTileX = getCenterTileX();
+        let currentCenterTileY = getCenterTileY();
+        let currentRadius = getVisibleTileRadius();
+        let currentBatchRadius = getVisibleBatchRadius();
 
-        var currentBatchList = getBatchIndexInScreen2();
+        let currentBatchList = getBatchIndexInScreen2();
 
         MMAPBATCH.setVisibilityFlagInList(
         m_batchFlag,
@@ -2839,7 +2839,7 @@ var MMAPRENDER = (function ()
         m_batchFlag,
         currentBatchList);
 
-        var time1 = Date.now();
+        let time1 = Date.now();
 
         MMAPBATCH.setTextureFlagInNewBatch(
         m_batchFlag,
@@ -2852,11 +2852,11 @@ var MMAPRENDER = (function ()
         currentBatchRadius,
         updatedTiles);
 
-        var time2 = Date.now();
+        let time2 = Date.now();
         
-        var fullyProcessed = processBatchFlag(m_batchPerCall, m_batchFlag);
-        //var increaseBatchPerCall = Object.keys(m_batchFlag).length > 0;
-        var increaseBatchPerCall = !fullyProcessed;
+        let fullyProcessed = processBatchFlag(m_batchPerCall, m_batchFlag);
+        //let increaseBatchPerCall = Object.keys(m_batchFlag).length > 0;
+        let increaseBatchPerCall = !fullyProcessed;
 
         if (dt > 1000 / public.C_FPS)
         {
@@ -2875,7 +2875,7 @@ var MMAPRENDER = (function ()
             }
         }
 
-        var time3 = Date.now();
+        let time3 = Date.now();
 
         // checking whether it is texture load
         /*
@@ -2908,25 +2908,25 @@ var MMAPRENDER = (function ()
     
     public.processSingleClick = function mmaprender_processSingleClick(screenX, screenY)
     {
-        var tileX = getScreenToTileX(screenX, screenY) | 0;
-        var tileY = getScreenToTileY(screenX, screenY) | 0;
+        let tileX = getScreenToTileX(screenX, screenY) | 0;
+        let tileY = getScreenToTileY(screenX, screenY) | 0;
         m_singleClickCallback(tileX, tileY);
     }
     
     public.processDoubleClick = function mmaprender_processDoubleClick(screenX, screenY)
     {
-        var tileX = getScreenToTileX(screenX, screenY) | 0;
-        var tileY = getScreenToTileY(screenX, screenY) | 0;
+        let tileX = getScreenToTileX(screenX, screenY) | 0;
+        let tileY = getScreenToTileY(screenX, screenY) | 0;
         m_doubleClickCallback(tileX, tileY);
     }
 
     return public;
 })();
 // ---------------------
-var ASCOMPONENT = (function ()
+let ASCOMPONENT = (function ()
 {
-    var public = {};
-    var s_entityId = 0;
+    let public = {};
+    let s_entityId = 0;
 
     public.Id = function Id()
     {
@@ -2952,13 +2952,13 @@ var ASCOMPONENT = (function ()
     return public;
 })();
 // ---------------------
-var ASPAX = (function ()
+let ASPAX = (function ()
 {
-    var public = {};
+    let public = {};
 
     public.create = function aspax_create(x, y)
     {
-        var entity = Nano.createEntity();
+        let entity = Nano.createEntity();
         entity.
         addComponent(ASCOMPONENT.Id).
         addComponent(ASCOMPONENT.Position).
@@ -2972,22 +2972,22 @@ var ASPAX = (function ()
     return public;
 })();
 // ---------------------
-var ASRENDER = (function ()
+let ASRENDER = (function ()
 {
-    var public = {};
+    let public = {};
 
     public.C_FPS = 30;
     public.C_MINLEVEL = 0;
     public.C_MAXLEVEL = 100;
 
-    var m_lastTime = 0;
+    let m_lastTime = 0;
 
-    var m_renderLevel = public.C_MINLEVEL;
+    let m_renderLevel = public.C_MINLEVEL;
 
     public.update = function asrender_update(dt, time)
     {
         m_lastTime = time;
-        var candidates = Nano.queryComponents([
+        let candidates = Nano.queryComponents([
         ASCOMPONENT.Id,
         ASCOMPONENT.Position,
         ASCOMPONENT.Renderable]);
@@ -3020,11 +3020,11 @@ var ASRENDER = (function ()
     return public;
 })();
 // --------------------
-var ASRANDOMMOVE = (function ()
+let ASRANDOMMOVE = (function ()
 {
-    var public = {};
+    let public = {};
 
-    var m_lastTime = 0;
+    let m_lastTime = 0;
 
     public.update = function asrandommove_update(dt, time)
     {
@@ -3033,9 +3033,9 @@ var ASRANDOMMOVE = (function ()
             //return;
         }
         m_lastTime = time;
-        var ut = 1000 / 60;
+        let ut = 1000 / 60;
 
-        var candidates = Nano.queryComponents([
+        let candidates = Nano.queryComponents([
         ASCOMPONENT.Position, ]);
         candidates.forEach(function (entity)
         {
@@ -3049,36 +3049,36 @@ var ASRANDOMMOVE = (function ()
 // ---------------------
 function pfTest(IPF, s)
 {
-    var grid = new IPF.Grid(s, s);
+    let grid = new IPF.Grid(s, s);
     pfFormatTestGrid(grid, s, s);
-    var jpf = new IPF.JumpPointFinder();
-    var path = jpf.findPath(0, 0, s - 10, 0, grid);
+    let jpf = new IPF.JumpPointFinder();
+    let path = jpf.findPath(0, 0, s - 10, 0, grid);
 
     //console.log(path);
 }
 
 function BenchhState()
 {
-    var suite = new Benchmark.Suite;
-    var s = 400;
+    let suite = new Benchmark.Suite;
+    let s = 400;
 
-    var pgrid = new PF.Grid(s, s);
+    let pgrid = new PF.Grid(s, s);
     pfFormatTestGrid(pgrid, s, s);
-    var pjpf = new PF.JumpPointFinder();
+    let pjpf = new PF.JumpPointFinder();
 
-    var agrid = new ASPF.Grid(s, s);
+    let agrid = new ASPF.Grid(s, s);
     pfFormatTestGrid(agrid, s, s);
-    var ajpf = new ASPF.JumpPointFinder();
+    let ajpf = new ASPF.JumpPointFinder();
 
     // add tests
     suite.add('PF', function ()
     {
-        var grid = pgrid.clone();
-        var path = pjpf.findPath(0, 0, s - 10, s - 10, grid);
+        let grid = pgrid.clone();
+        let path = pjpf.findPath(0, 0, s - 10, s - 10, grid);
     })
         .add('ASPF', function ()
     {
-        var path = ajpf.findPath(0, 0, s - 10, s - 10, agrid);
+        let path = ajpf.findPath(0, 0, s - 10, s - 10, agrid);
     })
     // add listeners
     .on('cycle', function (event)
@@ -3102,19 +3102,19 @@ function BenchhState()
 
 function BenchState()
 {
-    var w = 200;
-    var h = 275;
-    var grid = new ASPF.Grid(w, h);
+    let w = 200;
+    let h = 275;
+    let grid = new ASPF.Grid(w, h);
     pfFormatTestGrid(grid, w, h);
     ASPIXIRENDER.drawGrid(grid, w, h);
-    //var ajpf = new ASPF.JumpPointFinder();
+    //let ajpf = new ASPF.JumpPointFinder();
     //ajpf.findPath(0, 0, 290, 290, grid);
     //console.log(ajpf.findPath(0, 0, 7, 0, grid));
     //console.log('end');
     g_state = WaitingState;
 }
 
-var Heap, defaultCmp, floor, heapify, heappop, heappush, heappushpop, heapreplace, insort, min, nlargest, nsmallest, updateItem, _siftdown, _siftup;
+let Heap, defaultCmp, floor, heapify, heappop, heappush, heappushpop, heapreplace, insort, min, nlargest, nsmallest, updateItem, _siftdown, _siftup;
 
 floor = Math.floor, min = Math.min;
 
@@ -3148,7 +3148,7 @@ defaultCmp = function (x, y)
 
 insort = function (a, x, lo, hi, cmp)
 {
-    var mid;
+    let mid;
     if (lo == null)
     {
         lo = 0;
@@ -3202,7 +3202,7 @@ heappush = function (array, item, cmp)
 
 heappop = function (array, cmp)
 {
-    var lastelt, returnitem;
+    let lastelt, returnitem;
     if (cmp == null)
     {
         cmp = defaultCmp;
@@ -3235,7 +3235,7 @@ heappop = function (array, cmp)
 
 heapreplace = function (array, item, cmp)
 {
-    var returnitem;
+    let returnitem;
     if (cmp == null)
     {
         cmp = defaultCmp;
@@ -3253,7 +3253,7 @@ heapreplace = function (array, item, cmp)
 
 heappushpop = function (array, item, cmp)
 {
-    var _ref;
+    let _ref;
     if (cmp == null)
     {
         cmp = defaultCmp;
@@ -3273,7 +3273,7 @@ heappushpop = function (array, item, cmp)
 
 heapify = function (array, cmp)
 {
-    var i, _i, _j, _len, _ref, _ref1, _results, _results1;
+    let i, _i, _j, _len, _ref, _ref1, _results, _results1;
     if (cmp == null)
     {
         cmp = defaultCmp;
@@ -3281,7 +3281,7 @@ heapify = function (array, cmp)
     _ref1 = (function ()
     {
         _results1 = [];
-        for (var _j = 0, _ref = floor(array.length / 2); 0 <= _ref ? _j < _ref : _j > _ref; 0 <= _ref ? _j++ : _j--)
+        for (let _j = 0, _ref = floor(array.length / 2); 0 <= _ref ? _j < _ref : _j > _ref; 0 <= _ref ? _j++ : _j--)
         {
             _results1.push(_j);
         }
@@ -3304,7 +3304,7 @@ heapify = function (array, cmp)
 
 updateItem = function (array, item, cmp)
 {
-    var pos;
+    let pos;
     if (cmp == null)
     {
         cmp = defaultCmp;
@@ -3325,7 +3325,7 @@ updateItem = function (array, item, cmp)
 
 nlargest = function (array, n, cmp)
 {
-    var elem, result, _i, _len, _ref;
+    let elem, result, _i, _len, _ref;
     if (cmp == null)
     {
         cmp = defaultCmp;
@@ -3352,7 +3352,7 @@ nlargest = function (array, n, cmp)
 
 nsmallest = function (array, n, cmp)
 {
-    var elem, i, los, result, _i, _j, _len, _ref, _ref1, _results;
+    let elem, i, los, result, _i, _j, _len, _ref, _ref1, _results;
     if (cmp == null)
     {
         cmp = defaultCmp;
@@ -3389,7 +3389,7 @@ nsmallest = function (array, n, cmp)
 
 _siftdown = function (array, startpos, pos, cmp)
 {
-    var newitem, parent, parentpos;
+    let newitem, parent, parentpos;
     if (cmp == null)
     {
         cmp = defaultCmp;
@@ -3412,7 +3412,7 @@ _siftdown = function (array, startpos, pos, cmp)
 
 _siftup = function (array, pos, cmp)
 {
-    var childpos, endpos, newitem, rightpos, startpos;
+    let childpos, endpos, newitem, rightpos, startpos;
     if (cmp == null)
     {
         cmp = defaultCmp;
@@ -3518,7 +3518,7 @@ Heap = (function ()
 
     Heap.prototype.clone = function ()
     {
-        var heap;
+        let heap;
         heap = new Heap(this.grid);
         heap.nodes = this.nodes.slice(0);
         return heap;
@@ -3543,9 +3543,9 @@ Heap = (function ()
 
 })();
 
-var ASPF = (function ()
+let ASPF = (function ()
 {
-    var public = {};
+    let public = {};
 
     // DiagonalMovement.js
     public.DiagonalMovement =
@@ -3590,7 +3590,7 @@ var ASPF = (function ()
          */
         octile: function (dx, dy)
         {
-            var F = Math.SQRT2 - 1;
+            let F = Math.SQRT2 - 1;
             return (dx < dy) ? F * dx + dy : F * dy + dx;
         },
 
@@ -3612,7 +3612,7 @@ var ASPF = (function ()
     {
         backtrace: function backtrace(node, grid)
         {
-            var path = [
+            let path = [
                 [grid.nodes.x[node], grid.nodes.y[node]]
             ];
             while (typeof grid.nodes.parent[node] !== 'undefined')
@@ -3625,7 +3625,7 @@ var ASPF = (function ()
 
         interpolate: function interpolate(x0, y0, x1, y1)
         {
-            var abs = Math.abs,
+            let abs = Math.abs,
                 line = [],
                 sx, sy, dx, dy, err, e2;
 
@@ -3664,7 +3664,7 @@ var ASPF = (function ()
 
         expandPath: function expandPath(path)
         {
-            var expanded = [],
+            let expanded = [],
                 len = path.length,
                 coord0, coord1,
                 interpolated,
@@ -3697,7 +3697,7 @@ var ASPF = (function ()
     // Grid.js
     public.Grid = function Grid(width_or_matrix, height, matrix)
     {
-        var width;
+        let width;
 
         if (typeof width_or_matrix !== 'object')
         {
@@ -3729,7 +3729,7 @@ var ASPF = (function ()
 
     public.Grid.prototype._buildNodes = function (width, height, matrix)
     {
-        var i, j,
+        let i, j,
         nodes = {};
 
         nodes.x = new Array(height * width);
@@ -3794,7 +3794,7 @@ var ASPF = (function ()
 
     public.Grid.prototype.getNeighbors = function (node, diagonalMovement)
     {
-        var x = this.nodes.x[node],
+        let x = this.nodes.x[node],
             y = this.nodes.y[node],
             neighbors = [],
             s0 = false,
@@ -3889,7 +3889,7 @@ var ASPF = (function ()
 
     public.Grid.prototype.clone = function ()
     {
-        var i, j,
+        let i, j,
         width = this.width,
             height = this.height,
             thisNodes = this.nodes,
@@ -3938,7 +3938,7 @@ var ASPF = (function ()
 
     public.JumpPointFinderBase.prototype.findPath = function (startX, startY, endX, endY, grid)
     {
-        var openList = this.openList = new Heap(grid, function heapCmp(nodeA, nodeB)
+        let openList = this.openList = new Heap(grid, function heapCmp(nodeA, nodeB)
         {
             return grid.nodes.f[nodeA] - grid.nodes.f[nodeB];
         }),
@@ -3948,8 +3948,8 @@ var ASPF = (function ()
 
         this.grid = grid;
 
-        var size = grid.width * grid.height;
-        var nodes = grid.nodes;
+        let size = grid.width * grid.height;
+        let nodes = grid.nodes;
         nodes.g = {};
         nodes.f = {};
         nodes.h = {};
@@ -3986,7 +3986,7 @@ var ASPF = (function ()
 
     public.JumpPointFinderBase.prototype._identifySuccessors = function (node)
     {
-        var grid = this.grid,
+        let grid = this.grid,
             heuristic = this.heuristic,
             openList = this.openList,
             endX = this.grid.nodes.x[this.endNode],
@@ -4052,7 +4052,7 @@ var ASPF = (function ()
 
     public.JPFMoveDiagonallyIfAtMostOneObstacle.prototype._jump = function (x, y, px, py)
     {
-        var grid = this.grid,
+        let grid = this.grid,
             dx = x - px,
             dy = y - py;
 
@@ -4118,7 +4118,7 @@ var ASPF = (function ()
 
     public.JPFMoveDiagonallyIfAtMostOneObstacle.prototype._findNeighbors = function (node)
     {
-        var parent = this.grid.nodes.parent[node],
+        let parent = this.grid.nodes.parent[node],
             x = this.grid.nodes.x[node],
             y = this.grid.nodes.y[node],
             grid = this.grid,

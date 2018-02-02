@@ -2,6 +2,8 @@ let Nano = require('nano-ecs')();
 let PF = require('pathfinding');
 let Benchmark = require('benchmark');
 
+'use strict';
+
 (function ()
 {
     let exLog = console.log;
@@ -397,7 +399,7 @@ let ASMAPUI = (function ()
         m_currentViewId = ASZONE.viewTile[0];
         m_currentZoneId = ASZONE.zoneTile[0];
         m_currentRoadId = ASROAD.getRoadTile()[0];
-        m_currentSaveId = ASZONE.saveTile[0];
+        m_currentSaveId = ASZONE.esaveTile[0];
         
         public.resize();
     }

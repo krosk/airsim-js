@@ -747,14 +747,6 @@ var ASSTATE = (function()
     {
         m_tableSizeX = tableSizeX;
         m_tableSizeY = tableSizeY;
-        for (var x = 0; x < m_tableSizeX; x++)
-        {
-            for (var y = 0; y < m_tableSizeY; y++)
-            {
-                var index = public.getIndex(x, y);
-                //m_dataState[index] = [];
-            }
-        }
     }
     
     public.getTableSizeX = function asstate_getTableSizeX()
@@ -787,10 +779,7 @@ var ASZONE = (function ()
 {
     var public = {};
     
-    public.getName = function aszone_getName()
-    {
-        return 'aszone';
-    }
+    public.C_NAME = 'aszone';
     
     public.C_TILEENUM = {
         NONE: 0,
@@ -801,10 +790,11 @@ var ASZONE = (function ()
         COMLOW: 20,
         INDLOW: 30
     }
+    const C_TILEENUM = public.C_TILEENUM;
     
     public.initializeTexture = function aszone_initializeTexture()
     {
-        var values = Object.values(public.C_TILEENUM);
+        var values = Object.values(C_TILEENUM);
         for (var i in values)
         {
             var id = values[i] | 0;
@@ -817,7 +807,7 @@ var ASZONE = (function ()
     
     public.getTileTextureName = function aszone_getTileTextureName(tileId)
     {
-        return "aszone-" + tileId;
+        return public.C_NAME + tileId;
     }
     
     var getColor = function aszone_getColor(r, g, b)
@@ -827,24 +817,24 @@ var ASZONE = (function ()
     
     var getCityColor = function aszone_getCityColor(n)
     {
-        var type = public.C_TILEENUM;
-        if (n == type.DIRT)
+        const C = C_TILEENUM;
+        if (n == C.DIRT)
         {
             return getColor(121, 85, 72); // dirt
         }
-        else if (n == type.ROAD)
+        else if (n == C.ROAD)
         {
             return getColor(158, 158, 158); // road
         }
-        else if (n == type.RESLOW)
+        else if (n == C.RESLOW)
         {
             return getColor(76, 175, 80); // r
         }
-        else if (n == type.COMLOW)
+        else if (n == C.COMLOW)
         {
             return getColor(33, 150, 243); // c
         }
-        else if (n == type.INDLOW)
+        else if (n == C.INDLOW)
         {
             return getColor(255, 235, 59); // i
         }
@@ -853,20 +843,20 @@ var ASZONE = (function ()
     
     var getCityTextureHeight = function aszone_getCityTextureHeight(n)
     {
-        var type = public.C_TILEENUM;
-        if (n == type.ROAD)
+        const C = C_TILEENUM;
+        if (n == C.ROAD)
         {
             return 6;
         }
-        else if (n == type.RESLOW)
+        else if (n == C.RESLOW)
         {
             return 9; // r
         }
-        else if (n == type.COMLOW)
+        else if (n == C.COMLOW)
         {
             return 12; // c
         }
-        else if (n == type.INDLOW)
+        else if (n == C.INDLOW)
         {
             return 15; // i
         }
@@ -888,7 +878,7 @@ var ASZONE = (function ()
     
     public.getZoneTile = function aszone_getZoneTile()
     {
-        var C = public.C_TILEENUM;
+        var C = C_TILEENUM;
         return [
             C.DIRT, C.ROAD, 
             C.RESLOW, C.COMLOW, C.INDLOW
@@ -897,7 +887,7 @@ var ASZONE = (function ()
     
     public.getViewTile = function aszone_getViewTile()
     {
-        var C = public.C_TILEENUM;
+        var C = C_TILEENUM;
         return [
             C.RESLOW, C.ROAD, C.COMLOW
         ];
@@ -905,7 +895,7 @@ var ASZONE = (function ()
     
     public.getSaveTile = function aszone_getSaveTile()
     {
-        var C = public.C_TILEENUM;
+        var C = C_TILEENUM;
         return [
             C.COMLOW, C.RESLOW
         ];
@@ -913,7 +903,7 @@ var ASZONE = (function ()
     
     var isValidZone = function aszone_isValidZone(id)
     {
-        var index = Object.values(public.C_TILEENUM).indexOf(id);
+        var index = Object.values(C_TILEENUM).indexOf(id);
         return index > -1;
     }
     
@@ -926,7 +916,7 @@ var ASZONE = (function ()
         {
             for (var y = 0; y < tableSizeY; y++)
             {
-                var defaultId = public.C_TILEENUM.DEFAULT;
+                var defaultId = C_TILEENUM.DEFAULT;
                 public.setZone(x, y, defaultId);
             }
         }
@@ -951,7 +941,7 @@ var ASZONE = (function ()
         }
         const index = setDataId(x, y, zone);
         // update other systems
-        if (zone == public.C_TILEENUM.ROAD)
+        if (zone == C_TILEENUM.ROAD)
         {
             ASROAD.addRoad(x, y);
         }
@@ -968,10 +958,7 @@ var ASROAD = (function ()
 {
     var public = {};
     
-    public.getName = function asroad_getName()
-    {
-        return 'asroad';
-    }
+    public.C_NAME = 'asroad';
     
     // connected: [] cantor index
     // congestion: 1 = free, 0 = locked
@@ -988,7 +975,7 @@ var ASROAD = (function ()
     const C_YOFFSET = [0, 1, 0, -1];
     const C_FROM = [2, 3, 0, 1];
     
-    public.C_TILEENUM = {
+    const C_TILEENUM = {
         NONE: 100,
         LOW: 101,
         MID: 102,
@@ -997,7 +984,7 @@ var ASROAD = (function ()
     
     public.initializeTexture = function asroad_initializeTexture()
     {
-        var values = Object.values(public.C_TILEENUM);
+        var values = Object.values(C_TILEENUM);
         for (var i in values)
         {
             var id = values[i] | 0;
@@ -1010,7 +997,7 @@ var ASROAD = (function ()
     
     public.getTileTextureName = function asroad_getTileTextureName(tileId)
     {
-        return "asroad-" + tileId;
+        return public.C_NAME + tileId;
     }
     
     var getColor = function asroad_getColor(r, g, b)
@@ -1020,7 +1007,7 @@ var ASROAD = (function ()
     
     var getTrafficColor = function asroad_getTrafficColor(n)
     {
-        var type = public.C_TILEENUM;
+        var type = C_TILEENUM;
         if (n == type.LOW)
         {
             return getColor(76, 175, 80);
@@ -1056,7 +1043,7 @@ var ASROAD = (function ()
     
     public.getRoadTile = function asroad_getRoadTile()
     {
-        var C = public.C_TILEENUM;
+        var C = C_TILEENUM;
         return [
             C.LOW, C.MID, C.HIG, C.NONE
         ];
@@ -1083,19 +1070,19 @@ var ASROAD = (function ()
         var value = hasRoad(index) ? ASSTATE.getDataRoadAtIndex(index).congestion : 0;
         if (value > 60)
         {
-            return public.C_TILEENUM.HIG;
+            return C_TILEENUM.HIG;
         }
         else if (value > 30)
         {
-            return public.C_TILEENUM.MID;
+            return C_TILEENUM.MID;
         }
         else if (value > 0)
         {
-        	return public.C_TILEENUM.LOW;
+        	return C_TILEENUM.LOW;
         }
         else
         {
-        	return public.C_TILEENUM.NONE;
+        	return C_TILEENUM.NONE;
         }
     }
     
@@ -1104,19 +1091,19 @@ var ASROAD = (function ()
         var value = hasRoad(index) ? ASSTATE.getDataRoadAtIndex(index).debug : 0;
         if (value >= 103)
         {
-            return public.C_TILEENUM.HIG; // in queue and processed
+            return C_TILEENUM.HIG; // in queue and processed
         }
         else if (value >= 102)
         {
-            return public.C_TILEENUM.MID; // current
+            return C_TILEENUM.MID; // current
         }
         else if (value >= 101)
         {
-        	return public.C_TILEENUM.LOW; // in queue
+        	return C_TILEENUM.LOW; // in queue
         }
         else if (value >= 0)
         {
-        	return public.C_TILEENUM.NONE; // unexplored
+        	return C_TILEENUM.NONE; // unexplored
         }
         else
         {
@@ -1147,7 +1134,7 @@ var ASROAD = (function ()
             connectTo : [,,,],
             congestion : 1,
             speed : 10,
-            debug : public.C_TILEENUM.LOW
+            debug : C_TILEENUM.LOW
         };
 
         return road;
@@ -1333,7 +1320,7 @@ var ASROAD = (function ()
         return data;
     }
     
-    var C_TR = {
+    const C_TR = {
         FROM: 3,
         TO: 4,
         COST: 5,
@@ -1504,11 +1491,6 @@ var ASRICO = (function ()
 {
     var public = {};
     
-    public.getName = function asrico_getName()
-    {
-        return 'asrico';
-    }
-    
     return public;
 })();
 
@@ -1533,7 +1515,7 @@ var MMAPDATA = (function ()
     {
         m_dataLibrary = dataLibrary;
         public.refreshAllTiles();
-        //console.log("switch to " + m_dataLibrary.getName());
+        //console.log("switch to " + m_dataLibrary.C_NAME);
     }
     public.getMapTableSizeX = function mmapdata_getMapTableSizeX()
     {
@@ -1606,7 +1588,7 @@ var MMAPDATA = (function ()
         var id = m_dataLibrary.getDataId(tileX, tileY); //getMapTableData()[index];
         if (typeof id === 'undefined')
         {
-            throw 'mmapData get uninitialized ' + id + ' ' + m_dataLibrary.getName();
+            throw 'mmapData get uninitialized ' + id + ' ' + m_dataLibrary.C_NAME;
         }
         return id;
     }

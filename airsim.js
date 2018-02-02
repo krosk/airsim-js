@@ -996,7 +996,7 @@ let ASROAD = (function ()
     const C_TRAFFICCOLOR = {
         [C.NONE] : getColor(255, 255, 255),
         [C.LOW] : getColor(76, 175, 80),
-        [C.MID] : getColor(25, 235, 59),
+        [C.MID] : getColor(255, 235, 59),
         [C.HIG] : getColor(255, 50, 50)
     };
     

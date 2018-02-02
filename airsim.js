@@ -975,12 +975,13 @@ var ASROAD = (function ()
     const C_YOFFSET = [0, 1, 0, -1];
     const C_FROM = [2, 3, 0, 1];
     
-    const C_TILEENUM = {
+    public.C_TILEENUM = {
         NONE: 100,
         LOW: 101,
         MID: 102,
         HIG: 103
     }
+    const C_TILEENUM = public.C_TILEENUM;
     
     public.initializeTexture = function asroad_initializeTexture()
     {
@@ -1466,11 +1467,11 @@ var ASROAD = (function ()
             {
                 var from = getTraversalFrom(data, i);
                 var to = getTraversalTo(data, i);
-                ASSTATE.getDataRoadAtIndex(from).debug = public.C_TILEENUM.LOW;
-                AASTATE.getDataRoadAtIndex(to).debug = public.C_TILEENUM.LOW;
+                ASSTATE.getDataRoadAtIndex(from).debug = C_TILEENUM.LOW;
+                ASSTATE.getDataRoadAtIndex(to).debug = C_TILEENUM.LOW;
             }
             var fromStart = getTraversalStart(data);
-            ASSTATE.getDataRoadByIndex(fromStart).debug = public.C_TILEENUM.LOW;
+            ASSTATE.getDataRoadAtIndex(fromStart).debug = C_TILEENUM.LOW;
         }
         delete data;
     }

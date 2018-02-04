@@ -4,6 +4,8 @@ let Benchmark = require('benchmark');
 
 'use strict';
 
+const G_CHECK = false;
+
 (function ()
 {
     let exLog = console.log;
@@ -713,7 +715,8 @@ let ASSTATE = (function()
     
     const C = {
         ZONE : 0,
-        ROAD : 1
+        ROAD : 1,
+        ROAD_CONGESTION : 2
     }
     
     public.getIndex = function asstate_getIndex(x, y)
@@ -728,30 +731,55 @@ let ASSTATE = (function()
         return [(index / m_tableSizeY) | 0, index % m_tableSizeY];
     }
     
+    let r = function r(index, subIndex)
+    {
+        if (G_CHECK && (typeof m_dataState[index] === 'undefined' || m_dataState[index] == null))
+        {
+            throw ('error accessing dataState at ' + index + ' ' + subIndex);
+            return;
+        }
+        return m_dataState[index][subIndex];
+    }
+    
+    let w = function w(index, field, data)
+    {
+        if (G_CHECK && (typeof m_dataState[index] === 'undefined' || m_dataState[index] == null))
+        {
+            throw ('error accessing dataState at ' + index + ' ' + field);
+            return;
+        }
+        m_dataState[index][field] = data;
+    }
+    
     public.getDataZoneAtIndex = function asstate_getDataZoneAtIndex(index)
     {
         //return m_zoneState[index];
-        return m_dataState[index][C.ZONE];
+        return r(index, C.ZONE);
     }
     
     public.setDataZoneAtIndex = function asstate_setDataZoneAtIndex(index, data)
     {
-        m_dataState[index][C.ZONE] = data;
+        w(index, C.ZONE, data);
     }
     
     public.getDataRoadAtIndex = function asstate_getDataRoadAtIndex(index)
     {
-        if (typeof m_dataState[index] === 'undefined' || m_dataState[index] == null)
-        {
-            console.log('getDataRoadAtIndex error dataState at ' + index);
-            return;
-        }
-        return m_dataState[index][C.ROAD];
+        return r(index, C.ROAD);
     }
     
     public.setDataRoadAtIndex = function asstate_setDataRoadAtIndex(index, data)
     {
-        m_dataState[index][C.ROAD] = data;
+        w(index, C.ROAD, data);
+    }
+    
+    public.getDataRoadCongestionAtIndex = function asstate_getDataRoadCongestionAtIndex(index)
+    {
+        return r(index, C.CONGESTION);
+    }
+    
+    public.setDataRoadCongestionAtIndex = function asstate_getDataRoadCongestionAtIndex(index, data)
+    {
+        w(index, C.CONGESTION, data);
     }
     
     let m_tableSizeX = 0;
@@ -2103,7 +2131,7 @@ let MMAPTOUCH = (function ()
     // 
     let m_clickTimeout = false;
     let m_clickCount = 0;
-    let C_CLICKDELAYMS = 200;
+    const C_CLICKDELAYMS = 200;
 
     let getDistanceBetween = function mmaptouch_getDistanceBetween(pos1, pos2)
     {

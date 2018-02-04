@@ -307,8 +307,114 @@ The junction becomes a consumer that has demand,
 and must be processed as such by exploring the
 network and add back congestion to the roads.
 
+How to describe demand/capacity on a junction?
+A road is ultimately a provider first:
+The provision unit is as such:
+- type: rico
+- free capacity to provide
+- cost of provision (function of congestion)
+- region id
+- building location x y
+A road should be able to host many provision
+units, especially junctions.
+A road is next a consumer:
+The consumption scheme is more tied to a
+building instead of a road.
+- type: rico
+- demand unit
+- region id
+- building location
+
+One could make a provider table and a consumer
+table, in the fashion of entity component system
+A road holds a list of indices to buildings.
+These indices to buildings are used both for
+the provider and the consumer.
+A building is also connected to a road,
+possibly.
+Add a road, then a building?
+Road will attempt to connect, fail because none,
+then the building will attempt and succeed.
+A road has a list of connected positions on map?
+Or it is a cache of the value?
+
+Or, a zone table, and an id table. The id
+is a entity. A provider component, a consumer
+component, and other things components.
+ECS may have poor performance though? Not
+necessarily. At least it is similar to the
+road network
+
+An alternative would be to build roads first,
+then zones after. This way the zone is tied
+to the road? 
 
 
+Can this scheme be performed at smaller level?
+For example, a sub unit is 32*32.
+
+
+Interesting bit on memory
+https://stackoverflow.com/questions/45803829/memory-overhead-of-typed-arrays-vs-strings
+That says typed array have quite some overhead
+compared to strings.
+
+Saving
+Can use localstorage.setItem('key','content')
+with content being string. It requires using
+serializable objects...
+Either each module writes its separate object
+with a key (ex ASZONE_ID, ASROAD_id), or
+write one big object that holds all necessary
+state and break it down further the line.
+
+After some reading, the complexity of a system
+depends on the reading pattern.
+The likely reading pattern are:
+- roads read other roads and properties on that
+road (demand, unit, etc)
+- view reading that is about display of tiles
+
+Most evolution of the system will happen locally
+over roads so a game state is better constructed 
+from one master structure for each tile, or road 
+tile and eventually more advanced structures 
+elsewhere in needed.
+Only the display part will not be able to be
+memory efficient.
+
+The structure may be
+x
+y
+display tile
+road or not road
+debug
+electricity provision + / consumption -
+water provision + / consumption -
+rico provision + / consumption -
+pollution
+if not road
+  x road
+  y road
+if road
+  congestion
+  speed
+  connectup
+  connectdown
+  connectleft
+  connectright
+  list of connected buildings?
+
+The game state will be a hash of those, or a
+array. Modules such as aszone and asroad don't
+hold data themselves, but work on this master
+game state. This master game state is what is
+saved. The data layer is retrieved from this
+master structure.
+This however will require indexing to be
+the same for all modules. Either its initialized
+with a table size x/y to allow compact indexing
+or just using a hash table.
 
 Resolving a building works as such:
 If residential

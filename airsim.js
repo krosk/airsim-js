@@ -125,9 +125,13 @@ function OnReady()
 
     document.body.appendChild(g_stats.domElement);
 
+    /*
     PIXI.loader.add("img/cityTiles_sheet.json")
         .on("progress", LoaderProgressHandler)
         .load(LoaderSetup);
+    */
+    
+    g_state = StartState;
 
     window.onresize = Resize;
     Resize();
@@ -2525,12 +2529,13 @@ let MMAPRENDER = (function ()
         let tileY = getCenterTileY();
         let cameraScale = (m_cameraScaleX * 100) | 0;
         
-        let memUsage = 'o(' + performance.memory.usedJSHeapSize / 1000 + ')';
+        let cache = 'c(' + Object.keys(PIXI.utils.TextureCache).length + ') ';
+        let memUsage = 'o(' + performance.memory.usedJSHeapSize / 1000 + ') ';
         let mapCoords = 'm(' + (m_cameraMapX | 0) + ',' + (m_cameraMapY | 0) + ',' + cameraScale + ') ';
         let tileCoords = 't(' + tileX + ',' + tileY + ') ';
         let batchCoords = 'b(' + MMAPBATCH.getTileXToBatchX(tileX) + ',' + MMAPBATCH.getTileYToBatchY(tileY) + ') ';
         let batchCount = 'B(' + MMAPBATCH.getBatchCount() + '+' + MMAPBATCH.getBatchPoolCount() + '/' + MMAPBATCH.getBatchTotalCount() + ') ';
-        g_counter.innerHTML = mapCoords + tileCoords + batchCount + memUsage;
+        g_counter.innerHTML = mapCoords + tileCoords + batchCount + memUsage + cache;
     }
 
     public.setCameraScale = function mmaprender_setCameraScale(scaleX, scaleY)

@@ -4,7 +4,7 @@ let Benchmark = require('benchmark');
 
 'use strict';
 
-const G_CHECK = false;
+const G_CHECK = true;
 
 (function ()
 {
@@ -223,7 +223,7 @@ function pfFormatTestGrid(grid, w, h)
 function StartState()
 {
     console.log("Start");
-    ASMAP.initialize(256, 256);
+    ASMAP.initialize(8, 8);
     pfFormatTestGrid(ASMAP.Grid, ASMAP.Width, ASMAP.Height);
     for (i = 1; i < 0xFF * 12; i++)
     {
@@ -720,7 +720,9 @@ let ASSTATE = (function()
     const C = {
         ZONE : 0,
         ROAD : 1,
-        ROAD_CONGESTION : 2
+        ROAD_CONGESTION : 2,
+        ROAD_SPEED : 3,
+        ROAD_DEBUG : 4
     }
     
     public.getIndex = function asstate_getIndex(x, y)
@@ -766,24 +768,44 @@ let ASSTATE = (function()
         w(index, C.ZONE, data);
     }
     
-    public.getDataRoadAtIndex = function asstate_getDataRoadAtIndex(index)
+    public.getRoad = function asstate_getRoad(index)
     {
         return r(index, C.ROAD);
     }
     
-    public.setDataRoadAtIndex = function asstate_setDataRoadAtIndex(index, data)
+    public.setRoad = function asstate_setRoad(index, data)
     {
         w(index, C.ROAD, data);
     }
     
-    public.getDataRoadCongestionAtIndex = function asstate_getDataRoadCongestionAtIndex(index)
+    public.getRoadCongestion = function asstate_getRoadCongestion(index)
     {
-        return r(index, C.CONGESTION);
+        return r(index, C.ROAD_CONGESTION);
     }
     
-    public.setDataRoadCongestionAtIndex = function asstate_getDataRoadCongestionAtIndex(index, data)
+    public.setRoadCongestion = function asstate_setRoadCongestion(index, data)
     {
-        w(index, C.CONGESTION, data);
+        w(index, C.ROAD_CONGESTION, data);
+    }
+    
+    public.getRoadSpeed = function asstate_getRoadSpeed(index)
+    {
+        return r(index, C.ROAD_SPEED);
+    }
+    
+    public.setRoadSpeed = function asstate_setRoadSpeed(index, data)
+    {
+        w(index, C.ROAD_SPEED, data);
+    }
+    
+    public.getRoadDebug = function asstate_getRoadDebug(index)
+    {
+        return r(index, C.ROAD_DEBUG);
+    }
+    
+    public.setRoadDebug = function asstate_setRoadDebug(index, data)
+    {
+        w(index, C.ROAD_DEBUG, data);
     }
     
     let m_tableSizeX = 0;
@@ -1075,7 +1097,7 @@ let ASROAD = (function ()
     // for display
     let getDataIdByCongestion = function asroad_getTileByCongestion(index)
     {
-        let value = hasRoad(index) ? ASSTATE.getDataRoadAtIndex(index).congestion : 0;
+        let value = hasRoad(index) ? ASSTATE.getRoadCongestion(index) : 0;
         if (value > 60)
         {
             return C.HIG;
@@ -1096,7 +1118,7 @@ let ASROAD = (function ()
     
     let getDataIdByTraversalState = function asroad_getTileByTraversalState(index)
     {
-        let value = hasRoad(index) ? ASSTATE.getDataRoadAtIndex(index).debug : 0;
+        let value = hasRoad(index) ? ASSTATE.getRoadDebug(index) : 0;
         if (value >= 103)
         {
             return C.HIG; // in queue and processed
@@ -1165,8 +1187,8 @@ let ASROAD = (function ()
         //console.log('connectnode x'+x+'y'+y+'xd'+xd+'yd'+yd);
         if (hasRoad(from) && hasRoad(to))
         {
-            ASSTATE.getDataRoadAtIndex(from).connectTo[d] = to;
-            ASSTATE.getDataRoadAtIndex(to).connectTo[C_FROM[d]] = from;
+            ASSTATE.getRoad(from).connectTo[d] = to;
+            ASSTATE.getRoad(to).connectTo[C_FROM[d]] = from;
         }
     }
     
@@ -1186,11 +1208,11 @@ let ASROAD = (function ()
         let to = ASSTATE.getIndex(xd, yd);
         if (hasRoad(from))
         {
-            delete ASSTATE.getDataRoadAtIndex(from).connectTo[d];
+            delete ASSTATE.getRoad(from).connectTo[d];
         }
         if (hasRoad(to))
         {
-            delete ASSTATE.getDataRoadAtIndex(to).connectTo[C_FROM[d]];
+            delete ASSTATE.getRoad(to).connectTo[C_FROM[d]];
         }
     }
     
@@ -1200,7 +1222,7 @@ let ASROAD = (function ()
         {
             return false;
         }
-        let data = ASSTATE.getDataRoadAtIndex(i);
+        let data = ASSTATE.getRoad(i);
         return !((typeof data === 'undefined') || (data == null));
     }
     
@@ -1210,13 +1232,13 @@ let ASROAD = (function ()
         {
             return -1;
         }
-        let to = ASSTATE.getDataRoadAtIndex(from).connectTo[d];
+        let to = ASSTATE.getRoad(from).connectTo[d];
         if (!hasRoad(to))
         {
             return -1;
         }
         //console.log('isConnectedTo f' + from + 't' + to + 'c' + m_network[from].connectTo);
-        return ASSTATE.getDataRoadAtIndex(from).connectTo[d];
+        return ASSTATE.getRoad(from).connectTo[d];
     }
     
     public.addRoad = function asroad_addRoad(x, y)
@@ -1228,7 +1250,10 @@ let ASROAD = (function ()
         let index = ASSTATE.getIndex(x, y);
         if (!hasRoad(index))
         {
-            ASSTATE.setDataRoadAtIndex(index, setNewRoad());
+            ASSTATE.setRoad(index, setNewRoad());
+            ASSTATE.setRoadCongestion(index, 1);
+            ASSTATE.setRoadSpeed(index, 10);
+            ASSTATE.setRoadDebug(index, C.LOW)
         }
         connectNodes(x, y, C_TO.N);
         connectNodes(x, y, C_TO.E);
@@ -1251,7 +1276,10 @@ let ASROAD = (function ()
         disconnectNodes(x, y, C_TO.E);
         disconnectNodes(x, y, C_TO.S);
         disconnectNodes(x, y, C_TO.W);
-        delete ASSTATE.getDataRoadAtIndex(index);
+        ASSTATE.setRoad(index, );
+        ASSTATE.setRoadCongestion(index, );
+        ASSTATE.setRoadSpeed(index, );
+        ASSTATE.setRoadDebug(index, );
     }
     
     // struct is
@@ -1327,7 +1355,7 @@ let ASROAD = (function ()
             expandTraversal(data, from, isConnectedTo(from, C_TO.E));
             expandTraversal(data, from, isConnectedTo(from, C_TO.S));
             expandTraversal(data, from, isConnectedTo(from, C_TO.W));
-            ASSTATE.getDataRoadAtIndex(from).debug = public.C_TILEENUM.HIG;
+            ASSTATE.setRoadDebug(from, C.HIG);
         }
         return data;
     }
@@ -1346,13 +1374,13 @@ let ASROAD = (function ()
         if (hasRoad(to))
         {
             let index = getTraversalCurrentIndex(data);
-            let congestion = ASSTATE.getDataRoadAtIndex(to).congestion;
+            let congestion = ASSTATE.getRoadCongestion(to);
             if (index >= 0)
             {
                 congestion += getTraversalCost(data, index);
                 //setTraversalProcessed(data, index);
             }
-            ASSTATE.getDataRoadAtIndex(to).debug = public.C_TILEENUM.MID;
+            ASSTATE.setRoadDebug(to, C.MID);
             incrementTraversalEdgeCount(data);
             data.push(from);
             data.push(to);
@@ -1380,8 +1408,6 @@ let ASROAD = (function ()
             let isProcessed = isTraversalProcessed(data, i);
             let from = getTraversalFrom(data, i);
             traversed[from] = 1;
-            //m_network[from].debug = isProcessed ? 2 : 1;
-            //console.log('i' + i + 'c' + localCost + 'p' + isProcessed);
             if (isProcessed == 0 && (minIndex == -1 || localCost < getTraversalCost(data, minIndex)))
             {
                 minIndex = i;
@@ -1408,7 +1434,7 @@ let ASROAD = (function ()
                 throw 'traversal wrong target';
                 return [-1, -1];
             }
-            ASSTATE.getDataRoadAtIndex(to).debug = public.C_TILEENUM.HIG;
+            ASSTATE.setRoadDebug(to, C.HIG);
             expandIfNotTraversed(data, to, C_TO.N);
             expandIfNotTraversed(data, to, C_TO.E);
             expandIfNotTraversed(data, to, C_TO.S);
@@ -1485,17 +1511,17 @@ let ASROAD = (function ()
                 let to = getTraversalTo(data, i);
                 if (hasRoad(from))
                 {
-                    ASSTATE.getDataRoadAtIndex(from).debug = C.LOW;
+                    ASSTATE.setRoadDebug(from, C.LOW);
                 }
                 if (hasRoad(to))
                 {
-                    ASSTATE.getDataRoadAtIndex(to).debug = C.LOW;
+                    ASSTATE.setRoadDebug(to, C.LOW);
                 }
             }
             let fromStart = getTraversalStart(data);
             if (hasRoad(fromStart))
             {
-                ASSTATE.getDataRoadAtIndex(fromStart).debug = C.LOW;
+                ASSTATE.setRoadDebug(fromStart, C.LOW);
             }
         }
         delete data;

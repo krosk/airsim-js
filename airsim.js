@@ -1175,18 +1175,6 @@ let ASROAD = (function ()
         }
     }
     
-    let setNewRoad = function asroad_setNewRoad()
-    {
-        let road = {
-            connectTo : [,,,],
-            congestion : 1,
-            speed : 10,
-            debug : C.LOW
-        };
-
-        return road;
-    }
-    
     let connectNodes = function asroad_connectNodes(x, y, d)
     {
         if (x < 0 || y < 0)
@@ -1205,9 +1193,7 @@ let ASROAD = (function ()
         if (hasRoad(from) && hasRoad(to))
         {
             ASSTATE.setRoadConnectTo(from, d, to);
-            //ASSTATE.getRoad(from).connectTo[d] = to;
             ASSTATE.setRoadConnectTo(to, C_FROM[d], from);
-            //ASSTATE.getRoad(to).connectTo[C_FROM[d]] = from;
         }
     }
     
@@ -1261,7 +1247,6 @@ let ASROAD = (function ()
         }
         //console.log('isConnectedTo f' + from + 't' + to + 'c' + m_network[from].connectTo);
         return to;
-        //return ASSTATE.getRoad(from).connectTo[d];
     }
     
     public.addRoad = function asroad_addRoad(x, y)

@@ -720,9 +720,13 @@ let ASSTATE = (function()
     const C = {
         ZONE : 0,
         ROAD : 1,
-        ROAD_CONGESTION : 2,
-        ROAD_SPEED : 3,
-        ROAD_DEBUG : 4
+        ROAD_CONNECT_N : 2,
+        ROAD_CONNECT_E : 3,
+        ROAD_CONNECT_S : 4,
+        ROAD_CONNECT_W : 5,
+        ROAD_CONGESTION : 6,
+        ROAD_SPEED : 7,
+        ROAD_DEBUG : 8
     }
     
     public.getIndex = function asstate_getIndex(x, y)
@@ -776,6 +780,23 @@ let ASSTATE = (function()
     public.setRoad = function asstate_setRoad(index, data)
     {
         w(index, C.ROAD, data);
+    }
+    
+    const roadConnectToFlag = [
+        C.ROAD_CONNECT_N,
+        C.ROAD_CONNECT_E,
+        C.ROAD_CONNECT_S,
+        C.ROAD_CONNECT_W
+    ];
+    
+    public.getRoadConnectTo = function asstate_getRoadConnectTo(index, d)
+    {
+        return r(index, roadConnectToFlag[d]);
+    }
+    
+    public.setRoadConnectTo = function asstate_setRoadConnectTo(index, d, data)
+    {
+        w(index, roadConnectToFlag[d], data);
     }
     
     public.getRoadCongestion = function asstate_getRoadCongestion(index)
@@ -1187,8 +1208,10 @@ let ASROAD = (function ()
         //console.log('connectnode x'+x+'y'+y+'xd'+xd+'yd'+yd);
         if (hasRoad(from) && hasRoad(to))
         {
-            ASSTATE.getRoad(from).connectTo[d] = to;
-            ASSTATE.getRoad(to).connectTo[C_FROM[d]] = from;
+            ASSTATE.setRoadConnectTo(from, d, to);
+            //ASSTATE.getRoad(from).connectTo[d] = to;
+            ASSTATE.setRoadConnectTo(to, C_FROM[d], from);
+            //ASSTATE.getRoad(to).connectTo[C_FROM[d]] = from;
         }
     }
     
@@ -1208,11 +1231,13 @@ let ASROAD = (function ()
         let to = ASSTATE.getIndex(xd, yd);
         if (hasRoad(from))
         {
-            delete ASSTATE.getRoad(from).connectTo[d];
+            //delete ASSTATE.getRoad(from).connectTo[d];
+            ASSTATE.setRoadConnectTo(from, d, );
         }
         if (hasRoad(to))
         {
-            delete ASSTATE.getRoad(to).connectTo[C_FROM[d]];
+            //delete ASSTATE.getRoad(to).connectTo[C_FROM[d]];
+            ASSTATE.setRoadConnectTo(to, C_FROM[d], );
         }
     }
     
@@ -1232,13 +1257,15 @@ let ASROAD = (function ()
         {
             return -1;
         }
-        let to = ASSTATE.getRoad(from).connectTo[d];
+        //let to = ASSTATE.getRoad(from).connectTo[d];
+        let to = ASSTATE.getRoadConnectTo(from, d);
         if (!hasRoad(to))
         {
             return -1;
         }
         //console.log('isConnectedTo f' + from + 't' + to + 'c' + m_network[from].connectTo);
-        return ASSTATE.getRoad(from).connectTo[d];
+        return to;
+        //return ASSTATE.getRoad(from).connectTo[d];
     }
     
     public.addRoad = function asroad_addRoad(x, y)
@@ -1251,6 +1278,10 @@ let ASROAD = (function ()
         if (!hasRoad(index))
         {
             ASSTATE.setRoad(index, setNewRoad());
+            ASSTATE.setRoadConnectTo(index, C_TO.N, );
+            ASSTATE.setRoadConnectTo(index, C_TO.E, );
+            ASSTATE.setRoadConnectTo(index, C_TO.S, );
+            ASSTATE.setRoadConnectTo(index, C_TO.W, );
             ASSTATE.setRoadCongestion(index, 1);
             ASSTATE.setRoadSpeed(index, 10);
             ASSTATE.setRoadDebug(index, C.LOW)
@@ -1277,6 +1308,10 @@ let ASROAD = (function ()
         disconnectNodes(x, y, C_TO.S);
         disconnectNodes(x, y, C_TO.W);
         ASSTATE.setRoad(index, );
+        ASSTATE.setRoadConnectTo(index, C_TO.N, );
+        ASSTATE.setRoadConnectTo(index, C_TO.E, );
+        ASSTATE.setRoadConnectTo(index, C_TO.S, );
+        ASSTATE.setRoadConnectTo(index, C_TO.W, );
         ASSTATE.setRoadCongestion(index, );
         ASSTATE.setRoadSpeed(index, );
         ASSTATE.setRoadDebug(index, );

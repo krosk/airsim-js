@@ -714,8 +714,6 @@ let ASSTATE = (function()
     let public = {};
     
     let m_dataState = [];
-    let m_zoneState = [];
-    let m_roadState = {};
     
     const C = {
         ZONE : 0,
@@ -857,15 +855,13 @@ let ASSTATE = (function()
     
     public.getSerializable = function asstate_getSerializable()
     {
-        //return JSON.stringify([m_zoneState, m_roadState]);
+        console.log(m_dataState);
         return JSON.stringify(m_dataState);
     }
     
     public.setSerializable = function asstate_setSerializable(string)
     {
         let master = JSON.parse(string);
-        //m_zoneState = master[0];
-        //m_roadState = master[1];
         m_dataState = master;
     }
     
@@ -1277,7 +1273,7 @@ let ASROAD = (function ()
         let index = ASSTATE.getIndex(x, y);
         if (!hasRoad(index))
         {
-            ASSTATE.setRoad(index, setNewRoad());
+            ASSTATE.setRoad(index, 1);
             ASSTATE.setRoadConnectTo(index, C_TO.N, );
             ASSTATE.setRoadConnectTo(index, C_TO.E, );
             ASSTATE.setRoadConnectTo(index, C_TO.S, );

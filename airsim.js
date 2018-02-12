@@ -722,9 +722,9 @@ let ASSTATE = (function()
         ROAD_CONNECT_E : 3,
         ROAD_CONNECT_S : 4,
         ROAD_CONNECT_W : 5,
-        ROAD_CONGESTION : 6,
-        ROAD_SPEED : 7,
-        ROAD_DEBUG : 8
+        ROAD_USED_CAPACITY : 6,
+        ROAD_MAX_CAPACITY : 7,
+        ROAD_DEBUG : 8,
     }
     
     public.getIndex = function asstate_getIndex(x, y)
@@ -797,24 +797,24 @@ let ASSTATE = (function()
         w(index, roadConnectToFlag[d], data);
     }
     
-    public.getRoadCongestion = function asstate_getRoadCongestion(index)
+    public.getRoadUsedCapacity = function asstate_getRoadUsedCapacity(index)
     {
-        return r(index, C.ROAD_CONGESTION);
+        return r(index, C.ROAD_USED_CAPACITY);
     }
     
-    public.setRoadCongestion = function asstate_setRoadCongestion(index, data)
+    public.setRoadUsedCapacity = function asstate_setRoadUsedCapacity(index, data)
     {
-        w(index, C.ROAD_CONGESTION, data);
+        w(index, C.ROAD_USED_CAPACITY, data);
     }
     
-    public.getRoadSpeed = function asstate_getRoadSpeed(index)
+    public.getRoadMaxCapacity = function asstate_getRoadMaxCapacity(index)
     {
-        return r(index, C.ROAD_SPEED);
+        return r(index, C.ROAD_MAX_CAPACITY);
     }
     
-    public.setRoadSpeed = function asstate_setRoadSpeed(index, data)
+    public.setRoadMaxCapacity = function asstate_setRoadMaxCapacoty(index, data)
     {
-        w(index, C.ROAD_SPEED, data);
+        w(index, C.ROAD_MAX_CAPACITY, data);
     }
     
     public.getRoadDebug = function asstate_getRoadDebug(index)
@@ -1019,9 +1019,6 @@ let ASROAD = (function ()
     public.C_NAME = 'asroad';
     
     // connected: [] cantor index
-    // congestion: 1 = free, 0 = locked
-    // max speed: 50
-    // cost = max speed * congestion
     
     const C_TO = {
         N: 0,
@@ -1114,7 +1111,7 @@ let ASROAD = (function ()
     // for display
     let getDataIdByCongestion = function asroad_getTileByCongestion(index)
     {
-        let value = hasRoad(index) ? ASSTATE.getRoadCongestion(index) : 0;
+        let value = hasRoad(index) ? ASSTATE.getRoadUsedCapacity(index) : 0;
         if (value > 60)
         {
             return C.HIG;
@@ -1263,8 +1260,8 @@ let ASROAD = (function ()
             ASSTATE.setRoadConnectTo(index, C_TO.E, );
             ASSTATE.setRoadConnectTo(index, C_TO.S, );
             ASSTATE.setRoadConnectTo(index, C_TO.W, );
-            ASSTATE.setRoadCongestion(index, 1);
-            ASSTATE.setRoadSpeed(index, 10);
+            ASSTATE.setRoadUsedCapacity(index, 1);
+            ASSTATE.setRoadMaxCapacity(index, 10);
             ASSTATE.setRoadDebug(index, C.LOW)
         }
         connectNodes(x, y, C_TO.N);
@@ -1293,8 +1290,8 @@ let ASROAD = (function ()
         ASSTATE.setRoadConnectTo(index, C_TO.E, );
         ASSTATE.setRoadConnectTo(index, C_TO.S, );
         ASSTATE.setRoadConnectTo(index, C_TO.W, );
-        ASSTATE.setRoadCongestion(index, );
-        ASSTATE.setRoadSpeed(index, );
+        ASSTATE.setRoadUsedCapacity(index, );
+        ASSTATE.setRoadMaxCapacity(index, );
         ASSTATE.setRoadDebug(index, );
     }
     
@@ -1390,17 +1387,17 @@ let ASROAD = (function ()
         if (hasRoad(to))
         {
             let index = getTraversalCurrentIndex(data);
-            let congestion = ASSTATE.getRoadCongestion(to);
+            let usedCapacity = ASSTATE.getRoadUsedCapacity(to);
             if (index >= 0)
             {
-                congestion += getTraversalCost(data, index);
+                usedCapacity += getTraversalCost(data, index);
                 //setTraversalProcessed(data, index);
             }
             ASSTATE.setRoadDebug(to, C.MID);
             incrementTraversalEdgeCount(data);
             data.push(from);
             data.push(to);
-            data.push(congestion);
+            data.push(usedCapacity);
             data.push(index);
             data.push(0);
         }

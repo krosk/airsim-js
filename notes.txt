@@ -420,6 +420,115 @@ Resolving a building works as such:
 If residential
   remove all traffic itinerary
   
+New rico idea:
+A building has offer and demand.
+Example:
+Res building offers 6R, demands 3C and 3I.
+Offer is registered at the nearest road.
+The road knows it has 6 free R offer out of 6.
+Upon resolution, building starts at road
+and moves until it finds the 3C and 3I.
+One R fills one C or one I, and adds 
+one unit of congestion.
+
+It could be agent based, where a building does
+not know its agents.
+
+
+Statistics based simulation
+A building offers res and ico. The number
+of rico will affect the traffic in the immediate
+surrounding. The more a road has met demand,
+the more its congestion. Congestion should
+bleed to neighbors. Road networks should
+know their total rico capacity and current use.
+Congestion affects road efficiency, hence reduce
+income. One could see that if a 100 ico demand
+is met, then it bleeds 100 congestion unit
+in the neighbourhood in a gaussian fashion.
+
+The logic is that when there are many people
+wanting to go to a high demand location
+(high ico) then the surrounding area are busier.
+
+This could lack the realism of agent based,
+because in highly specialized districts
+the traffic is supposedly unidirectional,
+but this scheme would spread traffic in
+concentric circles, hence you would have
+two centers of traffic, and nothing in between,
+regardless of the nature of the road between
+the two districts.
+
+Cellular automata like
+Consider the network. Each building has a demand.
+The demand is a dynamic variable that increase
+as time goes, and decrease as cars reach it.
+The demand has a maximum value, and cannot
+increase over it. It is demand capacity. The
+demand capacity increases as the building
+grows. The building grows if the demand reaches
+zero for some time (ie it is filled). The
+demand capacity decreases when it reaches its
+capacity for some time. 
+A key factor is the rate at which it decreases.
+It must decrease at the same rate an equivalent
+demand is generated.
+
+Each building has a offer, that depends only
+on its level. Multiple buildings can aggregate
+their offer. The aggregate becomes a car that
+moves in the network and fills the demand.
+Or it could be a car per building.
+This is fine too, that data can be stored
+per building.
+
+Congestion works over time too. When a car moves
+from a road to a road, the congestion increases
+by its remaining demand. This may seem absurd
+because some cars will take a longer road.
+So high density will plug all road capacity
+when it just generates its car. Why not, this
+emulates rush hours.
+How does speed impacts whether a car moves to
+the next or not? Maybe road capacity is a
+sufficient indicator, that is is road has
+available capacity, moves, else wait.
+
+This removes the need of knowing which demand
+ties to which offer. It is even fine if a car
+moves for an undetermined time?
+
+The algorithm works like this.
+
+Resolving a building car is:
+Initialize
+- Generate a car at nearest road
+    set x y
+- Fill it with offer RICO
+- if road capacity is not free
+    skip and wait status
+    end
+- move status
+
+Move
+- remove current car offer from road capacity
+- if neighbour road node has full free capacity
+    set x y to new road node
+  else
+    set x y to current road node
+- fill in building demand with car offer
+- remove filled car offer
+- if car offer is zero
+    wait status
+    end
+- add car offer to current road capacity
+
+Machine state
+waiting status
+  initialize
+move status
+  move
 
 
 

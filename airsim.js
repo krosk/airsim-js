@@ -717,15 +717,29 @@ let ASSTATE = (function()
     
     const C = {
         ZONE : 0,
-        ROAD : 1,
-        ROAD_CONNECT_N : 2,
-        ROAD_CONNECT_E : 3,
-        ROAD_CONNECT_S : 4,
-        ROAD_CONNECT_W : 5,
-        ROAD_USED_CAPACITY : 6,
-        ROAD_MAX_CAPACITY : 7,
-        ROAD_DEBUG : 8,
+        ZONE_TYPE : 1, // 0 none 1 road 2 building
+        ROAD_TYPE : 2,
+        ROAD_CONNECT_N : 3,
+        ROAD_CONNECT_E : 4,
+        ROAD_CONNECT_S : 5,
+        ROAD_CONNECT_W : 6,
+        ROAD_USED_CAPACITY : 7,
+        ROAD_MAX_CAPACITY : 8,
+        ROAD_DEBUG : 9,
+        BUILDING_TYPE : 2,
+        BUILDING_OFFER_STATE: 3,
+        BUILDING_OFFER_X: 4,
+        BUILDING_OFFER_Y: 5,
+        BUILDING_OFFER_R: 6,
+        BUILDING_OFFER_I: 7,
+        BUILDING_OFFER_C: 8,
+        BUILDING_OFFER_O: 9,
+        BUILDING_DEMAND_R : 10,
+        BUILDING_DEMAND_I : 11,
+        BUILDING_DEMAND_C : 12,
+        BUILDING_DEMAND_O : 13
     }
+    public.C_DATA = C;
     
     public.getIndex = function asstate_getIndex(x, y)
     {
@@ -759,6 +773,11 @@ let ASSTATE = (function()
         m_dataState[index][field] = data;
     }
     
+    public.clear = function asstate_clear(index)
+    {
+        m_dataState[index] = [];
+    }
+    
     public.getDataZoneAtIndex = function asstate_getDataZoneAtIndex(index)
     {
         //return m_zoneState[index];
@@ -770,14 +789,34 @@ let ASSTATE = (function()
         w(index, C.ZONE, data);
     }
     
-    public.getRoad = function asstate_getRoad(index)
+    public.getZoneType = function asstate_getZoneType(index)
     {
-        return r(index, C.ROAD);
+        return r(index, C.ZONE_TYPE);
     }
     
-    public.setRoad = function asstate_setRoad(index, data)
+    public.setZoneType = function asstate_setZoneType(index, data)
     {
-        w(index, C.ROAD, data);
+        w(index, C.ZONE_TYPE, data);
+    }
+    
+    public.getRoadType = function asstate_getRoadType(index)
+    {
+        return r(index, C.ROAD_TYPE);
+    }
+    
+    public.setRoadType = function asstate_setRoadType(index, data)
+    {
+        w(index, C.ROAD_TYPE, data);
+    }
+    
+    public.getBuildingType = function asstate_getBuildingType(index)
+    {
+        return r(index, C.BUILDING_TYPE);
+    }
+    
+    public.setBuildingType = function asstate_setBuildingType(index, data)
+    {
+        w(index, C.BUILDING_TYPE, data);
     }
     
     const roadConnectToFlag = [
@@ -827,6 +866,16 @@ let ASSTATE = (function()
         w(index, C.ROAD_DEBUG, data);
     }
     
+    public.getBuildingData = function asstate_getBuildingData(field, index)
+    {
+        return r(index, field);
+    }
+    
+    public.setBuildingData = function asstate_setBuildingData(field, index, data)
+    {
+        w(index, field, data);
+    }
+    
     let m_tableSizeX = 0;
     let m_tableSizeY = 0;
     public.initialize = function asstate_initialize(tableSizeX, tableSizeY)
@@ -838,7 +887,7 @@ let ASSTATE = (function()
             for (let y = 0; y < m_tableSizeY; y++)
             {
                 var index = public.getIndex(x, y);
-                m_dataState[index] = [];
+                public.clear(index);
             }
         }
     }
@@ -874,6 +923,12 @@ let ASZONE = (function ()
     let public = {};
     
     public.C_NAME = 'aszone';
+    
+    public.C_TYPE = {
+        NONE: 0,
+        ROAD: 1,
+        BUILDING: 2
+    }
     
     public.C_TILEENUM = {
         NONE: 0,
@@ -988,6 +1043,7 @@ let ASZONE = (function ()
     let setDataId = function aszone_setDataId(x, y, zone)
     {
         const index = ASSTATE.getIndex(x, y);
+        ASSTATE.clear(index);
         ASSTATE.setDataZoneAtIndex(index, zone);
     }
     //----------------
@@ -997,15 +1053,27 @@ let ASZONE = (function ()
         {
             return;
         }
-        const index = setDataId(x, y, zone);
+        const oldZone = public.getDataId(x, y);
+        if (oldZone != zone)
+        {
+            if (oldZone == C.ROAD)
+            {
+                ASROAD.removeRoad(x, y);
+            }
+            if (oldZone == C.RESLOW)
+            {
+                ASRICO.removeResLow(x, y);
+            }
+        }
+        setDataId(x, y, zone);
         // update other systems
         if (zone == C.ROAD)
         {
             ASROAD.addRoad(x, y);
         }
-        else
+        if (zone == C.RESLOW)
         {
-            ASROAD.removeRoad(x, y);
+            ASRICO.addResLow(x, y);
         }
     }
     
@@ -1226,8 +1294,8 @@ let ASROAD = (function ()
         {
             return false;
         }
-        let data = ASSTATE.getRoad(i);
-        return !((typeof data === 'undefined') || (data == null));
+        let data = ASSTATE.getZoneType(i);
+        return !((typeof data === 'undefined') || (data == null)) && (data == ASZONE.C_TYPE.ROAD);
     }
     
     let isConnectedTo = function asroad_isConnectedTo(from, d)
@@ -1255,7 +1323,8 @@ let ASROAD = (function ()
         let index = ASSTATE.getIndex(x, y);
         if (!hasRoad(index))
         {
-            ASSTATE.setRoad(index, 1);
+            ASSTATE.setZoneType(index, ASZONE.C_TYPE.ROAD);
+            ASSTATE.setRoadType(index, 0);
             ASSTATE.setRoadConnectTo(index, C_TO.N, );
             ASSTATE.setRoadConnectTo(index, C_TO.E, );
             ASSTATE.setRoadConnectTo(index, C_TO.S, );
@@ -1285,14 +1354,6 @@ let ASROAD = (function ()
         disconnectNodes(x, y, C_TO.E);
         disconnectNodes(x, y, C_TO.S);
         disconnectNodes(x, y, C_TO.W);
-        ASSTATE.setRoad(index, );
-        ASSTATE.setRoadConnectTo(index, C_TO.N, );
-        ASSTATE.setRoadConnectTo(index, C_TO.E, );
-        ASSTATE.setRoadConnectTo(index, C_TO.S, );
-        ASSTATE.setRoadConnectTo(index, C_TO.W, );
-        ASSTATE.setRoadUsedCapacity(index, );
-        ASSTATE.setRoadMaxCapacity(index, );
-        ASSTATE.setRoadDebug(index, );
     }
     
     // struct is
@@ -1555,6 +1616,66 @@ let ASROAD = (function ()
 let ASRICO = (function ()
 {
     let public = {};
+    
+    public.C_NAME = 'asrico';
+    
+    public.addResLow = function asrico_addResLow(x, y)
+    {
+        if (x < 0 || y < 0)
+        {
+            return;
+        }
+        let index = ASSTATE.getIndex(x, y);
+        if (!hasBuilding(index))
+        {
+            ASSTATE.setZoneType(index, ASZONE.C_TYPE.BUILDING);
+            ASSTATE.setBuildingType(index, 1);
+            ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_OFFER_STATE, index, 0);
+            ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_OFFER_X, index, 0);
+            ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_OFFER_Y, index, 0);
+            ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_OFFER_R, index, 0);
+            ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_OFFER_I, index, 0);
+            ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_OFFER_C, index, 0);
+            ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_OFFER_O, index, 0);
+            ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_DEMAND_R, index, 0);
+            ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_DEMAND_I, index, 0);
+            ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_DEMAND_C, index, 0);
+            ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_DEMAND_O, index, 0);
+            console.log('addreslow');
+        }
+    }
+    
+    public.removeResLow = function asrico_removeResLow(x, y)
+    {
+        let index = ASSTATE.getIndex(x, y);
+        if (!hasBuilding(index))
+        {
+            return;
+        }
+        console.log('removereslow');
+        return;
+    }
+   
+   public.updateBuilding = function asrico_updateBuilding(x, y)
+   {
+       let index = ASSTATE.getIndex(x, y);
+       if (!hasBuilding(index))
+       {
+           return false;
+       }
+       
+       
+   }
+    
+    let hasBuilding = function asrico_hasBuilding(i)
+    {
+        if (typeof i === 'undefined' || i == null || i < 0)
+        {
+            return false;
+        }
+        let data = ASSTATE.getZoneType(i);
+        return !((typeof data === 'undefined') || (data == null)) && (data == ASZONE.C_TYPE.BUILDING);
+    }
     
     return public;
 })();

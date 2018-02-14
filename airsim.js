@@ -313,6 +313,7 @@ let ASMAP = (function ()
     public.update = function asmap_update(dt, time)
     {
         MMAPRENDER.update(dt, time);
+        ASZONE.update(dt, time);
     }
     
     let doZoneViewSingleClick = function asmap_doZoneViewSingleClick(x, y)
@@ -715,6 +716,7 @@ let ASSTATE = (function()
     
     let m_dataState = [];
     
+    // map structure
     const C = {
         ZONE : 0,
         ZONE_TYPE : 1, // 0 none 1 road 2 building
@@ -1075,6 +1077,11 @@ let ASZONE = (function ()
         {
             ASRICO.addResLow(x, y);
         }
+    }
+    
+    public.update = function aszone_update(dt, time)
+    {
+        
     }
     
     return public;
@@ -1654,6 +1661,92 @@ let ASRICO = (function ()
         }
         console.log('removereslow');
         return;
+    }
+    
+    // from stackoverflow
+    // https://stackoverflow.com/questions/42919469/efficient-way-to-implement-priority-queue-in-javascript
+    {
+	    const top = 0;
+	    const parent = i => ((i + 1) >>> 1) - 1;
+	    const left = i => (i << 1) + 1;
+	    const right = i => (i + 1) << 1;
+	    
+	    class PriorityQueue
+	    {
+	        constructor(comparator = (a, b) => a > b)
+	        {
+	            this._heap = [];
+	            this._comparator = comparator;
+	        }
+	        size()
+	        {
+	            return this._heap.length;
+	        }
+	        isEmpty()
+	        {
+	            return this.size() == 0;
+	        }
+	        peek()
+	        {
+	            return this._heap[top];
+	        }
+	        push(...values)
+	        {
+	            values.forEach(value => {
+	                this._heap.push(value);
+	                this._siftUp();
+	            });
+	            return this.size();
+	        }
+	        pop()
+	        {
+	            const poppedValue = this.peek();
+	            const bottom = this.size() - 1;
+	            if (bottom > top)
+	            {
+	                this._swap(top, bottom);
+	            }
+	            this._heap.pop();
+	            this._siftDown();
+	            return poppedValue;
+	        }
+	        replace(value)
+	        {
+	            const replacedValue = this.peek();
+	            this._heap[top] = value;
+	            this._siftDown();
+	            return replacedValue;
+	        }
+	        _greater(i, j)
+	        {
+	            return this._comparator(this._heap[i], this._heap[j]);
+	        }
+	        _swap(i, j)
+	        {
+	            [this._heap[i], this._heap[j]] = [this._heap[j], this._heap[i]];
+	        }
+	        _siftUp()
+	        {
+	            let node = this.size() - 1;
+	            while (node > top && this._greater(node, parent(node)))
+	            {
+	                this._swap(node, parent(node));
+	                node = parent(node);
+	            }
+	        }
+	        _siftDown()
+	        {
+	            let node = top;
+	            while (
+	                (left(node) < this.size() && this._greater(left(node), node)) ||
+	                (right(node) < this.size() && this._greater(right(node), node))
+	            ) {
+	                let maxChild = (right(node) < this.size() && this._greater(right(node), left(node))) ? right(node) : left(node);
+	                this._swap(node, maxChild);
+	                node = maxChild;
+	            }
+	        }
+	    }
     }
    
    public.updateBuilding = function asrico_updateBuilding(x, y)
@@ -2945,7 +3038,7 @@ let MMAPRENDER = (function ()
     public.C_MINBATCHPERCALL = 1;
     public.C_MAXBATCHPERCALL = 800;
 
-    public.update = function mmaprender_update(dt, tile)
+    public.update = function mmaprender_update(dt, time)
     {
         let updatedTiles = MMAPDATA.commitChangeLog();
         if (updatedTiles.length == 1)

@@ -558,6 +558,24 @@ Number.MAX_SAFE_INTEGER, so there is a check
 to perform here.
 For now, one can just pool over all buildings
 until the tick is reached.
+Pooling experiments on 96x96 work fine, but
+on 128x128 it is at a crawling speed.
+It looks like a critical mass at this threshold.
+Therefore priority queue seems in order,
+or a tick happen over the course of multiple
+frames. The later solution may be complex
+because i have to assess how much time i have
+until the next frame and how much computation
+I can fit in this time frame.
+The systems could work as such:
+All systems that need to be updated are run
+once per loop. If they are ready to go to next
+tick, they return true, else if they have
+remaining tasks they return false. Tick stalls
+until all systems are green.
+They have in input the current tick, and the
+remaining computation time for the current
+frame.
 
 
 Webassembly

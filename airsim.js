@@ -739,20 +739,27 @@ let ASSTATE = (function()
         BUILDING_DEMAND_R : 10,
         BUILDING_DEMAND_I : 11,
         BUILDING_DEMAND_C : 12,
-        BUILDING_DEMAND_O : 13
+        BUILDING_DEMAND_O : 13,
+        BUILDING_TICK_UPDATE : 14,
     }
     public.C_DATA = C;
+    
+    const G = {
+        SIZE_X : 0,
+        SIZE_Y : 1,
+        TICK : 2
+    }
     
     public.getIndex = function asstate_getIndex(x, y)
     {
         //return MUTIL.mathCantor(x, y);
-        return x*m_tableSizeY + y;
+        return x*public.getTableSizeY() + y + 1;
     }
     
     public.getXYFromIndex = function asstate_getXYFromIndex(index)
     {
         //return MUTIL.mathReverseCantorPair(index);
-        return [(index / m_tableSizeY) | 0, index % m_tableSizeY];
+        return [((index - 1) / public.getTableSizeY()) | 0, (index - 1) % public.getTableSizeY()];
     }
     
     let r = function r(index, subIndex)
@@ -782,7 +789,6 @@ let ASSTATE = (function()
     
     public.getDataZoneAtIndex = function asstate_getDataZoneAtIndex(index)
     {
-        //return m_zoneState[index];
         return r(index, C.ZONE);
     }
     
@@ -878,15 +884,24 @@ let ASSTATE = (function()
         w(index, field, data);
     }
     
-    let m_tableSizeX = 0;
-    let m_tableSizeY = 0;
+    public.getTick = function asstate_getTick()
+    {
+        return r(0, G.TICK);
+    }
+    
+    public.setTick = function asstate_setTick(data)
+    {
+        w(0, G.TICK, data);
+    }
+    
     public.initialize = function asstate_initialize(tableSizeX, tableSizeY)
     {
-        m_tableSizeX = tableSizeX;
-        m_tableSizeY = tableSizeY;
-        for (let x = 0; x < m_tableSizeX; x++)
+        public.clear(0);
+        public.setTableSizeX(tableSizeX);
+        public.setTableSizeY(tableSizeY);
+        for (let x = 0; x < tableSizeX; x++)
         {
-            for (let y = 0; y < m_tableSizeY; y++)
+            for (let y = 0; y < tableSizeY; y++)
             {
                 var index = public.getIndex(x, y);
                 public.clear(index);
@@ -896,12 +911,22 @@ let ASSTATE = (function()
     
     public.getTableSizeX = function asstate_getTableSizeX()
     {
-        return m_tableSizeX;
+        return r(0, G.SIZE_X);
+    }
+    
+    public.setTableSizeX = function asstate_setTableSizeX(data)
+    {
+        w(0, G.SIZE_X, data);
     }
     
     public.getTableSizeY = function asstate_getTableSizeY()
     {
-        return m_tableSizeY;
+        return r(0, G.SIZE_Y);
+    }
+    
+    public.setTableSizeY = function asstate_setTableSizeY(data)
+    {
+        w(0, G.SIZE_Y, data);
     }
     
     public.getSerializable = function asstate_getSerializable()
@@ -1648,7 +1673,8 @@ let ASRICO = (function ()
             ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_DEMAND_I, index, 0);
             ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_DEMAND_C, index, 0);
             ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_DEMAND_O, index, 0);
-            console.log('addreslow');
+            ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_TICK_UPDATE, index, 0);
+            //console.log('addreslow');
         }
     }
     
@@ -1659,7 +1685,7 @@ let ASRICO = (function ()
         {
             return;
         }
-        console.log('removereslow');
+        //console.log('removereslow');
         return;
     }
     

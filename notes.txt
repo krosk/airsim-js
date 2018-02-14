@@ -530,6 +530,34 @@ waiting status
 move status
   move
 
+Time
+The system is time driven. It has a queue of
+timestamps, where the next event should happen.
+A building has at max one event in the queue.
+If not using queue, then buildings can be
+pooled, and the event check is happening
+periodically.
+Car movement is defined by road congestion
+and road speed. Next movement happens at a
+timestamp function of the road speed and
+road congestion.
+Car capacity is defined by density.
+Car volume generation is defined by density.
+That is a high density zone will generate
+cars often, a low density zone will generate
+slower.
+If using a queue, then this structure is
+[index, timestamp]. Problem is to keep the
+queue ordered at all times.
+Timestamp is not save/pause friendly, so it may
+be better to use a internal timestamp that is
+incremented when there is a update loop.
+This internal clock must be saved.
+In javascript, max integer is
+Number.MAX_SAFE_INTEGER, so there is a check
+to perform here.
+For now, one can just pool over all buildings
+until the tick is reached.
 
 
 Webassembly

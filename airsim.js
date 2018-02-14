@@ -223,7 +223,7 @@ function pfFormatTestGrid(grid, w, h)
 function StartState()
 {
     console.log("Start");
-    ASMAP.initialize(8, 8);
+    ASMAP.initialize(128, 128);
     pfFormatTestGrid(ASMAP.Grid, ASMAP.Width, ASMAP.Height);
     for (i = 1; i < 0xFF * 12; i++)
     {
@@ -899,6 +899,7 @@ let ASSTATE = (function()
         public.clear(0);
         public.setTableSizeX(tableSizeX);
         public.setTableSizeY(tableSizeY);
+        public.setTick(0);
         for (let x = 0; x < tableSizeX; x++)
         {
             for (let y = 0; y < tableSizeY; y++)
@@ -1106,7 +1107,14 @@ let ASZONE = (function ()
     
     public.update = function aszone_update(dt, time)
     {
-        
+        const tableSizeX = ASSTATE.getTableSizeX();
+        const tableSizeY = ASSTATE.getTableSizeY();
+        const tick = ASSTATE.getTick();
+
+        if (ASRICO.updateRico(tick))
+        {
+            ASSTATE.setTick(tick + 1);
+        }
     }
     
     return public;
@@ -1774,17 +1782,22 @@ let ASRICO = (function ()
 	        }
 	    }
     }
+    
+    public.updateRico = function asrico_updateRico(tick)
+    {
+        return true;
+    }
    
-   public.updateBuilding = function asrico_updateBuilding(x, y)
-   {
-       let index = ASSTATE.getIndex(x, y);
-       if (!hasBuilding(index))
-       {
-           return false;
-       }
-       
-       
-   }
+    public.updateBuilding = function asrico_updateBuilding(x, y)
+    {
+        let index = ASSTATE.getIndex(x, y);
+        if (!hasBuilding(index))
+        {
+            return false;
+        }
+        
+        return true;
+    }
     
     let hasBuilding = function asrico_hasBuilding(i)
     {
@@ -2808,13 +2821,14 @@ let MMAPRENDER = (function ()
         let tileY = getCenterTileY();
         let cameraScale = (m_cameraScaleX * 100) | 0;
         
+        let tickElapsed = 'x(' + ASSTATE.getTick() + ') ';
         let cache = 'c(' + Object.keys(PIXI.utils.TextureCache).length + ') ';
         let memUsage = 'o(' + performance.memory.usedJSHeapSize / 1000 + ') ';
         let mapCoords = 'm(' + (m_cameraMapX | 0) + ',' + (m_cameraMapY | 0) + ',' + cameraScale + ') ';
         let tileCoords = 't(' + tileX + ',' + tileY + ') ';
         let batchCoords = 'b(' + MMAPBATCH.getTileXToBatchX(tileX) + ',' + MMAPBATCH.getTileYToBatchY(tileY) + ') ';
         let batchCount = 'B(' + MMAPBATCH.getBatchCount() + '+' + MMAPBATCH.getBatchPoolCount() + '/' + MMAPBATCH.getBatchTotalCount() + ') ';
-        g_counter.innerHTML = mapCoords + tileCoords + batchCount + memUsage + cache;
+        g_counter.innerHTML = mapCoords + tileCoords + batchCount + memUsage + cache + tickElapsed;
     }
 
     public.setCameraScale = function mmaprender_setCameraScale(scaleX, scaleY)

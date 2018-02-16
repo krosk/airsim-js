@@ -295,6 +295,7 @@ let ASMAP = (function ()
         ASZONE.initialize();
         ASZONE.initializeTexture();
         ASROAD.initializeTexture();
+        ASRICO.initialize();
         MMAPDATA.initialize(w, h, ASZONE);
         MMAPRENDER.initialize(doSingleClick, doDoubleClick);
         ASMAPUI.initialize();
@@ -747,7 +748,8 @@ let ASSTATE = (function()
     const G = {
         SIZE_X : 0,
         SIZE_Y : 1,
-        TICK : 2
+        TICK : 2,
+        RICO_PROGRESS : 3, // progress
     }
     
     public.getIndex = function asstate_getIndex(x, y)
@@ -892,6 +894,16 @@ let ASSTATE = (function()
     public.setTick = function asstate_setTick(data)
     {
         w(0, G.TICK, data);
+    }
+    
+    public.getRicoProgress = function asstate_getRicoProgress()
+    {
+        return r(0, G.RICO_PROGRESS);
+    }
+    
+    public.setRicoProgress = function asstate_setRicoProgress(data)
+    {
+        w(0, G.RICO_PROGRESS, data);
     }
     
     public.initialize = function asstate_initialize(tableSizeX, tableSizeY)
@@ -1110,10 +1122,11 @@ let ASZONE = (function ()
         const tableSizeX = ASSTATE.getTableSizeX();
         const tableSizeY = ASSTATE.getTableSizeY();
         const tick = ASSTATE.getTick();
-
-        if (ASRICO.updateRico(tick))
+        const nextTick = ASRICO.updateRico(tick, dt);
+        if (nextTick)
         {
             ASSTATE.setTick(tick + 1);
+            ASRICO.setNextTick(tick + 1);
         }
     }
     
@@ -1202,17 +1215,6 @@ let ASROAD = (function ()
     ];
     
     // ----------------
-    
-    public.initialize = function asroad_initialize(tableSizeX, tableSizeY)
-    {
-        for (let x = 0; x < tableSizeX; x++)
-        {
-            for (let y = 0; y < tableSizeY; y++)
-            {
-                public.removeRoad(x, y);
-            }
-        }
-    }
     
     let C_DEBUG_TRAVERSAL = true;
     
@@ -1659,6 +1661,16 @@ let ASRICO = (function ()
     
     public.C_NAME = 'asrico';
     
+    public.initialize = function asrico_initialize()
+    {
+        ASSTATE.setRicoProgress(0);
+    }
+    
+    public.setNextTick = function asrico_setNextTick(tick)
+    {
+        ASSTATE.setRicoProgress(0);
+    }
+    
     public.addResLow = function asrico_addResLow(x, y)
     {
         if (x < 0 || y < 0)
@@ -1783,9 +1795,38 @@ let ASRICO = (function ()
 	    }
     }
     
-    public.updateRico = function asrico_updateRico(tick)
+    let m_tilePerCall = 1;
+    const C_MINTILEPERCALL = 1;
+    const C_MAXTILEPERCALL = 128*128;
+    
+    public.updateRico = function asrico_updateRico(tick, dt)
     {
-        return true;
+        let progress = ASSTATE.getRicoProgress();
+        const tableSizeX = ASSTATE.getTableSizeX();
+        const tableSizeY = ASSTATE.getTableSizeY();
+        const tableSize = tableSizeX * tableSizeY;
+        if (progress < tableSize)
+        {
+            if (dt > 1000 / public.C_FPS)
+            {
+                m_tilePerCall--;
+                if (m_tilePerCall < public.C_MINTILEPERCALL)
+                {
+                    m_tilePerCall = public.C_MINTILEPERCALL;
+                }
+            }
+            else
+            {
+                m_tilePerCall++;
+                if (m_tilePerCall >= public.C_MAXTILEPERCALL)
+                {
+                    m_tilePerCall = public.C_MAXTILEPERCALL;
+                }
+            }
+            progress += m_tilePerCall;
+            ASSTATE.setRicoProgress(progress);
+        }
+        return progress >= tableSize;
     }
    
     public.updateBuilding = function asrico_updateBuilding(x, y)
@@ -2821,7 +2862,7 @@ let MMAPRENDER = (function ()
         let tileY = getCenterTileY();
         let cameraScale = (m_cameraScaleX * 100) | 0;
         
-        let tickElapsed = 'x(' + ASSTATE.getTick() + ') ';
+        let tickElapsed = 'k(' + ASSTATE.getTick() + ') ';
         let cache = 'c(' + Object.keys(PIXI.utils.TextureCache).length + ') ';
         let memUsage = 'o(' + performance.memory.usedJSHeapSize / 1000 + ') ';
         let mapCoords = 'm(' + (m_cameraMapX | 0) + ',' + (m_cameraMapY | 0) + ',' + cameraScale + ') ';

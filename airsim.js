@@ -1822,21 +1822,32 @@ let ASRICO = (function ()
                 m_tilePerCall = C_MAXTILEPERCALL;
             }
         }
-        if (progress < tableSize)
+        let processedTile = 0;
+        while ((processedTile < m_tilePerCall) && (progress < tableSize))
         {
-            progress += m_tilePerCall;
+            if (updateBuilding(progress))
+            {
+                processedTile += 1;
+            }
+            else
+            {
+                processedTile += 0;
+            }
+            progress += 1;
             ASSTATE.setRicoProgress(progress);
         }
-        return progress >= tableSize;
+        return ASSTATE.getRicoProgress() >= tableSize;
     }
    
-    let updateBuilding = function asrico_updateBuilding(x, y)
+    let updateBuilding = function asrico_updateBuilding(index)
     {
-        let index = ASSTATE.getIndex(x, y);
+        //let index = ASSTATE.getIndex(x, y);
         if (!hasBuilding(index))
         {
             return false;
         }
+        
+        
         
         return true;
     }
@@ -2863,7 +2874,7 @@ let MMAPRENDER = (function ()
         let tileY = getCenterTileY();
         let cameraScale = (m_cameraScaleX * 100) | 0;
         
-        let tickElapsed = 'k(' + ASSTATE.getRicoProgress() + ') ';
+        let tickElapsed = 'k(' + ASSTATE.getTick() + ') ';
         let cache = 'c(' + Object.keys(PIXI.utils.TextureCache).length + ') ';
         let memUsage = 'o(' + performance.memory.usedJSHeapSize / 1000 + ') ';
         let mapCoords = 'm(' + (m_cameraMapX | 0) + ',' + (m_cameraMapY | 0) + ',' + cameraScale + ') ';

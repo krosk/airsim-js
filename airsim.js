@@ -313,8 +313,8 @@ let ASMAP = (function ()
 
     public.update = function asmap_update(dt, time)
     {
-        MMAPRENDER.update(dt, time);
-        ASZONE.update(dt, time);
+        let slowdown = MMAPRENDER.update(dt, time);
+        ASZONE.update(slowdown, time);
     }
     
     let doZoneViewSingleClick = function asmap_doZoneViewSingleClick(x, y)
@@ -1117,12 +1117,12 @@ let ASZONE = (function ()
         }
     }
     
-    public.update = function aszone_update(dt, time)
+    public.update = function aszone_update(slowdown, time)
     {
         const tableSizeX = ASSTATE.getTableSizeX();
         const tableSizeY = ASSTATE.getTableSizeY();
         const tick = ASSTATE.getTick();
-        const nextTick = ASRICO.updateRico(tick, dt);
+        const nextTick = ASRICO.updateRico(tick, slowdown);
         if (nextTick)
         {
             ASSTATE.setTick(tick + 1);
@@ -1799,37 +1799,38 @@ let ASRICO = (function ()
     const C_MINTILEPERCALL = 1;
     const C_MAXTILEPERCALL = 128*128;
     
-    public.updateRico = function asrico_updateRico(tick, dt)
+    public.updateRico = function asrico_updateRico(tick, slowdown)
     {
         let progress = ASSTATE.getRicoProgress();
         const tableSizeX = ASSTATE.getTableSizeX();
         const tableSizeY = ASSTATE.getTableSizeY();
         const tableSize = tableSizeX * tableSizeY;
+        const increaseCall = progress < tableSize;
+        if (slowdown)
+        {
+            m_tilePerCall--;
+            if (m_tilePerCall < C_MINTILEPERCALL)
+            {
+                m_tilePerCall = C_MINTILEPERCALL;
+            }
+        }
+        else if (increaseCall)
+        {
+            m_tilePerCall++;
+            if (m_tilePerCall >= C_MAXTILEPERCALL)
+            {
+                m_tilePerCall = C_MAXTILEPERCALL;
+            }
+        }
         if (progress < tableSize)
         {
-            if (dt > 1000 / public.C_FPS)
-            {
-                m_tilePerCall--;
-                if (m_tilePerCall < public.C_MINTILEPERCALL)
-                {
-                    m_tilePerCall = public.C_MINTILEPERCALL;
-                }
-            }
-            else
-            {
-                m_tilePerCall++;
-                if (m_tilePerCall >= public.C_MAXTILEPERCALL)
-                {
-                    m_tilePerCall = public.C_MAXTILEPERCALL;
-                }
-            }
             progress += m_tilePerCall;
             ASSTATE.setRicoProgress(progress);
         }
         return progress >= tableSize;
     }
    
-    public.updateBuilding = function asrico_updateBuilding(x, y)
+    let updateBuilding = function asrico_updateBuilding(x, y)
     {
         let index = ASSTATE.getIndex(x, y);
         if (!hasBuilding(index))
@@ -2862,7 +2863,7 @@ let MMAPRENDER = (function ()
         let tileY = getCenterTileY();
         let cameraScale = (m_cameraScaleX * 100) | 0;
         
-        let tickElapsed = 'k(' + ASSTATE.getTick() + ') ';
+        let tickElapsed = 'k(' + ASSTATE.getRicoProgress() + ') ';
         let cache = 'c(' + Object.keys(PIXI.utils.TextureCache).length + ') ';
         let memUsage = 'o(' + performance.memory.usedJSHeapSize / 1000 + ') ';
         let mapCoords = 'm(' + (m_cameraMapX | 0) + ',' + (m_cameraMapY | 0) + ',' + cameraScale + ') ';
@@ -3218,6 +3219,7 @@ let MMAPRENDER = (function ()
         //let increaseBatchPerCall = Object.keys(m_batchFlag).length > 0;
         let increaseBatchPerCall = !fullyProcessed;
 
+        let slowdown = false;
         if (dt > 1000 / public.C_FPS)
         {
             m_batchPerCall--;
@@ -3225,6 +3227,7 @@ let MMAPRENDER = (function ()
             {
                 m_batchPerCall = public.C_MINBATCHPERCALL;
             }
+            slowdown = true;
         }
         else if (increaseBatchPerCall)
         {
@@ -3264,6 +3267,8 @@ let MMAPRENDER = (function ()
         m_cameraBatchRadiusRendered = currentBatchRadius;
         m_cameraBatchListRendered = currentBatchList;
         m_refreshCall = false;
+        
+        return slowdown;
     }
     
     public.processSingleClick = function mmaprender_processSingleClick(screenX, screenY)

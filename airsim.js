@@ -296,6 +296,7 @@ let ASMAP = (function ()
         ASZONE.initializeTexture();
         ASROAD.initializeTexture();
         ASRICO.initialize();
+        ASRICO.initializeTexture();
         MMAPDATA.initialize(w, h, ASZONE);
         MMAPRENDER.initialize(doSingleClick, doDoubleClick);
         ASMAPUI.initialize();
@@ -391,11 +392,13 @@ let ASMAPUI = (function ()
     let m_uiZoneSpriteTable = {};
     let m_uiViewSpriteTable = {};
     let m_uiRoadSpriteTable = {};
+    let m_uiRicoSpriteTable = {};
     let m_uiSaveSpriteTable = {};
     
     let m_currentZoneId = 0;
     let m_currentViewId = 0;
     let m_currentRoadId = 0;
+    let m_currentRicoId = 0;
     let m_currentSaveId = 0;
     
     public.initialize = function asmapui_initialize()
@@ -407,6 +410,7 @@ let ASMAPUI = (function ()
         m_currentViewId = ASZONE.viewTile[0];
         m_currentZoneId = ASZONE.zoneTile[0];
         m_currentRoadId = ASROAD.roadTile[0];
+        m_currentRicoId = ASZONE.ricoTile[0];
         m_currentSaveId = ASZONE.saveTile[0];
         
         public.resize();
@@ -488,6 +492,7 @@ let ASMAPUI = (function ()
         m_uiZoneSpriteTable = {};
         m_uiViewSpriteTable = {};
         m_uiRoadSpriteTable = {};
+        m_uiRicoSpriteTable = {};
         m_uiSaveSpriteTable = {};
         
         let c = 0;
@@ -499,6 +504,9 @@ let ASMAPUI = (function ()
         let roadEnums = ASROAD.roadTile;
         buildMenu(roadEnums, m_uiRoadSpriteTable, createRoadSprite, 1);
         
+        let ricoEnums = ASZONE.ricoTile;
+        buildMenu(ricoEnums, m_uiRicoSpriteTable, createRicoSprite, 1);
+        
         let saveEnums = ASZONE.saveTile;
         buildMenu(saveEnums, m_uiSaveSpriteTable, createSaveSprite, 1);
 
@@ -508,6 +516,7 @@ let ASMAPUI = (function ()
         focusZoneSprite();
         focusViewSprite();
         focusRoadSprite();
+        focusRicoSprite();
         focusSaveSprite();
     }
     
@@ -516,25 +525,33 @@ let ASMAPUI = (function ()
         return m_currentZoneId;
     }
     
-    public.isZoneMode = function asmapui_isZoneMode()
+    let isViewMode = function asmapui_isViewMode(mode)
     {
         const viewEnums = ASZONE.viewTile;
-        return m_currentViewId == viewEnums[0];
+        return getCurrentViewId() == viewEnums[mode];
+    }
+    
+    public.isZoneMode = function asmapui_isZoneMode()
+    {
+        return isViewMode(0);
     }
     
     public.isRoadMode = function asmapui_isRoadMode()
     {
-        let viewEnums = ASZONE.viewTile;
-        return m_currentViewId == viewEnums[1];
+        return isViewMode(1);
+    }
+    
+    public.isRicoMode = function asmapui_isRicoMode()
+    {
+        return isViewMode(2);
     }
     
     public.isSaveMode = function asmapui_isSaveMode()
     {
-        let viewEnums = ASZONE.viewTile;
-        return m_currentViewId == viewEnums[2];
+        return isViewMode(3);
     }
     
-    public.getCurrentViewId = function asmapui_getCurrentViewId()
+    let getCurrentViewId = function asmapui_getCurrentViewId()
     {
         return m_currentViewId;
     }
@@ -569,6 +586,11 @@ let ASMAPUI = (function ()
     let focusRoadSprite = function asmapui_focusRoadSprite()
     {
         focusSprite(m_uiRoadSpriteTable, m_currentRoadId, public.isRoadMode());
+    }
+    
+    let focusRicoSprite = function asmapui_focusRicoSprite()
+    {
+        focusSprite(m_uiRicoSpriteTable, m_currentRicoId, public.isRicoMode());
     }
     
     let focusSaveSprite = function asmapui_focusSaveSprite()
@@ -611,6 +633,11 @@ let ASMAPUI = (function ()
         return createSprite(roadId, onRoadSpritePress, ASROAD);
     }
     
+    let createRicoSprite = function asmapui_createRicoSprite(ricoId)
+    {
+        return createSprite(ricoId, onRicoSpritePress, ASZONE);
+    }
+    
     let createSaveSprite = function asmapui_createSaveSprite(saveId)
     {
         return createSprite(saveId, onSaveSpritePress, ASZONE);
@@ -650,13 +677,17 @@ let ASMAPUI = (function ()
     let refreshMapDisplay = function asmapui_refreshMapDisplay()
     {
         let viewEnums = ASZONE.viewTile;
-        if (m_currentViewId == viewEnums[0])
+        if (public.isZoneMode())
         {
             MMAPDATA.switchData(ASZONE);
         }
-        else if (m_currentViewId == viewEnums[1])
+        else if (public.isRoadMode())
         {
             MMAPDATA.switchData(ASROAD);
+        }
+        else if (public.isRicoMode())
+        {
+            MMAPDATA.switchData(ASRICO);
         }
     }
     
@@ -667,6 +698,7 @@ let ASMAPUI = (function ()
         focusViewSprite();
         focusZoneSprite();
         focusRoadSprite();
+        focusRicoSprite();
         focusSaveSprite();
         if (refresh)
         {
@@ -678,6 +710,12 @@ let ASMAPUI = (function ()
     {
         m_currentRoadId = roadId;
         focusRoadSprite();
+    }
+    
+    let onRicoSpritePress = function asmapui_onRicoSpritePress(event, ricoId)
+    {
+        m_currentRicoId = ricoId;
+        focusRicoSprite();
     }
     
     let onSaveSpritePress = function asmapui_onSaveSpritePress(event, saveId)
@@ -720,7 +758,7 @@ let ASSTATE = (function()
     // map structure
     const C = {
         ZONE : 0,
-        ZONE_TYPE : 1, // 0 none 1 road 2 building
+        ZONE_TYPE : 1, // 0 none 1 road 2 building 3 fixed
         ROAD_TYPE : 2,
         ROAD_CONNECT_N : 3,
         ROAD_CONNECT_E : 4,
@@ -729,19 +767,20 @@ let ASSTATE = (function()
         ROAD_USED_CAPACITY : 7,
         ROAD_MAX_CAPACITY : 8,
         ROAD_DEBUG : 9,
-        BUILDING_TYPE : 2,
-        BUILDING_OFFER_STATE: 3,
-        BUILDING_OFFER_X: 4,
-        BUILDING_OFFER_Y: 5,
-        BUILDING_OFFER_R: 6,
-        BUILDING_OFFER_I: 7,
-        BUILDING_OFFER_C: 8,
-        BUILDING_OFFER_O: 9,
-        BUILDING_DEMAND_R : 10,
-        BUILDING_DEMAND_I : 11,
-        BUILDING_DEMAND_C : 12,
-        BUILDING_DEMAND_O : 13,
-        BUILDING_TICK_UPDATE : 14,
+        BUILDING_TYPE : 2, // 1 res 2 com 3 ind 4 off
+        BUILDING_DENSITY_LEVEL : 3,
+        BUILDING_OFFER_STATE: 4,
+        BUILDING_OFFER_X: 5,
+        BUILDING_OFFER_Y: 6,
+        BUILDING_OFFER_R: 7,
+        BUILDING_OFFER_I: 8,
+        BUILDING_OFFER_C: 9,
+        BUILDING_OFFER_O: 10,
+        BUILDING_DEMAND_R : 11,
+        BUILDING_DEMAND_I : 12,
+        BUILDING_DEMAND_C : 13,
+        BUILDING_DEMAND_O : 14,
+        BUILDING_TICK_UPDATE : 15,
     }
     public.C_DATA = C;
     
@@ -1017,7 +1056,7 @@ let ASZONE = (function ()
         [C.NONE] : 0,
         [C.DIRT] : 3,
         [C.ROAD] : 6,
-        [C.RESLOW] : 9,
+        [C.RESLOW] : 6,
         [C.COMLOW] : 12,
         [C.INDLOW] : 15
     }
@@ -1043,9 +1082,14 @@ let ASZONE = (function ()
         C.INDLOW
     ];
     
+    public.ricoTile = [
+        C.RESLOW
+    ];
+    
     public.viewTile = [
         C.RESLOW,
         C.ROAD,
+        C.INDLOW,
         C.COMLOW
     ];
     
@@ -1661,6 +1705,94 @@ let ASRICO = (function ()
     
     public.C_NAME = 'asrico';
     
+    public.C_TILEENUM = {
+        NONE: 200,
+        RESLOW_0: 210,
+        RESLOW_1: 211,
+        COMLOW_0: 220,
+        COMLOW_1: 221,
+        INDLOW_0: 230,
+        INDLOW_1: 231
+    }
+    const C = public.C_TILEENUM;
+    
+    public.initializeTexture = function asrico_initializeTexture()
+    {
+        let values = Object.values(C);
+        for (let i in values)
+        {
+            let id = values[i] | 0;
+            let textureName = public.getTileTextureName(id);
+            let graphics = createTexture(id);
+            let texture = g_app.renderer.generateTexture(graphics);
+            PIXI.utils.TextureCache[textureName] = texture;
+        }
+    }
+    
+    public.getTileTextureName = function asrico_getTileTextureName(tileId)
+    {
+        return public.C_NAME + tileId;
+    }
+    
+    let getColor = function asrico_getColor(r, g, b)
+    {
+        return (r) * 2**16 + (g) * 2**8 + (b);
+    }
+    
+    const C_TILETEXTURE = {
+        [C.NONE] : [getColor(255, 255, 255), 3],
+        [C.RESLOW_0] : [getColor(76, 175, 80), 3],
+        [C.RESLOW_1] : [getColor(76, 175, 80), 6],
+        [C.COMLOW_0] : [getColor(33, 150, 243), 3],
+        [C.COMLOW_1] : [getColor(33, 150, 243), 6],
+        [C.INDLOW_0] : [getColor(255, 235, 59), 3],
+        [C.INDLOW_1] : [getColor(255, 235, 59), 6]
+    };
+    
+    let getTileTextureMargin = function asrico_getTileTextureMargin(id)
+    {
+        return 0;
+    }
+    
+    let createTexture = function asrico_createTexture(id)
+    {
+        let color = C_TILETEXTURE[id][0];
+        let margin = getTileTextureMargin(id);
+        let height = C_TILETEXTURE[id][1];
+        return MMAPRENDER.createTexture(color, margin, height);
+    }
+    
+    let getDataIdByDensityLevel = function asrico_getDataIdByDensityLevel(index)
+    {
+        let level = hasBuilding(index) ? ASSTATE.getBuildingData(ASSTATE.C_DATA.BUILDING_DENSITY_LEVEL, index) : 0;
+        let type = hasBuilding(index) ? ASSTATE.getBuildingData(ASSTATE.C_DATA.BUILDING_TYPE, index) : 0;
+        let id = C.NONE + 10*type + 1*level;
+        if (isValidTileId(id))
+        {
+            return id;
+        }
+        console.log(id);
+        return C.NONE;
+    }
+    
+    public.getDataId = function asrico_getDataId(x, y)
+    {
+        if (x < 0 || y < 0)
+        {
+            return C.NONE;
+        }
+        const index = ASSTATE.getIndex(x, y);
+        return getDataIdByDensityLevel(index);
+    }
+    
+    let isValidTileId = function asrico_isValidTileId(id)
+    {
+        let index = Object.values(C).indexOf(id);
+        return index > -1;
+    }
+    
+    // ---------
+    
     public.initialize = function asrico_initialize()
     {
         ASSTATE.setRicoProgress(0);
@@ -1682,6 +1814,8 @@ let ASRICO = (function ()
         {
             ASSTATE.setZoneType(index, ASZONE.C_TYPE.BUILDING);
             ASSTATE.setBuildingType(index, 1);
+            ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_DENSITY_LEVEL, index, 0);
+            ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_TYPE, index, 1);
             ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_OFFER_STATE, index, 0);
             ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_OFFER_X, index, 0);
             ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_OFFER_Y, index, 0);
@@ -1694,7 +1828,6 @@ let ASRICO = (function ()
             ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_DEMAND_C, index, 0);
             ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_DEMAND_O, index, 0);
             ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_TICK_UPDATE, index, 0);
-            //console.log('addreslow');
         }
     }
     

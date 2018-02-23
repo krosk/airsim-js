@@ -223,7 +223,7 @@ function pfFormatTestGrid(grid, w, h)
 function StartState()
 {
     console.log("Start");
-    ASMAP.initialize(128, 128);
+    ASMAP.initialize(8, 8);
     pfFormatTestGrid(ASMAP.Grid, ASMAP.Width, ASMAP.Height);
     for (i = 1; i < 0xFF * 12; i++)
     {
@@ -775,12 +775,10 @@ let ASSTATE = (function()
         BUILDING_OFFER_R: 7,
         BUILDING_OFFER_I: 8,
         BUILDING_OFFER_C: 9,
-        BUILDING_OFFER_O: 10,
-        BUILDING_DEMAND_R : 11,
-        BUILDING_DEMAND_I : 12,
-        BUILDING_DEMAND_C : 13,
-        BUILDING_DEMAND_O : 14,
-        BUILDING_TICK_UPDATE : 15,
+        BUILDING_DEMAND_R : 10,
+        BUILDING_DEMAND_I : 11,
+        BUILDING_DEMAND_C : 12,
+        BUILDING_TICK_UPDATE : 13,
     }
     public.C_DATA = C;
     
@@ -1057,8 +1055,8 @@ let ASZONE = (function ()
         [C.DIRT] : 3,
         [C.ROAD] : 6,
         [C.RESLOW] : 6,
-        [C.COMLOW] : 12,
-        [C.INDLOW] : 15
+        [C.COMLOW] : 6,
+        [C.INDLOW] : 6
     }
     
     let getCityTextureMargin = function aszone_getCityTextureMargin(id)
@@ -1749,6 +1747,27 @@ let ASRICO = (function ()
         [C.INDLOW_1] : [getColor(255, 235, 59), 6]
     };
     
+    /*
+    ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_DENSITY_LEVEL, index, 0);
+    ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_TYPE, index, 1);
+    ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_OFFER_R, index, 0);
+    ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_OFFER_I, index, 0);
+    ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_OFFER_C, index, 0);
+    ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_DEMAND_R, index, 0);
+    ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_DEMAND_I, index, 0);
+    ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_DEMAND_C, index, 0);
+    */
+    
+    const C_RICOPROPERTY = {
+        [C.RESLOW_0] : [0, 1, 0, 0, 0, 0, 0, 0],
+        [C.RESLOW_1] : [1, 1, 4, 0, 0, 0, 2, 2],
+        [C.COMLOW_0] : [0, 2, 0, 0, 0, 0, 0, 0],
+        [C.COMLOW_1] : [1, 2, 0, 4, 0, 2, 0, 2],
+        [C.INDLOW_0] : [0, 3, 0, 0, 0, 0, 0, 0],
+        [C.INDLOW_1] : [1, 3, 0, 0, 4, 2, 2, 0],
+    };
+    const C_R = C_RICOPROPERTY;
+    
     let getTileTextureMargin = function asrico_getTileTextureMargin(id)
     {
         return 0;
@@ -1803,7 +1822,7 @@ let ASRICO = (function ()
         ASSTATE.setRicoProgress(0);
     }
     
-    public.addResLow = function asrico_addResLow(x, y)
+    let addInitial = function asrico_addInitial(code, x, y)
     {
         if (x < 0 || y < 0)
         {
@@ -1814,21 +1833,25 @@ let ASRICO = (function ()
         {
             ASSTATE.setZoneType(index, ASZONE.C_TYPE.BUILDING);
             ASSTATE.setBuildingType(index, 1);
-            ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_DENSITY_LEVEL, index, 0);
-            ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_TYPE, index, 1);
             ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_OFFER_STATE, index, 0);
-            ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_OFFER_X, index, 0);
-            ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_OFFER_Y, index, 0);
-            ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_OFFER_R, index, 0);
-            ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_OFFER_I, index, 0);
-            ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_OFFER_C, index, 0);
-            ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_OFFER_O, index, 0);
-            ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_DEMAND_R, index, 0);
-            ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_DEMAND_I, index, 0);
-            ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_DEMAND_C, index, 0);
-            ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_DEMAND_O, index, 0);
+            ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_OFFER_X, index, x);
+            ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_OFFER_Y, index, y);
             ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_TICK_UPDATE, index, 0);
+            let i = 0;
+            ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_DENSITY_LEVEL, index, C_R[code][i++]);
+            ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_TYPE, index, C_R[code][i++]);
+            ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_OFFER_R, index, C_R[code][i++]);
+            ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_OFFER_I, index, C_R[code][i++]);
+            ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_OFFER_C, index, C_R[code][i++]);
+            ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_DEMAND_R, index, C_R[code][i++]);
+            ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_DEMAND_I, index, C_R[code][i++]);
+            ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_DEMAND_C, index, C_R[code][i++]);
         }
+    }
+    
+    public.addResLow = function asrico_addResLow(x, y)
+    {
+        addInitial(C.RESLOW_0, x, y);
     }
     
     public.removeResLow = function asrico_removeResLow(x, y)

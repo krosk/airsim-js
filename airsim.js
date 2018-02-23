@@ -1142,9 +1142,17 @@ let ASZONE = (function ()
             {
                 ASROAD.removeRoad(x, y);
             }
-            if (oldZone == C.RESLOW)
+            else if (oldZone == C.RESLOW)
             {
-                ASRICO.removeResLow(x, y);
+                ASRICO.removeBuilding(x, y);
+            }
+            else if (oldZone == C.COMLOW)
+            {
+                ASRICO.removeBuilding(x, y);
+            }
+            else if (oldZone == C.INDLOW)
+            {
+                ASRICO.removeBuilding(x, y);
             }
         }
         setDataId(x, y, zone);
@@ -1153,9 +1161,17 @@ let ASZONE = (function ()
         {
             ASROAD.addRoad(x, y);
         }
-        if (zone == C.RESLOW)
+        else if (zone == C.RESLOW)
         {
             ASRICO.addResLow(x, y);
+        }
+        else if (zone == C.COMLOW)
+        {
+            ASRICO.addComLow(x, y);
+        }
+        else if (zone == C.INDLOW)
+        {
+            ASRICO.addIndLow(x, y);
         }
     }
     
@@ -1853,8 +1869,18 @@ let ASRICO = (function ()
     {
         addInitial(C.RESLOW_0, x, y);
     }
+   
+    public.addComLow = function asrico_addComLow(x, y)
+    {
+        addInitial(C.COMLOW_0, x, y);
+    }
     
-    public.removeResLow = function asrico_removeResLow(x, y)
+    public.addIndLow = function asrico_addIndLow(x, y)
+    {
+        addInitial(C.INDLOW_0, x, y);
+    }
+    
+    public.removeBuilding = function asrico_removeBuilding(x, y)
     {
         let index = ASSTATE.getIndex(x, y);
         if (!hasBuilding(index))

@@ -1723,10 +1723,13 @@ let ASRICO = (function ()
         NONE: 200,
         RESLOW_0: 210,
         RESLOW_1: 211,
+        RESLOW_2: 212,
         COMLOW_0: 220,
         COMLOW_1: 221,
+        COMLOW_2: 222,
         INDLOW_0: 230,
-        INDLOW_1: 231
+        INDLOW_1: 231,
+        INDLOW_2: 232
     }
     const C = public.C_TILEENUM;
     
@@ -1757,10 +1760,13 @@ let ASRICO = (function ()
         [C.NONE] : [getColor(255, 255, 255), 3],
         [C.RESLOW_0] : [getColor(76, 175, 80), 3],
         [C.RESLOW_1] : [getColor(76, 175, 80), 6],
+        [C.RESLOW_2] : [getColor(76, 175, 80), 9],
         [C.COMLOW_0] : [getColor(33, 150, 243), 3],
         [C.COMLOW_1] : [getColor(33, 150, 243), 6],
+        [C.COMLOW_2] : [getColor(33, 150, 243), 9],
         [C.INDLOW_0] : [getColor(255, 235, 59), 3],
-        [C.INDLOW_1] : [getColor(255, 235, 59), 6]
+        [C.INDLOW_1] : [getColor(255, 235, 59), 6],
+        [C.INDLOW_2] : [getColor(255, 235, 59), 9],
     };
     
     /*
@@ -1775,12 +1781,15 @@ let ASRICO = (function ()
     */
     
     const C_RICOPROPERTY = {
-        [C.RESLOW_0] : [0, 1, 0, 0, 0, 0, 0, 0],
-        [C.RESLOW_1] : [1, 1, 4, 0, 0, 0, 2, 2],
-        [C.COMLOW_0] : [0, 2, 0, 0, 0, 0, 0, 0],
-        [C.COMLOW_1] : [1, 2, 0, 4, 0, 2, 0, 2],
-        [C.INDLOW_0] : [0, 3, 0, 0, 0, 0, 0, 0],
-        [C.INDLOW_1] : [1, 3, 0, 0, 4, 2, 2, 0],
+        [C.RESLOW_0] : [0, 1,   0,   0,   0,   0,   0,   0],
+        [C.RESLOW_1] : [1, 1,   4,   0,   0,   0,   2,   2],
+        [C.RESLOW_2] : [2, 1,  10,   0,   0,   0,   6,   4],
+        [C.COMLOW_0] : [0, 2,   0,   0,   0,   0,   0,   0],
+        [C.COMLOW_1] : [1, 2,   0,   4,   0,   2,   0,   2],
+        [C.COMLOW_2] : [2, 2,   0,  10,   0,   4,   0,   6],
+        [C.INDLOW_0] : [0, 3,   0,   0,   0,   0,   0,   0],
+        [C.INDLOW_1] : [1, 3,   0,   0,   4,   2,   2,   0],
+        [C.INDLOW_2] : [2, 3,   0,   0,  10,   6,   4,   0],
     };
     const C_R = C_RICOPROPERTY;
     

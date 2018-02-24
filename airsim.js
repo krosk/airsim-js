@@ -913,6 +913,31 @@ let ASSTATE = (function()
         w(index, C.ROAD_DEBUG, data);
     }
     
+    public.getBuildingDemandRico = function asstate_getBuildingDemandRico(index)
+    {
+        let dr = r(index, C.BUILDING_DEMAND_R);
+        let di = r(index, C.BUILDING_DEMAND_I);
+        let dc = r(index, C.BUILDING_DEMAND_C);
+        return [dr, di, dc];
+    }
+    
+    public.setBuildingDemandRico = function asstate_setBuildingDemandRico(index, demand)
+    {
+        w(index, C.BUILDING_DEMAND_R, demand[0]);
+        w(index, C.BUILDING_DEMAND_I, demand[1]);
+        w(index, C.BUILDING_DEMAND_C, demand[2]);
+    }
+    
+    public.getBuildingDensity = function asstate_getBuildingDensity(index)
+    {
+        return r(index, C.BUILDING_DENSITY_LEVEL);
+    }
+    
+    public.setBuildingDensity = function asstate_setBuildingDensity(index, data)
+    {
+        w(index, C.BUILDING_DENSITY_LEVEL, data);
+    }
+    
     public.getBuildingData = function asstate_getBuildingData(field, index)
     {
         return r(index, field);
@@ -1815,7 +1840,6 @@ let ASRICO = (function ()
         {
             return id;
         }
-        console.log(id);
         return C.NONE;
     }
     
@@ -1856,22 +1880,33 @@ let ASRICO = (function ()
         let index = ASSTATE.getIndex(x, y);
         if (!hasBuilding(index))
         {
-            ASSTATE.setZoneType(index, ASZONE.C_TYPE.BUILDING);
-            ASSTATE.setBuildingType(index, 1);
-            ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_OFFER_STATE, index, 0);
-            ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_OFFER_X, index, x);
-            ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_OFFER_Y, index, y);
-            ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_TICK_UPDATE, index, 0);
-            let i = 0;
-            ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_DENSITY_LEVEL, index, C_R[code][i++]);
-            ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_TYPE, index, C_R[code][i++]);
-            ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_OFFER_R, index, C_R[code][i++]);
-            ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_OFFER_I, index, C_R[code][i++]);
-            ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_OFFER_C, index, C_R[code][i++]);
-            ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_DEMAND_R, index, C_R[code][i++]);
-            ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_DEMAND_I, index, C_R[code][i++]);
-            ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_DEMAND_C, index, C_R[code][i++]);
+            setInitial(code, index);
         }
+    }
+    
+    let setInitial = function asrico_setInitial(code, index)
+    {
+        if (index == null || index < 0)
+        {
+            return;
+        }
+        ASSTATE.setZoneType(index, ASZONE.C_TYPE.BUILDING);
+        ASSTATE.setBuildingType(index, 1);
+        ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_OFFER_STATE, index, 0);
+        ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_OFFER_X, index, 0);
+        ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_OFFER_Y, index, 0);
+        ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_TICK_UPDATE, index, 0);
+        let i = 0;
+        ASSTATE.setBuildingDensity(index, C_R[code][i++]);
+        ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_TYPE, index, C_R[code][i++]);
+        ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_OFFER_R, index, C_R[code][i++]);
+        ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_OFFER_I, index, C_R[code][i++]);
+        ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_OFFER_C, index, C_R[code][i++]);
+        let dr = C_R[code][i++];
+        let di = C_R[code][i++];
+        let dc = C_R[code][i++];
+        let demandRico = [dr, di, dc];
+        ASSTATE.setBuildingDemandRico(index, demandRico);
     }
     
     public.addResLow = function asrico_addResLow(x, y)
@@ -2029,6 +2064,20 @@ let ASRICO = (function ()
         }
         return ASSTATE.getRicoProgress() >= tableSize;
     }
+    
+    let isDemandRicoFilled = function asrico_isDemandRicoFilled(demand)
+    {
+        return demand[0] <= 0 && demand[1] <= 0 && demand[2] <= 0;
+    }
+    
+    let levelDensityUp = function asrico_levelDensityUp(index)
+    {
+        let density = ASSTATE.getBuildingDensity(index);
+        ASSTATE.setBuildingDensity(index, density + 1);
+        let code = getDataIdByDensityLevel(index);
+        //console.log(code);
+        setInitial(code, index);
+    }
    
     let updateBuilding = function asrico_updateBuilding(index)
     {
@@ -2038,7 +2087,11 @@ let ASRICO = (function ()
             return false;
         }
         
-        
+        let demandRico = ASSTATE.getBuildingDemandRico(index);
+        if (isDemandRicoFilled(demandRico))
+        {
+            levelDensityUp(index);
+        }
         
         return true;
     }

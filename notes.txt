@@ -607,10 +607,18 @@ area of effect. The building will therefore
 only serve near zones.
 The checking is done until the capacity is
 depleted, in the same tick if possible.
+Otherwise one must save the state of the check.
+Can it be done on the grid? Possibly, as a
+variable. That means there is only one single
+trip check at most within a tick. System 
+is updated each frame loop until aoe is
+depleted.
 Buildings are not checked all at once in the
 same tick, there need to be a timeout before
 it is checked again so offer distribution can
 occur sparsely.
+Trip check must therefore be saved on the grid.
+
 
 
 Zoning vs display

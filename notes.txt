@@ -576,6 +576,58 @@ until all systems are green.
 They have in input the current tick, and the
 remaining computation time for the current
 frame.
+Systems are executed in turn. Only when one has
+finished computing, that is it moved to the next.
+Computation time is distributed with a counter
+tied to fps, that is if it is slowing down,
+the next framerate will process less tiles.
+
+Graphical refresh was relatively linear in the
+number of operations performable.
+Adding multiple steps after that in which the
+steps are not homogeneous is more difficult.
+
+Another idea for demand/offer
+A building is processed at a certain time. 
+It has a certain offer to distribute.
+It has a distance capacity. The area of effect
+stops once the distance capacity is depleted.
+The distribution is through an area of effect.
+The area of effect follows roads, starting
+from the building. It follows all roads in a
+breadth first depth. Upon checking a road,
+it transfers the offers to free buildings
+around, raises the congestion of that road
+and reduce the distance capacity, as a function
+of the road congestion.
+Fullfilled demand decreases over time.
+Congestion decreases over time.
+High congestion reduces the spread of the
+area of effect. The building will therefore
+only serve near zones.
+The checking is done until the capacity is
+depleted, in the same tick if possible.
+Buildings are not checked all at once in the
+same tick, there need to be a timeout before
+it is checked again so offer distribution can
+occur sparsely.
+
+
+Zoning vs display
+asrico proposes a view only focused on zoning.
+aszone is more general purpose.
+
+Buildings for the time being have only one
+progresson axis, in density. Zoning is a way
+to limit density, to avoid overflowing the
+capacity of the road network.
+Density level increase as demand is met.
+There is 9 density levels.
+
+Later, progression can be two fold, in density
+(user controlled) and in richness.
+There will be 3 richness levels.
+
 
 
 Webassembly

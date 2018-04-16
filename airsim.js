@@ -358,6 +358,10 @@ let ASMAP = (function ()
         {
             ASROAD.resetTraversalPath(m_roadTraversalTemp);
         }
+        else if (selectedId == ASROAD.C_TILEENUM.VHI)
+        {
+            ASROAD.printTraversal(m_roadTraversalTemp);
+        }
         MMAPDATA.refreshAllTiles();
     }
     
@@ -1238,7 +1242,8 @@ let ASROAD = (function ()
         NONE: 100,
         LOW: 101,
         MID: 102,
-        HIG: 103
+        HIG: 103,
+        VHI: 104
     }
     const C = public.C_TILEENUM;
     
@@ -1269,7 +1274,8 @@ let ASROAD = (function ()
         [C.NONE] : getColor(255, 255, 255),
         [C.LOW] : getColor(76, 175, 80),
         [C.MID] : getColor(255, 235, 59),
-        [C.HIG] : getColor(255, 50, 50)
+        [C.HIG] : getColor(255, 50, 50),
+        [C.VHI] : getColor(180, 50, 50)
     };
     
     let getTrafficTextureMargin = function asroad_getTrafficTextureMargin(id)
@@ -1294,7 +1300,8 @@ let ASROAD = (function ()
         C.LOW,
         C.MID,
         C.HIG,
-        C.NONE
+        C.NONE,
+        C.VHI
     ];
     
     // ----------------
@@ -1305,7 +1312,11 @@ let ASROAD = (function ()
     let getDataIdByCongestion = function asroad_getTileByCongestion(index)
     {
         let value = hasRoad(index) ? ASSTATE.getRoadUsedCapacity(index) : 0;
-        if (value > 60)
+        if (valie > 90)
+        {
+            return C.VHI;
+        }
+        else if (value > 60)
         {
             return C.HIG;
         }
@@ -1326,7 +1337,11 @@ let ASROAD = (function ()
     let getDataIdByTraversalState = function asroad_getTileByTraversalState(index)
     {
         let value = hasRoad(index) ? ASSTATE.getRoadDebug(index) : 0;
-        if (value >= 103)
+        if (value >= 104)
+        {
+            return C.VHI;
+        }
+        else if (value >= 103)
         {
             return C.HIG; // in queue and processed
         }
@@ -1724,6 +1739,11 @@ let ASROAD = (function ()
             }
         }
         delete data;
+    }
+    
+    public.printTraversal = function asroad_printTraversal(data)
+    {
+        console.log(data);
     }
     
     let validateTraversalData = function asroad_validateTraversalData(data)

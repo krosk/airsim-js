@@ -112,7 +112,9 @@ Plop 1 commercial 1 industrial
 
 
 
-Algorithm for RCIO resolution
+***Algorithm for RCIO resolution
+
+**Strategy 1: Road container based
 
 Road network
 Electricity/water
@@ -127,7 +129,6 @@ If maintenance requirements not met
 Check level up requirements
 If level up requirements met
   Upgrade, finish
-
 
 Function check maintenance requirements
 If none
@@ -164,7 +165,8 @@ Number will go below capacity.
 The rico statistics are hold in road.
 
 
-Alternative
+**Strategy 2: Itinerary pair based
+
 Process the simulation by type
 
 Ratio of power/water grid determines income percentage.
@@ -188,11 +190,12 @@ Once a building is found, add an itinerary.
 Add back congestion level.
 
 For converging to an optimal solution and 
-reduce traffic,  two buildings with overlapping 
+reduce traffic, two buildings with overlapping 
 traffic could exchange itineraries that cross 
 each other. 
 
-Building resolution happens in cycle.
+**Mechanism 1: Arbitrary building resolution
+
 The scanning is arbitrary and starts at the
 beginning of the map.
 It iterates over the map index by index.
@@ -213,6 +216,8 @@ The simulation data is updated only upon
 resolution.
 The simulation data will hold a different state
 than what is shown upon a change but it is fine.
+
+**Structure 1: Building/Road data table (bits)
 
 A building has an object that holds all the data
 it needs for its resolution? or is it through
@@ -239,7 +244,7 @@ Connect to is 4 direction, which requires only
 However, current implementation is holding the
 index of the connected route, not just a flag.
 
-
+**Structure 2: Road network specifics
 
 Road network is an example of not array table
 based, but hash table based. Array table may
@@ -254,6 +259,8 @@ the efficiency of a packed array. A holey
 array is one where there is an undefined
 object in the mix.
 
+**Structure 3: Cantor indexing
+
 Note that the scheme of using cantor indexing
 has a big overhead (twice memory reserved vs
 compact indexing while only half of it is used)
@@ -263,6 +270,9 @@ to segment the grid into sub units, sub units
 have compact indexing while unit grid is hash
 based? Display would be limited to
 a sub unit.
+
+**Mechanism 3: Acceptable city size and junctions
+
 Sim city 4 small city is 64x64, large city 
 is 256x256. It allows region play so there
 is that too. But for starters, it is fine,
@@ -272,7 +282,7 @@ indexing would work. However, extending
 will be based on region play, So there is
 the connection between regions to take into
 account. One could say, if a region is a
-similation state, then it could be loaded,
+simulation state, then it could be loaded,
 churned into the engine, and updated without
 having to display anything.
 And so, keeping a sub unit to be 256*256 would
@@ -307,7 +317,8 @@ The junction becomes a consumer that has demand,
 and must be processed as such by exploring the
 network and add back congestion to the roads.
 
-How to describe demand/capacity on a junction?
+**Structure 4: Road data structure
+
 A road is ultimately a provider first:
 The provision unit is as such:
 - type: rico
@@ -349,17 +360,17 @@ An alternative would be to build roads first,
 then zones after. This way the zone is tied
 to the road? 
 
-
 Can this scheme be performed at smaller level?
 For example, a sub unit is 32*32.
-
 
 Interesting bit on memory
 https://stackoverflow.com/questions/45803829/memory-overhead-of-typed-arrays-vs-strings
 That says typed array have quite some overhead
 compared to strings.
 
-Saving
+
+**Structure 5: Saving in JS
+
 Can use localstorage.setItem('key','content')
 with content being string. It requires using
 serializable objects...
@@ -367,6 +378,8 @@ Either each module writes its separate object
 with a key (ex ASZONE_ID, ASROAD_id), or
 write one big object that holds all necessary
 state and break it down further the line.
+
+**Structure 6: Save data structure
 
 After some reading, the complexity of a system
 depends on the reading pattern.
@@ -416,11 +429,9 @@ the same for all modules. Either its initialized
 with a table size x/y to allow compact indexing
 or just using a hash table.
 
-Resolving a building works as such:
-If residential
-  remove all traffic itinerary
   
-New rico idea:
+**Strategy 3: Agent based Demand Offer
+
 A building has offer and demand.
 Example:
 Res building offers 6R, demands 3C and 3I.
@@ -435,7 +446,8 @@ It could be agent based, where a building does
 not know its agents.
 
 
-Statistics based simulation
+**Strategy 4: Statistics based simulation
+
 A building offers res and ico. The number
 of rico will affect the traffic in the immediate
 surrounding. The more a road has met demand,
@@ -460,7 +472,8 @@ two centers of traffic, and nothing in between,
 regardless of the nature of the road between
 the two districts.
 
-Cellular automata like
+**Strategy 5: Car agent based
+
 Consider the network. Each building has a demand.
 The demand is a dynamic variable that increase
 as time goes, and decrease as cars reach it.
@@ -475,13 +488,28 @@ A key factor is the rate at which it decreases.
 It must decrease at the same rate an equivalent
 demand is generated.
 
+**Strategy 5.1: Car aggregate alternative
+
 Each building has a offer, that depends only
 on its level. Multiple buildings can aggregate
 their offer. The aggregate becomes a car that
 moves in the network and fills the demand.
+
+**Strategy 5.1: Per building car alternative
+
 Or it could be a car per building.
 This is fine too, that data can be stored
 per building.
+
+**Strategy 5.2: Car generation
+
+Car capacity is defined by density.
+Car volume generation is defined by density.
+That is a high density zone will generate
+cars often, a low density zone will generate
+slower.
+
+**Strategy 5.3: Car based congestion
 
 Congestion works over time too. When a car moves
 from a road to a road, the congestion increases
@@ -499,7 +527,7 @@ This removes the need of knowing which demand
 ties to which offer. It is even fine if a car
 moves for an undetermined time?
 
-The algorithm works like this.
+**Strategy 5.4: Algorithm
 
 Resolving a building car is:
 Initialize
@@ -530,7 +558,8 @@ waiting status
 move status
   move
 
-Time
+**Strategy 5.5: Timestamp relation
+
 The system is time driven. It has a queue of
 timestamps, where the next event should happen.
 A building has at max one event in the queue.
@@ -541,11 +570,7 @@ Car movement is defined by road congestion
 and road speed. Next movement happens at a
 timestamp function of the road speed and
 road congestion.
-Car capacity is defined by density.
-Car volume generation is defined by density.
-That is a high density zone will generate
-cars often, a low density zone will generate
-slower.
+
 If using a queue, then this structure is
 [index, timestamp]. Problem is to keep the
 queue ordered at all times.
@@ -556,6 +581,47 @@ This internal clock must be saved.
 In javascript, max integer is
 Number.MAX_SAFE_INTEGER, so there is a check
 to perform here.
+
+**Strategy 6: Area of effect based
+
+A building is processed at a certain time. 
+It has a certain offer to distribute.
+It has a distance capacity. The area of effect
+stops once the distance capacity is depleted.
+The distribution is through an area of effect.
+The area of effect follows roads, starting
+from the building. It follows all roads in a
+breadth first depth. Upon checking a road,
+it transfers the offers to free buildings
+around, raises the congestion of that road
+and reduce the distance capacity, as a function
+of the road congestion.
+Fullfilled demand decreases over time.
+Congestion decreases over time.
+High congestion reduces the spread of the
+area of effect. The building will therefore
+only serve near zones, nearest first.
+This looks like the most realistic.
+
+**Mechanism 6: Road traversal
+
+Classic implementation is breadth first.
+A separate data structure could work fine.
+See Mechanism 7 for the impact of a separate
+data structure.
+
+Implementation shows that a road is added at
+most only one time to the data structure, in
+particular the 'to' is unique.
+However, this only allows one parent. Since
+it is a tree, it is not possible to get the
+childrens nodes. How do you get the leaves?
+If you start from a keave you can get to the
+root but not the reverse.
+
+
+**Mechanism 7: Checking all buildings
+
 For now, one can just pool over all buildings
 until the tick is reached.
 Pooling experiments on 96x96 work fine, but
@@ -567,6 +633,56 @@ frames. The later solution may be complex
 because i have to assess how much time i have
 until the next frame and how much computation
 I can fit in this time frame.
+
+The checking is done until the capacity is
+depleted, in the same tick if possible.
+Otherwise one must save the state of the check.
+Can it be done on the grid? Possibly, as a
+variable. That means there is only one single
+trip check at most within a tick. System 
+is updated each frame loop until aoe is
+depleted.
+Buildings are not checked all at once in the
+same tick, there need to be a timeout before
+it is checked again so offer distribution can
+occur sparsely.
+Trip check could have been saved as values on
+the grid, but is now saved as a data structure
+stand alone, and could be saved as such in
+save data, assuming there is always only one
+data structure. The caveat is memory size is
+not fixed.
+// struct is
+// array = [
+//   from of starting point
+//   last explored index,
+//   number of edges,
+//   collection of edges * 5
+//   ]
+The from is unique. If it was saved in the grid
+then processing would have to scan for it to
+find it.
+Same with last explored index.
+Other alternative is to never save game if there
+is a traversal path in progress, i.e. a game save
+occurs always at the start of the next tick.
+Head of save structure will hold a save in
+waiting flag that is checked at the start
+of a tick. 
+
+So, should building be scanned one by one?
+One way to do this is to chain buildings
+through adding order. A building will hold
+the next and previous building to scan.
+Holding previous and next is obligatory,
+as well as holding one point of entry, such
+as the last building added.
+That can work as a circular linked list.
+
+
+
+**Mechanism 8: System ordering vs framerate
+
 The systems could work as such:
 All systems that need to be updated are run
 once per loop. If they are ready to go to next
@@ -587,37 +703,7 @@ number of operations performable.
 Adding multiple steps after that in which the
 steps are not homogeneous is more difficult.
 
-Another idea for demand/offer
-A building is processed at a certain time. 
-It has a certain offer to distribute.
-It has a distance capacity. The area of effect
-stops once the distance capacity is depleted.
-The distribution is through an area of effect.
-The area of effect follows roads, starting
-from the building. It follows all roads in a
-breadth first depth. Upon checking a road,
-it transfers the offers to free buildings
-around, raises the congestion of that road
-and reduce the distance capacity, as a function
-of the road congestion.
-Fullfilled demand decreases over time.
-Congestion decreases over time.
-High congestion reduces the spread of the
-area of effect. The building will therefore
-only serve near zones.
-The checking is done until the capacity is
-depleted, in the same tick if possible.
-Otherwise one must save the state of the check.
-Can it be done on the grid? Possibly, as a
-variable. That means there is only one single
-trip check at most within a tick. System 
-is updated each frame loop until aoe is
-depleted.
-Buildings are not checked all at once in the
-same tick, there need to be a timeout before
-it is checked again so offer distribution can
-occur sparsely.
-Trip check must therefore be saved on the grid.
+
 
 
 

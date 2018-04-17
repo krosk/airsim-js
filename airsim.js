@@ -773,16 +773,13 @@ let ASSTATE = (function()
         ROAD_DEBUG : 9,
         BUILDING_TYPE : 2, // 1 res 2 com 3 ind 4 off
         BUILDING_DENSITY_LEVEL : 3,
-        BUILDING_OFFER_STATE: 4,
-        BUILDING_OFFER_X: 5,
-        BUILDING_OFFER_Y: 6,
-        BUILDING_OFFER_R: 7,
-        BUILDING_OFFER_I: 8,
-        BUILDING_OFFER_C: 9,
-        BUILDING_DEMAND_R : 10,
-        BUILDING_DEMAND_I : 11,
-        BUILDING_DEMAND_C : 12,
-        BUILDING_TICK_UPDATE : 13,
+        BUILDING_OFFER_R: 4,
+        BUILDING_OFFER_I: 5,
+        BUILDING_OFFER_C: 6,
+        BUILDING_DEMAND_R : 7,
+        BUILDING_DEMAND_I : 8,
+        BUILDING_DEMAND_C : 9,
+        BUILDING_TICK_UPDATE : 10,
     }
     public.C_DATA = C;
     
@@ -1912,9 +1909,6 @@ let ASRICO = (function ()
         }
         ASSTATE.setZoneType(index, ASZONE.C_TYPE.BUILDING);
         ASSTATE.setBuildingType(index, 1);
-        ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_OFFER_STATE, index, 0);
-        ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_OFFER_X, index, 0);
-        ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_OFFER_Y, index, 0);
         ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_TICK_UPDATE, index, 0);
         let i = 0;
         ASSTATE.setBuildingDensity(index, C_R[code][i++]);

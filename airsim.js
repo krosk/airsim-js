@@ -357,6 +357,7 @@ let ASMAP = (function ()
         else if (selectedId == ASROAD.C_TILEENUM.NONE)
         {
             ASROAD.resetTraversalPath(m_roadTraversalTemp);
+            m_roadTraversalTemp = null;
         }
         else if (selectedId == ASROAD.C_TILEENUM.VHI)
         {
@@ -770,7 +771,9 @@ let ASSTATE = (function()
         ROAD_CONNECT_W : 6,
         ROAD_USED_CAPACITY : 7,
         ROAD_MAX_CAPACITY : 8,
-        ROAD_DEBUG : 9,
+        ROAD_TRAVERSAL_FROM : 9,
+        ROAD_TRAVERSAL_PROCESSED : 10,
+        ROAD_DEBUG : 11,
         BUILDING_TYPE : 2, // 1 res 2 com 3 ind 4 off
         BUILDING_DENSITY_LEVEL : 3,
         BUILDING_OFFER_R: 4,
@@ -788,6 +791,9 @@ let ASSTATE = (function()
         SIZE_Y : 1,
         TICK : 2,
         RICO_PROGRESS : 3, // progress
+        ROAD_TRAVERSAL_START : 4,
+        ROAD_TRAVERSAL_CURRENT_INDEX : 5,
+        ROAD_TRAVERSAL_EDGE_COUNT : 6,
     }
     
     public.getIndex = function asstate_getIndex(x, y)
@@ -899,9 +905,29 @@ let ASSTATE = (function()
         return r(index, C.ROAD_MAX_CAPACITY);
     }
     
-    public.setRoadMaxCapacity = function asstate_setRoadMaxCapacoty(index, data)
+    public.setRoadMaxCapacity = function asstate_setRoadMaxCapacity(index, data)
     {
         w(index, C.ROAD_MAX_CAPACITY, data);
+    }
+    
+    public.getRoadTraversalFrom = function asstate_getRoadTraversalFrom(index)
+    {
+        return r(index, C.ROAD_TRAVERSAL_FROM);
+    }
+    
+    public.setRoadTraversalFrom = function asstate_setRoadTraversalFrom(index, data)
+    {
+        w(index, C.ROAD_TRAVERSAL_FROM, data);
+    }
+    
+    public.getRoadTraversalProcessed = function asstate_getRoadTraversalProcessed(index)
+    {
+        return r(index, C.ROAD_TRAVERSAL_PROCESSED);
+    }
+    
+    public.setRoadTraversalProcessed = function asstate_setRoadTraversalProcessed(index, data)
+    {
+        w(index, C.ROAD_TRAVERSAL_PROCESSED, data);
     }
     
     public.getRoadDebug = function asstate_getRoadDebug(index)
@@ -967,6 +993,36 @@ let ASSTATE = (function()
     public.setRicoProgress = function asstate_setRicoProgress(data)
     {
         w(0, G.RICO_PROGRESS, data);
+    }
+    
+    public.getRoadTraversalStart = function asstate_getRoadTraversalStart()
+    {
+        return r(0, G.ROAD_TRAVERSAL_START);
+    }
+    
+    public.setRoadTraversalStart = function asstate_setRoadTraversalStart(data)
+    {
+        w(0, G.ROAD_TRAVERSAL_START, data);
+    }
+    
+    public.getRoadTraversalCurrentIndex = function asstate_getRoadTraversalCurrentIndex()
+    {
+        return r(0, G.ROAD_TRAVERSAL_CURRENT_INDEX);
+    }
+    
+    public.setRoadTraversalCurrentIndex = function asstate_setRoadTraversalCurrentIndex(data)
+    {
+        w(0, G.ROAD_TRAVERSAL_CURRENT_INDEX, data);
+    }
+    
+    public.getRoadTraversalEdgeCount = function asstate_getRoadTraversalEdgeCount()
+    {
+        return r(0, G.ROAD_TRAVERSAL_EDGE_COUNT);
+    }
+    
+    public.setRoadTraversalEdgeCount = function asstate_setRoadTraversalEdgeCount(data)
+    {
+        w(0, G.ROAD_TRAVERSAL_EDGE_COUNT, data);
     }
     
     public.initialize = function asstate_initialize(tableSizeX, tableSizeY)
@@ -1500,33 +1556,39 @@ let ASROAD = (function ()
     //   number of edges,
     //   collection of edges * 5
     //   ]
-    let getTraversalStart = function asroaf_getTraversalStart(data)
+    let getTraversalStart = function asroad_getTraversalStart(data)
     {
         return data[0];
+        return ASSTATE.getRoadTraversalStart();
     }
     let setTraversalStart = function asroad_setTraversalStart(data, value)
     {
         data[0] = value;
+        ASSTATE.setRoadTraversalStart(value);
     }
     let getTraversalCurrentIndex = function asroad_getTraversalCurrentIndex(data)
     {
         return data[1];
+        return ASSTATE.getRoadTraversalCurrentIndex();
     }
     let setTraversalCurrentIndex = function asroad_setTraversalCurrentIndex(data, value)
     {
         data[1] = value;
+        ASSTATE.setRoadTraversalCurrentIndex(value);
     }
     let getTraversalEdgeCount = function asroad_getTraversalEdgeCount(data)
     {
         return data[2];
+        return ASSTATE.getRoadTraversalEdgeCount();
     }
     let setTraversalEdgeCount = function asroad_setTraversalEdgeCount(data, value)
     {
         data[2] = value;
+        ASSTATE.setRoadTraversalEdgeCount(value);
     }
     let incrementTraversalEdgeCount = function asroad_incrementTraversalEdgeCount(data)
     {
-        data[2] = data[2] + 1;
+        setTraversalEdgeCount(data, getTraversalEdgeCount(data) + 1);
     }
     let getTraversalCost = function asroas_getTraversalCost(data, index)
     {
@@ -1534,6 +1596,8 @@ let ASROAD = (function ()
     }
     let setTraversalProcessed = function asroad_setTraversalProcessed(data, index)
     {
+        //let to = getTraversalTo(data, index);
+        //ASSTATE.setRoadTraversalProcessed(to, 1);
         data[index*5 + C_TR.PROCESSED] = 1;
     }
     let isTraversalProcessed = function asroad_isTraversalProcessed(data, index)
@@ -1551,6 +1615,14 @@ let ASROAD = (function ()
     let getTraversalParent = function asroad_getTraversalParent(data, index)
     {
         return data[index*5 + C_TR.PARENT];
+    }
+    let clearTraversal = function asroad_clearTraversal(data, index)
+    {
+        data[index*5 + C_TR.PROCESSED] = 0;
+        data[index*5 + C_TR.PARENT] = 0;
+        data[index*5 + C_TR.TO] = 0;
+        data[index*5 + C_TR.FROM] = 0;
+        data[index*5 + C_TR.COST] = 0;
     }
     
     public.initializeTraversal = function asroad_initializeTraversal(fromX, fromY)
@@ -1642,6 +1714,7 @@ let ASROAD = (function ()
             setTraversalProcessed(data, minIndex);
             if (!hasRoad(to))
             {
+                console.log('traversal wrong target');
                 throw 'traversal wrong target';
                 return [-1, -1];
             }
@@ -1728,6 +1801,7 @@ let ASROAD = (function ()
                 {
                     ASSTATE.setRoadDebug(to, C.LOW);
                 }
+                clearTraversal(data, i);
             }
             let fromStart = getTraversalStart(data);
             if (hasRoad(fromStart))

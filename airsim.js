@@ -930,6 +930,16 @@ let ASSTATE = (function()
         w(index, C.ROAD_TRAVERSAL_PROCESSED, data);
     }
     
+    public.getRoadTraversalCost = function asstate_getRoadTraversalCost(index)
+    {
+        return r(index, C.ROAD_TRAVERSAL_COST);
+    }
+    
+    public.setRoadTraversalCost = function asstate_setRoadTraversalCost(index, data)
+    {
+        w(index, C.ROAD_TRAVERSAL_COST, data);
+    }
+    
     public.getRoadDebug = function asstate_getRoadDebug(index)
     {
         return r(index, C.ROAD_DEBUG);
@@ -1592,28 +1602,32 @@ let ASROAD = (function ()
     }
     let getTraversalCost = function asroad_getTraversalCost(data, index)
     {
+        //let to = getTraversalTo(data, index);
+        //return ASSTATE.getRoadTraversalCost(to);
         return data[index*5 + C_TR.COST];
     }
     let setTraversalCost = function asroad_setTraversalCost(data, index, value)
     {
+        //let to = getTraversalTo(data, index);
+        //ASSTATE.setRoadTraversalCost(to, value);
         data[index*5 + C_TR.COST] = value;
     }
     let setTraversalProcessed = function asroad_setTraversalProcessed(data, index)
     {
-        let to = getTraversalTo(data, index);
-        ASSTATE.setRoadTraversalProcessed(to, 1);
+        //let to = getTraversalTo(data, index);
+        //ASSTATE.setRoadTraversalProcessed(to, 1);
         data[index*5 + C_TR.PROCESSED] = 1;
     }
     let setTraversalProcessedNot = function asroad_setTraversalProcessedNot(data, index)
     {
-        let to = getTraversalTo(data, index);
-        ASSTATE.setRoadTraversalProcessed(to, 0);
+        //let to = getTraversalTo(data, index);
+        //ASSTATE.setRoadTraversalProcessed(to, 0);
         data[index*5 + C_TR.PROCESSED] = 0;
     }
     let isTraversalProcessed = function asroad_isTraversalProcessed(data, index)
     {
-        let to = getTraversalTo(data, index);
-        return ASSTATE.getRoadTraversalProcessed(to);
+        //let to = getTraversalTo(data, index);
+        //return ASSTATE.getRoadTraversalProcessed(to);
         return data[index*5 + C_TR.PROCESSED];
     }
     let getTraversalTo = function asroad_getTraversalTo(data, index)
@@ -1626,14 +1640,14 @@ let ASROAD = (function ()
     }
     let getTraversalFrom = function asroad_getTraversalFrom(data, index)
     {
-        let to = getTraversalTo(data, index);
-        return ASSTATE.getRoadTraversalFrom(to);
+        //let to = getTraversalTo(data, index);
+        //return ASSTATE.getRoadTraversalFrom(to);
         return data[index*5 + C_TR.FROM];
     }
     let setTraversalFrom = function asroad_setTraversalFrom(data, index, value)
     {
-        let to = getTraversalTo(data, index);
-        ASSTATE.setRoadTraversalFrom(to, value);
+        //let to = getTraversalTo(data, index);
+        //ASSTATE.setRoadTraversalFrom(to, value);
         data[index*5 + C_TR.FROM] = value;
     }
     let getTraversalParent = function asroad_getTraversalParent(data, index)
@@ -1691,7 +1705,6 @@ let ASROAD = (function ()
                 usedCapacity += getTraversalCost(data, index);
                 //setTraversalProcessed(data, index);
             }
-            ASSTATE.setRoadDebug(to, C.MID);
             let edgeIndex = getTraversalEdgeCount(data);
             incrementTraversalEdgeCount(data);
             //data.push(0);
@@ -1704,6 +1717,7 @@ let ASROAD = (function ()
             setTraversalCost(data, edgeIndex, usedCapacity);
             setTraversalParent(data, edgeIndex, index);
             setTraversalProcessedNot(data, edgeIndex);
+            ASSTATE.setRoadDebug(to, C.MID);
         }
     }
     
@@ -1719,12 +1733,25 @@ let ASROAD = (function ()
         let minCost = getTraversalCost(data, 0);
         let minIndex = -1;
         let traversed = {};
+        let toTraverse = {};
         for (let i = 0; i < edgeCount; i++)
         {
             let localCost = getTraversalCost(data, i);
             let isProcessed = isTraversalProcessed(data, i);
             let from = getTraversalFrom(data, i);
-            traversed[from] = 1;
+            let to = getTraversalTo(data, i);
+            traversed[from] = 1; // from has been processed
+            if (traversed[to] != 1)
+            {
+                if (isProcessed)
+                {
+                    traversed[to] = 1;
+                }
+                else
+                {
+                    toTraverse[to] = 1;
+                }
+            }
             if (isProcessed == 0 && (minIndex == -1 || localCost < getTraversalCost(data, minIndex)))
             {
                 minIndex = i;
@@ -1734,14 +1761,23 @@ let ASROAD = (function ()
         if (minIndex >= 0)
         {
             //console.log('minIndex ' + minIndex);
-            //console.log('traversed ' + traversed);
+            //console.log('traversed ' traversed);
+            //console.log('to traverse ' + toTraverse);
             let to = getTraversalTo(data, minIndex);
             let expandIfNotTraversed = function (data, to, d)
             {
                 let toTo = isConnectedTo(to, d);
-                if (toTo >= 0 && traversed[toTo] != 1)
+                if (toTo >= 0 && traversed[toTo] != 1 && toTraverse[toTo] != 1)
                 {
                     expandTraversal(data, to, toTo);
+                }
+                if (toTo >= 0 && traversed[toTo] == 1)
+                {
+                    //console.log("isTraversed " + toTo);
+                }
+                if (toTo >= 0 && traversed[toTo] != 1 && toTraverse[toTo] == 1)
+                {
+                    //console.log("toTraverse " + toTo);
                 }
             }
             setTraversalCurrentIndex(data, minIndex);

@@ -1626,10 +1626,14 @@ let ASROAD = (function ()
     }
     let getTraversalFrom = function asroad_getTraversalFrom(data, index)
     {
+        let to = getTraversalTo(data, index);
+        return ASSTATE.getRoadTraversalFrom(to);
         return data[index*5 + C_TR.FROM];
     }
     let setTraversalFrom = function asroad_setTraversalFrom(data, index, value)
     {
+        let to = getTraversalTo(data, index);
+        ASSTATE.setRoadTraversalFrom(to, value);
         data[index*5 + C_TR.FROM] = value;
     }
     let getTraversalParent = function asroad_getTraversalParent(data, index)
@@ -1695,8 +1699,8 @@ let ASROAD = (function ()
             //data.push(0);
             //data.push(0);
             //data.push(0);
-            setTraversalFrom(data, edgeIndex, from);
             setTraversalTo(data, edgeIndex, to);
+            setTraversalFrom(data, edgeIndex, from);
             setTraversalCost(data, edgeIndex, usedCapacity);
             setTraversalParent(data, edgeIndex, index);
             setTraversalProcessedNot(data, edgeIndex);

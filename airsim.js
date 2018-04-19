@@ -1686,12 +1686,16 @@ let ASROAD = (function ()
             ASSTATE.setRoadDebug(to, C.MID);
             let edgeIndex = getTraversalEdgeCount(data);
             incrementTraversalEdgeCount(data);
-            data.push(from);
-            data.push(to);
-            data.push(usedCapacity);
-            data.push(index);
-            data.push(0);
-            //setTraversalCost(data, edgeIndex, usedCapacity);
+            //data.push(0);
+            //data.push(0);
+            //data.push(0);
+            //data.push(0);
+            //data.push(0);
+            setTraversalFrom(data, edgeIndex, from);
+            setTraversalTo(data, edgeIndex, to);
+            setTraversalCost(data, edgeIndex, usedCapacity);
+            setTraversalParent(data, edgeIndex, index);
+            setTraversalProcessedNot(data, edgeIndex);
         }
     }
     

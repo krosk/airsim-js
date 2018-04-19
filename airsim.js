@@ -1767,17 +1767,28 @@ let ASROAD = (function ()
             let expandIfNotTraversed = function (data, to, d)
             {
                 let toTo = isConnectedTo(to, d);
-                if (toTo >= 0 && traversed[toTo] != 1 && toTraverse[toTo] != 1)
+                if (toTo >= 0 && traversed[toTo] != 1)
                 {
-                    expandTraversal(data, to, toTo);
+                    if (toTraverse[toTo] != 1)
+                    {
+                        // never been reached
+                        expandTraversal(data, to, toTo);
+                    }
+                    else
+                    {
+                        // reached by another tile
+                        // in theory, the other tile is
+                        // the fastest way to reach toTo 
+                        // so no need to expand, except
+                        // if congestion of already
+                        // traversed tiles have been
+                        // altered
+                        //console.log('Already reached by another ' + toTo);
+                    }
                 }
                 if (toTo >= 0 && traversed[toTo] == 1)
                 {
                     //console.log("isTraversed " + toTo);
-                }
-                if (toTo >= 0 && traversed[toTo] != 1 && toTraverse[toTo] == 1)
-                {
-                    //console.log("toTraverse " + toTo);
                 }
             }
             setTraversalCurrentIndex(data, minIndex);

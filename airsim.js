@@ -1600,16 +1600,20 @@ let ASROAD = (function ()
     }
     let setTraversalProcessed = function asroad_setTraversalProcessed(data, index)
     {
-        //let to = getTraversalTo(data, index);
-        //ASSTATE.setRoadTraversalProcessed(to, 1);
+        let to = getTraversalTo(data, index);
+        ASSTATE.setRoadTraversalProcessed(to, 1);
         data[index*5 + C_TR.PROCESSED] = 1;
     }
     let setTraversalProcessedNot = function asroad_setTraversalProcessedNot(data, index)
     {
+        let to = getTraversalTo(data, index);
+        ASSTATE.setRoadTraversalProcessed(to, 0);
         data[index*5 + C_TR.PROCESSED] = 0;
     }
     let isTraversalProcessed = function asroad_isTraversalProcessed(data, index)
     {
+        let to = getTraversalTo(data, index);
+        return ASSTATE.getRoadTraversalProcessed(to);
         return data[index*5 + C_TR.PROCESSED];
     }
     let getTraversalTo = function asroad_getTraversalTo(data, index)

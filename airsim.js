@@ -1727,7 +1727,7 @@ let ASROAD = (function ()
         setTraversalProcessedNot(data, index);
         setTraversalParent(data, index, 0);
         setTraversalFrom(data, index, 0);
-        setTraversalTo(data, index, 0);
+        //setTraversalTo(data, index, 0);
         setTraversalCost(data, index, 0);
     }
     
@@ -1740,6 +1740,13 @@ let ASROAD = (function ()
         setTraversalEdgeCount(data, 0);
         if (hasRoad(from))
         {
+            let nodeIndex = getTraversalEdgeCount(data);
+            incrementTraversalEdgeCount(data);
+            setTraversalFrom(data, nodeIndex, from);
+            let usedCapacity = ASSTATE.getRoadUsedCapacity(from);
+            setTraversalCost(data, nodeIndex, usedCapacity);
+            setTraversalParent(data, nodeIndex, from);
+            setTraversalProcessed(data, nodeIndex);
             expandTraversal(data, from, isConnectedTo(from, C_TO.N));
             expandTraversal(data, from, isConnectedTo(from, C_TO.E));
             expandTraversal(data, from, isConnectedTo(from, C_TO.S));
@@ -1750,20 +1757,19 @@ let ASROAD = (function ()
     }
     
     const C_TR = {
-        TO: 0,
         FROM: 1,
         COST: 2,
         PARENT: 3,
         PROCESSED: 4
     };
     
-    let expandTraversal = function asroad_expandTraversal(data, from, to)
+    let expandTraversal = function asroad_expandTraversal(data, parent, node)
     {
         //console.log('expandTraversal d' + data + 'f' + from + 't' + to);
-        if (hasRoad(to))
+        if (hasRoad(node))
         {
             let index = getTraversalCurrentIndex(data);
-            let usedCapacity = ASSTATE.getRoadUsedCapacity(to);
+            let usedCapacity = ASSTATE.getRoadUsedCapacity(node);
             //console.log('capacity ' + usedCapacity);
             if (index >= 0)
             {
@@ -1774,105 +1780,100 @@ let ASROAD = (function ()
             }
             let edgeIndex = getTraversalEdgeCount(data);
             incrementTraversalEdgeCount(data);
-            //data.push(0);
-            //data.push(0);
-            //data.push(0);
-            //data.push(0);
-            //data.push(0);
-            setTraversalTo(data, edgeIndex, to);
-            setTraversalFrom(data, edgeIndex, from);
+            setTraversalFrom(data, edgeIndex, node);
             setTraversalCost(data, edgeIndex, usedCapacity);
-            setTraversalParent(data, edgeIndex, index);
+            setTraversalParent(data, edgeIndex, parent);
             setTraversalAdded(data, edgeIndex);
-            ASSTATE.setRoadDebug(to, C.MID);
+            ASSTATE.setRoadDebug(node, C.MID);
         }
     }
     
-    public.getNextStepTraversal = function asroad_getNextStepTraversal(data)
+    let identifyNodeIndex = function (data, node)
     {
-        //getRoadsInTraversal(data);
-        if (!validateTraversalData(data))
+        let nodeCount = getTraversalEdgeCount(data);
+        for (let i = 0; i < nodeCount; i++)
         {
-            console.log('invalid');
-            return [-1, -1];
+            let localNode = getTraversalFrom(data, i);
+            if (localNode == node)
+            {
+                return i;
+            }
         }
-        // get minimum cost
-        let edgeCount = getTraversalEdgeCount(data);
+        return -1;
+    }
+    
+    let identifyNextNode = function (data)
+    {
+        let nodeCount = getTraversalEdgeCount(data);
         let minCost = getTraversalCost(data, 0);
         let minIndex = -1;
-        let traversed = {};
-        let toTraverse = {};
-        for (let i = 0; i < edgeCount; i++)
+        for (let i = 0; i < nodeCount; i++)
         {
             let localCost = getTraversalCost(data, i);
             let isAdded = isTraversalAdded(data, i);
-            let from = getTraversalFrom(data, i);
-            let to = getTraversalTo(data, i);
-            traversed[from] = 1; // from has been processed
-            if (traversed[to] != 1)
-            {
-                if (isAdded)
-                {
-                    traversed[to] = 1;
-                }
-                else
-                {
-                    toTraverse[to] = 1;
-                }
-            }
-            if (isAdded && (minIndex == -1 || localCost < getTraversalCost(data, minIndex)))
+            if (isAdded && (minIndex == -1 || localCost <= getTraversalCost(data, minIndex)))
             {
                 minIndex = i;
                 minCost = localCost;
             }
         }
+        return minIndex;
+    }
+    
+    let traverseNextNode = function (data, minIndex)
+    {
+        let node = getTraversalFrom(data, minIndex);
+        if (!hasRoad(node))
+        {
+            console.log('traversal wrong target');
+            throw 'traversal wrong target';
+            return [-1, -1];
+        }
+        setTraversalCurrentIndex(data, minIndex);
+        setTraversalProcessed(data, minIndex);
+        let expandIfNotTraversed = function (data, from, d)
+        {
+            let to = isConnectedTo(from, d);
+            if (to >= 0)
+            {
+                let toIndex = identifyNodeIndex(data, to);
+                if (toIndex == -1)
+                {
+                    expandTraversal(data, from, to);
+                }
+                else
+                {
+                    // reached by another tile
+                    // in theory, the other tile is
+                    // the fastest way to reach toTo 
+                    // so no need to expand, except
+                    // if congestion of already
+                    // traversed tiles have been
+                    // altered
+                    //console.log('Already reached by another ' + toTo);
+                }
+            }
+        }
+        ASSTATE.setRoadDebug(node, C.HIG);
+        expandIfNotTraversed(data, node, C_TO.N);
+        expandIfNotTraversed(data, node, C_TO.E);
+        expandIfNotTraversed(data, node, C_TO.S);
+        expandIfNotTraversed(data, node, C_TO.W);
+        return ASSTATE.getXYFromIndex(node);
+    }
+    
+    public.getNextStepTraversal = function asroad_getNextStepTraversal(data)
+    {
+        if (!validateTraversalData(data))
+        {
+            console.log('invalid');
+            return [-1, -1];
+        }
+        // start explore
+        let minIndex = identifyNextNode(data);
         if (minIndex >= 0)
         {
-            //console.log('minIndex ' + minIndex);
-            //console.log('traversed ' traversed);
-            //console.log('to traverse ' + toTraverse);
-            let to = getTraversalTo(data, minIndex);
-            let expandIfNotTraversed = function (data, to, d)
-            {
-                let toTo = isConnectedTo(to, d);
-                if (toTo >= 0 && traversed[toTo] != 1)
-                {
-                    if (toTraverse[toTo] != 1)
-                    {
-                        // never been reached
-                        expandTraversal(data, to, toTo);
-                    }
-                    else
-                    {
-                        // reached by another tile
-                        // in theory, the other tile is
-                        // the fastest way to reach toTo 
-                        // so no need to expand, except
-                        // if congestion of already
-                        // traversed tiles have been
-                        // altered
-                        //console.log('Already reached by another ' + toTo);
-                    }
-                }
-                if (toTo >= 0 && traversed[toTo] == 1)
-                {
-                    //console.log("isTraversed " + toTo);
-                }
-            }
-            setTraversalCurrentIndex(data, minIndex);
-            setTraversalProcessed(data, minIndex);
-            if (!hasRoad(to))
-            {
-                console.log('traversal wrong target');
-                throw 'traversal wrong target';
-                return [-1, -1];
-            }
-            ASSTATE.setRoadDebug(to, C.HIG);
-            expandIfNotTraversed(data, to, C_TO.N);
-            expandIfNotTraversed(data, to, C_TO.E);
-            expandIfNotTraversed(data, to, C_TO.S);
-            expandIfNotTraversed(data, to, C_TO.W);
-            return ASSTATE.getXYFromIndex(to);
+            return traverseNextNode(data, minIndex);
         }
         else
         {
@@ -1964,6 +1965,7 @@ let ASROAD = (function ()
     public.printTraversal = function asroad_printTraversal(data)
     {
         console.log(data);
+        console.log(data[0]);
     }
     
     let validateTraversalData = function asroad_validateTraversalData(data)

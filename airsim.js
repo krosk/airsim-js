@@ -1941,22 +1941,12 @@ let ASROAD = (function ()
             let edgeCount = getTraversalEdgeCount(data);
             for (let i = 0; i < edgeCount; i++)
             {
-                let from = getTraversalFrom(data, i);
-                let to = getTraversalTo(data, i);
-                if (hasRoad(from))
+                let node = getTraversalFrom(data, i);
+                if (hasRoad(node))
                 {
-                    ASSTATE.setRoadDebug(from, C.LOW);
-                }
-                if (hasRoad(to))
-                {
-                    ASSTATE.setRoadDebug(to, C.LOW);
+                    ASSTATE.setRoadDebug(node, C.LOW);
                 }
                 clearTraversal(data, i);
-            }
-            let fromStart = getTraversalStart(data);
-            if (hasRoad(fromStart))
-            {
-                ASSTATE.setRoadDebug(fromStart, C.LOW);
             }
         }
         delete data;

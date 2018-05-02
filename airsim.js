@@ -1665,16 +1665,18 @@ let ASROAD = (function ()
         //ASSTATE.setRoadTraversalFrom(to, value);
         data[index*5 + C_TR.FROM] = value;
     }
-    let getTraversalParent = function asroad_getTraversalParent(data, index)
+    let getTraversalParent = function asroad_getTraversalParent(data, node)
     {
         //let to = getTraversalTo(data, index);
         //return ASSTATE.getRoadTraversalParent(to);
+        let index = identifyNodeIndex(data, node);
         return data[index*5 + C_TR.PARENT];
     }
-    let setTraversalParent = function asroad_setTraversalParent(data, index, value)
+    let setTraversalParent = function asroad_setTraversalParent(data, node, value)
     {
         //let to = getTraversalTo(data, index);
         //ASSTATE.setRoadTraversalParent(to, value);
+        let index = identifyNodeIndex(data, node);
         data[index*5 + C_TR.PARENT] = value;
     }
     let getRoadsInTraversal = function (data)
@@ -1714,10 +1716,10 @@ let ASROAD = (function ()
             }
         }
     }
-    let clearTraversal = function asroad_clearTraversal(data, index)
+    let clearTraversal = function asroad_clearTraversal(data, node, index)
     {
         setTraversalProcessedNot(data, index);
-        setTraversalParent(data, index, 0);
+        setTraversalParent(data, node, 0);
         setTraversalFrom(data, index, 0);
         //setTraversalTo(data, index, 0);
         setTraversalCost(data, index, 0);
@@ -1738,7 +1740,7 @@ let ASROAD = (function ()
             setTraversalFrom(data, nodeIndex, from);
             let usedCapacity = ASSTATE.getRoadUsedCapacity(from);
             setTraversalCost(data, nodeIndex, usedCapacity);
-            setTraversalParent(data, nodeIndex, -1);
+            setTraversalParent(data, from, -1);
             setTraversalProcessed(data, nodeIndex);
             expandTraversal(data, from, isConnectedTo(from, C_TO.N));
             expandTraversal(data, from, isConnectedTo(from, C_TO.E));
@@ -1775,7 +1777,7 @@ let ASROAD = (function ()
             incrementTraversalEdgeCount(data);
             setTraversalFrom(data, edgeIndex, node);
             setTraversalCost(data, edgeIndex, usedCapacity);
-            setTraversalParent(data, edgeIndex, parent);
+            setTraversalParent(data, node, parent);
             setTraversalAdded(data, edgeIndex);
             ASSTATE.setRoadDebug(node, C.MID);
         }
@@ -1895,7 +1897,7 @@ let ASROAD = (function ()
             {
                 let node = getTraversalFrom(data, lastIndex);
                 reversePathNode.push(node);
-                let parent = getTraversalParent(data, lastIndex);
+                let parent = getTraversalParent(data, node);
                 lastIndex = identifyNodeIndex(data, parent);
             }
             //let node = getTraversalFrom(lastIndex);
@@ -1924,7 +1926,7 @@ let ASROAD = (function ()
                 {
                     ASSTATE.setRoadDebug(node, C.LOW);
                 }
-                clearTraversal(data, i);
+                clearTraversal(data, node, i);
             }
         }
         delete data;

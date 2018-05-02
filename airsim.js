@@ -1615,16 +1615,18 @@ let ASROAD = (function ()
     {
         setTraversalEdgeCount(data, getTraversalEdgeCount(data) + 1);
     }
-    let getTraversalCost = function asroad_getTraversalCost(data, index)
+    let getTraversalCost = function asroad_getTraversalCost(data, node)
     {
         //let to = getTraversalTo(data, index);
         //return ASSTATE.getRoadTraversalCost(to);
+        let index = identifyNodeIndex(data, node);
         return data[index*5 + C_TR.COST];
     }
-    let setTraversalCost = function asroad_setTraversalCost(data, index, value)
+    let setTraversalCost = function asroad_setTraversalCost(data, node, value)
     {
         //let to = getTraversalTo(data, index);
         //ASSTATE.setRoadTraversalCost(to, value);
+        let index = identifyNodeIndex(data, node);
         data[index*5 + C_TR.COST] = value;
     }
     let setTraversalAdded = function asroad_setTraversalAdded(data, index)
@@ -1722,7 +1724,7 @@ let ASROAD = (function ()
         setTraversalParent(data, node, 0);
         setTraversalFrom(data, index, 0);
         //setTraversalTo(data, index, 0);
-        setTraversalCost(data, index, 0);
+        setTraversalCost(data, node, 0);
     }
     
     public.initializeTraversal = function asroad_initializeTraversal(fromX, fromY)
@@ -1739,7 +1741,7 @@ let ASROAD = (function ()
             setTraversalCurrentIndex(from, 0);
             setTraversalFrom(data, nodeIndex, from);
             let usedCapacity = ASSTATE.getRoadUsedCapacity(from);
-            setTraversalCost(data, nodeIndex, usedCapacity);
+            setTraversalCost(data, from, usedCapacity);
             setTraversalParent(data, from, -1);
             setTraversalProcessed(data, nodeIndex);
             expandTraversal(data, from, isConnectedTo(from, C_TO.N));
@@ -1768,7 +1770,7 @@ let ASROAD = (function ()
             //console.log('capacity ' + usedCapacity);
             if (index >= 0)
             {
-                let cost = getTraversalCost(data, index);
+                let cost = getTraversalCost(data, node);
                 //console.log('cost ' + cost)
                 usedCapacity += cost;
                 //setTraversalProcessed(data, index);
@@ -1776,7 +1778,7 @@ let ASROAD = (function ()
             let edgeIndex = getTraversalEdgeCount(data);
             incrementTraversalEdgeCount(data);
             setTraversalFrom(data, edgeIndex, node);
-            setTraversalCost(data, edgeIndex, usedCapacity);
+            setTraversalCost(data, node, usedCapacity);
             setTraversalParent(data, node, parent);
             setTraversalAdded(data, edgeIndex);
             ASSTATE.setRoadDebug(node, C.MID);
@@ -1800,15 +1802,18 @@ let ASROAD = (function ()
     let identifyNextNode = function (data)
     {
         let nodeCount = getTraversalEdgeCount(data);
-        let minCost = getTraversalCost(data, 0);
+        let minCost = -1;
+        let minNode = -1;
         let minIndex = -1;
         for (let i = 0; i < nodeCount; i++)
         {
-            let localCost = getTraversalCost(data, i);
+            let node = getTraversalFrom(data, i);
+            let localCost = getTraversalCost(data, node);
             let isAdded = isTraversalAdded(data, i);
-            if (isAdded && (minIndex == -1 || localCost <= getTraversalCost(data, minIndex)))
+            if (isAdded && (minNode == -1 || localCost <= getTraversalCost(data, minNode)))
             {
                 minIndex = i;
+                minNode = node;
                 minCost = localCost;
             }
         }

@@ -1742,10 +1742,11 @@ let ASROAD = (function ()
         {
             let nodeIndex = getTraversalEdgeCount(data);
             incrementTraversalEdgeCount(data);
+            setTraversalCurrentIndex(from, 0);
             setTraversalFrom(data, nodeIndex, from);
             let usedCapacity = ASSTATE.getRoadUsedCapacity(from);
             setTraversalCost(data, nodeIndex, usedCapacity);
-            setTraversalParent(data, nodeIndex, from);
+            setTraversalParent(data, nodeIndex, -1);
             setTraversalProcessed(data, nodeIndex);
             expandTraversal(data, from, isConnectedTo(from, C_TO.N));
             expandTraversal(data, from, isConnectedTo(from, C_TO.E));
@@ -1889,49 +1890,41 @@ let ASROAD = (function ()
             console.log('invalid');
             return [-1, -1];
         }
-        let reversePathIndices = [];
         let lastIndex = getTraversalCurrentIndex(data);
-        //console.log(data);
-        //console.log(lastIndex);
-        while (lastIndex >= 0)
+        if (lastIndex < 0)
         {
-            reversePathIndices.push(lastIndex);
-            lastIndex = getTraversalParent(data, lastIndex);
-            //console.log(lastIndex);
+            console.log('invalid');
+            return [-1, -1];
         }
-        reversePathIndices.push(lastIndex); // last one is -1
-        //console.log(reversePathIndices);
-        let reversePathFromTo = [];
-        for (let i = 0; i < reversePathIndices.length; i++)
+        else
         {
-            let index = reversePathIndices[i];
-            if (index == -1)
+            let reversePathNode = [];
+            while (lastIndex >= 0)
             {
-                let fromStart = getTraversalStart(data);
-                reversePathFromTo.push(fromStart);
-                //console.log(fromStart);
+                let node = getTraversalFrom(data, lastIndex);
+                reversePathNode.push(node);
+                let parent = getTraversalParent(data, lastIndex);
+                if (parent == node)
+                {
+                    lastIndex = -1;
+                }
+                else
+                {
+                    lastIndex = identifyNodeIndex(data, parent);
+                }
             }
-            else
+            //let node = getTraversalFrom(lastIndex);
+            //reversePathNode.push(node);
+            let pathNodeXY = [];
+            while (reversePathNode.length > 0)
             {
-                let from = getTraversalFrom(data, index);
-                let to = getTraversalTo(data, index);
-                reversePathFromTo.push(to);
-                //reversePathFromTo.push(from);
+                let node = reversePathNode.pop();
+                let xy = ASSTATE.getXYFromIndex(node);
+                pathNodeXY.push(xy[0]);
+                pathNodeXY.push(xy[1]);
             }
+            return pathNodeXY;
         }
-        //console.log(reversePathFromTo);
-        let pathFromTo = [];
-        let pathFromToXY = [];
-        while (reversePathFromTo.length > 0)
-        {
-            let index = reversePathFromTo.pop();
-            pathFromTo.push(index);
-            let xy = ASSTATE.getXYFromIndex(index);
-            pathFromToXY.push(xy[0]);
-            pathFromToXY.push(xy[1]);
-        }
-        //console.log(pathFromToXY);
-        return pathFromToXY;
     }
     
     public.resetTraversalPath = function asroad_resetTraversalPath(data)

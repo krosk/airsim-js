@@ -1653,14 +1653,6 @@ let ASROAD = (function ()
         //return ASSTATE.getRoadTraversalProcessed(to);
         return data[index*5 + C_TR.PROCESSED] == 2;
     }
-    let getTraversalTo = function asroad_getTraversalTo(data, index)
-    {
-        return data[index*5 + C_TR.TO];
-    }
-    let setTraversalTo = function asroad_setTraversalTo(data, index, value)
-    {
-        data[index*5 + C_TR.TO] = value;
-    }
     let getTraversalFrom = function asroad_getTraversalFrom(data, index)
     {
         //let to = getTraversalTo(data, index);
@@ -1941,7 +1933,7 @@ let ASROAD = (function ()
     public.printTraversal = function asroad_printTraversal(data)
     {
         console.log(data);
-        console.log(data[0]);
+        //console.log(data[0]);
     }
     
     let validateTraversalData = function asroad_validateTraversalData(data)

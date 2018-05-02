@@ -1904,14 +1904,7 @@ let ASROAD = (function ()
                 let node = getTraversalFrom(data, lastIndex);
                 reversePathNode.push(node);
                 let parent = getTraversalParent(data, lastIndex);
-                if (parent == node)
-                {
-                    lastIndex = -1;
-                }
-                else
-                {
-                    lastIndex = identifyNodeIndex(data, parent);
-                }
+                lastIndex = identifyNodeIndex(data, parent);
             }
             //let node = getTraversalFrom(lastIndex);
             //reversePathNode.push(node);

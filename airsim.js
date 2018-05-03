@@ -1617,49 +1617,45 @@ let ASROAD = (function ()
     }
     let getTraversalCost = function asroad_getTraversalCost(data, node)
     {
-        //let to = getTraversalTo(data, index);
-        //return ASSTATE.getRoadTraversalCost(to);
-        let index = identifyNodeIndex(data, node);
-        return data[index*5 + C_TR.COST];
+        return ASSTATE.getRoadTraversalCost(node);
+        //let index = identifyNodeIndex(data, node);
+        //return data[index*5 + C_TR.COST];
     }
     let setTraversalCost = function asroad_setTraversalCost(data, node, value)
     {
-        //let to = getTraversalTo(data, index);
-        //ASSTATE.setRoadTraversalCost(to, value);
-        let index = identifyNodeIndex(data, node);
-        data[index*5 + C_TR.COST] = value;
-        console.log(value);
+        ASSTATE.setRoadTraversalCost(node, value);
+        //let index = identifyNodeIndex(data, node);
+        //data[index*5 + C_TR.COST] = value;
     }
     let setTraversalAdded = function asroad_setTraversalAdded(data, node)
     {
-        let index = identifyNodeIndex(data, node);
-        data[index*5 + C_TR.PROCESSED] = 1;
+        ASSTATE.setRoadTraversalProcessed(node, 1);
+        //let index = identifyNodeIndex(data, node);
+        //data[index*5 + C_TR.PROCESSED] = 1;
     }
     let setTraversalProcessed = function asroad_setTraversalProcessed(data, node)
     {
-        //let to = getTraversalTo(data, index);
-        //ASSTATE.setRoadTraversalProcessed(to, 1);
-        let index = identifyNodeIndex(data, node);
-        data[index*5 + C_TR.PROCESSED] = 2;
+        ASSTATE.setRoadTraversalProcessed(node, 2);
+        //let index = identifyNodeIndex(data, node);
+        //data[index*5 + C_TR.PROCESSED] = 2;
     }
     let setTraversalProcessedNot = function asroad_setTraversalProcessedNot(data, node)
     {
-        //let to = getTraversalTo(data, index);
-        //ASSTATE.setRoadTraversalProcessed(to, 0);
-        let index = identifyNodeIndex(data, node);
-        data[index*5 + C_TR.PROCESSED] = 0;
+        ASSTATE.setRoadTraversalProcessed(node, 0);
+        //let index = identifyNodeIndex(data, node);
+        //data[index*5 + C_TR.PROCESSED] = 0;
     }
     let isTraversalAdded = function asroad_isTraversalAdded(data, node)
     {
-        let index = identifyNodeIndex(data, node);
-        return data[index*5 + C_TR.PROCESSED] == 1;
+        return ASSTATE.getRoadTraversalProcessed(node) == 1;
+        //let index = identifyNodeIndex(data, node);
+        //return data[index*5 + C_TR.PROCESSED] == 1;
     }
     let isTraversalProcessed = function asroad_isTraversalProcessed(data, node)
     {
-        //let to = getTraversalTo(data, index);
-        //return ASSTATE.getRoadTraversalProcessed(to);
-        let index = identifyNodeIndex(data, node);
-        return data[index*5 + C_TR.PROCESSED] == 2;
+        return ASSTATE.getRoadTraversalProcessed(node) == 2;
+        //let index = identifyNodeIndex(data, node);
+        //return data[index*5 + C_TR.PROCESSED] == 2;
     }
     let getTraversalFrom = function asroad_getTraversalFrom(data, index)
     {
@@ -1675,18 +1671,15 @@ let ASROAD = (function ()
     }
     let getTraversalParent = function asroad_getTraversalParent(data, node)
     {
-        //let to = getTraversalTo(data, index);
-        //return ASSTATE.getRoadTraversalParent(to);
-        let index = identifyNodeIndex(data, node);
-        return data[index*5 + C_TR.PARENT];
+        return ASSTATE.getRoadTraversalParent(node);
+        //let index = identifyNodeIndex(data, node);
+        //return data[index*5 + C_TR.PARENT];
     }
     let setTraversalParent = function asroad_setTraversalParent(data, node, value)
     {
-        //let to = getTraversalTo(data, index);
-        //ASSTATE.setRoadTraversalParent(to, value);
-        let index = identifyNodeIndex(data, node);
-        data[index*5 + C_TR.PARENT] = value;
-        //console.log(value);
+        ASSTATE.setRoadTraversalParent(node, value);
+        //let index = identifyNodeIndex(data, node);
+        //data[index*5 + C_TR.PARENT] = value;
     }
     let getRoadsInTraversal = function (data)
     {
@@ -1727,10 +1720,9 @@ let ASROAD = (function ()
     }
     let clearTraversal = function asroad_clearTraversal(data, node, index)
     {
-        setTraversalProcessedNot(data, node, index);
-        setTraversalParent(data, node, 0);
         setTraversalFrom(data, index, 0);
-        //setTraversalTo(data, index, 0);
+        setTraversalProcessedNot(data, node, index);
+        setTraversalParent(data, node, -1);
         setTraversalCost(data, node, 0);
     }
     

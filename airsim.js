@@ -1805,7 +1805,6 @@ let ASROAD = (function ()
         let nodeCount = getTraversalEdgeCount(data);
         let minCost = -1;
         let minNode = -1;
-        let minIndex = -1;
         for (let i = 0; i < nodeCount; i++)
         {
             let node = getTraversalFrom(data, i);
@@ -1813,17 +1812,15 @@ let ASROAD = (function ()
             let isAdded = isTraversalAdded(data, node);
             if (isAdded && (minNode == -1 || localCost <= getTraversalCost(data, minNode)))
             {
-                minIndex = i;
                 minNode = node;
                 minCost = localCost;
             }
         }
-        return minIndex;
+        return minNode;
     }
     
-    let traverseNextNode = function (data, minIndex)
+    let traverseNextNode = function (data, node)
     {
-        let node = getTraversalFrom(data, minIndex);
         if (!hasRoad(node))
         {
             console.log('traversal wrong target');
@@ -1871,10 +1868,10 @@ let ASROAD = (function ()
             return [-1, -1];
         }
         // start explore
-        let minIndex = identifyNextNode(data);
-        if (minIndex >= 0)
+        let minNode = identifyNextNode(data);
+        if (minNode >= 0)
         {
-            return traverseNextNode(data, minIndex);
+            return traverseNextNode(data, minNode);
         }
         else
         {

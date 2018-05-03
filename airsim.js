@@ -1898,17 +1898,12 @@ let ASROAD = (function ()
         }
         else
         {
-            let lastIndex = identifyNodeIndex(data, lastNode);
             let reversePathNode = [];
-            while (lastIndex >= 0)
+            while (lastNode >= 0)
             {
-                let node = getTraversalFrom(data, lastIndex);
-                reversePathNode.push(node);
-                let parent = getTraversalParent(data, node);
-                //console.log('n' + node + 'i' + lastIndex + 'p' + parent);
-                lastIndex = identifyNodeIndex(data, parent);
+                reversePathNode.push(lastNode);
+                lastNode = getTraversalParent(data, lastNode);
             }
-            //let node = getTraversalFrom(lastIndex);
             //reversePathNode.push(node);
             let pathNodeXY = [];
             while (reversePathNode.length > 0)

@@ -1737,7 +1737,7 @@ let ASROAD = (function ()
         {
             let nodeIndex = getTraversalEdgeCount(data);
             incrementTraversalEdgeCount(data);
-            setTraversalCurrentIndex(from, 0);
+            setTraversalCurrentIndex(data, from);
             setTraversalFrom(data, nodeIndex, from);
             let usedCapacity = ASSTATE.getRoadUsedCapacity(from);
             setTraversalCost(data, from, usedCapacity);
@@ -1764,7 +1764,6 @@ let ASROAD = (function ()
         //console.log('expandTraversal d' + data + 'f' + from + 't' + to);
         if (hasRoad(node))
         {
-            let index = getTraversalCurrentIndex(data);
             let usedCapacity = ASSTATE.getRoadUsedCapacity(node);
             if (parent >= 0)
             {
@@ -1798,6 +1797,11 @@ let ASROAD = (function ()
     
     let identifyNextNode = function (data)
     {
+        if (!validateTraversalData(data))
+        {
+            console.log('invalid');
+            return -1;
+        }
         let nodeCount = getTraversalEdgeCount(data);
         let minCost = -1;
         let minNode = -1;
@@ -1826,7 +1830,7 @@ let ASROAD = (function ()
             throw 'traversal wrong target';
             return [-1, -1];
         }
-        setTraversalCurrentIndex(data, minIndex);
+        setTraversalCurrentIndex(data, node);
         setTraversalProcessed(data, node);
         let expandIfNotTraversed = function (data, from, d)
         {
@@ -1886,14 +1890,15 @@ let ASROAD = (function ()
             console.log('invalid');
             return [-1, -1];
         }
-        let lastIndex = getTraversalCurrentIndex(data);
-        if (lastIndex < 0)
+        let lastNode = getTraversalCurrentIndex(data);
+        if (lastNode < 0)
         {
             console.log('invalid');
             return [-1, -1];
         }
         else
         {
+            let lastIndex = identifyNodeIndex(data, lastNode);
             let reversePathNode = [];
             while (lastIndex >= 0)
             {

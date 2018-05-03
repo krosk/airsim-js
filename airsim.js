@@ -775,7 +775,7 @@ let ASSTATE = (function()
         ROAD_TRAVERSAL_PROCESSED : 10,
         ROAD_TRAVERSAL_COST : 11,
         ROAD_TRAVERSAL_PARENT : 12,
-        ROAD_DEBUG : 12,
+        ROAD_DEBUG : 13,
         BUILDING_TYPE : 2, // 1 res 2 com 3 ind 4 off
         BUILDING_DENSITY_LEVEL : 3,
         BUILDING_OFFER_R: 4,
@@ -1900,6 +1900,7 @@ let ASROAD = (function ()
                 let node = getTraversalFrom(data, lastIndex);
                 reversePathNode.push(node);
                 let parent = getTraversalParent(data, node);
+                //console.log('n' + node + 'i' + lastIndex + 'p' + parent);
                 lastIndex = identifyNodeIndex(data, parent);
             }
             //let node = getTraversalFrom(lastIndex);

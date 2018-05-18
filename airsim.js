@@ -1794,6 +1794,42 @@ let ASROAD = (function ()
         }
         return -1;
     }
+   
+    let getCurrentNodeList = function (data)
+    {
+        if (!validateTraversalData(data))
+        {
+            console.log('invalid');
+            return -1;
+        }
+        let startNode = getTraversalStart(data);
+        let nodeList = [startNode];
+        let i = 0;
+        let addToNodeList = function (dara, parentNode, dir, nodeList)
+        {
+            let childNode = isConnectedTo(parentNode, dir);
+            if (!hasRoad(childNode))
+            {
+                return;
+            }
+            let isParentNode = getTraversalParent(data, childNode) == parentNode;
+            if (!isParentNode)
+            {
+                return;
+            }
+            nodeList.push(childNode);
+        }
+        while (i < nodeList.length)
+        {
+            let parentNode = nodeList[i];
+            addToNodeList(data, parentNode, C_TO.N, nodeList);
+            addToNodeList(data, parentNode, C_TO.E, nodeList);
+            addToNodeList(data, parentNode, C_TO.S, nodeList);
+            addToNodeList(data, parentNode, C_TO.W, nodeList);
+            i++;
+        }
+        return nodeList;
+    }
     
     let identifyNextNode = function (data)
     {
@@ -1802,12 +1838,13 @@ let ASROAD = (function ()
             console.log('invalid');
             return -1;
         }
-        let nodeCount = getTraversalEdgeCount(data);
+        let nodeList = getCurrentNodeList(data);
+        let nodeCount = nodeList.length;
         let minCost = -1;
         let minNode = -1;
         for (let i = 0; i < nodeCount; i++)
         {
-            let node = getTraversalFrom(data, i);
+            let node = nodeList[i];
             let localCost = getTraversalCost(data, node);
             let isAdded = isTraversalAdded(data, node);
             if (isAdded && (minNode == -1 || localCost <= getTraversalCost(data, minNode)))
@@ -1918,10 +1955,11 @@ let ASROAD = (function ()
     {
         if (validateTraversalData(data))
         {
-            let edgeCount = getTraversalEdgeCount(data);
+            let nodeList = getCurrentNodeList(data);
+            let edgeCount = nodeList.length;
             for (let i = 0; i < edgeCount; i++)
             {
-                let node = getTraversalFrom(data, i);
+                let node = nodeList[i];
                 if (hasRoad(node))
                 {
                     ASSTATE.setRoadDebug(node, C.LOW);

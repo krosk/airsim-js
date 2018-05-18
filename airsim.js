@@ -1802,17 +1802,17 @@ let ASROAD = (function ()
         return -1;
     }
    
-    let getCurrentNodeList = function (data)
+    let getCurrentNodeList = function asroad_getCurrentNodeList(data)
     {
         if (!validateTraversalData(data))
         {
-            console.log('invalid');
+            console.log('invalid getCurrentNodeList');
             return -1;
         }
         let startNode = getTraversalStart(data);
         let nodeList = [startNode];
         let i = 0;
-        let addToNodeList = function (dara, parentNode, dir, nodeList)
+        let addToNodeList = function (data, parentNode, dir, nodeList)
         {
             let childNode = isConnectedTo(parentNode, dir);
             if (!hasRoad(childNode))
@@ -1838,11 +1838,11 @@ let ASROAD = (function ()
         return nodeList;
     }
     
-    let identifyNextNode = function (data)
+    let identifyNextNode = function asroad_identifyNextNode(data)
     {
         if (!validateTraversalData(data))
         {
-            console.log('invalid');
+            console.log('invalid identifyNextNode');
             return -1;
         }
         let nodeList = getCurrentNodeList(data);
@@ -1908,7 +1908,7 @@ let ASROAD = (function ()
     {
         if (!validateTraversalData(data))
         {
-            console.log('invalid');
+            console.log('invalid getNextStepTraversal');
             return [-1, -1];
         }
         // start explore
@@ -1928,7 +1928,7 @@ let ASROAD = (function ()
     {
         if (!validateTraversalData(data))
         {
-            console.log('invalid');
+            console.log('invalid getTraversalPath');
             return [-1, -1];
         }
         let lastNode = getTraversalCurrentIndex(data);
@@ -1987,7 +1987,8 @@ let ASROAD = (function ()
     {
         if (typeof data === 'undefined' || data == null)
         {
-            return false;
+            //Note: data is now unused
+            //return false;
         }
         return true;
     }

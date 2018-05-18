@@ -223,7 +223,7 @@ function pfFormatTestGrid(grid, w, h)
 function StartState()
 {
     console.log("Start");
-    ASMAP.initialize(8, 8);
+    ASMAP.initialize(32, 32);
     pfFormatTestGrid(ASMAP.Grid, ASMAP.Width, ASMAP.Height);
     for (i = 1; i < 0xFF * 12; i++)
     {
@@ -333,35 +333,32 @@ let ASMAP = (function ()
         MMAPDATA.refreshTile(x, y);
     }
     
-    let m_roadTraversalTemp;
-    
     let doRoadViewSingleClick = function asmap_doRoadViewSingleClick(x, y)
     {
         let selectedId = ASMAPUI.getCurrentRoadId();
         if (selectedId == ASROAD.C_TILEENUM.LOW)
         {
-            m_roadTraversalTemp = ASROAD.initializeTraversal(x, y);
+            ASROAD.initializeTraversal(x, y);
             //console.log('start traversal x' + x + 'y' + y + 'c' + m_roadTraversalTemp);
         }
         else if (selectedId == ASROAD.C_TILEENUM.MID)
         {
-            let next = ASROAD.getNextStepTraversal(m_roadTraversalTemp);
+            let next = ASROAD.getNextStepTraversal();
             //console.log('incre traversal x' + next[0] + 'y' + next[1] + 'c' + m_roadTraversalTemp);
         }
         else if (selectedId == ASROAD.C_TILEENUM.HIG)
         {
-            let pathXY = ASROAD.getTraversalPath(m_roadTraversalTemp);
+            let pathXY = ASROAD.getTraversalPath();
             //console.log('finish traversal');
             console.log(pathXY);
         }
         else if (selectedId == ASROAD.C_TILEENUM.NONE)
         {
-            ASROAD.resetTraversalPath(m_roadTraversalTemp);
-            m_roadTraversalTemp = null;
+            ASROAD.resetTraversalPath();
         }
         else if (selectedId == ASROAD.C_TILEENUM.VHI)
         {
-            ASROAD.printTraversal(m_roadTraversalTemp);
+            ASROAD.printTraversal();
         }
         MMAPDATA.refreshAllTiles();
     }

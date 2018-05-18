@@ -616,8 +616,88 @@ particular the 'to' is unique.
 However, this only allows one parent. Since
 it is a tree, it is not possible to get the
 childrens nodes. How do you get the leaves?
-If you start from a keave you can get to the
+If you start from a leaf you can get to the
 root but not the reverse.
+Or, in fact you could. Roads have the connected
+information (north, south, etc). So knowing
+the root, one could navigate up to leaves.
+Therefore saving the state of a traversal
+could be possible, although maybe
+slightly computation intensive because
+there is no way to know which are the last
+leaves except by traversing the tree from the
+root. But I could try.
+
+A traversal data structure had the benefit of
+being savable, and many could run at the same
+time. Moving to a storage in the grid makes
+it impossible to run multiple traversal paths
+at the same time. Hence, no multicore on a 
+single state. That is not a bad thing though,
+since multicore makes things unpredictable.
+Multicore will be available in running multiple
+independant simulations.
+
+**Mechanism 6.1: Road traversal on grid
+
+The requirement is that the data structure
+contains all leaves on a list, which
+incrementally grows as traversal goes,
+and a lot of the elements are refered by their
+indices instead of an other key. The index
+is the unique key taken into account, because
+this is the order of storage in the old data
+structure. If it was any other key, that would
+mean to perform a lookup each time a data must
+be accessed.
+
+Changing to the to index as a key could be
+good.
+A new algorithm could be that.
+From a starting point, register the cost (the
+road capacity), the parent (none), and the
+processed flag (added, not traversed).
+Lookup for the leaf with the lowest cost,
+that is added not traversed.
+The lookup is performed at the start, and
+since there is only one leaf, choose it.
+It becomes traversed.
+
+Child leaves are naturally connected, so check
+the isConnectedTo instead, and if they have no
+added flag, connect, and initialize their cost,
+their parent, and mark them as added not
+traversed.
+
+Which leaf should be traversed? The one with
+the lowest cost.
+
+Note that it is necessary for a node to have
+3 states, not processed, added, and processed.
+The added state (yellow) indicates a node
+that is reached and will be one of the next
+candidates.
+
+The transition to this new method requires
+a transition from a edge graph to a node
+graph, and a change to the whole algorithm.
+As a change to, the starting node is a
+traversal added not reached.
+
+To get the next step, the algorithm must be:
+From the start
+check all directions
+if one is traversed and is not parent,
+  put it in a queue to process
+if one is added,
+  put it in a queue to costify
+do that until there is no more to process.
+
+next, process the costify queue.
+
+This is why it is best to get the first tile
+as a processed, so the exploration towards 
+four directions is correct.
 
 
 **Mechanism 7: Checking all buildings
@@ -705,8 +785,6 @@ steps are not homogeneous is more difficult.
 
 
 
-
-
 Zoning vs display
 asrico proposes a view only focused on zoning.
 aszone is more general purpose.
@@ -722,7 +800,18 @@ Later, progression can be two fold, in density
 (user controlled) and in richness.
 There will be 3 richness levels.
 
-
+Touch
+On first touch, map always stays under touch
+on a static point.
+On second touch, it is impossible to keep
+static points under touch.
+Current strategy is to keep a static point
+under first touch, and distance between touch
+defines the zoom level.
+New strategy could be static point being the
+middle of the two touches. When moving two
+touch rotation, keep the static point to
+middle of the line between two touches.
 
 Webassembly
 Input output of webassembly is arraybuffer 

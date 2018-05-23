@@ -223,7 +223,7 @@ function pfFormatTestGrid(grid, w, h)
 function StartState()
 {
     console.log("Start");
-    ASMAP.initialize(32, 32);
+    ASMAP.initialize(64, 64);
     pfFormatTestGrid(ASMAP.Grid, ASMAP.Width, ASMAP.Height);
     for (i = 1; i < 0xFF * 12; i++)
     {
@@ -2858,10 +2858,10 @@ let MMAPTOUCH = (function ()
     let m_clickCount = 0;
     const C_CLICKDELAYMS = 200;
 
-    let getDistanceBetween = function mmaptouch_getDistanceBetween(pos1, pos2)
+    let getDistanceBetween = function mmaptouch_getDistanceBetween(pos1x, pos1y, pos2)
     {
-        let sqx = Math.pow(pos2.x - pos1.x, 2);
-        let sqy = Math.pow(pos2.y - pos1.y, 2);
+        let sqx = Math.pow(pos2.x - pos1x, 2);
+        let sqy = Math.pow(pos2.y - pos1y, 2);
         let value = Math.sqrt(sqx + sqy);
         return value;
     }
@@ -3009,7 +3009,7 @@ let MMAPTOUCH = (function ()
         m_startPointerScreen.x = (pos1.x + pos2.x) / 2;
         m_startPointerScreen.y = (pos1.y + pos2.y) / 2;
         
-        m_startDistance = getDistanceBetween(pos1, pos2);
+        m_startDistance = getDistanceBetween(pos1.x, pos1.y, pos2);
         
         let cameraScreenX = MMAPRENDER.getCameraScreenX();
         let cameraScreenY = MMAPRENDER.getCameraScreenY();
@@ -3023,7 +3023,8 @@ let MMAPTOUCH = (function ()
 
     let mapDisplayDragRefresh = function mmaptouch_mapDisplayDragRefresh(_this)
     {
-        if (m_touchData.length == 0)
+        let touchCount = m_touchData.length;
+        if (touchCount == 0)
         {
             mapDisplayDragReset(_this);
             
@@ -3032,7 +3033,7 @@ let MMAPTOUCH = (function ()
                 m_clickCount++;
             }
         }
-        if (m_touchData.length == 1)
+        else if (touchCount == 1)
         {
             let wasZooming = m_zooming;
             
@@ -3044,7 +3045,7 @@ let MMAPTOUCH = (function ()
                 setTimeout(clickDecisionTimeout, C_CLICKDELAYMS);
             }
         }
-        if (m_touchData.length == 2)
+        else if (touchCount == 2)
         {
             let wasZooming = m_zooming;
             
@@ -3058,11 +3059,11 @@ let MMAPTOUCH = (function ()
         }
     }
     
-    let disableClickTimeoutOnMove = function mmaptouch_disableClickTimeoutOnMove(p1, p2)
+    let disableClickTimeoutOnMove = function mmaptouch_disableClickTimeoutOnMove(p1x, p1y, p2)
     {
         if (m_clickTimeout)
         {
-            let d = getDistanceBetween(p1, p2);
+            let d = getDistanceBetween(p1x, p1y, p2);
             if (d > 4)
             {
                 m_clickTimeout = false;
@@ -3085,13 +3086,13 @@ let MMAPTOUCH = (function ()
         MMAPRENDER.setCameraMap(cameraMapX, cameraMapY);
     }
     
-    let updateCameraPanZoom = function mmaptouch_updateCameraPanZoom(pointerScreen)
+    let updateCameraPanZoom = function mmaptouch_updateCameraPanZoom(pointerScreenX, pointerScreenY)
     {
         let cameraScreenX = MMAPRENDER.getCameraScreenX();
         let cameraScreenY = MMAPRENDER.getCameraScreenY();
         
-        let deltaPointerCameraScreenX = cameraScreenX - pointerScreen.x;
-        let deltaPointerCameraScreenY = cameraScreenY - pointerScreen.y;
+        let deltaPointerCameraScreenX = cameraScreenX - pointerScreenX;
+        let deltaPointerCameraScreenY = cameraScreenY - pointerScreenY;
         
         // camera moves according to differential movement of pointer
         let cameraMapX = m_startCameraMapX + deltaPointerCameraScreenX / MMAPRENDER.getCameraScaleX();
@@ -3117,7 +3118,7 @@ let MMAPTOUCH = (function ()
         {
             let pointerScreen = m_touchData[0].getLocalPosition(_this.parent);
             
-            disableClickTimeoutOnMove(pointerScreen, m_startPointerScreen);
+            disableClickTimeoutOnMove(pointerScreen.x, pointerScreen.y, m_startPointerScreen);
             
             updateCameraPan(pointerScreen);
         }
@@ -3125,25 +3126,24 @@ let MMAPTOUCH = (function ()
         {
             let pos1 = m_touchData[0].getLocalPosition(_this.parent);
             let pos2 = m_touchData[1].getLocalPosition(_this.parent);
-            let pointerScreen = {};
-            pointerScreen.x = (pos1.x + pos2.x) / 2;
-            pointerScreen.y = (pos1.y + pos2.y) / 2;
-            let newDistance = getDistanceBetween(pos1, pos2);
+            let pointerScreenX = (pos1.x + pos2.x) / 2;
+            let pointerScreenY = (pos1.y + pos2.y) / 2;
+            let newDistance = getDistanceBetween(pos1.x, pos1.y, pos2);
             let ratio = newDistance / m_startDistance;
             let cameraScaleX = m_startScaleX * ratio;
             let cameraScaleY = m_startScaleY * ratio;
             
             MMAPRENDER.setCameraScale(cameraScaleX, cameraScaleY);
             
-            disableClickTimeoutOnMove(pointerScreen, m_startPointerScreen);
+            disableClickTimeoutOnMove(pointerScreenX, pointerScreenY, m_startPointerScreen);
             
-            updateCameraPanZoom(pointerScreen);
+            updateCameraPanZoom(pointerScreenX, pointerScreenY);
         }
         else if (!m_dragging && m_zooming)
         {
             let pointerScreen = m_touchData[0].getLocalPosition(_this.parent);
             
-            disableClickTimeoutOnMove(pointerScreen, m_startPointerScreen);
+            disableClickTimeoutOnMove(pointerScreen.x, pointerScreen.y, m_startPointerScreen);
             
             updateCameraZoom(pointerScreen);
         }

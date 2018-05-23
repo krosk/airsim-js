@@ -2908,6 +2908,16 @@ let MMAPTOUCH = (function ()
         return m_zooming;
     }
     
+    public.getTouchCount = function mmaptouch_getTouchCount()
+    {
+        return m_touchData.length;
+    }
+    
+    public.getClickCount = function mmaptouch_getClickCount()
+    {
+        return m_clickCount;
+    }
+    
     let clickDecisionTimeout = function mmaptouch_clickDecisionTimeout()
     {
         if (m_clickTimeout && m_touchData.length == 0)
@@ -2920,6 +2930,10 @@ let MMAPTOUCH = (function ()
             {
                 MMAPRENDER.processDoubleClick(m_startPointerScreen.x, m_startPointerScreen.y);
             }
+        }
+        if (m_clickTimeout && m_clickCount == 1 && m_touchData.length == 1)
+        {
+            //console.log("zoom no pan");
         }
         m_clickCount = 0;
         m_clickTimeout = false;
@@ -3327,8 +3341,8 @@ let MMAPRENDER = (function ()
         let mapLayer = MMAPBATCH.getMapLayer();
         mapLayer.pivot.x = m_cameraMapX;
         mapLayer.pivot.y = m_cameraMapY;
-        mapLayer.x = viewWidth() / 2;
-        mapLayer.y = viewHeight() / 2;
+        mapLayer.x = cameraScreenX();
+        mapLayer.y = cameraScreenY();
         
         public.updateDebug();
     }
@@ -3339,7 +3353,7 @@ let MMAPRENDER = (function ()
         let tileY = getCenterTileY();
         let cameraScale = (m_cameraScaleX * 100) | 0;
         
-        let interactState = 'i(' + (MMAPTOUCH.isStatePan() ? 'P' : '-') + (MMAPTOUCH.isStateZoom() ? 'Z' : '-') + ') ';
+        let interactState = 'i(' + (MMAPTOUCH.isStatePan() ? 'P' : '-') + (MMAPTOUCH.isStateZoom() ? 'Z' : '-') + (MMAPTOUCH.getTouchCount()) + (MMAPTOUCH.getClickCount()) + ') ';
         let tickElapsed = 'k(' + ASSTATE.getTick() + ') ';
         let cache = 'c(' + Object.keys(PIXI.utils.TextureCache).length + ') ';
         let memUsage = 'o(' + performance.memory.usedJSHeapSize / 1000 + ') ';

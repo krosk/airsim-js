@@ -3102,10 +3102,9 @@ let MMAPTOUCH = (function ()
     
     let updateCameraZoom = function mmaptouch_updateCameraZoom(pointerScreen)
     {
-        let deltaPointerScreenX = m_startPointerScreen.x - pointerScreen.x;
         let deltaPointerScreenY = m_startPointerScreen.y - pointerScreen.y;
         
-        let ratio = 1 - deltaPointerScreenY / 300;
+        let ratio = (-2*deltaPointerScreenY + MMAPRENDER.getCameraScreenY()) / MMAPRENDER.getCameraScreenY();
         let cameraScaleX = m_startScaleX * ratio;
         let cameraScaleY = m_startScaleY * ratio;
         

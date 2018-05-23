@@ -2860,19 +2860,23 @@ let MMAPTOUCH = (function ()
 
     let getDistanceBetween = function mmaptouch_getDistanceBetween(pos1, pos2)
     {
-        let value = Math.sqrt(Math.pow(pos2.x - pos1.x, 2) + Math.pow(pos2.y - pos1.y, 2));
-        if (value == 0)
-        {
-            //console.log('0000');
-        }
+        let sqx = Math.pow(pos2.x - pos1.x, 2);
+        let sqy = Math.pow(pos2.y - pos1.y, 2);
+        let value = Math.sqrt(sqx + sqy);
         return value;
     }
 
     public.onMapDisplayDragStart = function mmaptouch_onMapDisplayDragStart(event)
     {
+        let touchIndex = m_touchData.indexOf(event.data);
+        if (touchIndex >= 0)
+        {
+            //console.log('skip');
+            return;
+        }
         m_touchData.push(event.data);
-        mapDisplayDragRefresh(this);
         //console.log('touch ' + event.data.identifier + '/' + m_touchData.length);
+        mapDisplayDragRefresh(this);
     }
 
     public.onMapDisplayDragEnd = function mmaptouch_onMapDisplayDragEnd(event)
@@ -2963,7 +2967,7 @@ let MMAPTOUCH = (function ()
             
             let pos1 = m_touchData[0].getLocalPosition(_this.parent);
             let pos2 = m_touchData[1].getLocalPosition(_this.parent);
-            m_startPointerScreen = pos1;
+            m_startPointerScreen = {};
             m_startPointerScreen.x = (pos1.x + pos2.x) / 2;
             m_startPointerScreen.y = (pos1.y + pos2.y) / 2;
             
@@ -3018,7 +3022,7 @@ let MMAPTOUCH = (function ()
         {
             let pos1 = m_touchData[0].getLocalPosition(_this.parent);
             let pos2 = m_touchData[1].getLocalPosition(_this.parent);
-            let pointerScreen = pos1;
+            let pointerScreen = {};
             pointerScreen.x = (pos1.x + pos2.x) / 2;
             pointerScreen.y = (pos1.y + pos2.y) / 2;
             let newDistance = getDistanceBetween(pos1, pos2);

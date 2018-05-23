@@ -2940,7 +2940,26 @@ let MMAPTOUCH = (function ()
         {
             if (m_clickCount == 1)
             {
-                console.log("zoom no pan");
+                //console.log("zoom no pan");
+                m_dragging = false;
+                m_zooming = true;
+            }
+            else if (m_clickCount == 0)
+            {
+                // not enabled here
+                // because of latency
+                //m_dragging = true;
+                //m_zooming = false;
+            }
+        }
+        else if (m_touchData.length == 2)
+        {
+            if (m_clickCount == 0)
+            {
+                // not enabled here
+                // because of latency
+                //m_dragging = true;
+                //m_zooming = true;
             }
         }
         m_clickCount = 0;
@@ -3080,10 +3099,22 @@ let MMAPTOUCH = (function ()
         
         MMAPRENDER.setCameraMap(cameraMapX, cameraMapY);
     }
+    
+    let updateCameraZoom = function mmaptouch_updateCameraZoom(pointerScreen)
+    {
+        let deltaPointerScreenX = m_startPointerScreen.x - pointerScreen.x;
+        let deltaPointerScreenY = m_startPointerScreen.y - pointerScreen.y;
+        
+        let ratio = 1 - deltaPointerScreenY / 300;
+        let cameraScaleX = m_startScaleX * ratio;
+        let cameraScaleY = m_startScaleY * ratio;
+        
+        MMAPRENDER.setCameraScale(cameraScaleX, cameraScaleY);
+    }
 
     let updateCameraDrag = function mmaptouch_updateCameraDrag(_this)
     {
-        if (!m_zooming)
+        if (m_dragging && !m_zooming)
         {
             let pointerScreen = m_touchData[0].getLocalPosition(_this.parent);
             
@@ -3091,7 +3122,7 @@ let MMAPTOUCH = (function ()
             
             updateCameraPan(pointerScreen);
         }
-        else
+        else if (m_dragging && m_zooming)
         {
             let pos1 = m_touchData[0].getLocalPosition(_this.parent);
             let pos2 = m_touchData[1].getLocalPosition(_this.parent);
@@ -3102,12 +3133,20 @@ let MMAPTOUCH = (function ()
             let ratio = newDistance / m_startDistance;
             let cameraScaleX = m_startScaleX * ratio;
             let cameraScaleY = m_startScaleY * ratio;
-        
+            
             MMAPRENDER.setCameraScale(cameraScaleX, cameraScaleY);
             
             disableClickTimeoutOnMove(pointerScreen, m_startPointerScreen);
             
             updateCameraPanZoom(pointerScreen);
+        }
+        else if (!m_dragging && m_zooming)
+        {
+            let pointerScreen = m_touchData[0].getLocalPosition(_this.parent);
+            
+            disableClickTimeoutOnMove(pointerScreen, m_startPointerScreen);
+            
+            updateCameraZoom(pointerScreen);
         }
     }
 

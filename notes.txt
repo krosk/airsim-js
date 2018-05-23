@@ -813,6 +813,13 @@ middle of the two touches. When moving two
 touch rotation, keep the static point to
 middle of the line between two touches.
 
+Implementation requires to know the width and 
+height of the screen, in order to be able to
+infer the camera map point that makes the static 
+point coincide with the middle of the touch.
+
+
+
 Webassembly
 Input output of webassembly is arraybuffer 
 based. Hence each module (zone, road) must 

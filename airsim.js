@@ -2898,6 +2898,16 @@ let MMAPTOUCH = (function ()
         }
     }
     
+    public.isStatePan = function mmaptouch_isStatePan()
+    {
+        return m_dragging;
+    }
+    
+    public.isStateZoom = function mmaptouch_isStateZoom()
+    {
+        return m_zooming;
+    }
+    
     let clickDecisionTimeout = function mmaptouch_clickDecisionTimeout()
     {
         if (m_clickTimeout && m_touchData.length == 0)
@@ -3329,6 +3339,7 @@ let MMAPRENDER = (function ()
         let tileY = getCenterTileY();
         let cameraScale = (m_cameraScaleX * 100) | 0;
         
+        let interactState = 'i(' + (MMAPTOUCH.isStatePan() ? 'P' : '-') + (MMAPTOUCH.isStateZoom() ? 'Z' : '-') + ') ';
         let tickElapsed = 'k(' + ASSTATE.getTick() + ') ';
         let cache = 'c(' + Object.keys(PIXI.utils.TextureCache).length + ') ';
         let memUsage = 'o(' + performance.memory.usedJSHeapSize / 1000 + ') ';
@@ -3336,7 +3347,7 @@ let MMAPRENDER = (function ()
         let tileCoords = 't(' + tileX + ',' + tileY + ') ';
         let batchCoords = 'b(' + MMAPBATCH.getTileXToBatchX(tileX) + ',' + MMAPBATCH.getTileYToBatchY(tileY) + ') ';
         let batchCount = 'B(' + MMAPBATCH.getBatchCount() + '+' + MMAPBATCH.getBatchPoolCount() + '/' + MMAPBATCH.getBatchTotalCount() + ') ';
-        g_counter.innerHTML = mapCoords + tileCoords + batchCount + memUsage + cache + tickElapsed;
+        g_counter.innerHTML = interactState + mapCoords + tileCoords + tickElapsed;
     }
 
     public.setCameraScale = function mmaprender_setCameraScale(scaleX, scaleY)

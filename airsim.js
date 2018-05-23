@@ -2920,7 +2920,12 @@ let MMAPTOUCH = (function ()
     
     let clickDecisionTimeout = function mmaptouch_clickDecisionTimeout()
     {
-        if (m_clickTimeout && m_touchData.length == 0)
+        if (!m_clickTimeout)
+        {
+            m_clickCount = 0;
+            return;
+        }
+        if (m_touchData.length == 0)
         {
             if (m_clickCount == 1)
             {
@@ -2931,25 +2936,77 @@ let MMAPTOUCH = (function ()
                 MMAPRENDER.processDoubleClick(m_startPointerScreen.x, m_startPointerScreen.y);
             }
         }
-        if (m_clickTimeout && m_clickCount == 1 && m_touchData.length == 1)
+        else if (m_touchData.length == 1)
         {
-            //console.log("zoom no pan");
+            if (m_clickCount == 1)
+            {
+                console.log("zoom no pan");
+            }
         }
         m_clickCount = 0;
         m_clickTimeout = false;
+    }
+    
+    let mapDisplayDragReset = function mmaptouch_mapDisplayDragReset(_this)
+    {
+        m_startScaleX = 1;
+        m_startScaleY = 1;
+        
+        m_dragging = false;
+        m_zooming = false;
+        
+        m_startDistance = 0;
+    }
+    
+    let mapDisplayDragSingle = function mmaptouch_mapDisplayDragSingle(_this)
+    {
+        // remember initial scale
+        m_startScaleX = _this.scale.x;
+        m_startScaleY = _this.scale.y;
+        
+        m_dragging = true;
+        m_zooming = false;
+        
+        m_startPointerScreen = m_touchData[0].getLocalPosition(_this.parent);
+        
+        m_startDistance = 0;
+        
+        m_startCameraMapX = MMAPRENDER.getCameraMapX();
+        m_startCameraMapY = MMAPRENDER.getCameraMapY();
+    }
+    
+    let mapDisplayDragDouble = function mmaptouch_mapDisplayDragDouble(_this)
+    {
+        // remember initial scale
+        m_startScaleX = _this.scale.x;
+        m_startScaleY = _this.scale.y;
+        
+        m_dragging = true;
+        m_zooming = true;
+        
+        let pos1 = m_touchData[0].getLocalPosition(_this.parent);
+        let pos2 = m_touchData[1].getLocalPosition(_this.parent);
+        m_startPointerScreen = {};
+        m_startPointerScreen.x = (pos1.x + pos2.x) / 2;
+        m_startPointerScreen.y = (pos1.y + pos2.y) / 2;
+        
+        m_startDistance = getDistanceBetween(pos1, pos2);
+        
+        let cameraScreenX = MMAPRENDER.getCameraScreenX();
+        let cameraScreenY = MMAPRENDER.getCameraScreenY();
+        
+        let deltaPointerCameraScreenX = cameraScreenX - m_startPointerScreen.x;
+        let deltaPointerCameraScreenY = cameraScreenY - m_startPointerScreen.y;
+        
+        m_startCameraMapX = MMAPRENDER.getCameraMapX() - deltaPointerCameraScreenX / MMAPRENDER.getCameraScaleX();
+        m_startCameraMapY = MMAPRENDER.getCameraMapY() - deltaPointerCameraScreenY / MMAPRENDER.getCameraScaleY();
     }
 
     let mapDisplayDragRefresh = function mmaptouch_mapDisplayDragRefresh(_this)
     {
         if (m_touchData.length == 0)
         {
-            m_startScaleX = 1;
-            m_startScaleY = 1;
-            
-            m_dragging = false;
-            m_zooming = false;
-            
-            m_startDistance = 0;
+            mapDisplayDragReset(_this);
             
             if (m_clickTimeout)
             {
@@ -2958,20 +3015,9 @@ let MMAPTOUCH = (function ()
         }
         if (m_touchData.length == 1)
         {
-            // remember initial scale
-            m_startScaleX = _this.scale.x;
-            m_startScaleY = _this.scale.y;
-
             let wasZooming = m_zooming;
-            m_dragging = true;
-            m_zooming = false;
-
-            m_startPointerScreen = m_touchData[0].getLocalPosition(_this.parent);
             
-            m_startDistance = 0;
-            
-            m_startCameraMapX = MMAPRENDER.getCameraMapX();
-            m_startCameraMapY = MMAPRENDER.getCameraMapY();
+            mapDisplayDragSingle(_this);
             
             if (!m_clickTimeout && !wasZooming)
             {
@@ -2981,31 +3027,10 @@ let MMAPTOUCH = (function ()
         }
         if (m_touchData.length == 2)
         {
-            // remember initial scale
-            m_startScaleX = _this.scale.x;
-            m_startScaleY = _this.scale.y;
-            
             let wasZooming = m_zooming;
-            m_dragging = true;
-            m_zooming = true;
             
-            let pos1 = m_touchData[0].getLocalPosition(_this.parent);
-            let pos2 = m_touchData[1].getLocalPosition(_this.parent);
-            m_startPointerScreen = {};
-            m_startPointerScreen.x = (pos1.x + pos2.x) / 2;
-            m_startPointerScreen.y = (pos1.y + pos2.y) / 2;
+            mapDisplayDragDouble(_this);
             
-            m_startDistance = getDistanceBetween(pos1, pos2);
-            
-            let cameraScreenX = MMAPRENDER.getCameraScreenX();
-            let cameraScreenY = MMAPRENDER.getCameraScreenY();
-            
-            let deltaPointerCameraScreenX = cameraScreenX - m_startPointerScreen.x;
-            let deltaPointerCameraScreenY = cameraScreenY - m_startPointerScreen.y;
-            
-            m_startCameraMapX = MMAPRENDER.getCameraMapX() - deltaPointerCameraScreenX / MMAPRENDER.getCameraScaleX();
-            m_startCameraMapY = MMAPRENDER.getCameraMapY() - deltaPointerCameraScreenY / MMAPRENDER.getCameraScaleY();
-        
             if (!m_clickTimeout && !wasZooming)
             {
                 m_clickTimeout = true;

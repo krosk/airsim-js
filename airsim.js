@@ -789,10 +789,11 @@ let ASSTATE = (function()
         SIZE_X : 0,
         SIZE_Y : 1,
         TICK : 2,
-        RICO_PROGRESS : 3, // progress
-        ROAD_TRAVERSAL_START : 4,
-        ROAD_TRAVERSAL_CURRENT_INDEX : 5,
-        ROAD_TRAVERSAL_EDGE_COUNT : 6,
+        FRAME : 3,
+        RICO_PROGRESS : 4, // progress
+        ROAD_TRAVERSAL_START : 5,
+        ROAD_TRAVERSAL_CURRENT_INDEX : 6,
+        ROAD_TRAVERSAL_EDGE_COUNT : 7,
     }
     
     public.getIndex = function asstate_getIndex(x, y)
@@ -1005,6 +1006,16 @@ let ASSTATE = (function()
         w(0, G.TICK, data);
     }
     
+    public.getFrame = function asstate_getFrame()
+    {
+        return r(0, G.FRAME);
+    }
+    
+    public.setFrame = function asstate_setFrame(data)
+    {
+        w(0, G.FRAME, data);
+    }
+    
     public.getRicoProgress = function asstate_getRicoProgress()
     {
         return r(0, G.RICO_PROGRESS);
@@ -1051,6 +1062,7 @@ let ASSTATE = (function()
         public.setTableSizeX(tableSizeX);
         public.setTableSizeY(tableSizeY);
         public.setTick(0);
+        public.setFrame(0);
         for (let x = 0; x < tableSizeX; x++)
         {
             for (let y = 0; y < tableSizeY; y++)
@@ -1282,11 +1294,17 @@ let ASZONE = (function ()
         const tableSizeX = ASSTATE.getTableSizeX();
         const tableSizeY = ASSTATE.getTableSizeY();
         const tick = ASSTATE.getTick();
+        const frame = ASSTATE.getFrame();
         const nextTick = ASRICO.updateRico(tick, slowdown);
         if (nextTick)
         {
             ASSTATE.setTick(tick + 1);
             ASRICO.setNextTick(tick + 1);
+            ASSTATE.setFrame(0);
+        }
+        else
+        {
+            ASSTATE.setFrame(frame + 1);
         }
     }
     
@@ -1925,16 +1943,7 @@ let ASRICO = (function ()
         [C.COMLOW_2] : [getColor(33, 150, 243), 9],
     };
     
-    /*
-    ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_DENSITY_LEVEL, index, 0);
-    ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_TYPE, index, 1);
-    ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_OFFER_R, index, 0);
-    ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_OFFER_I, index, 0);
-    ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_OFFER_C, index, 0);
-    ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_DEMAND_R, index, 0);
-    ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_DEMAND_I, index, 0);
-    ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_DEMAND_C, index, 0);
-    */
+    // [level, type, offer ric, demand ric]
     
     const C_RICOPROPERTY = {
         [C.RESLOW_0] : [0, 1,   0,   0,   0,   0,   0,   0],
@@ -2225,7 +2234,8 @@ let ASRICO = (function ()
         
         // process offer
         
-        return true;
+        
+        return false;
     }
     
     let hasBuilding = function asrico_hasBuilding(i)
@@ -3421,13 +3431,14 @@ let MMAPRENDER = (function ()
         
         let interactState = 'i(' + (MMAPTOUCH.isStatePan() ? 'P' : '-') + (MMAPTOUCH.isStateZoom() ? 'Z' : '-') + (MMAPTOUCH.getTouchCount()) + (MMAPTOUCH.getClickCount()) + ') ';
         let tickElapsed = 'k(' + ASSTATE.getTick() + ') ';
+        let frameElapsed = 'f(' + ASSTATE.getFrame()+ ') ';
         let cache = 'c(' + Object.keys(PIXI.utils.TextureCache).length + ') ';
         let memUsage = 'o(' + performance.memory.usedJSHeapSize / 1000 + ') ';
         let mapCoords = 'm(' + (m_cameraMapX | 0) + ',' + (m_cameraMapY | 0) + ',' + cameraScale + ') ';
         let tileCoords = 't(' + tileX + ',' + tileY + ') ';
         let batchCoords = 'b(' + MMAPBATCH.getTileXToBatchX(tileX) + ',' + MMAPBATCH.getTileYToBatchY(tileY) + ') ';
         let batchCount = 'B(' + MMAPBATCH.getBatchCount() + '+' + MMAPBATCH.getBatchPoolCount() + '/' + MMAPBATCH.getBatchTotalCount() + ') ';
-        g_counter.innerHTML = interactState + mapCoords + tileCoords + tickElapsed;
+        g_counter.innerHTML = interactState + mapCoords + tileCoords + tickElapsed + frameElapsed;
     }
 
     public.setCameraScale = function mmaprender_setCameraScale(scaleX, scaleY)

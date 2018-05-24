@@ -2931,11 +2931,11 @@ let MMAPTOUCH = (function ()
         {
             if (m_clickCount == 1)
             {
-                MMAPRENDER.processSingleClick(m_startPointerScreen.x, m_startPointerScreen.y);
+                MMAPRENDER.processSingleClick(m_startPointerScreenX, m_startPointerScreenY);
             }
             else if (m_clickCount == 2)
             {
-                MMAPRENDER.processDoubleClick(m_startPointerScreen.x, m_startPointerScreen.y);
+                MMAPRENDER.processDoubleClick(m_startPointerScreenX, m_startPointerScreenY);
             }
         }
         else if (touchCount == 1)

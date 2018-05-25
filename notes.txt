@@ -745,10 +745,32 @@ find it.
 Same with last explored index.
 Other alternative is to never save game if there
 is a traversal path in progress, i.e. a game save
-occurs always at the start of the next tick.
-Head of save structure will hold a save in
-waiting flag that is checked at the start
-of a tick. 
+occurs always at the start of the next check,
+even if it occurs during a tick.
+Other alternative is to save the state on the
+grid. The traversal state is saved into the
+grid. However, the current implementation is
+not compatible with interrupting a traversal
+in the middle. The update unit is a tile.
+The tile per call/frame depends on the framerate.
+The traversal necessarily finishes at the tile.
+One could change the system to a number of
+checks instead, lets call them cycle.
+
+A cycle can be defined as one action that
+consumes a little time. The cycle per frame is
+capped dynamically.
+The checking should be organised in steps:
+- For demand, checking if the demand is met
+counts as one cycle even if it is very
+short. For now at least.
+- For offer, increasing the traversal state
+and all surrounding buildings and adding to
+their demand is one cycle.
+Hence there must be two flags to track the
+progress:
+- which building is being checked
+- which step is being run
 
 So, should building be scanned one by one?
 One way to do this is to chain buildings
@@ -758,6 +780,23 @@ Holding previous and next is obligatory,
 as well as holding one point of entry, such
 as the last building added.
 That can work as a circular linked list.
+Destruction of a building must be ordered
+
+Road checking may be more complex.
+A corner might be checked up to 4 times from
+4 directions, hence it may be filled up multiple
+times.
+One could also set a flag on a building, that
+indicates which next tick the building demand is
+authorized to be updated, which is tick + 1.
+Upon checking a road, all buildings within 2
+blocks on 4 directions are tested.
+
+How do i know when to stop checking?
+
+
+
+
 
 
 

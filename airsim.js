@@ -790,10 +790,11 @@ let ASSTATE = (function()
         SIZE_Y : 1,
         TICK : 2,
         FRAME : 3,
-        RICO_PROGRESS : 4, // progress
-        ROAD_TRAVERSAL_START : 5,
-        ROAD_TRAVERSAL_CURRENT_INDEX : 6,
-        ROAD_TRAVERSAL_EDGE_COUNT : 7,
+        RICO_TICK_PROGRESS : 4,
+        RICO_STEP : 5,
+        ROAD_TRAVERSAL_START : 6,
+        ROAD_TRAVERSAL_CURRENT_INDEX : 7,
+        ROAD_TRAVERSAL_EDGE_COUNT : 8,
     }
     
     public.getIndex = function asstate_getIndex(x, y)
@@ -1016,14 +1017,24 @@ let ASSTATE = (function()
         w(0, G.FRAME, data);
     }
     
-    public.getRicoProgress = function asstate_getRicoProgress()
+    public.getRicoTickProgress = function asstate_getRicoTickProgress()
     {
-        return r(0, G.RICO_PROGRESS);
+        return r(0, G.RICO_TICK_PROGRESS);
     }
     
-    public.setRicoProgress = function asstate_setRicoProgress(data)
+    public.setRicoTickProgress = function asstate_setRicoTickProgress(data)
     {
-        w(0, G.RICO_PROGRESS, data);
+        w(0, G.RICO_TICK_PROGRESS, data);
+    }
+    
+    public.getRicoStep = function asstate_getRicoStep()
+    {
+        return r(0, G.RICO_STEP);
+    }
+    
+    public.setRicoStep = function asstate_setRicoStep(data)
+    {
+        w(0, G.RICO_STEP, data);
     }
     
     public.getRoadTraversalStart = function asstate_getRoadTraversalStart()
@@ -1295,11 +1306,10 @@ let ASZONE = (function ()
         const tableSizeY = ASSTATE.getTableSizeY();
         const tick = ASSTATE.getTick();
         const frame = ASSTATE.getFrame();
-        const nextTick = ASRICO.updateRico(tick, slowdown);
-        if (nextTick)
+        const incrementTick = ASRICO.updateRico(tick, slowdown);
+        if (incrementTick)
         {
             ASSTATE.setTick(tick + 1);
-            ASRICO.setNextTick(tick + 1);
             ASSTATE.setFrame(0);
         }
         else
@@ -2003,12 +2013,14 @@ let ASRICO = (function ()
     
     public.initialize = function asrico_initialize()
     {
-        ASSTATE.setRicoProgress(0);
+        ASSTATE.setRicoTickProgress(0);
+        ASSTATE.setRicoStep(0);
     }
     
     public.setNextTick = function asrico_setNextTick(tick)
     {
-        ASSTATE.setRicoProgress(0);
+        ASSTATE.setRicoTickProgress(0);
+        ASSTATE.setRicoStep(0);
     }
     
     let addInitial = function asrico_addInitial(code, x, y)
@@ -2158,48 +2170,54 @@ let ASRICO = (function ()
 	    }
     }
     
-    let m_tilePerCall = 1;
-    const C_MINTILEPERCALL = 1;
-    const C_MAXTILEPERCALL = 128*128;
+    const C_MINCYCLEPERCALL = 1;
+    const C_MAXCYCLEPERCALL = 1000;
+    let m_cyclePerCall = C_MAXCYCLEPERCALL;
     
     public.updateRico = function asrico_updateRico(tick, slowdown)
     {
-        let progress = ASSTATE.getRicoProgress();
+        // Tick progress is the indicator
+        // that buildings have been checked
+        // in the current tick
+        let progress = ASSTATE.getRicoTickProgress();
         const tableSizeX = ASSTATE.getTableSizeX();
         const tableSizeY = ASSTATE.getTableSizeY();
         const tableSize = tableSizeX * tableSizeY;
         const increaseCall = progress < tableSize;
         if (slowdown)
         {
-            m_tilePerCall--;
-            if (m_tilePerCall < C_MINTILEPERCALL)
+            m_cyclePerCall--;
+            if (m_cyclePerCall < C_MINCYCLEPERCALL)
             {
-                m_tilePerCall = C_MINTILEPERCALL;
+                m_cyclePerCall = C_MINCYCLEPERCALL;
             }
         }
         else if (increaseCall)
         {
-            m_tilePerCall++;
-            if (m_tilePerCall >= C_MAXTILEPERCALL)
+            m_cyclePerCall++;
+            if (m_cyclePerCall >= C_MAXCYCLEPERCALL)
             {
-                m_tilePerCall = C_MAXTILEPERCALL;
+                m_cyclePerCall = C_MAXCYCLEPERCALL;
             }
         }
-        let processedTile = 0;
-        while ((processedTile < m_tilePerCall) && (progress < tableSize))
+        let elapsedCycle = 0;
+        // polling mode
+        while ((elapsedCycle < m_cyclePerCall) && (progress < tableSize))
         {
-            if (updateBuilding(progress))
+            let index = progress;
+            if (updateBuilding(index))
             {
-                processedTile += 1;
+                progress += 1;
             }
-            else
-            {
-                processedTile += 0;
-            }
-            progress += 1;
-            ASSTATE.setRicoProgress(progress);
+            elapsedCycle += 1;
+            ASSTATE.setRicoTickProgress(progress);
         }
-        return ASSTATE.getRicoProgress() >= tableSize;
+        let incrementTick = ASSTATE.getRicoTickProgress() >= tableSize;
+        if (incrementTick)
+        {
+            public.setNextTick(tick + 1);
+        }
+        return incrementTick;
     }
     
     let isDemandRicoFilled = function asrico_isDemandRicoFilled(demand)
@@ -2218,24 +2236,37 @@ let ASRICO = (function ()
    
     let updateBuilding = function asrico_updateBuilding(index)
     {
+        // machine state
         //let index = ASSTATE.getIndex(x, y);
         if (!hasBuilding(index))
         {
+            return true;
+        }
+        
+        let step = ASSTATE.getRicoStep();
+        if (step == 0)
+        {
+            // process demand
+            let demandRico = ASSTATE.getBuildingDemandRico(index);
+            if (isDemandRicoFilled(demandRico))
+            {
+                levelDensityUp(index);
+                console.log('level up ' + index);
+            }
+            ASSTATE.setRicoStep(1);
             return false;
         }
-        
-        // process demand
-        let demandRico = ASSTATE.getBuildingDemandRico(index);
-        if (isDemandRicoFilled(demandRico))
+        else if (step == 1)
         {
-            levelDensityUp(index);
-            console.log('level up ' + index);
+            // process offer
+            ASSTATE.setRicoStep(2);
+            return false;
         }
-        
-        // process offer
-        
-        
-        return false;
+        else
+        {
+            ASSTATE.setRicoStep(0);
+            return true;
+        }
     }
     
     let hasBuilding = function asrico_hasBuilding(i)

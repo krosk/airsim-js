@@ -331,6 +331,7 @@ let ASMAP = (function ()
         }
         ASZONE.setZone(x, y, selectedId);
         MMAPDATA.refreshTile(x, y);
+        console.log(ASROAD.findNearestRoad(x, y));
     }
     
     let doRoadViewSingleClick = function asmap_doRoadViewSingleClick(x, y)
@@ -800,6 +801,10 @@ let ASSTATE = (function()
     public.getIndex = function asstate_getIndex(x, y)
     {
         //return MUTIL.mathCantor(x, y);
+        if (x < 0 || x >= public.getTableSizeX() || y < 0 || y >= public.getTableSizeY())
+        {
+            return -1;
+        }
         return x*public.getTableSizeY() + y + 1;
     }
     
@@ -1336,7 +1341,7 @@ let ASROAD = (function ()
         W: 3
     };
     const C_XOFFSET = [-1, 0, 1, 0];
-    const C_YOFFSET = [0, 1, 0, -1];
+    const C_YOFFSET = [0, -1, 0, 1];
     const C_FROM = [2, 3, 0, 1];
     
     public.C_TILEENUM = {
@@ -1466,11 +1471,11 @@ let ASROAD = (function ()
     
     public.getDataId = function asroad_getDataId(x, y)
     {
-        if (x < 0 || y < 0)
+        const index = ASSTATE.getIndex(x, y);
+        if (index < 0)
         {
             return 0;
         }
-        const index = ASSTATE.getIndex(x, y);
         if (C_DEBUG_TRAVERSAL)
         {
             return getDataIdByTraversalState(index);
@@ -1481,20 +1486,18 @@ let ASROAD = (function ()
         }
     }
     
-    let connectNodes = function asroad_connectNodes(x, y, d)
+    let getIndexTo = function asroad_getIndexTo(x, y, d)
     {
-        if (x < 0 || y < 0)
-        {
-            return;
-        }
-        let from = ASSTATE.getIndex(x, y);
         let xd = x + C_XOFFSET[d];
         let yd = y + C_YOFFSET[d];
-        if (xd < 0 || yd < 0)
-        {
-            return;
-        }
         let to = ASSTATE.getIndex(xd, yd);
+        return to;
+    }
+    
+    let connectNodes = function asroad_connectNodes(x, y, d)
+    {
+        let from = ASSTATE.getIndex(x, y);
+        let to = getIndexTo(x, y, d);
         //console.log('connectnode x'+x+'y'+y+'xd'+xd+'yd'+yd);
         if (hasRoad(from) && hasRoad(to))
         {
@@ -1505,18 +1508,14 @@ let ASROAD = (function ()
     
     let disconnectNodes = function asroad_disconnectNodes(x, y, d)
     {
-        if (x < 0 || y < 0)
-        {
-            return;
-        }
         let from = ASSTATE.getIndex(x, y);
-        let xd = x + C_XOFFSET[d];
-        let yd = y + C_YOFFSET[d];
-        if (xd < 0 || yd < 0)
+        let to = getIndexTo(x, y, d);
+        if (to < 0)
         {
             return;
         }
-        let to = ASSTATE.getIndex(xd, yd);
+        // note: disconnect only if to is valid
+        // even if it has no road
         if (hasRoad(from))
         {
             //delete ASSTATE.getRoad(from).connectTo[d];
@@ -1894,6 +1893,27 @@ let ASROAD = (function ()
         //console.log(data[0]);
     }
     
+    public.findNearestRoad = function asroad_findNearestRoad(x, y)
+    {
+        let index = ASSTATE.getIndex(x, y);
+        if (hasRoad(index))
+        {
+            return index;
+        }
+        const lookupX = [x, x, x, x, x-1, x, x+1, x];
+        const lookupY = [y, y, y, y, y, y-1, y, y+1];
+        const lookupD = [C_TO.N, C_TO.E, C_TO.S, C_TO.W, C_TO.N, C_TO.E, C_TO.S, C_TO.W];
+        for (let i = 0; i < 8; i++)
+        {
+            let to = getIndexTo(lookupX[i], lookupY[i], lookupD[i]);
+            if (hasRoad(to))
+            {
+                return to;
+            }
+        }
+        return -1;
+    }
+    
     return public;
 })();
 
@@ -2259,6 +2279,9 @@ let ASRICO = (function ()
         else if (step == 1)
         {
             // process offer
+            // initialize traversal
+            
+            
             ASSTATE.setRicoStep(2);
             return false;
         }

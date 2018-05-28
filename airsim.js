@@ -397,12 +397,14 @@ let ASMAPUI = (function ()
     let m_uiRoadSpriteTable = {};
     let m_uiRicoSpriteTable = {};
     let m_uiSaveSpriteTable = {};
+    let m_uiPlaySpriteTable = {};
     
     let m_currentZoneId = 0;
     let m_currentViewId = 0;
     let m_currentRoadId = 0;
     let m_currentRicoId = 0;
     let m_currentSaveId = 0;
+    let m_currentPlayId = 0;
     
     public.initialize = function asmapui_initialize()
     {
@@ -415,6 +417,7 @@ let ASMAPUI = (function ()
         m_currentRoadId = ASROAD.roadTile[0];
         m_currentRicoId = ASZONE.ricoTile[0];
         m_currentSaveId = ASZONE.saveTile[0];
+        m_currentPlayId = ASZONE.playTile[0];
         
         public.resize();
     }
@@ -497,6 +500,7 @@ let ASMAPUI = (function ()
         m_uiRoadSpriteTable = {};
         m_uiRicoSpriteTable = {};
         m_uiSaveSpriteTable = {};
+        m_uiPlaySpriteTable = {};
         
         let c = 0;
         let maxHeight = 0;
@@ -512,6 +516,9 @@ let ASMAPUI = (function ()
         
         let saveEnums = ASZONE.saveTile;
         buildMenu(saveEnums, m_uiSaveSpriteTable, createSaveSprite, 1);
+        
+        let playEnums = ASZONE.playTile;
+        buildMenu(playEnums, m_uiPlaySpriteTable, createPlaySprite, 1);
 
         let viewEnums = ASZONE.viewTile;
         buildMenu(viewEnums, m_uiViewSpriteTable, createViewSprite, 0);
@@ -521,6 +528,7 @@ let ASMAPUI = (function ()
         focusRoadSprite();
         focusRicoSprite();
         focusSaveSprite();
+        focusPlaySprite();
     }
     
     public.getCurrentZoneId = function asmapui_getCurrentZoneId()
@@ -552,6 +560,11 @@ let ASMAPUI = (function ()
     public.isSaveMode = function asmapui_isSaveMode()
     {
         return isViewMode(3);
+    }
+    
+    public.isPlayMode = function asmapui_isPlayMode()
+    {
+        return isViewMode(4);
     }
     
     let getCurrentViewId = function asmapui_getCurrentViewId()
@@ -601,6 +614,11 @@ let ASMAPUI = (function ()
         focusSprite(m_uiSaveSpriteTable, m_currentSaveId, public.isSaveMode());
     }
     
+    let focusPlaySprite = function asmapui_focusPlaySprite()
+    {
+        focusSprite(m_uiPlaySpriteTable, m_currentPlayId, public.isPlayMode());
+    }
+    
     let getLayerWidth = function asmapui_getLayerWidth()
     {
         return g_app.renderer.width;
@@ -644,6 +662,11 @@ let ASMAPUI = (function ()
     let createSaveSprite = function asmapui_createSaveSprite(saveId)
     {
         return createSprite(saveId, onSaveSpritePress, ASZONE);
+    }
+    
+    let createPlaySprite = function asmapui_cratePlaySprite(playId)
+    {
+        return createSprite(playId, onPlaySpritePress, ASZONE);
     }
     
     let createMenuBackground = function asmapui_createMenuBackground(width, height)
@@ -703,6 +726,7 @@ let ASMAPUI = (function ()
         focusRoadSprite();
         focusRicoSprite();
         focusSaveSprite();
+        focusPlaySprite();
         if (refresh)
         {
             refreshMapDisplay();
@@ -749,6 +773,28 @@ let ASMAPUI = (function ()
         }
     }
     
+    let onPlaySpritePress = function asmapui_oñPlaySpritePress(event, playId)
+    {
+        m_currentPlayId = playId;
+        focusPlaySprite();
+        let playEnums = ASZONE.playTile;
+        if (m_currentPlayId == playEnums[0])
+        {
+            //console.log("play");
+            ASSTATE.setPlay(-1);
+        }
+        else if (m_currentPlayId == playEnums[1])
+        {
+            //console.log("stop");
+            ASSTATE.setPlay(0);
+        }
+        else if (m_currentPlayId == playEnums[2])
+        {
+            //console.log("frame");
+            ASSTATE.setPlay(1);
+        }
+    }
+    
     return public;
 })();
 // ---------------------
@@ -789,6 +835,7 @@ let ASSTATE = (function()
     const G = {
         SIZE_X : 0,
         SIZE_Y : 1,
+        PLAY : 9,
         TICK : 2,
         FRAME : 3,
         RICO_TICK_PROGRESS : 4,
@@ -1022,6 +1069,16 @@ let ASSTATE = (function()
         w(0, G.FRAME, data);
     }
     
+    public.getPlay = function asstate_getPlay()
+    {
+        return r(0, G.PLAY);
+    }
+    
+    public.setPlay = function asstate_setPlay(data)
+    {
+        w(0, G.PLAY, data);
+    }
+    
     public.getRicoTickProgress = function asstate_getRicoTickProgress()
     {
         return r(0, G.RICO_TICK_PROGRESS);
@@ -1218,12 +1275,19 @@ let ASZONE = (function ()
         C.RESLOW,
         C.ROAD,
         C.INDLOW,
-        C.COMLOW
+        C.COMLOW,
+        C.DIRT
     ];
     
     public.saveTile = [
         C.COMLOW,
         C.RESLOW
+    ];
+    
+    public.playTile = [
+        C.RESLOW, // play
+        C.ROAD, // pause
+        C.INDLOW // frame by frame
     ];
     
     let isValidZone = function aszone_isValidZone(id)
@@ -1307,6 +1371,10 @@ let ASZONE = (function ()
     
     public.update = function aszone_update(slowdown, time)
     {
+        if (ASSTATE.getPlay() == 0)
+        {
+            return;
+        }
         const tableSizeX = ASSTATE.getTableSizeX();
         const tableSizeY = ASSTATE.getTableSizeY();
         const tick = ASSTATE.getTick();
@@ -2196,6 +2264,13 @@ let ASRICO = (function ()
     
     public.updateRico = function asrico_updateRico(tick, slowdown)
     {
+        let playValue = ASSTATE.getPlay();
+        if (playValue > 0)
+        {
+            //console.log("frame play");
+            playValue--;
+            ASSTATE.setPlay(playValue);
+        }
         // Tick progress is the indicator
         // that buildings have been checked
         // in the current tick

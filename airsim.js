@@ -331,7 +331,7 @@ let ASMAP = (function ()
         }
         ASZONE.setZone(x, y, selectedId);
         MMAPDATA.refreshTile(x, y);
-        console.log(ASROAD.findNearestRoad(x, y));
+        //console.log(ASROAD.findNearestRoad(x, y));
     }
     
     let doRoadViewSingleClick = function asmap_doRoadViewSingleClick(x, y)
@@ -1835,7 +1835,7 @@ let ASROAD = (function ()
         }
         else
         {
-            console.log('end');
+            //console.log('end');
             return [-1, -1];
         }
     }
@@ -2253,11 +2253,12 @@ let ASRICO = (function ()
         //console.log(code);
         setInitial(code, index);
     }
-   
+    
+    // note: could be extracted out of asrico
+    // because it binds to asroad
     let updateBuilding = function asrico_updateBuilding(index)
     {
         // machine state
-        //let index = ASSTATE.getIndex(x, y);
         if (!hasBuilding(index))
         {
             return true;
@@ -2280,9 +2281,35 @@ let ASRICO = (function ()
         {
             // process offer
             // initialize traversal
-            
-            
-            ASSTATE.setRicoStep(2);
+            // risk of unsync if interaction
+            // happen at the same time
+            let xy = ASSTATE.getXYFromIndex(index);
+            let x = xy[0];
+            let y = xy[1];
+            let roadIndex = ASROAD.findNearestRoad(x, y);
+            if (roadIndex < 0)
+            {
+                ASSTATE.setRicoStep(0);
+                return true;
+            }
+            else
+            {
+                ASROAD.initializeTraversal(x, y);
+                ASSTATE.setRicoStep(2);
+                return false;
+            }
+        }
+        else if (step == 2)
+        {
+            // process offer
+            // run traversal
+            let next = ASROAD.getNextStepTraversal();
+            let nx = next[0];
+            let ny = next[1];
+            if (nx < 0 || ny < 0)
+            {
+                ASSTATE.setRicoStep(3);
+            }
             return false;
         }
         else

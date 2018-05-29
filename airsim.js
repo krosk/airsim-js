@@ -1662,6 +1662,7 @@ let ASROAD = (function ()
             ASSTATE.setRoadUsedCapacity(index, 1);
             ASSTATE.setRoadMaxCapacity(index, 10);
             ASSTATE.setRoadDebug(index, C.LOW)
+            addChangeLogIndex(index);
             // traversal v2 related
             ASSTATE.setRoadTraversalCost(index, 0);
         }
@@ -1669,7 +1670,6 @@ let ASROAD = (function ()
         connectNodes(x, y, C_TO.E);
         connectNodes(x, y, C_TO.S);
         connectNodes(x, y, C_TO.W);
-        addChangeLogIndex(index);
     }
 
     public.removeRoad = function asroad_removeRoad(x, y)
@@ -1795,8 +1795,8 @@ let ASROAD = (function ()
             expandTraversal(from, isConnectedTo(from, C_TO.S));
             expandTraversal(from, isConnectedTo(from, C_TO.W));
             ASSTATE.setRoadDebug(from, C.HIG);
+            addChangeLogIndex(from);
         }
-        addChangeLogIndex(from);
     }
     
     const C_TR = {
@@ -2316,13 +2316,6 @@ let ASRICO = (function ()
     
     public.updateRico = function asrico_updateRico(tick, slowdown)
     {
-        let playValue = ASSTATE.getPlay();
-        if (playValue > 0)
-        {
-            //console.log("frame play");
-            playValue--;
-            ASSTATE.setPlay(playValue);
-        }
         // Tick progress is the indicator
         // that buildings have been checked
         // in the current tick
@@ -2348,6 +2341,14 @@ let ASRICO = (function ()
             }
         }
         let elapsedCycle = 0;
+        let playValue = ASSTATE.getPlay();
+        if (playValue > 0)
+        {
+            //console.log("frame play");
+            //playValue--;
+            //ASSTATE.setPlay(playValue);
+            elapsedCycle = m_cyclePerCall - 1;
+        }
         // polling mode
         while ((elapsedCycle < m_cyclePerCall) && (progress < tableSize))
         {

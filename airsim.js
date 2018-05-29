@@ -2422,7 +2422,10 @@ let ASRICO = (function ()
             }
             else
             {
-                ASROAD.initializeTraversal(x, y);
+                let roadXY = ASSTATE.getXYFromIndex(roadIndex);
+                let roadX = roadXY[0];
+                let roadY = roadXY[1];
+                ASROAD.initializeTraversal(roadX, roadY);
                 ASSTATE.setRicoStep(2);
                 return false;
             }

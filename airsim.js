@@ -320,11 +320,6 @@ let ASMAP = (function ()
         ASROAD.commitChangeLog();
     }
     
-    public.forceRefreshAllTiles = function asmap_forceRefreshAllTiles()
-    {
-        MMAPDATA.refreshAllTiles();
-    }
-    
     let doZoneViewSingleClick = function asmap_doZoneViewSingleClick(x, y)
     {
         let selectedId = ASMAPUI.getCurrentZoneId();
@@ -337,7 +332,6 @@ let ASMAP = (function ()
             ASROAD.removeRoad(x, y);
         }
         ASZONE.setZone(x, y, selectedId);
-        //MMAPDATA.refreshTile(x, y);
         //console.log(ASROAD.findNearestRoad(x, y));
     }
     
@@ -368,7 +362,6 @@ let ASMAP = (function ()
         {
             ASROAD.printTraversal();
         }
-        //MMAPDATA.refreshAllTiles();
     }
     
     let doSingleClick = function asmap_doSingleClick(x, y)
@@ -776,7 +769,6 @@ let ASMAPUI = (function ()
             console.log("Loaded");
             //let viewEnums = ASZONE.viewTile;
             //m_currentViewId = viewEnums[0];
-            ASMAP.forceRefreshAllTiles();
         }
     }
     

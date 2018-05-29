@@ -318,6 +318,11 @@ let ASMAP = (function ()
         ASZONE.update(slowdown, time);
     }
     
+    public.forceRefreshAllTiles = function asmap_forceRefreshAllTiles()
+    {
+        MMAPDATA.refreshAllTiles();
+    }
+    
     let doZoneViewSingleClick = function asmap_doZoneViewSingleClick(x, y)
     {
         let selectedId = ASMAPUI.getCurrentZoneId();
@@ -769,7 +774,7 @@ let ASMAPUI = (function ()
             console.log("Loaded");
             //let viewEnums = ASZONE.viewTile;
             //m_currentViewId = viewEnums[0];
-            //refreshMapDisplay();
+            ASMAP.forceRefreshAllTiles();
         }
     }
     

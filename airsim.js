@@ -316,6 +316,8 @@ let ASMAP = (function ()
     {
         let slowdown = MMAPRENDER.update(dt, time);
         ASZONE.update(slowdown, time);
+        ASRICO.commitChangeLog();
+        ASROAD.commitChangeLog();
     }
     
     public.forceRefreshAllTiles = function asmap_forceRefreshAllTiles()
@@ -335,7 +337,7 @@ let ASMAP = (function ()
             ASROAD.removeRoad(x, y);
         }
         ASZONE.setZone(x, y, selectedId);
-        MMAPDATA.refreshTile(x, y);
+        //MMAPDATA.refreshTile(x, y);
         //console.log(ASROAD.findNearestRoad(x, y));
     }
     
@@ -366,7 +368,7 @@ let ASMAP = (function ()
         {
             ASROAD.printTraversal();
         }
-        MMAPDATA.refreshAllTiles();
+        //MMAPDATA.refreshAllTiles();
     }
     
     let doSingleClick = function asmap_doSingleClick(x, y)
@@ -1487,6 +1489,29 @@ let ASROAD = (function ()
     
     let C_DEBUG_TRAVERSAL = true;
     
+    let m_changeLog = [];
+    
+    public.commitChangeLog = function asroad_commitChangeLog()
+    {
+        for (let i = 0; i < m_changeLog.length; i+=2)
+        {
+            let tileX = m_changeLog[i];
+            let tileY = m_changeLog[i + 1];
+    
+            MMAPDATA.refreshTile(tileX, tileY);
+        }
+        m_changeLog = [];
+    }
+    
+    let addChangeLogIndex = function asroad_addChangeLogIndex(index)
+    {
+        let xy = ASSTATE.getXYFromIndex(index);
+        let x = xy[0];
+        let y = xy[1];
+        m_changeLog.push(x);
+        m_changeLog.push(y);
+    }
+    
     // for display
     let getDataIdByCongestion = function asroad_getTileByCongestion(index)
     {
@@ -1652,6 +1677,7 @@ let ASROAD = (function ()
         connectNodes(x, y, C_TO.E);
         connectNodes(x, y, C_TO.S);
         connectNodes(x, y, C_TO.W);
+        addChangeLogIndex(index);
     }
 
     public.removeRoad = function asroad_removeRoad(x, y)
@@ -1669,6 +1695,7 @@ let ASROAD = (function ()
         disconnectNodes(x, y, C_TO.E);
         disconnectNodes(x, y, C_TO.S);
         disconnectNodes(x, y, C_TO.W);
+        addChangeLogIndex(index);
     }
     
     // struct is
@@ -1753,6 +1780,7 @@ let ASROAD = (function ()
         setTraversalProcessedNot(node, index);
         setTraversalParent(node, -1);
         setTraversalCost(node, 0);
+        addChangeLogIndex(node);
     }
     
     public.initializeTraversal = function asroad_initializeTraversal(fromX, fromY)
@@ -1776,6 +1804,7 @@ let ASROAD = (function ()
             expandTraversal(from, isConnectedTo(from, C_TO.W));
             ASSTATE.setRoadDebug(from, C.HIG);
         }
+        addChangeLogIndex(from);
     }
     
     const C_TR = {
@@ -1803,6 +1832,7 @@ let ASROAD = (function ()
             setTraversalParent(node, parent);
             setTraversalAdded(node);
             ASSTATE.setRoadDebug(node, C.MID);
+            addChangeLogIndex(node);
         }
     }
    
@@ -1895,6 +1925,7 @@ let ASROAD = (function ()
         expandIfNotTraversed(node, C_TO.E);
         expandIfNotTraversed(node, C_TO.S);
         expandIfNotTraversed(node, C_TO.W);
+        addChangeLogIndex(node);
         return ASSTATE.getXYFromIndex(node);
     }
     
@@ -2088,7 +2119,7 @@ let ASRICO = (function ()
     
     public.getDataId = function asrico_getDataId(x, y)
     {
-        if (x < 0 || y < 0)
+        if (!MMAPDATA.isValidCoordinates(x, y))
         {
             return C.NONE;
         }
@@ -2104,6 +2135,29 @@ let ASRICO = (function ()
     
     // ---------
     
+    let m_changeLog = [];
+    
+    public.commitChangeLog = function asrico_commitChangeLog()
+    {
+        for (let i = 0; i < m_changeLog.length; i+=2)
+        {
+            let tileX = m_changeLog[i];
+            let tileY = m_changeLog[i + 1];
+        
+            MMAPDATA.refreshTile(tileX, tileY);
+        }
+        m_changeLog = [];
+    }
+    
+    let addChangeLogIndex = function asrico_addChangeLogIndex(index)
+    {
+        let xy = ASSTATE.getXYFromIndex(index);
+        let x = xy[0];
+        let y = xy[1];
+        m_changeLog.push(x);
+        m_changeLog.push(y);
+    }
+    
     public.initialize = function asrico_initialize()
     {
         ASSTATE.setRicoTickProgress(0);
@@ -2118,7 +2172,7 @@ let ASRICO = (function ()
     
     let addInitial = function asrico_addInitial(code, x, y)
     {
-        if (x < 0 || y < 0)
+        if (!MMAPDATA.isValidCoordinates(x, y))
         {
             return;
         }
@@ -2149,6 +2203,7 @@ let ASRICO = (function ()
         let dc = C_R[code][i++];
         let demandRico = [dr, di, dc];
         ASSTATE.setBuildingDemandRico(index, demandRico);
+        addChangeLogIndex(index);
     }
     
     public.addResLow = function asrico_addResLow(x, y)
@@ -2173,7 +2228,7 @@ let ASRICO = (function ()
         {
             return;
         }
-        //console.log('removereslow');
+        addChangeLogIndex(index);
         return;
     }
     

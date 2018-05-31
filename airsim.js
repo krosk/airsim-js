@@ -223,7 +223,7 @@ function pfFormatTestGrid(grid, w, h)
 function StartState()
 {
     console.log("Start");
-    ASMAP.initialize(64, 64);
+    ASMAP.initialize(16, 16);
     pfFormatTestGrid(ASMAP.Grid, ASMAP.Width, ASMAP.Height);
     for (i = 1; i < 0xFF * 12; i++)
     {
@@ -2437,7 +2437,7 @@ let ASRICO = (function ()
             let next = ASROAD.getNextStepTraversal();
             let nx = next[0];
             let ny = next[1];
-            if (nx < 0 || ny < 0)
+            if (nx < 0 || ny < 0) // traversal finished
             {
                 ASSTATE.setRicoStep(3);
             }
@@ -2445,6 +2445,7 @@ let ASRICO = (function ()
         }
         else
         {
+            ASROAD.resetTraversalPath();
             ASSTATE.setRicoStep(0);
             return true;
         }

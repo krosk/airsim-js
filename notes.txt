@@ -795,6 +795,38 @@ blocks on 4 directions are tested.
 How do i know when to stop checking?
 
 
+Observed a crawling speed on performing
+resetTraversalPath at step 3 (after
+traversalPath finishes). resetTraversalPath
+is too big of an operation that does not fit
+a frame cycle, unlike the others. Consider
+performing reset traversal path over
+multiple cycles, or performing the commit
+change log over multiple cycles.
+The solution of commiting change log over
+multiple cycle is interesting, because that
+could batch modifications at a rate controlled
+by the render. One could also say, next tick
+does not happen until the change log is all
+empty.
+It happens that the asroad change log exploses
+in size (from 80 to 800 in 16*16 grid and 5*5
+road square) when a reset traversal path is 
+performed.
+The actual formula for the change is this:
+Road has 3 changes per traversal, it is
+traversed by as many buildings as there is.
+More importantly, a road is added multiple
+times in the commitChangeLog, hence a road
+is repeatedly asked to be refreshed, because
+it is added in the changelog multiple times
+before it is processed.
+So, we can do a policy to always empty
+the change log before moving to the next
+update tick, or the next frame.
+What is the render policy?
+
+
 
 
 
@@ -822,6 +854,20 @@ number of operations performable.
 Adding multiple steps after that in which the
 steps are not homogeneous is more difficult.
 
+There is two level of cycle comsumption
+The first level is the graphical engine.
+MMAPRENDER
+If a frame got skipped, that means there are
+too many calls to refreshTile and you have to
+reduce the number of tiles to refresh.
+The second level is the computation engine.
+ASRICO and ASROAD
+They have a large number of computation to 
+perform over a lot of tiles, and if the frame 
+skips, then the computation needs to tone down
+and its allocated cycle per call is reduced.
+Minimum is one machine cycle, which is the 
+basis of step by step computation.
 
 
 Zoning vs display

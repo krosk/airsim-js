@@ -154,6 +154,9 @@ function InitializeDebugOverlay()
 
     g_debugOverlay.style.left = 0 + "px";
     g_debugOverlay.style.top = 58 + "px";
+    g_debugOverlay.style.width = 380 + "px";
+    g_debugOverlay.style.height = 380 + "px";
+    g_debugOverlay.style.overflow = "scroll";
 
     g_counter = document.createElement("div");
     g_counter.className = "counter";
@@ -166,7 +169,6 @@ function InitializeDebugOverlay()
 
     g_counter.style.left = 100 + "px";
     g_counter.style.top = 0 + "px";
-
 }
 
 function LoaderProgressHandler(loader, resource)

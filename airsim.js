@@ -315,9 +315,18 @@ let ASMAP = (function ()
     public.update = function asmap_update(dt, time)
     {
         let slowdown = MMAPRENDER.update(dt, time);
-        ASZONE.update(slowdown, time);
-        ASRICO.commitChangeLog();
-        ASROAD.commitChangeLog();
+        if (ASROAD.hasChangeLog())
+        {
+            ASROAD.commitChangeLog(1024);
+        }
+        else if (ASRICO.hasChangeLog())
+        {
+            ASRICO.commitChangeLog(1024);
+        }
+        else if (ASSTATE.getPlay() != 0)
+        {
+            ASZONE.update(slowdown, time);
+        }
     }
     
     let doZoneViewSingleClick = function asmap_doZoneViewSingleClick(x, y)
@@ -1370,10 +1379,6 @@ let ASZONE = (function ()
     
     public.update = function aszone_update(slowdown, time)
     {
-        if (ASSTATE.getPlay() == 0)
-        {
-            return;
-        }
         const tableSizeX = ASSTATE.getTableSizeX();
         const tableSizeY = ASSTATE.getTableSizeY();
         const tick = ASSTATE.getTick();
@@ -1483,16 +1488,29 @@ let ASROAD = (function ()
     
     let m_changeLog = [];
     
-    public.commitChangeLog = function asroad_commitChangeLog()
+    public.hasChangeLog = function asroad_hasChangeLog()
     {
-        for (let i = 0; i < m_changeLog.length; i+=2)
+        return m_changeLog.length;
+    }
+    
+    public.commitChangeLog = function asroad_commitChangeLog(tileCount)
+    {
+        let refreshCount = m_changeLog.length;
+        if (tileCount * 2 < refreshCount)
+        {
+            refreshCount = tileCount * 2;
+        }
+        for (let i = 0; i < refreshCount; i+=2)
         {
             let tileX = m_changeLog[i];
             let tileY = m_changeLog[i + 1];
     
             MMAPDATA.refreshTile(tileX, tileY);
         }
-        m_changeLog = [];
+        if (refreshCount > 0)
+        {
+            m_changeLog.splice(0, refreshCount);
+        }
     }
     
     let addChangeLogIndex = function asroad_addChangeLogIndex(index)
@@ -2129,16 +2147,29 @@ let ASRICO = (function ()
     
     let m_changeLog = [];
     
-    public.commitChangeLog = function asrico_commitChangeLog()
+    public.hasChangeLog = function asrico_hasChangeLog()
     {
-        for (let i = 0; i < m_changeLog.length; i+=2)
+        return m_changeLog.length;
+    }
+    
+    public.commitChangeLog = function asrico_commitChangeLog(tileCount)
+    {
+        let refreshCount = m_changeLog.length;
+        if (tileCount * 2 < refreshCount)
+        {
+            refreshCount = tileCount * 2;
+        }
+        for (let i = 0; i < refreshCount; i+=2)
         {
             let tileX = m_changeLog[i];
             let tileY = m_changeLog[i + 1];
-        
+    
             MMAPDATA.refreshTile(tileX, tileY);
         }
-        m_changeLog = [];
+        if (refreshCount > 0)
+        {
+            m_changeLog.splice(0, refreshCount);
+        }
     }
     
     let addChangeLogIndex = function asrico_addChangeLogIndex(index)
@@ -3645,13 +3676,14 @@ let MMAPRENDER = (function ()
         let interactState = 'i(' + (MMAPTOUCH.isStatePan() ? 'P' : '-') + (MMAPTOUCH.isStateZoom() ? 'Z' : '-') + (MMAPTOUCH.getTouchCount()) + (MMAPTOUCH.getClickCount()) + ') ';
         let tickElapsed = 'k(' + ASSTATE.getTick() + ') ';
         let frameElapsed = 'f(' + ASSTATE.getFrame()+ ') ';
+        let changeLog = 'C(' + ASROAD.hasChangeLog() + ') ';
         let cache = 'c(' + Object.keys(PIXI.utils.TextureCache).length + ') ';
         let memUsage = 'o(' + performance.memory.usedJSHeapSize / 1000 + ') ';
         let mapCoords = 'm(' + (m_cameraMapX | 0) + ',' + (m_cameraMapY | 0) + ',' + cameraScale + ') ';
         let tileCoords = 't(' + tileX + ',' + tileY + ') ';
         let batchCoords = 'b(' + MMAPBATCH.getTileXToBatchX(tileX) + ',' + MMAPBATCH.getTileYToBatchY(tileY) + ') ';
         let batchCount = 'B(' + MMAPBATCH.getBatchCount() + '+' + MMAPBATCH.getBatchPoolCount() + '/' + MMAPBATCH.getBatchTotalCount() + ') ';
-        g_counter.innerHTML = interactState + mapCoords + tileCoords + tickElapsed + frameElapsed;
+        g_counter.innerHTML = interactState + mapCoords + tileCoords + tickElapsed + frameElapsed + changeLog;
     }
 
     public.setCameraScale = function mmaprender_setCameraScale(scaleX, scaleY)

@@ -327,6 +327,7 @@ let ASMAP = (function ()
         }
         else if (ASSTATE.getPlay() != 0)
         {
+            // engines updates
             ASZONE.update(slowdown, time);
         }
     }
@@ -1157,6 +1158,7 @@ let ASSTATE = (function()
         public.setTableSizeY(tableSizeY);
         public.setTick(0);
         public.setFrame(0);
+        public.setTickSpeed(1000);
         for (let x = 0; x < tableSizeX; x++)
         {
             for (let y = 0; y < tableSizeY; y++)
@@ -1390,8 +1392,15 @@ let ASZONE = (function ()
         }
     }
     
+    let m_lastTickTime = 0;
+    
     public.update = function aszone_update(slowdown, time)
     {
+        const tickSpeed = ASSTATE.getTickSpeed();
+        if (Math.abs(time - m_lastTickTime) < tickSpeed)
+        {
+            return;
+        }
         const tableSizeX = ASSTATE.getTableSizeX();
         const tableSizeY = ASSTATE.getTableSizeY();
         const tick = ASSTATE.getTick();
@@ -1401,6 +1410,7 @@ let ASZONE = (function ()
         {
             ASSTATE.setTick(tick + 1);
             ASSTATE.setFrame(0);
+            m_lastTickTime = time;
         }
         else
         {

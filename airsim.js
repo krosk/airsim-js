@@ -845,14 +845,15 @@ let ASSTATE = (function()
     const G = {
         SIZE_X : 0,
         SIZE_Y : 1,
-        PLAY : 9,
-        TICK : 2,
-        FRAME : 3,
-        RICO_TICK_PROGRESS : 4,
-        RICO_STEP : 5,
-        ROAD_TRAVERSAL_START : 6,
-        ROAD_TRAVERSAL_CURRENT_INDEX : 7,
-        ROAD_TRAVERSAL_EDGE_COUNT : 8,
+        PLAY : 2,
+        TICK : 3,
+        FRAME : 4,
+        TICK_SPEED : 5,
+        RICO_TICK_PROGRESS : 6,
+        RICO_STEP : 7,
+        ROAD_TRAVERSAL_START : 8,
+        ROAD_TRAVERSAL_CURRENT_INDEX : 9,
+        ROAD_TRAVERSAL_EDGE_COUNT : 10,
     }
     
     public.getIndex = function asstate_getIndex(x, y)
@@ -1067,6 +1068,16 @@ let ASSTATE = (function()
     public.setTick = function asstate_setTick(data)
     {
         w(0, G.TICK, data);
+    }
+    
+    public.getTickSpeed = function asstate_getTickSpeed()
+    {
+        return r(0, G.TICK_SPEED);
+    }
+    
+    public.setTickSpeed = function asstate_setTickSpeed(data)
+    {
+        w(0, G.TICK_SPEED, data);
     }
     
     public.getFrame = function asstate_getFrame()

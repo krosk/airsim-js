@@ -154,8 +154,8 @@ function InitializeDebugOverlay()
 
     g_debugOverlay.style.left = 0 + "px";
     g_debugOverlay.style.top = 58 + "px";
-    g_debugOverlay.style.width = 380 + "px";
-    g_debugOverlay.style.height = 380 + "px";
+    g_debugOverlay.style.maxWidth = 180 + "px";
+    g_debugOverlay.style.maxHeight = 180 + "px";
     g_debugOverlay.style.overflow = "scroll";
 
     g_counter = document.createElement("div");

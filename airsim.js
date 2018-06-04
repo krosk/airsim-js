@@ -297,6 +297,7 @@ let ASMAP = (function ()
         ASZONE.initialize();
         ASZONE.initializeTexture();
         ASROAD.initializeTexture();
+        ASICON.initializeTexture();
         ASRICO.initialize();
         ASRICO.initializeTexture();
         MMAPDATA.initialize(w, h, ASZONE);
@@ -429,7 +430,7 @@ let ASMAPUI = (function ()
         m_currentRoadId = ASROAD.roadTile[0];
         m_currentRicoId = ASZONE.ricoTile[0];
         m_currentSaveId = ASZONE.saveTile[0];
-        m_currentPlayId = ASZONE.playTile[0];
+        m_currentPlayId = ASICON.playTile[0];
         
         public.resize();
     }
@@ -529,7 +530,7 @@ let ASMAPUI = (function ()
         let saveEnums = ASZONE.saveTile;
         buildMenu(saveEnums, m_uiSaveSpriteTable, createSaveSprite, 1);
         
-        let playEnums = ASZONE.playTile;
+        let playEnums = ASICON.playTile;
         buildMenu(playEnums, m_uiPlaySpriteTable, createPlaySprite, 1);
 
         let viewEnums = ASZONE.viewTile;
@@ -678,7 +679,7 @@ let ASMAPUI = (function ()
     
     let createPlaySprite = function asmapui_cratePlaySprite(playId)
     {
-        return createSprite(playId, onPlaySpritePress, ASZONE);
+        return createSprite(playId, onPlaySpritePress, ASICON);
     }
     
     let createMenuBackground = function asmapui_createMenuBackground(width, height)
@@ -788,7 +789,7 @@ let ASMAPUI = (function ()
     {
         m_currentPlayId = playId;
         focusPlaySprite();
-        let playEnums = ASZONE.playTile;
+        let playEnums = ASICON.playTile;
         if (m_currentPlayId == playEnums[0])
         {
             //console.log("play");
@@ -1215,6 +1216,65 @@ let ASSTATE = (function()
     return public;
 })();
 
+let ASICON = (function ()
+{
+    let public = {};
+    
+    public.C_NAME = 'asicon';
+    
+    public.C_TILEENUM = {
+        NONE: 900,
+        PLAY: 901,
+        STOP: 902,
+    }
+    const C = public.C_TILEENUM;
+    
+    let getColor = function asicon_getColor(r, g, b)
+    {
+        return (r) * 2**16 + (g) * 2**8 + (b);
+    }
+    
+    public.C_COLOR = {
+        [C.NONE] : getColor(64, 64, 64),
+        [C.PLAY] : getColor(0, 255, 0),
+        [C.STOP] : getColor(255, 0, 0),
+    }
+    
+    public.initializeTexture = function asicon_initializeTexture()
+    {
+        let values = Object.values(C);
+        for (let i in values)
+        {
+            let id = values[i] | 0;
+            let textureName = public.getTileTextureName(id);
+            let graphics = createTexture(id);
+            let texture = g_app.renderer.generateTexture(graphics);
+            PIXI.utils.TextureCache[textureName] = texture;
+        }
+    }
+    
+    public.getTileTextureName = function asicon_getTileTextureName(tileId)
+    {
+        return public.C_NAME + tileId;
+    }
+    
+    let createTexture = function asicon_createTexture(id)
+    {
+        let color = public.C_COLOR[id];
+        let margin = 0;
+        let height = 3;
+        return MMAPRENDER.createTexture(color, margin, height);
+    }
+    
+    public.playTile = [
+        C.PLAY, // play
+        C.STOP, // pause
+        C.NONE // frame by frame
+    ];
+
+    return public;
+})();
+
 // ---------------------
 let ASZONE = (function ()
 {
@@ -1235,7 +1295,7 @@ let ASZONE = (function ()
         ROAD: 3,
         RESLOW: 10,
         COMLOW: 20,
-        INDLOW: 30
+        INDLOW: 30,
     }
     const C = public.C_TILEENUM;
     
@@ -1310,18 +1370,12 @@ let ASZONE = (function ()
         C.ROAD,
         C.INDLOW,
         C.COMLOW,
-        C.DIRT
+        C.DIRT,
     ];
     
     public.saveTile = [
         C.COMLOW,
         C.RESLOW
-    ];
-    
-    public.playTile = [
-        C.RESLOW, // play
-        C.ROAD, // pause
-        C.INDLOW // frame by frame
     ];
     
     let isValidZone = function aszone_isValidZone(id)

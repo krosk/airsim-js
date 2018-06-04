@@ -850,11 +850,12 @@ let ASSTATE = (function()
         TICK : 3,
         FRAME : 4,
         TICK_SPEED : 5,
-        RICO_TICK_PROGRESS : 6,
-        RICO_STEP : 7,
-        ROAD_TRAVERSAL_START : 8,
-        ROAD_TRAVERSAL_CURRENT_INDEX : 9,
-        ROAD_TRAVERSAL_EDGE_COUNT : 10,
+        TICK_REAL_SPEED : 6,
+        RICO_TICK_PROGRESS : 7,
+        RICO_STEP : 8,
+        ROAD_TRAVERSAL_START : 9,
+        ROAD_TRAVERSAL_CURRENT_INDEX : 10,
+        ROAD_TRAVERSAL_EDGE_COUNT : 11,
     }
     
     public.getIndex = function asstate_getIndex(x, y)
@@ -1081,6 +1082,16 @@ let ASSTATE = (function()
         w(0, G.TICK_SPEED, data);
     }
     
+    public.getTickRealSpeed = function asstate_getTickRealSpeed()
+    {
+        return r(0, G.TICK_REAL_SPEED);
+    }
+    
+    public.setTickRealSpeed = function asstate_setTickRealSpeed(data)
+    {
+        w(0, G.TICK_REAL_SPEED, data);
+    }
+    
     public.getFrame = function asstate_getFrame()
     {
         return r(0, G.FRAME);
@@ -1158,7 +1169,7 @@ let ASSTATE = (function()
         public.setTableSizeY(tableSizeY);
         public.setTick(0);
         public.setFrame(0);
-        public.setTickSpeed(1000);
+        public.setTickSpeed(10);
         for (let x = 0; x < tableSizeX; x++)
         {
             for (let y = 0; y < tableSizeY; y++)
@@ -1393,9 +1404,17 @@ let ASZONE = (function ()
     }
     
     let m_lastTickTime = 0;
+    let m_countTickSecond = 0;
+    let m_countTickPerSecond = 0;
     
     public.update = function aszone_update(slowdown, time)
     {
+        if (Math.abs(time - m_countTickSecond) > 1000)
+        {
+            ASSTATE.setTickRealSpeed(m_countTickPerSecond);
+            m_countTickSecond = time;
+            m_countTickPerSecond = 0;
+        }
         const tickSpeed = ASSTATE.getTickSpeed();
         if (Math.abs(time - m_lastTickTime) < tickSpeed)
         {
@@ -1411,6 +1430,7 @@ let ASZONE = (function ()
             ASSTATE.setTick(tick + 1);
             ASSTATE.setFrame(0);
             m_lastTickTime = time;
+            m_countTickPerSecond++;
         }
         else
         {
@@ -3699,6 +3719,7 @@ let MMAPRENDER = (function ()
         let interactState = 'i(' + (MMAPTOUCH.isStatePan() ? 'P' : '-') + (MMAPTOUCH.isStateZoom() ? 'Z' : '-') + (MMAPTOUCH.getTouchCount()) + (MMAPTOUCH.getClickCount()) + ') ';
         let tickElapsed = 'k(' + ASSTATE.getTick() + ') ';
         let frameElapsed = 'f(' + ASSTATE.getFrame()+ ') ';
+        let tickSpeed = 'K(' + ASSTATE.getTickRealSpeed() + ') ';
         let changeLog = 'C(' + ASROAD.hasChangeLog() + ') ';
         let cache = 'c(' + Object.keys(PIXI.utils.TextureCache).length + ') ';
         let memUsage = 'o(' + performance.memory.usedJSHeapSize / 1000 + ') ';
@@ -3706,7 +3727,7 @@ let MMAPRENDER = (function ()
         let tileCoords = 't(' + tileX + ',' + tileY + ') ';
         let batchCoords = 'b(' + MMAPBATCH.getTileXToBatchX(tileX) + ',' + MMAPBATCH.getTileYToBatchY(tileY) + ') ';
         let batchCount = 'B(' + MMAPBATCH.getBatchCount() + '+' + MMAPBATCH.getBatchPoolCount() + '/' + MMAPBATCH.getBatchTotalCount() + ') ';
-        g_counter.innerHTML = interactState + mapCoords + tileCoords + tickElapsed + frameElapsed + changeLog;
+        g_counter.innerHTML = interactState + mapCoords + tileCoords + tickElapsed + tickSpeed + frameElapsed + changeLog;
     }
 
     public.setCameraScale = function mmaprender_setCameraScale(scaleX, scaleY)

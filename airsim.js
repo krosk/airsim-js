@@ -1265,6 +1265,15 @@ let ASICON = (function ()
         return graphics;
     }
     
+    let drawRectangle = function asicon_drawRectangle(graphics, topLeftX, topLeftY, sizeX, sizeY)
+    {
+        graphics.moveTo(topLeftX, topLeftY);
+        graphics.lineTo(topLeftX + sizeX, topLeftY);
+        graphics.lineTo(topLeftX + sizeX, topLeftY + sizeY);
+        graphics.lineTo(topLeftX, topLeftY + sizeY);
+        graphics.lineTo(topLeftX, topLeftY);
+    }
+    
     let addSquare = function asicon_addSquare(graphics, color, height)
     {
         let CX = MMAPRENDER.getTextureBaseSizeX() / 2;
@@ -1276,12 +1285,7 @@ let ASICON = (function ()
         graphics.beginFill(color);
         graphics.lineStyle(1, black);
         
-        graphics.moveTo(CX - H / 2, CY - H / 2);
-        graphics.lineTo(CX + H / 2, CY - H / 2);
-        graphics.lineTo(CX + H / 2, CY + H / 2);
-        graphics.lineTo(CX - H / 2, CY + H / 2);
-        graphics.lineTo(CX - H / 2, CY - H / 2);
-        return graphics;
+        drawRectangle(graphics, CX - H/2, CY - H/2, H, H);
     }
     
     let addTriangle = function asicon_addTriangle(graphics, color, height)
@@ -1299,7 +1303,6 @@ let ASICON = (function ()
         graphics.lineTo(CX + H / 2, CY);
         graphics.lineTo(CX - H / 2, CY + H / 2);
         graphics.lineTo(CX - H / 2, CY - H / 2);
-        return graphics;
     }
     
     let addTriangleBreak = function asicon_addTriangleBreak(graphics, color, height)
@@ -1317,13 +1320,7 @@ let ASICON = (function ()
         graphics.lineTo(CX + H / 2 - H/3, CY);
         graphics.lineTo(CX - H / 2, CY + H / 2);
         graphics.lineTo(CX - H / 2, CY - H / 2);
-        graphics.moveTo(CX + H / 2, CY - H / 2);
-        graphics.lineTo(CX + H / 2, CY + H / 2);
-        graphics.lineTo(CX + H / 2 - H/3, CY + H / 2);
-        graphics.lineTo(CX + H / 2 - H/3, CY - H / 2);
-        graphics.lineTo(CX + H / 2, CY - H / 2);
-        
-        return graphics;
+        drawRectangle(graphics, CX + H / 2 - H/3, CY - H / 2, H/3, H);
     }
     
     let createTexture = function asicon_createTexture(id)

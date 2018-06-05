@@ -1226,6 +1226,7 @@ let ASICON = (function ()
         NONE: 900,
         PLAY: 901,
         STOP: 902,
+        STEP: 903,
     }
     const C = public.C_TILEENUM;
     
@@ -1238,6 +1239,7 @@ let ASICON = (function ()
         [C.NONE] : getColor(64, 64, 64),
         [C.PLAY] : getColor(0, 255, 0),
         [C.STOP] : getColor(255, 0, 0),
+        [C.STEP] : getColor(255, 192, 0),
     }
     
     public.initializeTexture = function asicon_initializeTexture()
@@ -1258,18 +1260,69 @@ let ASICON = (function ()
         return public.C_NAME + tileId;
     }
     
+    let addNothing = function asicon_addNothing(graphics, color, height)
+    {
+        return graphics;
+    }
+    
+    let addSquare = function asicon_addSquare(graphics, color, height)
+    {
+        let CX = MMAPRENDER.getTextureBaseSizeX() / 2;
+        let CY = MMAPRENDER.getTextureBaseSizeY() / 2;
+        let M = 0;
+        let H = height;
+        
+        let black = 0x000000;
+        graphics.beginFill(color);
+        graphics.lineStyle(1, black);
+        
+        graphics.moveTo(CX - H / 2, CY - H / 2);
+        graphics.lineTo(CX + H / 2, CY - H / 2);
+        graphics.lineTo(CX + H / 2, CY + H / 2);
+        graphics.lineTo(CX - H / 2, CY + H / 2);
+        graphics.lineTo(CX - H / 2, CY - H / 2);
+        return graphics;
+    }
+    
+    let addTriangle = function asicon_addTriangle(graphics, color, height)
+    {
+        let CX = MMAPRENDER.getTextureBaseSizeX() / 2;
+        let CY = MMAPRENDER.getTextureBaseSizeY() / 2;
+        let M = 0;
+        let H = height;
+    
+        let black = 0x000000;
+        graphics.beginFill(color);
+        graphics.lineStyle(1, black);
+        
+        graphics.moveTo(CX - H / 2, CY - H / 2);
+        graphics.lineTo(CX + H / 2, CY);
+        graphics.lineTo(CX - H / 2, CY + H / 2);
+        graphics.lineTo(CX - H / 2, CY - H / 2);
+        return graphics;
+    }
+    
     let createTexture = function asicon_createTexture(id)
     {
         let color = public.C_COLOR[id];
         let margin = 0;
         let height = 3;
-        return MMAPRENDER.createTexture(color, margin, height);
+        let graphics = MMAPRENDER.createTexture(color, margin, height);
+        public.C_ICON[id](graphics, color, 16);
+        return graphics;
+    }
+    
+    public.C_ICON = {
+        [C.NONE] : addNothing,
+        [C.PLAY] : addTriangle,
+        [C.STOP] : addSquare,
+        [C.STEP] : addSquare,
     }
     
     public.playTile = [
         C.PLAY, // play
         C.STOP, // pause
-        C.NONE // frame by frame
+        C.STEP, // frame by frame
     ];
 
     return public;

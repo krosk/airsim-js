@@ -1274,6 +1274,14 @@ let ASICON = (function ()
         graphics.lineTo(topLeftX, topLeftY);
     }
     
+    let drawTriangleLeft = function asicon_drawTriangleLeft(graphics, topLeftX, topLeftY, sizeX, sizeY)
+    {
+        graphics.moveTo(topLeftX, topLeftY);
+        graphics.lineTo(topLeftX + sizeX, topLeftY + sizeY / 2);
+        graphics.lineTo(topLeftX, topLeftY + sizeY);
+        graphics.lineTo(topLeftX, topLeftY);
+    }
+    
     let addSquare = function asicon_addSquare(graphics, color, height)
     {
         let CX = MMAPRENDER.getTextureBaseSizeX() / 2;
@@ -1299,10 +1307,7 @@ let ASICON = (function ()
         graphics.beginFill(color);
         graphics.lineStyle(1, black);
         
-        graphics.moveTo(CX - H / 2, CY - H / 2);
-        graphics.lineTo(CX + H / 2, CY);
-        graphics.lineTo(CX - H / 2, CY + H / 2);
-        graphics.lineTo(CX - H / 2, CY - H / 2);
+        drawTriangleLeft(graphics, CX - H/2, CY - H/2, H, H);
     }
     
     let addTriangleBreak = function asicon_addTriangleBreak(graphics, color, height)
@@ -1316,10 +1321,7 @@ let ASICON = (function ()
         graphics.beginFill(color);
         graphics.lineStyle(1, black);
         
-        graphics.moveTo(CX - H / 2, CY - H / 2);
-        graphics.lineTo(CX + H / 2 - H/3, CY);
-        graphics.lineTo(CX - H / 2, CY + H / 2);
-        graphics.lineTo(CX - H / 2, CY - H / 2);
+        drawTriangleLeft(graphics, CX - H / 2, CY - H / 2, 2*H/3, H);
         drawRectangle(graphics, CX + H / 2 - H/3, CY - H / 2, H/3, H);
     }
     

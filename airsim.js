@@ -1302,12 +1302,37 @@ let ASICON = (function ()
         return graphics;
     }
     
+    let addTriangleBreak = function asicon_addTriangleBreak(graphics, color, height)
+    {
+        let CX = MMAPRENDER.getTextureBaseSizeX() / 2;
+        let CY = MMAPRENDER.getTextureBaseSizeY() / 2;
+        let M = 0;
+        let H = height;
+    
+        let black = 0x000000;
+        graphics.beginFill(color);
+        graphics.lineStyle(1, black);
+        
+        graphics.moveTo(CX - H / 2, CY - H / 2);
+        graphics.lineTo(CX + H / 2 - H/3, CY);
+        graphics.lineTo(CX - H / 2, CY + H / 2);
+        graphics.lineTo(CX - H / 2, CY - H / 2);
+        graphics.moveTo(CX + H / 2, CY - H / 2);
+        graphics.lineTo(CX + H / 2, CY + H / 2);
+        graphics.lineTo(CX + H / 2 - H/3, CY + H / 2);
+        graphics.lineTo(CX + H / 2 - H/3, CY - H / 2);
+        graphics.lineTo(CX + H / 2, CY - H / 2);
+        
+        return graphics;
+    }
+    
     let createTexture = function asicon_createTexture(id)
     {
         let color = public.C_COLOR[id];
         let margin = 0;
         let height = 3;
-        let graphics = MMAPRENDER.createTexture(color, margin, height);
+        let graphics = MMAPRENDER.createTexture(0xFFFFFF, margin, height);
+        //let graphics = new PIXI.Graphics();
         public.C_ICON[id](graphics, color, 16);
         return graphics;
     }
@@ -1316,7 +1341,7 @@ let ASICON = (function ()
         [C.NONE] : addNothing,
         [C.PLAY] : addTriangle,
         [C.STOP] : addSquare,
-        [C.STEP] : addSquare,
+        [C.STEP] : addTriangleBreak,
     }
     
     public.playTile = [

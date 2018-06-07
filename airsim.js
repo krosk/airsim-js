@@ -1601,17 +1601,15 @@ let ASZONE = (function ()
         {
             return;
         }
-        const tableSizeX = ASSTATE.getTableSizeX();
-        const tableSizeY = ASSTATE.getTableSizeY();
         const tick = ASSTATE.getTick();
         const frame = ASSTATE.getFrame();
-        const incrementTick = ASRICO.updateRico(tick, slowdown);
-        if (incrementTick)
+        const newTick = ASRICO.updateRico(tick, slowdown);
+        if (newTick > tick)
         {
-            ASSTATE.setTick(tick + 1);
+            ASSTATE.setTick(newTick);
             ASSTATE.setFrame(0);
             m_lastTickTime = time;
-            m_countTickPerSecond++;
+            m_countTickPerSecond += (newTick - tick);
         }
         else
         {
@@ -2411,7 +2409,7 @@ let ASRICO = (function ()
         ASSTATE.setRicoStep(0);
     }
     
-    public.setNextTick = function asrico_setNextTick(tick)
+    let setNextTick = function asrico_setNextTick(tick)
     {
         ASSTATE.setRicoTickProgress(0);
         ASSTATE.setRicoStep(0);
@@ -2566,7 +2564,7 @@ let ASRICO = (function ()
     }
     
     const C_MINCYCLEPERCALL = 1;
-    const C_MAXCYCLEPERCALL = 1000;
+    const C_MAXCYCLEPERCALL = 10000;
     let m_cyclePerCall = C_MAXCYCLEPERCALL;
     
     public.updateRico = function asrico_updateRico(tick, slowdown)
@@ -2616,9 +2614,9 @@ let ASRICO = (function ()
         let incrementTick = ASSTATE.getRicoTickProgress() >= tableSize;
         if (incrementTick)
         {
-            public.setNextTick(tick + 1);
+            setNextTick(tick + 1);
         }
-        return incrementTick;
+        return tick + 1;
     }
     
     let isDemandRicoFilled = function asrico_isDemandRicoFilled(demand)

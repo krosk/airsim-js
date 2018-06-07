@@ -326,7 +326,7 @@ let ASMAP = (function ()
         {
             ASRICO.commitChangeLog(1024);
         }
-        else if (ASSTATE.getPlay() != 0)
+        else
         {
             // engines updates
             ASZONE.update(slowdown, time);
@@ -790,20 +790,31 @@ let ASMAPUI = (function ()
         m_currentPlayId = playId;
         focusPlaySprite();
         let playEnums = ASICON.playTile;
-        if (m_currentPlayId == playEnums[0])
+        let C_DEF = ASICON.C_TILEENUM;
+        if (m_currentPlayId == C_DEF.PLAY)
         {
             //console.log("play");
-            ASSTATE.setPlay(-1);
+            ASSTATE.setTickSpeed(1000);
         }
-        else if (m_currentPlayId == playEnums[1])
+        else if (m_currentPlayId == C_DEF.PLAY2)
+        {
+            ASSTATE.setTickSpeed(100);
+        }
+        else if (m_currentPlayId == C_DEF.PLAY3)
+        {
+            ASSTATE.setTickSpeed(0);
+        }
+        else if (m_currentPlayId == C_DEF.STOP)
         {
             //console.log("stop");
-            ASSTATE.setPlay(0);
+            // infinite tick speed in fact
+            ASSTATE.setTickSpeed(-1);
         }
-        else if (m_currentPlayId == playEnums[2])
+        else if (m_currentPlayId == C_DEF.STEP)
         {
             //console.log("frame");
-            ASSTATE.setPlay(1);
+            // probably needs a special value
+            ASSTATE.setTickSpeed(10000);
         }
     }
     
@@ -1170,7 +1181,7 @@ let ASSTATE = (function()
         public.setTableSizeY(tableSizeY);
         public.setTick(0);
         public.setFrame(0);
-        public.setTickSpeed(10);
+        public.setTickSpeed(0);
         for (let x = 0; x < tableSizeX; x++)
         {
             for (let y = 0; y < tableSizeY; y++)
@@ -1225,8 +1236,10 @@ let ASICON = (function ()
     public.C_TILEENUM = {
         NONE: 900,
         PLAY: 901,
-        STOP: 902,
-        STEP: 903,
+        PLAY2: 902,
+        PLAY3: 903,
+        STOP: 904,
+        STEP: 905,
     }
     const C = public.C_TILEENUM;
     
@@ -1238,6 +1251,8 @@ let ASICON = (function ()
     public.C_COLOR = {
         [C.NONE] : getColor(64, 64, 64),
         [C.PLAY] : getColor(0, 255, 0),
+        [C.PLAY2] : getColor(0, 255, 0),
+        [C.PLAY3] : getColor(0, 255, 0),
         [C.STOP] : getColor(255, 0, 0),
         [C.STEP] : getColor(255, 192, 0),
     }
@@ -1296,7 +1311,7 @@ let ASICON = (function ()
         drawRectangle(graphics, CX - H/2, CY - H/2, H, H);
     }
     
-    let addTriangle = function asicon_addTriangle(graphics, color, height)
+    let addPlay = function asicon_addPlay(graphics, color, height)
     {
         let CX = MMAPRENDER.getTextureBaseSizeX() / 2;
         let CY = MMAPRENDER.getTextureBaseSizeY() / 2;
@@ -1308,6 +1323,37 @@ let ASICON = (function ()
         graphics.lineStyle(1, black);
         
         drawTriangleLeft(graphics, CX - H/2, CY - H/2, H, H);
+    }
+    
+    let addPlay2 = function asicon_addPlay2(graphics, color, height)
+    {
+        let CX = MMAPRENDER.getTextureBaseSizeX() / 2;
+        let CY = MMAPRENDER.getTextureBaseSizeY() / 2;
+        let M = 0;
+        let H = height;
+    
+        let black = 0x000000;
+        graphics.beginFill(color);
+        graphics.lineStyle(1, black);
+        
+        drawTriangleLeft(graphics, CX - H/2, CY - H/2, H/2, H);
+        drawTriangleLeft(graphics, CX, CY - H/2, H/2, H);
+    }
+    
+    let addPlay3 = function asicon_addPlay3(graphics, color, height)
+    {
+        let CX = MMAPRENDER.getTextureBaseSizeX() / 2;
+        let CY = MMAPRENDER.getTextureBaseSizeY() / 2;
+        let M = 0;
+        let H = height;
+    
+        let black = 0x000000;
+        graphics.beginFill(color);
+        graphics.lineStyle(1, black);
+        
+        drawTriangleLeft(graphics, CX - H/2, CY - H/2, H/3, H);
+        drawTriangleLeft(graphics, CX - H/2 + H/3, CY - H/2, H/3, H);
+        drawTriangleLeft(graphics, CX - H/2 + 2*H/3, CY - H/2, H/3, H);
     }
     
     let addTriangleBreak = function asicon_addTriangleBreak(graphics, color, height)
@@ -1338,13 +1384,17 @@ let ASICON = (function ()
     
     public.C_ICON = {
         [C.NONE] : addNothing,
-        [C.PLAY] : addTriangle,
+        [C.PLAY] : addPlay,
+        [C.PLAY2] : addPlay2,
+        [C.PLAY3] : addPlay3,
         [C.STOP] : addSquare,
         [C.STEP] : addTriangleBreak,
     }
     
     public.playTile = [
-        C.PLAY, // play
+        C.PLAY, // play 1
+        C.PLAY2,
+        C.PLAY3,
         C.STOP, // pause
         C.STEP, // frame by frame
     ];
@@ -1547,7 +1597,7 @@ let ASZONE = (function ()
             m_countTickPerSecond = 0;
         }
         const tickSpeed = ASSTATE.getTickSpeed();
-        if (Math.abs(time - m_lastTickTime) < tickSpeed)
+        if (tickSpeed == -1 || Math.abs(time - m_lastTickTime) < tickSpeed)
         {
             return;
         }
@@ -2550,9 +2600,7 @@ let ASRICO = (function ()
         if (playValue > 0)
         {
             //console.log("frame play");
-            //playValue--;
-            //ASSTATE.setPlay(playValue);
-            elapsedCycle = m_cyclePerCall - 1;
+            //elapsedCycle = m_cyclePerCall - 1;
         }
         // polling mode
         while ((elapsedCycle < m_cyclePerCall) && (progress < tableSize))

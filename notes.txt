@@ -869,6 +869,49 @@ and its allocated cycle per call is reduced.
 Minimum is one machine cycle, which is the 
 basis of step by step computation.
 
+Speed measure may be necessary to regulate
+the number of ticks as the complexity of the
+city increases, which induces a difference in
+simulation speed. Stabilizing the number of
+ticks is a way to control the simulation
+speed. It could be done as a max number of 
+ticks per second, and once the limit is
+reached on that second it skips. But this
+induces a non uniform simulation speed
+which may impact the smoothness. To increase
+the smoothness, the speed could be not
+ticks limit per second but one tick per x
+seconds. Hence we have a direct control over
+how fast the simulation happens, and it
+is made regular.
+As of now, a tick will happen over many frames
+anyway.
+It is also an opportunity to induce frameskip
+to increase further simulation speed. That is,
+the tick happen, but the graphical refresh 
+is performed after more ticks. This frameskip
+will induce to hold a "refresh flag" for
+each tile, that way we avoid redundancy.
+Or we could also have a set of tiles to
+refresh which holds only unique values.
+The refresh could therefore be done over
+multiple frames.
+
+Tick speed is now a value that shows the
+frequency.
+-1 is stop.
+1000 is one tick every 1000ms. Speed 1.
+100 is one tick every 10ms. Speed 2.
+0 is max speed. Speed 3. However, it seems
+the tick speed is limited only to 60 per sec,
+owning to the speed of the refresh call.
+It could be interesting to go even further.
+The strategy will be to consider that rico
+must use the maximum amount of cycle it can
+before it triggers a slowdown. However, this
+must be done separately from graphical refresh.
+
+
 
 Zoning vs display
 asrico proposes a view only focused on zoning.

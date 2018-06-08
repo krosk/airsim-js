@@ -15,7 +15,7 @@ const G_CHECK = true;
         if (typeof g_debugOverlay != 'undefined')
         {
             //exLog.apply(this, arguments);
-            g_debugOverlay.innerHTML += msg + "<br>";
+            g_debugOverlay.innerHTML = msg + "<br>" + g_debugOverlay.innerHTML;
         }
     }
     
@@ -317,8 +317,9 @@ let ASMAP = (function ()
     
     public.update = function asmap_update(dt, time)
     {
-        let dtbudget = 16; //1000 / 60;
-        let slowdown = MMAPRENDER.update(dt, dtbudget, time);
+        let dtbudget = ASSTATE.getMsBudget();
+        let timeLimit = time + dtbudget;
+        let slowdown = MMAPRENDER.update(dt, time, timeLimit);
         if (ASROAD.hasChangeLog())
         {
             ASROAD.commitChangeLog(1024);
@@ -857,6 +858,7 @@ let ASSTATE = (function()
     public.C_DATA = C;
     
     const G = {
+        MSBUDGET : 12,
         SIZE_X : 0,
         SIZE_Y : 1,
         PLAY : 2,
@@ -1075,6 +1077,16 @@ let ASSTATE = (function()
         w(index, field, data);
     }
     
+    public.getMsBudget = function asstate_getMsBudget()
+    {
+        return r(0, G.MSBUDGET);
+    }
+    
+    public.setMsBudget = function asstate_setMsBudget(data)
+    {
+        w(0, G.MSBUDGET, data);
+    }
+    
     public.getTick = function asstate_getTick()
     {
         return r(0, G.TICK);
@@ -1183,6 +1195,7 @@ let ASSTATE = (function()
         public.setTick(0);
         public.setFrame(0);
         public.setTickSpeed(0);
+        public.setMsBudget(4);
         for (let x = 0; x < tableSizeX; x++)
         {
             for (let y = 0; y < tableSizeY; y++)
@@ -3934,7 +3947,8 @@ let MMAPRENDER = (function ()
         let tileCoords = 't(' + tileX + ',' + tileY + ') ';
         let batchCoords = 'b(' + MMAPBATCH.getTileXToBatchX(tileX) + ',' + MMAPBATCH.getTileYToBatchY(tileY) + ') ';
         let batchCount = 'B(' + MMAPBATCH.getBatchCount() + '+' + MMAPBATCH.getBatchPoolCount() + '/' + MMAPBATCH.getBatchTotalCount() + ') ';
-        g_counter.innerHTML = interactState + mapCoords + tileCoords + tickElapsed + tickSpeed + frameElapsed + changeLog;
+        let lastBatchCount = 'bU(' + MMAPRENDER.getLastBatchUpdateCount() + ') ';
+        g_counter.innerHTML = interactState + mapCoords + tileCoords + tickElapsed + tickSpeed + frameElapsed + changeLog + batchCount + lastBatchCount;
     }
 
     public.setCameraScale = function mmaprender_setCameraScale(scaleX, scaleY)
@@ -4090,6 +4104,12 @@ let MMAPRENDER = (function ()
 
         return batchList;
     }
+    
+    let m_lastBatchUpdateCount = 0;
+    public.getLastBatchUpdateCount = function mmaprender_getLastBatchUpdateCount()
+    {
+        return m_lastBatchUpdateCount;
+    }
 
     let processBatchFlag = function mmaprender_processBatchFlag(batchPerCall, batchFlag)
     {
@@ -4168,9 +4188,11 @@ let MMAPRENDER = (function ()
                     // already taking all computation
                     // and leaves nothing to texture 
                 }
+                m_lastBatchUpdateCount = count;
                 return false;
             }
         }
+        m_lastBatchUpdateCount = count;
         return true;
     }
 
@@ -4184,7 +4206,7 @@ let MMAPRENDER = (function ()
     public.C_MINBATCHPERCALL = 1;
     public.C_MAXBATCHPERCALL = 800;
 
-    public.update = function mmaprender_update(dt, time, dtbudget)
+    public.update = function mmaprender_update(dt, time)
     {
         let updatedTiles = MMAPDATA.commitChangeLog();
         if (updatedTiles.length == 1)

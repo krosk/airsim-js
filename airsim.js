@@ -15,7 +15,7 @@ const G_CHECK = true;
         if (typeof g_debugOverlay != 'undefined')
         {
             //exLog.apply(this, arguments);
-            g_debugOverlay.innerHTML = msg + "<br>" + g_debugOverlay.innerHTML;
+            g_debugOverlay.innerHTML += msg + "<br>";
         }
     }
     
@@ -225,7 +225,7 @@ function pfFormatTestGrid(grid, w, h)
 function StartState()
 {
     console.log("Start");
-    ASMAP.initialize(128, 128);
+    ASMAP.initialize(16, 16);
     pfFormatTestGrid(ASMAP.Grid, ASMAP.Width, ASMAP.Height);
     for (i = 1; i < 0xFF * 12; i++)
     {
@@ -314,12 +314,10 @@ let ASMAP = (function ()
     {
         return MMAPDATA.getMapTableSizeY();
     }
-    
+
     public.update = function asmap_update(dt, time)
     {
-        let dtbudget = ASSTATE.getMsBudget();
-        let timeLimit = time + dtbudget;
-        let slowdown = MMAPRENDER.update(dt, time, timeLimit);
+        let slowdown = MMAPRENDER.update(dt, time);
         if (ASROAD.hasChangeLog())
         {
             ASROAD.commitChangeLog(1024);
@@ -800,7 +798,7 @@ let ASMAPUI = (function ()
         }
         else if (m_currentPlayId == C_DEF.PLAY2)
         {
-            ASSTATE.setTickSpeed(50);
+            ASSTATE.setTickSpeed(100);
         }
         else if (m_currentPlayId == C_DEF.PLAY3)
         {
@@ -858,7 +856,6 @@ let ASSTATE = (function()
     public.C_DATA = C;
     
     const G = {
-        MSBUDGET : 12,
         SIZE_X : 0,
         SIZE_Y : 1,
         PLAY : 2,
@@ -1077,16 +1074,6 @@ let ASSTATE = (function()
         w(index, field, data);
     }
     
-    public.getMsBudget = function asstate_getMsBudget()
-    {
-        return r(0, G.MSBUDGET);
-    }
-    
-    public.setMsBudget = function asstate_setMsBudget(data)
-    {
-        w(0, G.MSBUDGET, data);
-    }
-    
     public.getTick = function asstate_getTick()
     {
         return r(0, G.TICK);
@@ -1195,7 +1182,6 @@ let ASSTATE = (function()
         public.setTick(0);
         public.setFrame(0);
         public.setTickSpeed(0);
-        public.setMsBudget(4);
         for (let x = 0; x < tableSizeX; x++)
         {
             for (let y = 0; y < tableSizeY; y++)
@@ -1601,7 +1587,6 @@ let ASZONE = (function ()
     let m_lastTickTime = 0;
     let m_countTickSecond = 0;
     let m_countTickPerSecond = 0;
-    let m_countTickPerCall = 1;
     
     public.update = function aszone_update(slowdown, time)
     {
@@ -1611,55 +1596,24 @@ let ASZONE = (function ()
             m_countTickSecond = time;
             m_countTickPerSecond = 0;
         }
-        
         const tickSpeed = ASSTATE.getTickSpeed();
         if (tickSpeed == -1 || Math.abs(time - m_lastTickTime) < tickSpeed)
         {
             return;
         }
-        
-        let maxTickPerCall = 1000 / 60 / tickSpeed;
-        if (maxTickPerCall < 1)
+        const tick = ASSTATE.getTick();
+        const frame = ASSTATE.getFrame();
+        const newTick = ASRICO.updateRico(tick, slowdown);
+        if (newTick > tick)
         {
-            maxTickPerCall = 1;
-        }
-        
-        if (slowdown)
-        {
-            m_countTickPerCall = 1;
-            if (m_countTickPerCall < 1)
-            {
-                m_countTickPerCall = 1;
-            }
+            ASSTATE.setTick(newTick);
+            ASSTATE.setFrame(0);
+            m_lastTickTime = time;
+            m_countTickPerSecond += (newTick - tick);
         }
         else
         {
-            m_countTickPerCall++;
-        }
-        if (m_countTickPerCall > maxTickPerCall)
-        {
-            m_countTickPerCall = maxTickPerCall;
-        }
-        
-        let tickCount = m_countTickPerCall;
-        while (tickCount > 0)
-        {
-            const tick = ASSTATE.getTick();
-            const frame = ASSTATE.getFrame();
-            const ricoIncrement = ASRICO.updateRico(tick, slowdown);
-            if (ricoIncrement)
-            {
-                ASSTATE.setTick(tick + 1);
-                ASSTATE.setFrame(0);
-                m_lastTickTime = time;
-                m_countTickPerSecond += 1;
-                tickCount--;
-            }
-            else
-            {
-                ASSTATE.setFrame(frame + 1);
-                break;
-            }
+            ASSTATE.setFrame(frame + 1);
         }
     }
     
@@ -2610,7 +2564,7 @@ let ASRICO = (function ()
     }
     
     const C_MINCYCLEPERCALL = 1;
-    const C_MAXCYCLEPERCALL = 1000;
+    const C_MAXCYCLEPERCALL = 10000;
     let m_cyclePerCall = C_MAXCYCLEPERCALL;
     
     public.updateRico = function asrico_updateRico(tick, slowdown)
@@ -2640,6 +2594,12 @@ let ASRICO = (function ()
             }
         }
         let elapsedCycle = 0;
+        let playValue = ASSTATE.getPlay();
+        if (playValue > 0)
+        {
+            //console.log("frame play");
+            //elapsedCycle = m_cyclePerCall - 1;
+        }
         // polling mode
         while ((elapsedCycle < m_cyclePerCall) && (progress < tableSize))
         {
@@ -2649,17 +2609,14 @@ let ASRICO = (function ()
                 progress += 1;
             }
             elapsedCycle += 1;
+            ASSTATE.setRicoTickProgress(progress);
         }
-        let incrementTick = progress >= tableSize;
+        let incrementTick = ASSTATE.getRicoTickProgress() >= tableSize;
         if (incrementTick)
         {
             setNextTick(tick + 1);
         }
-        else
-        {
-            ASSTATE.setRicoTickProgress(progress);
-        }
-        return incrementTick;
+        return tick + 1;
     }
     
     let isDemandRicoFilled = function asrico_isDemandRicoFilled(demand)
@@ -3947,8 +3904,7 @@ let MMAPRENDER = (function ()
         let tileCoords = 't(' + tileX + ',' + tileY + ') ';
         let batchCoords = 'b(' + MMAPBATCH.getTileXToBatchX(tileX) + ',' + MMAPBATCH.getTileYToBatchY(tileY) + ') ';
         let batchCount = 'B(' + MMAPBATCH.getBatchCount() + '+' + MMAPBATCH.getBatchPoolCount() + '/' + MMAPBATCH.getBatchTotalCount() + ') ';
-        let lastBatchCount = 'bU(' + MMAPRENDER.getLastBatchUpdateCount() + ') ';
-        g_counter.innerHTML = interactState + mapCoords + tileCoords + tickElapsed + tickSpeed + frameElapsed + changeLog + batchCount + lastBatchCount;
+        g_counter.innerHTML = interactState + mapCoords + tileCoords + tickElapsed + tickSpeed + frameElapsed + changeLog;
     }
 
     public.setCameraScale = function mmaprender_setCameraScale(scaleX, scaleY)
@@ -4104,12 +4060,6 @@ let MMAPRENDER = (function ()
 
         return batchList;
     }
-    
-    let m_lastBatchUpdateCount = 0;
-    public.getLastBatchUpdateCount = function mmaprender_getLastBatchUpdateCount()
-    {
-        return m_lastBatchUpdateCount;
-    }
 
     let processBatchFlag = function mmaprender_processBatchFlag(batchPerCall, batchFlag)
     {
@@ -4188,11 +4138,9 @@ let MMAPRENDER = (function ()
                     // already taking all computation
                     // and leaves nothing to texture 
                 }
-                m_lastBatchUpdateCount = count;
                 return false;
             }
         }
-        m_lastBatchUpdateCount = count;
         return true;
     }
 
@@ -4254,7 +4202,7 @@ let MMAPRENDER = (function ()
         // Note that a batch contains sprites so themselves
         // should also be deleted
 
-        //let time0 = Date.now();
+        let time0 = Date.now();
 
         updateCameraVelocity();
 
@@ -4286,7 +4234,7 @@ let MMAPRENDER = (function ()
         m_batchFlag,
         currentBatchList);
 
-        //let time1 = Date.now();
+        let time1 = Date.now();
 
         MMAPBATCH.setTextureFlagInNewBatch(
         m_batchFlag,
@@ -4299,7 +4247,7 @@ let MMAPRENDER = (function ()
         currentBatchRadius,
         updatedTiles);
 
-        //let time2 = Date.now();
+        let time2 = Date.now();
         
         let fullyProcessed = processBatchFlag(m_batchPerCall, m_batchFlag);
         //let increaseBatchPerCall = Object.keys(m_batchFlag).length > 0;
@@ -4324,7 +4272,7 @@ let MMAPRENDER = (function ()
             }
         }
 
-        //let time3 = Date.now();
+        let time3 = Date.now();
 
         // checking whether it is texture load
         /*

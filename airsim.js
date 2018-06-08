@@ -225,7 +225,7 @@ function pfFormatTestGrid(grid, w, h)
 function StartState()
 {
     console.log("Start");
-    ASMAP.initialize(16, 16);
+    ASMAP.initialize(128, 128);
     pfFormatTestGrid(ASMAP.Grid, ASMAP.Width, ASMAP.Height);
     for (i = 1; i < 0xFF * 12; i++)
     {
@@ -314,10 +314,11 @@ let ASMAP = (function ()
     {
         return MMAPDATA.getMapTableSizeY();
     }
-
+    
     public.update = function asmap_update(dt, time)
     {
-        let slowdown = MMAPRENDER.update(dt, time);
+        let dtbudget = 16; //1000 / 60;
+        let slowdown = MMAPRENDER.update(dt, dtbudget, time);
         if (ASROAD.hasChangeLog())
         {
             ASROAD.commitChangeLog(1024);
@@ -798,7 +799,7 @@ let ASMAPUI = (function ()
         }
         else if (m_currentPlayId == C_DEF.PLAY2)
         {
-            ASSTATE.setTickSpeed(100);
+            ASSTATE.setTickSpeed(50);
         }
         else if (m_currentPlayId == C_DEF.PLAY3)
         {
@@ -1587,6 +1588,7 @@ let ASZONE = (function ()
     let m_lastTickTime = 0;
     let m_countTickSecond = 0;
     let m_countTickPerSecond = 0;
+    let m_countTickPerCall = 1;
     
     public.update = function aszone_update(slowdown, time)
     {
@@ -1596,24 +1598,55 @@ let ASZONE = (function ()
             m_countTickSecond = time;
             m_countTickPerSecond = 0;
         }
+        
         const tickSpeed = ASSTATE.getTickSpeed();
         if (tickSpeed == -1 || Math.abs(time - m_lastTickTime) < tickSpeed)
         {
             return;
         }
-        const tick = ASSTATE.getTick();
-        const frame = ASSTATE.getFrame();
-        const newTick = ASRICO.updateRico(tick, slowdown);
-        if (newTick > tick)
+        
+        let maxTickPerCall = 1000 / 60 / tickSpeed;
+        if (maxTickPerCall < 1)
         {
-            ASSTATE.setTick(newTick);
-            ASSTATE.setFrame(0);
-            m_lastTickTime = time;
-            m_countTickPerSecond += (newTick - tick);
+            maxTickPerCall = 1;
+        }
+        
+        if (slowdown)
+        {
+            m_countTickPerCall = 1;
+            if (m_countTickPerCall < 1)
+            {
+                m_countTickPerCall = 1;
+            }
         }
         else
         {
-            ASSTATE.setFrame(frame + 1);
+            m_countTickPerCall++;
+        }
+        if (m_countTickPerCall > maxTickPerCall)
+        {
+            m_countTickPerCall = maxTickPerCall;
+        }
+        
+        let tickCount = m_countTickPerCall;
+        while (tickCount > 0)
+        {
+            const tick = ASSTATE.getTick();
+            const frame = ASSTATE.getFrame();
+            const ricoIncrement = ASRICO.updateRico(tick, slowdown);
+            if (ricoIncrement)
+            {
+                ASSTATE.setTick(tick + 1);
+                ASSTATE.setFrame(0);
+                m_lastTickTime = time;
+                m_countTickPerSecond += 1;
+                tickCount--;
+            }
+            else
+            {
+                ASSTATE.setFrame(frame + 1);
+                break;
+            }
         }
     }
     
@@ -2564,7 +2597,7 @@ let ASRICO = (function ()
     }
     
     const C_MINCYCLEPERCALL = 1;
-    const C_MAXCYCLEPERCALL = 10000;
+    const C_MAXCYCLEPERCALL = 1000;
     let m_cyclePerCall = C_MAXCYCLEPERCALL;
     
     public.updateRico = function asrico_updateRico(tick, slowdown)
@@ -2594,12 +2627,6 @@ let ASRICO = (function ()
             }
         }
         let elapsedCycle = 0;
-        let playValue = ASSTATE.getPlay();
-        if (playValue > 0)
-        {
-            //console.log("frame play");
-            //elapsedCycle = m_cyclePerCall - 1;
-        }
         // polling mode
         while ((elapsedCycle < m_cyclePerCall) && (progress < tableSize))
         {
@@ -2609,14 +2636,17 @@ let ASRICO = (function ()
                 progress += 1;
             }
             elapsedCycle += 1;
-            ASSTATE.setRicoTickProgress(progress);
         }
-        let incrementTick = ASSTATE.getRicoTickProgress() >= tableSize;
+        let incrementTick = progress >= tableSize;
         if (incrementTick)
         {
             setNextTick(tick + 1);
         }
-        return tick + 1;
+        else
+        {
+            ASSTATE.setRicoTickProgress(progress);
+        }
+        return incrementTick;
     }
     
     let isDemandRicoFilled = function asrico_isDemandRicoFilled(demand)
@@ -4154,7 +4184,7 @@ let MMAPRENDER = (function ()
     public.C_MINBATCHPERCALL = 1;
     public.C_MAXBATCHPERCALL = 800;
 
-    public.update = function mmaprender_update(dt, time)
+    public.update = function mmaprender_update(dt, time, dtbudget)
     {
         let updatedTiles = MMAPDATA.commitChangeLog();
         if (updatedTiles.length == 1)
@@ -4202,7 +4232,7 @@ let MMAPRENDER = (function ()
         // Note that a batch contains sprites so themselves
         // should also be deleted
 
-        let time0 = Date.now();
+        //let time0 = Date.now();
 
         updateCameraVelocity();
 
@@ -4234,7 +4264,7 @@ let MMAPRENDER = (function ()
         m_batchFlag,
         currentBatchList);
 
-        let time1 = Date.now();
+        //let time1 = Date.now();
 
         MMAPBATCH.setTextureFlagInNewBatch(
         m_batchFlag,
@@ -4247,7 +4277,7 @@ let MMAPRENDER = (function ()
         currentBatchRadius,
         updatedTiles);
 
-        let time2 = Date.now();
+        //let time2 = Date.now();
         
         let fullyProcessed = processBatchFlag(m_batchPerCall, m_batchFlag);
         //let increaseBatchPerCall = Object.keys(m_batchFlag).length > 0;
@@ -4272,7 +4302,7 @@ let MMAPRENDER = (function ()
             }
         }
 
-        let time3 = Date.now();
+        //let time3 = Date.now();
 
         // checking whether it is texture load
         /*

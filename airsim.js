@@ -315,9 +315,26 @@ let ASMAP = (function ()
         return MMAPDATA.getMapTableSizeY();
     }
 
+    let m_computeTimeBudget = 1;
     public.update = function asmap_update(dt, time)
     {
-        let slowdown = MMAPRENDER.update(dt, time);
+        let frameskipped = dt > 17; //1000 / 60;
+        let noBudget = m_computeTimeBudget <= 1;
+        let maxBudget = m_computeTimeBudget >= 16/2;
+        let fullyProcessed = MMAPRENDER.update(time, frameskipped, noBudget);
+        if (!fullyProcessed && frameskipped && !noBudget)
+        {
+            m_computeTimeBudget--;
+        }
+        else if (fullyProcessed && !frameskipped && !maxBudget)
+        {
+            m_computeTimeBudget++;
+        }
+        else if (fullyProcessed && frameskipped && !noBudget)
+        {
+            m_computeTimeBudget--;
+        }
+        let computeTimeLimit = time + m_computeTimeBudget;
         if (ASROAD.hasChangeLog())
         {
             ASROAD.commitChangeLog(1024);
@@ -329,8 +346,13 @@ let ASMAP = (function ()
         else
         {
             // engines updates
-            ASZONE.update(slowdown, time);
+            ASZONE.update(!fullyProcessed, time, computeTimeLimit);
         }
+    }
+    
+    public.getComputeTimeBudget = function asmap_getComputeTimeBudget()
+    {
+        return m_computeTimeBudget;
     }
     
     let doZoneViewSingleClick = function asmap_doZoneViewSingleClick(x, y)
@@ -3896,6 +3918,7 @@ let MMAPRENDER = (function ()
         let interactState = 'i(' + (MMAPTOUCH.isStatePan() ? 'P' : '-') + (MMAPTOUCH.isStateZoom() ? 'Z' : '-') + (MMAPTOUCH.getTouchCount()) + (MMAPTOUCH.getClickCount()) + ') ';
         let tickElapsed = 'k(' + ASSTATE.getTick() + ') ';
         let frameElapsed = 'f(' + ASSTATE.getFrame()+ ') ';
+        let computeTimeBudget = 'T(' + ASMAP.getComputeTimeBudget() + ') ';
         let tickSpeed = 'K(' + ASSTATE.getTickRealSpeed() + ') ';
         let changeLog = 'C(' + ASROAD.hasChangeLog() + ') ';
         let cache = 'c(' + Object.keys(PIXI.utils.TextureCache).length + ') ';
@@ -3904,7 +3927,7 @@ let MMAPRENDER = (function ()
         let tileCoords = 't(' + tileX + ',' + tileY + ') ';
         let batchCoords = 'b(' + MMAPBATCH.getTileXToBatchX(tileX) + ',' + MMAPBATCH.getTileYToBatchY(tileY) + ') ';
         let batchCount = 'B(' + MMAPBATCH.getBatchCount() + '+' + MMAPBATCH.getBatchPoolCount() + '/' + MMAPBATCH.getBatchTotalCount() + ') ';
-        g_counter.innerHTML = interactState + mapCoords + tileCoords + tickElapsed + tickSpeed + frameElapsed + changeLog;
+        g_counter.innerHTML = interactState + mapCoords + tileCoords + tickElapsed + tickSpeed + computeTimeBudget + changeLog;
     }
 
     public.setCameraScale = function mmaprender_setCameraScale(scaleX, scaleY)
@@ -4152,9 +4175,9 @@ let MMAPRENDER = (function ()
 
     public.C_FPS = 30;
     public.C_MINBATCHPERCALL = 1;
-    public.C_MAXBATCHPERCALL = 800;
+    public.C_MAXBATCHPERCALL = 300;
 
-    public.update = function mmaprender_update(dt, time)
+    public.update = function mmaprender_update(time, frameskipped, noBudget)
     {
         let updatedTiles = MMAPDATA.commitChangeLog();
         if (updatedTiles.length == 1)
@@ -4202,7 +4225,7 @@ let MMAPRENDER = (function ()
         // Note that a batch contains sprites so themselves
         // should also be deleted
 
-        let time0 = Date.now();
+        //let time0 = Date.now();
 
         updateCameraVelocity();
 
@@ -4234,7 +4257,7 @@ let MMAPRENDER = (function ()
         m_batchFlag,
         currentBatchList);
 
-        let time1 = Date.now();
+        //let time1 = Date.now();
 
         MMAPBATCH.setTextureFlagInNewBatch(
         m_batchFlag,
@@ -4247,21 +4270,18 @@ let MMAPRENDER = (function ()
         currentBatchRadius,
         updatedTiles);
 
-        let time2 = Date.now();
+        //let time2 = Date.now();
         
         let fullyProcessed = processBatchFlag(m_batchPerCall, m_batchFlag);
-        //let increaseBatchPerCall = Object.keys(m_batchFlag).length > 0;
-        let increaseBatchPerCall = !fullyProcessed;
-
-        let slowdown = false;
-        if (dt > 1000 / public.C_FPS)
+        let increaseBatchPerCall = (!fullyProcessed && !frameskipped);
+        let decreaseBatchPerCall = (!fullyProcessed && frameskipped && noBudget);
+        if (decreaseBatchPerCall)
         {
             m_batchPerCall--;
             if (m_batchPerCall < public.C_MINBATCHPERCALL)
             {
                 m_batchPerCall = public.C_MINBATCHPERCALL;
             }
-            slowdown = true;
         }
         else if (increaseBatchPerCall)
         {
@@ -4272,7 +4292,7 @@ let MMAPRENDER = (function ()
             }
         }
 
-        let time3 = Date.now();
+        //let time3 = Date.now();
 
         // checking whether it is texture load
         /*
@@ -4302,7 +4322,7 @@ let MMAPRENDER = (function ()
         m_cameraBatchListRendered = currentBatchList;
         m_refreshCall = false;
         
-        return slowdown;
+        return fullyProcessed;
     }
     
     public.processSingleClick = function mmaprender_processSingleClick(screenX, screenY)

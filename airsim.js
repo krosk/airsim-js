@@ -320,7 +320,7 @@ let ASMAP = (function ()
     {
         let frameskipped = dt > 17; //1000 / 60;
         let noBudget = m_computeTimeBudget <= 1;
-        let maxBudget = m_computeTimeBudget >= 16/2;
+        let maxBudget = m_computeTimeBudget >= 16;
         let fullyProcessed = MMAPRENDER.update(time, frameskipped, noBudget);
         if (!fullyProcessed && frameskipped && !noBudget)
         {
@@ -1625,9 +1625,10 @@ let ASZONE = (function ()
         }
         const tick = ASSTATE.getTick();
         const frame = ASSTATE.getFrame();
-        const newTick = ASRICO.updateRico(tick);
+        const newTick = ASRICO.updateRico(tick, timeLimit);
         if (newTick > tick)
         {
+            ASRICO.setNextTick(newTick);
             ASSTATE.setTick(newTick);
             ASSTATE.setFrame(0);
             m_lastTickTime = time;
@@ -2431,7 +2432,7 @@ let ASRICO = (function ()
         ASSTATE.setRicoStep(0);
     }
     
-    let setNextTick = function asrico_setNextTick(tick)
+    public.setNextTick = function asrico_setNextTick(tick)
     {
         ASSTATE.setRicoTickProgress(0);
         ASSTATE.setRicoStep(0);
@@ -2589,7 +2590,7 @@ let ASRICO = (function ()
     const C_MAXCYCLEPERCALL = 10000;
     let m_cyclePerCall = C_MAXCYCLEPERCALL;
     
-    public.updateRico = function asrico_updateRico(tick)
+    public.updateRico = function asrico_updateRico(tick, timeLimit)
     {
         // Tick progress is the indicator
         // that buildings have been checked
@@ -2617,7 +2618,7 @@ let ASRICO = (function ()
         }
         let elapsedCycle = 0;
         // polling mode
-        while ((elapsedCycle < m_cyclePerCall) && (progress < tableSize))
+        while ((elapsedCycle < m_cyclePerCall) && (progress < tableSize) && (Date.now() < timeLimit))
         {
             let index = progress;
             if (updateBuilding(index))
@@ -2630,9 +2631,12 @@ let ASRICO = (function ()
         let incrementTick = ASSTATE.getRicoTickProgress() >= tableSize;
         if (incrementTick)
         {
-            setNextTick(tick + 1);
+            return tick + 1;
         }
-        return tick + 1;
+        else
+        {
+            return tick;
+        }
     }
     
     let isDemandRicoFilled = function asrico_isDemandRicoFilled(demand)

@@ -910,7 +910,64 @@ The strategy will be to consider that rico
 must use the maximum amount of cycle it can
 before it triggers a slowdown. However, this
 must be done separately from graphical refresh.
+It cannot be implemented in rico, as rico
+must stop upon the tick finishing to let other
+systems update (polution, energy, etc).
+It must be updated at higher level such as
+zone or map. For now, the tick decision
+is at zone level.
 
+The decision to make smoothness key requires
+frames to never be saturated, i.e. never skip
+a frame.
+A full call therefore must not use more than
+16 ms, or 33 ms depending on target fps (60 or
+30).
+The flow can be:
+- Retrieve time
+- Refresh a number of tiles
+- Refresh a number of simulation cycle
+
+The render refresh is for now processing a
+number of batches per update call. The number
+of batches per call is adjusted according to
+previous calls, if it was too slow then
+it is reduced. It is in fact necessary because
+the actual effect of the batches is only
+observed at the next frame, ie in the current
+frame I set x batches. Once update is finished
+the batches are processed and only then do
+I know if x batches were too many (because
+frameskip), or if they were within capacity.
+It is especially important to keep some budget
+at the end of the call to process the number
+of batches promised.
+Strategy can be to update a number of batches.
+Consider a fixed budget of 16ms.
+Consider a render budget of 10ms. 
+Consider a compute budget of 6ms.
+Number of batches to process (nbtp) is set.
+*fully processed = nbtp > number of batch wait
+*frameskipped = dt over
+If not fully processed not frameskipped, 
+  raise nbtp by 1,
+  keep the render budget the same.
+If not fully processed frameskipped
+  keep nbtp
+  raise render budget (reduce compute budget)
+  if render budget maximal already
+    reduce nbtp
+If fully processed not frameskipped
+  reduce render budget.
+If fully processed and frameskipped, 
+  raise render budget.
+
+
+
+// ideally, max fps being limited to 60
+// the update update cycle runs 60 times
+// per second, hence tick per frame
+// can be computed. 
 
 
 Zoning vs display

@@ -346,7 +346,7 @@ let ASMAP = (function ()
         else
         {
             // engines updates
-            ASZONE.update(!fullyProcessed, time, computeTimeLimit);
+            ASZONE.update(time, computeTimeLimit);
         }
     }
     
@@ -1610,7 +1610,7 @@ let ASZONE = (function ()
     let m_countTickSecond = 0;
     let m_countTickPerSecond = 0;
     
-    public.update = function aszone_update(slowdown, time)
+    public.update = function aszone_update(time, timeLimit)
     {
         if (Math.abs(time - m_countTickSecond) > 1000)
         {
@@ -1625,7 +1625,7 @@ let ASZONE = (function ()
         }
         const tick = ASSTATE.getTick();
         const frame = ASSTATE.getFrame();
-        const newTick = ASRICO.updateRico(tick, slowdown);
+        const newTick = ASRICO.updateRico(tick);
         if (newTick > tick)
         {
             ASSTATE.setTick(newTick);
@@ -2589,7 +2589,7 @@ let ASRICO = (function ()
     const C_MAXCYCLEPERCALL = 10000;
     let m_cyclePerCall = C_MAXCYCLEPERCALL;
     
-    public.updateRico = function asrico_updateRico(tick, slowdown)
+    public.updateRico = function asrico_updateRico(tick)
     {
         // Tick progress is the indicator
         // that buildings have been checked
@@ -2599,7 +2599,7 @@ let ASRICO = (function ()
         const tableSizeY = ASSTATE.getTableSizeY();
         const tableSize = tableSizeX * tableSizeY;
         const increaseCall = progress < tableSize;
-        if (slowdown)
+        if (false)
         {
             m_cyclePerCall--;
             if (m_cyclePerCall < C_MINCYCLEPERCALL)
@@ -2616,12 +2616,6 @@ let ASRICO = (function ()
             }
         }
         let elapsedCycle = 0;
-        let playValue = ASSTATE.getPlay();
-        if (playValue > 0)
-        {
-            //console.log("frame play");
-            //elapsedCycle = m_cyclePerCall - 1;
-        }
         // polling mode
         while ((elapsedCycle < m_cyclePerCall) && (progress < tableSize))
         {
@@ -3920,14 +3914,14 @@ let MMAPRENDER = (function ()
         let frameElapsed = 'f(' + ASSTATE.getFrame()+ ') ';
         let computeTimeBudget = 'T(' + ASMAP.getComputeTimeBudget() + ') ';
         let tickSpeed = 'K(' + ASSTATE.getTickRealSpeed() + ') ';
-        let changeLog = 'C(' + ASROAD.hasChangeLog() + ') ';
+        let changeLog = 'R(' + ASROAD.hasChangeLog() + ') ';
         let cache = 'c(' + Object.keys(PIXI.utils.TextureCache).length + ') ';
         let memUsage = 'o(' + performance.memory.usedJSHeapSize / 1000 + ') ';
         let mapCoords = 'm(' + (m_cameraMapX | 0) + ',' + (m_cameraMapY | 0) + ',' + cameraScale + ') ';
         let tileCoords = 't(' + tileX + ',' + tileY + ') ';
         let batchCoords = 'b(' + MMAPBATCH.getTileXToBatchX(tileX) + ',' + MMAPBATCH.getTileYToBatchY(tileY) + ') ';
         let batchCount = 'B(' + MMAPBATCH.getBatchCount() + '+' + MMAPBATCH.getBatchPoolCount() + '/' + MMAPBATCH.getBatchTotalCount() + ') ';
-        g_counter.innerHTML = interactState + mapCoords + tileCoords + tickElapsed + tickSpeed + computeTimeBudget + changeLog;
+        g_counter.innerHTML = interactState + mapCoords + tileCoords + tickElapsed + tickSpeed + frameElapsed + computeTimeBudget + changeLog;
     }
 
     public.setCameraScale = function mmaprender_setCameraScale(scaleX, scaleY)

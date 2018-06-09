@@ -335,19 +335,10 @@ let ASMAP = (function ()
             m_computeTimeBudget--;
         }
         let computeTimeLimit = time + m_computeTimeBudget;
-        if (ASROAD.hasChangeLog())
-        {
-            ASROAD.commitChangeLog(1024);
-        }
-        else if (ASRICO.hasChangeLog())
-        {
-            ASRICO.commitChangeLog(1024);
-        }
-        else
-        {
-            // engines updates
-            ASZONE.update(time, computeTimeLimit);
-        }
+        ASROAD.commitChangeLog(1024);
+        ASRICO.commitChangeLog(1024);
+        // engines updates
+        ASZONE.update(time, computeTimeLimit);
     }
     
     public.getComputeTimeBudget = function asmap_getComputeTimeBudget()

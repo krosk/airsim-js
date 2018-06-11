@@ -335,8 +335,6 @@ let ASMAP = (function ()
             m_computeTimeBudget--;
         }
         let computeTimeLimit = time + m_computeTimeBudget;
-        ASROAD.commitChangeLog(1024);
-        ASRICO.commitChangeLog(1024);
         // engines updates
         ASZONE.update(time, computeTimeLimit);
     }
@@ -851,11 +849,10 @@ let ASSTATE = (function()
         ROAD_CONNECT_W : 6,
         ROAD_USED_CAPACITY : 7,
         ROAD_MAX_CAPACITY : 8,
-        ROAD_TRAVERSAL_FROM : 9,
-        ROAD_TRAVERSAL_PROCESSED : 10,
-        ROAD_TRAVERSAL_COST : 11,
-        ROAD_TRAVERSAL_PARENT : 12,
-        ROAD_DEBUG : 13,
+        ROAD_TRAVERSAL_PROCESSED : 9,
+        ROAD_TRAVERSAL_COST : 10,
+        ROAD_TRAVERSAL_PARENT : 11,
+        ROAD_DEBUG : 12,
         BUILDING_TYPE : 2, // 1 res 2 com 3 ind 4 off
         BUILDING_DENSITY_LEVEL : 3,
         BUILDING_OFFER_R: 4,
@@ -999,16 +996,6 @@ let ASSTATE = (function()
     public.setRoadMaxCapacity = function asstate_setRoadMaxCapacity(index, data)
     {
         w(index, C.ROAD_MAX_CAPACITY, data);
-    }
-    
-    public.getRoadTraversalFrom = function asstate_getRoadTraversalFrom(index)
-    {
-        return r(index, C.ROAD_TRAVERSAL_FROM);
-    }
-    
-    public.setRoadTraversalFrom = function asstate_setRoadTraversalFrom(index, data)
-    {
-        w(index, C.ROAD_TRAVERSAL_FROM, data);
     }
     
     public.getRoadTraversalProcessed = function asstate_getRoadTraversalProcessed(index)
@@ -1598,15 +1585,17 @@ let ASZONE = (function ()
     }
     
     let m_lastTickTime = 0;
-    let m_countTickSecond = 0;
+    let m_countTickTime = 0;
     let m_countTickPerSecond = 0;
     
     public.update = function aszone_update(time, timeLimit)
     {
-        if (Math.abs(time - m_countTickSecond) > 1000)
+        ASROAD.commitChangeLog(1024);
+        ASRICO.commitChangeLog(1024);
+        if (time - m_countTickTime > 1000)
         {
             ASSTATE.setTickRealSpeed(m_countTickPerSecond);
-            m_countTickSecond = time;
+            m_countTickTime = time;
             m_countTickPerSecond = 0;
         }
         const tickSpeed = ASSTATE.getTickSpeed();

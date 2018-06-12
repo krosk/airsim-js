@@ -336,7 +336,27 @@ let ASMAP = (function ()
         }
         let computeTimeLimit = time + m_computeTimeBudget;
         // engines updates
+        commitDataChange(time, computeTimeLimit);
         ASZONE.update(time, computeTimeLimit);
+    }
+    
+    let commitDataChange = function asmap_commitDataChange(time, computeTimeLimit)
+    {
+        while (Date.now() < computeTimeLimit)
+        {
+            let newChangeIndex = ASSTATE.retrieveChange();
+            if (newChangeIndex >= 0)
+            {
+                let xy = ASSTATE.getXYFromIndex(newChangeIndex);
+                let x = xy[0];
+                let y = xy[1];
+                MMAPDATA.refreshTile(x, y);
+            }
+            else
+            {
+                break;
+            }
+        }
     }
     
     public.getComputeTimeBudget = function asmap_getComputeTimeBudget()
@@ -841,27 +861,28 @@ let ASSTATE = (function()
     // map structure
     const C = {
         ZONE : 0,
-        ZONE_TYPE : 1, // 0 none 1 road 2 building 3 fixed
-        ROAD_TYPE : 2,
-        ROAD_CONNECT_N : 3,
-        ROAD_CONNECT_E : 4,
-        ROAD_CONNECT_S : 5,
-        ROAD_CONNECT_W : 6,
-        ROAD_USED_CAPACITY : 7,
-        ROAD_MAX_CAPACITY : 8,
-        ROAD_TRAVERSAL_PROCESSED : 9,
-        ROAD_TRAVERSAL_COST : 10,
-        ROAD_TRAVERSAL_PARENT : 11,
-        ROAD_DEBUG : 12,
-        BUILDING_TYPE : 2, // 1 res 2 com 3 ind 4 off
-        BUILDING_DENSITY_LEVEL : 3,
-        BUILDING_OFFER_R: 4,
-        BUILDING_OFFER_I: 5,
-        BUILDING_OFFER_C: 6,
-        BUILDING_DEMAND_R : 7,
-        BUILDING_DEMAND_I : 8,
-        BUILDING_DEMAND_C : 9,
-        BUILDING_TICK_UPDATE : 10,
+        CHANGE : 1,
+        ZONE_TYPE : 2, // 0 none 1 road 2 building 3 fixed
+        ROAD_TYPE : 3,
+        ROAD_CONNECT_N : 4,
+        ROAD_CONNECT_E : 5,
+        ROAD_CONNECT_S : 6,
+        ROAD_CONNECT_W : 7,
+        ROAD_USED_CAPACITY : 8,
+        ROAD_MAX_CAPACITY : 9,
+        ROAD_TRAVERSAL_PROCESSED : 10,
+        ROAD_TRAVERSAL_COST : 11,
+        ROAD_TRAVERSAL_PARENT : 12,
+        ROAD_DEBUG : 13,
+        BUILDING_TYPE : 3, // 1 res 2 com 3 ind 4 off
+        BUILDING_DENSITY_LEVEL : 4,
+        BUILDING_OFFER_R: 5,
+        BUILDING_OFFER_I: 6,
+        BUILDING_OFFER_C: 7,
+        BUILDING_DEMAND_R : 8,
+        BUILDING_DEMAND_I : 9,
+        BUILDING_DEMAND_C : 10,
+        BUILDING_TICK_UPDATE : 11,
     }
     public.C_DATA = C;
     
@@ -878,6 +899,8 @@ let ASSTATE = (function()
         ROAD_TRAVERSAL_START : 9,
         ROAD_TRAVERSAL_CURRENT_INDEX : 10,
         ROAD_TRAVERSAL_EDGE_COUNT : 11,
+        CHANGE_FIRST : 12,
+        CHANGE_LAST : 13
     }
     
     public.getIndex = function asstate_getIndex(x, y)
@@ -929,6 +952,16 @@ let ASSTATE = (function()
     public.setDataZoneAtIndex = function asstate_setDataZoneAtIndex(index, data)
     {
         w(index, C.ZONE, data);
+    }
+    
+    public.getChangeFlag = function asstate_getChangeFlag(index)
+    {
+        return r(index, C.CHANGE);
+    }
+    
+    public.setChangeFlag = function asstate_setChangeFlag(index, data)
+    {
+        w(index, C.CHANGE, data);
     }
     
     public.getZoneType = function asstate_getZoneType(index)
@@ -1174,6 +1207,26 @@ let ASSTATE = (function()
         w(0, G.ROAD_TRAVERSAL_EDGE_COUNT, data);
     }
     
+    public.getChangeFirst = function asstate_getChangeFirst()
+    {
+        return r(0, G.CHANGE_FIRST);
+    }
+    
+    public.setChangeFirst = function asstate_setChangeFirst(data)
+    {
+        w(0, G.CHANGE_FIRST, data);
+    }
+    
+    public.getChangeLast = function asstare_getChangeLast()
+    {
+        return r(0, G.CHANGE_LAST);
+    }
+    
+    public.setChangeLast = function asstate_setChangeLast(data)
+    {
+        w(0, G.CHANGE_LAST, data);
+    }
+    
     public.initialize = function asstate_initialize(tableSizeX, tableSizeY)
     {
         public.clear(0);
@@ -1182,12 +1235,15 @@ let ASSTATE = (function()
         public.setTick(0);
         public.setFrame(0);
         public.setTickSpeed(0);
+        public.setChangeFirst(-1);
+        public.setChangeLast(-1);
         for (let x = 0; x < tableSizeX; x++)
         {
             for (let y = 0; y < tableSizeY; y++)
             {
                 var index = public.getIndex(x, y);
                 public.clear(index);
+                public.setChangeFlag(index, -1);
             }
         }
     }
@@ -1210,6 +1266,43 @@ let ASSTATE = (function()
     public.setTableSizeY = function asstate_setTableSizeY(data)
     {
         w(0, G.SIZE_Y, data);
+    }
+    
+    public.notifyChange = function asstate_notifyChange(newIndex)
+    {
+        let firstIndex = public.getChangeFirst();
+        if (firstIndex >= 0)
+        {
+            let lastIndex = public.getChangeLast();
+            public.setChangeFlag(lastIndex, newIndex);
+            public.setChangeFlag(newIndex, newIndex);
+            public.setChangeLast(newIndex);
+        }
+        else
+        {
+            public.setChangeFirst(newIndex);
+            public.setChangeLast(newIndex);
+            public.setChangeFlag(newIndex, newIndex);
+        }
+    }
+    
+    public.retrieveChange = function asstate_retrieveChange()
+    {
+        let firstIndex = public.getChangeFirst();
+        let lastIndex = public.getChangeLast();
+        if (firstIndex >= 0 && lastIndex >= 0 && firstIndex == lastIndex)
+        {
+            public.setChangeFirst(-1);
+            public.setChangeLast(-1);
+            public.setChangeFlag(firstIndex, -1);
+        }
+        else if (firstIndex >= 0)
+        {
+            let nextIndex = public.getChangeFlag(firstIndex);
+            public.setChangeFirst(nextIndex);
+            public.setChangeFlag(firstIndex, -1);
+        }
+        return firstIndex;
     }
     
     public.getSerializable = function asstate_getSerializable()
@@ -1590,8 +1683,6 @@ let ASZONE = (function ()
     
     public.update = function aszone_update(time, timeLimit)
     {
-        ASROAD.commitChangeLog(1024);
-        ASRICO.commitChangeLog(1024);
         if (time - m_countTickTime > 1000)
         {
             ASSTATE.setTickRealSpeed(m_countTickPerSecond);
@@ -1711,40 +1802,9 @@ let ASROAD = (function ()
     
     let C_DEBUG_TRAVERSAL = true;
     
-    let m_changeLog = [];
-    
-    public.hasChangeLog = function asroad_hasChangeLog()
-    {
-        return m_changeLog.length;
-    }
-    
-    public.commitChangeLog = function asroad_commitChangeLog(tileCount)
-    {
-        let refreshCount = m_changeLog.length;
-        if (tileCount * 2 < refreshCount)
-        {
-            refreshCount = tileCount * 2;
-        }
-        for (let i = 0; i < refreshCount; i+=2)
-        {
-            let tileX = m_changeLog[i];
-            let tileY = m_changeLog[i + 1];
-    
-            MMAPDATA.refreshTile(tileX, tileY);
-        }
-        if (refreshCount > 0)
-        {
-            m_changeLog.splice(0, refreshCount);
-        }
-    }
-    
     let addChangeLogIndex = function asroad_addChangeLogIndex(index)
     {
-        let xy = ASSTATE.getXYFromIndex(index);
-        let x = xy[0];
-        let y = xy[1];
-        m_changeLog.push(x);
-        m_changeLog.push(y);
+        ASSTATE.notifyChange(index);
     }
     
     // for display
@@ -2370,40 +2430,9 @@ let ASRICO = (function ()
     
     // ---------
     
-    let m_changeLog = [];
-    
-    public.hasChangeLog = function asrico_hasChangeLog()
-    {
-        return m_changeLog.length;
-    }
-    
-    public.commitChangeLog = function asrico_commitChangeLog(tileCount)
-    {
-        let refreshCount = m_changeLog.length;
-        if (tileCount * 2 < refreshCount)
-        {
-            refreshCount = tileCount * 2;
-        }
-        for (let i = 0; i < refreshCount; i+=2)
-        {
-            let tileX = m_changeLog[i];
-            let tileY = m_changeLog[i + 1];
-    
-            MMAPDATA.refreshTile(tileX, tileY);
-        }
-        if (refreshCount > 0)
-        {
-            m_changeLog.splice(0, refreshCount);
-        }
-    }
-    
     let addChangeLogIndex = function asrico_addChangeLogIndex(index)
     {
-        let xy = ASSTATE.getXYFromIndex(index);
-        let x = xy[0];
-        let y = xy[1];
-        m_changeLog.push(x);
-        m_changeLog.push(y);
+        ASSTATE.notifyChange(index);
     }
     
     public.initialize = function asrico_initialize()
@@ -3898,14 +3927,15 @@ let MMAPRENDER = (function ()
         let frameElapsed = 'f(' + ASSTATE.getFrame()+ ') ';
         let computeTimeBudget = 'T(' + ASMAP.getComputeTimeBudget() + ') ';
         let tickSpeed = 'K(' + ASSTATE.getTickRealSpeed() + ') ';
-        let changeLog = 'R(' + ASROAD.hasChangeLog() + ') ';
+        let firstChange = 'h(' + ASSTATE.getChangeFirst() + ') ';
+        let lastChange = 'H(' + ASSTATE.getChangeLast() + ') ';
         let cache = 'c(' + Object.keys(PIXI.utils.TextureCache).length + ') ';
         let memUsage = 'o(' + performance.memory.usedJSHeapSize / 1000 + ') ';
         let mapCoords = 'm(' + (m_cameraMapX | 0) + ',' + (m_cameraMapY | 0) + ',' + cameraScale + ') ';
         let tileCoords = 't(' + tileX + ',' + tileY + ') ';
         let batchCoords = 'b(' + MMAPBATCH.getTileXToBatchX(tileX) + ',' + MMAPBATCH.getTileYToBatchY(tileY) + ') ';
         let batchCount = 'B(' + MMAPBATCH.getBatchCount() + '+' + MMAPBATCH.getBatchPoolCount() + '/' + MMAPBATCH.getBatchTotalCount() + ') ';
-        g_counter.innerHTML = interactState + mapCoords + tileCoords + tickElapsed + tickSpeed + frameElapsed + computeTimeBudget + changeLog;
+        g_counter.innerHTML = interactState + mapCoords + tileCoords + tickElapsed + tickSpeed + frameElapsed + computeTimeBudget + firstChange + lastChange;
     }
 
     public.setCameraScale = function mmaprender_setCameraScale(scaleX, scaleY)

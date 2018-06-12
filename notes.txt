@@ -961,6 +961,101 @@ If fully processed not frameskipped
   reduce render budget.
 If fully processed and frameskipped, 
   raise render budget.
+The strategy seems to be able to maintain a
+stable framerate. The comparison currently
+done is a asrico loop exit once date reaches
+the time limit. However, the comparison is
+performed every cycle so it might be expensive.
+
+A possible improvement is batching cycles, if
+and only if the date.now call is expensive.
+Date.now does not seem too expensive according
+to jsperf. Profiling is required.
+
+The next problem comes now in the commit log
+queue.
+It might be a design decision to make sure the
+tiles are updated before simulation engines
+run. Updating the graphics is done by
+mmaprender, and the amount of sprites to update
+depends on the commitchangelog.
+The data is changed by the systems, but
+the commitchangelogs are order to reload
+textures. However, the texture is reloaded
+only if it is within the visible range.
+The implementation of commit change log queue
+has the drawback of accepting multiple times
+the same tile except if the structure is a
+set or hash or fized array. In the case of
+asroad, a road tile is added multiple times.
+In the case of a tick that is interrupted in
+the middle, the mmaprender is refreshing each
+time. Which is... possibly fine for debugging?
+Consistency may require buildings to be updated
+only between ticks, not within one. But for
+debug purposes it is desirable to see the
+advance during turn. It however decreases a lot
+the simulation speed, but it is in fact a 
+secondary speed control, in the sense that
+you can vary the rate at which graphics update
+(such as every tick, every x ticks, or within
+ticks) by imposing a starting condition.
+
+To speed up the refresh of graphics of tiles
+that have changed, a possible implementation
+can be using a sort of linked chain.
+A fifo is most desired for consistent
+across frames update. Hence for a fifo to
+work a tile must hold the index of the next
+tile to update. Hence when adding a new tile
+the change flag of the last tile must point
+out to the newest added tile.
+The algorithm is as such:
+Adding to the list
+- if first tile is empty
+    set first tile = cindex
+- else
+    retrieve last tile, pindex
+    set pindex change flag to cindex
+- set cindex change flag to cindex
+Removing from the list
+- if first tile is empty
+    end
+- else
+    retrieve first tile 
+    set first tile equal to ft change flag
+
+Is it a waste of space? Would it be better
+to use a datatructure such as set or hash?
+Ultimately I will unlikely store more than
+512*512 amount of data (256kb), and I am likely
+to store instead 128*128 (16kb) of data.
+A direct array with some logic is not 
+too much wasted space compared to a texture.
+Writing it into the asstate may be too much
+due to the fact that it is not a sim data,
+it is a rendering issue which is supposedly
+changing independently from sim data.
+However a small issue happens for the sim engine
+because engines may have a direct call to
+data or render layer, and this is superfluous.
+A better option could have been flags in
+asstate, which is independant. Change flag
+can have other uses outside rendering, such 
+as bulldozer. A bulldozer option is saying
+that the tile needs cleaning; can it be done
+without tick waiting? 
+The change flag needs to be processed at the
+end of the tick, which will process in the same
+tick the render change, and in the next tick
+the building orders.
+
+Since the max size
+is known, it could be stored as a grid flag.
+Hence writing multiple times the same tile
+will trigger a refresh. A loop could pool the
+grid to build a updatedtiles structure, which
+is used in place of the commitchangelog one.
 
 
 

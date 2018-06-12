@@ -338,6 +338,7 @@ let ASMAP = (function ()
         // engines updates
         commitDataChange(time, computeTimeLimit);
         ASZONE.update(time, computeTimeLimit);
+        //commitDataChange(time, computeTimeLimit);
     }
     
     let commitDataChange = function asmap_commitDataChange(time, computeTimeLimit)
@@ -845,7 +846,7 @@ let ASMAPUI = (function ()
         {
             //console.log("frame");
             // probably needs a special value
-            ASSTATE.setTickSpeed(10000);
+            ASSTATE.setTickSpeed(1001);
         }
     }
     
@@ -1802,16 +1803,24 @@ let ASROAD = (function ()
     
     let C_DEBUG_TRAVERSAL = true;
     
-    let addChangeLogIndex = function asroad_addChangeLogIndex(index)
+    let changeDataIndex = function asroad_changeDataIndex(index)
     {
         ASSTATE.notifyChange(index);
+    }
+    
+    let changeTraversalIndex = function asroad_changeTraversalIndex(index)
+    {
+        if (C_DEBUG_TRAVERSAL)
+        {
+            ASSTATE.notifyChange(index);
+        }
     }
     
     // for display
     let getDataIdByCongestion = function asroad_getTileByCongestion(index)
     {
         let value = hasRoad(index) ? ASSTATE.getRoadUsedCapacity(index) : 0;
-        if (valie > 90)
+        if (value > 90)
         {
             return C.VHI;
         }
@@ -1965,7 +1974,7 @@ let ASROAD = (function ()
             ASSTATE.setRoadUsedCapacity(index, 1);
             ASSTATE.setRoadMaxCapacity(index, 10);
             ASSTATE.setRoadDebug(index, C.LOW)
-            addChangeLogIndex(index);
+            changeDataIndex(index);
             // traversal v2 related
             ASSTATE.setRoadTraversalCost(index, 0);
         }
@@ -1990,7 +1999,7 @@ let ASROAD = (function ()
         disconnectNodes(x, y, C_TO.E);
         disconnectNodes(x, y, C_TO.S);
         disconnectNodes(x, y, C_TO.W);
-        addChangeLogIndex(index);
+        changeDataIndex(index);
     }
     
     // struct is
@@ -2075,7 +2084,7 @@ let ASROAD = (function ()
         setTraversalProcessedNot(node, index);
         setTraversalParent(node, -1);
         setTraversalCost(node, 0);
-        addChangeLogIndex(node);
+        changeTraversalIndex(node);
     }
     
     public.initializeTraversal = function asroad_initializeTraversal(fromX, fromY)
@@ -2098,7 +2107,7 @@ let ASROAD = (function ()
             expandTraversal(from, isConnectedTo(from, C_TO.S));
             expandTraversal(from, isConnectedTo(from, C_TO.W));
             ASSTATE.setRoadDebug(from, C.HIG);
-            addChangeLogIndex(from);
+            changeTraversalIndex(from);
         }
     }
     
@@ -2127,7 +2136,7 @@ let ASROAD = (function ()
             setTraversalParent(node, parent);
             setTraversalAdded(node);
             ASSTATE.setRoadDebug(node, C.MID);
-            addChangeLogIndex(node);
+            changeTraversalIndex(node);
         }
     }
    
@@ -2220,7 +2229,7 @@ let ASROAD = (function ()
         expandIfNotTraversed(node, C_TO.E);
         expandIfNotTraversed(node, C_TO.S);
         expandIfNotTraversed(node, C_TO.W);
-        addChangeLogIndex(node);
+        changeTraversalIndex(node);
         return ASSTATE.getXYFromIndex(node);
     }
     
@@ -2280,6 +2289,7 @@ let ASROAD = (function ()
                 if (hasRoad(node))
                 {
                     ASSTATE.setRoadDebug(node, C.LOW);
+                    changeTraversalIndex(node);
                 }
                 clearTraversal(node, i);
             }
@@ -2595,10 +2605,6 @@ let ASRICO = (function ()
 	    }
     }
     
-    const C_MINCYCLEPERCALL = 1;
-    const C_MAXCYCLEPERCALL = 10000;
-    let m_cyclePerCall = C_MAXCYCLEPERCALL;
-    
     public.updateRico = function asrico_updateRico(tick, timeLimit)
     {
         // Tick progress is the indicator
@@ -2608,26 +2614,10 @@ let ASRICO = (function ()
         const tableSizeX = ASSTATE.getTableSizeX();
         const tableSizeY = ASSTATE.getTableSizeY();
         const tableSize = tableSizeX * tableSizeY;
-        const increaseCall = progress < tableSize;
-        if (false)
-        {
-            m_cyclePerCall--;
-            if (m_cyclePerCall < C_MINCYCLEPERCALL)
-            {
-                m_cyclePerCall = C_MINCYCLEPERCALL;
-            }
-        }
-        else if (increaseCall)
-        {
-            m_cyclePerCall++;
-            if (m_cyclePerCall >= C_MAXCYCLEPERCALL)
-            {
-                m_cyclePerCall = C_MAXCYCLEPERCALL;
-            }
-        }
         let elapsedCycle = 0;
+        let tickSpeed = ASSTATE.getTickSpeed();
         // polling mode
-        while ((elapsedCycle < m_cyclePerCall) && (progress < tableSize) && (Date.now() < timeLimit))
+        while ((progress < tableSize) && (Date.now() < timeLimit))
         {
             let index = progress;
             if (updateBuilding(index))
@@ -2636,6 +2626,10 @@ let ASRICO = (function ()
             }
             elapsedCycle += 1;
             ASSTATE.setRicoTickProgress(progress);
+            if (tickSpeed > 1000) // exception case
+            {
+                break;
+            }
         }
         let incrementTick = ASSTATE.getRicoTickProgress() >= tableSize;
         if (incrementTick)

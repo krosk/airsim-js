@@ -1366,8 +1366,20 @@ let ASICON = (function ()
         return public.C_NAME + tileId;
     }
     
-    let addNothing = function asicon_addNothing(graphics, color, height)
+    let addNothing = function asicon_addNothing(color, height)
     {
+        let graphics = addTileBase(color);
+        return graphics;
+    }
+    
+    let addTileBase = function asicon_addTileBase(color)
+    {
+        let margin = 0;
+        let height = 3;
+        let graphics = MMAPRENDER.createTexture(0xFFFFFF, margin, height);
+        let black = 0x000000;
+        graphics.beginFill(color);
+        graphics.lineStyle(1, black);
         return graphics;
     }
     
@@ -1388,48 +1400,42 @@ let ASICON = (function ()
         graphics.lineTo(topLeftX, topLeftY);
     }
     
-    let addSquare = function asicon_addSquare(graphics, color, height)
+    let addSquare = function asicon_addSquare(color, height)
     {
+        let graphics = addTileBase(color);
+        
         let CX = MMAPRENDER.getTextureBaseSizeX() / 2;
         let CY = MMAPRENDER.getTextureBaseSizeY() / 2;
         let M = 0;
         let H = height;
-        
-        let black = 0x000000;
-        graphics.beginFill(color);
-        graphics.lineStyle(1, black);
         
         drawRectangle(graphics, CX - H/2, CY - H/2, H, H);
         
         return graphics;
     }
     
-    let addPlay = function asicon_addPlay(graphics, color, height)
+    let addPlay = function asicon_addPlay(color, height)
     {
+        let graphics = addTileBase(color);
+        
         let CX = MMAPRENDER.getTextureBaseSizeX() / 2;
         let CY = MMAPRENDER.getTextureBaseSizeY() / 2;
         let M = 0;
         let H = height;
-    
-        let black = 0x000000;
-        graphics.beginFill(color);
-        graphics.lineStyle(1, black);
         
         drawTriangleLeft(graphics, CX - H/2, CY - H/2, H, H);
         
         return graphics;
     }
     
-    let addPlay2 = function asicon_addPlay2(graphics, color, height)
+    let addPlay2 = function asicon_addPlay2(color, height)
     {
+        let graphics = addTileBase(color);
+        
         let CX = MMAPRENDER.getTextureBaseSizeX() / 2;
         let CY = MMAPRENDER.getTextureBaseSizeY() / 2;
         let M = 0;
         let H = height;
-    
-        let black = 0x000000;
-        graphics.beginFill(color);
-        graphics.lineStyle(1, black);
         
         drawTriangleLeft(graphics, CX - H/2, CY - H/2, H/2, H);
         drawTriangleLeft(graphics, CX, CY - H/2, H/2, H);
@@ -1437,16 +1443,14 @@ let ASICON = (function ()
         return graphics;
     }
     
-    let addPlay3 = function asicon_addPlay3(graphics, color, height)
+    let addPlay3 = function asicon_addPlay3(color, height)
     {
+        let graphics = addTileBase(color);
+        
         let CX = MMAPRENDER.getTextureBaseSizeX() / 2;
         let CY = MMAPRENDER.getTextureBaseSizeY() / 2;
         let M = 0;
         let H = height;
-    
-        let black = 0x000000;
-        graphics.beginFill(color);
-        graphics.lineStyle(1, black);
         
         drawTriangleLeft(graphics, CX - H/2, CY - H/2, H/3, H);
         drawTriangleLeft(graphics, CX - H/2 + H/3, CY - H/2, H/3, H);
@@ -1455,16 +1459,14 @@ let ASICON = (function ()
         return graphics;
     }
     
-    let addTriangleBreak = function asicon_addTriangleBreak(graphics, color, height)
+    let addTriangleBreak = function asicon_addTriangleBreak(color, height)
     {
+        let graphics = addTileBase(color);
+        
         let CX = MMAPRENDER.getTextureBaseSizeX() / 2;
         let CY = MMAPRENDER.getTextureBaseSizeY() / 2;
         let M = 0;
         let H = height;
-    
-        let black = 0x000000;
-        graphics.beginFill(color);
-        graphics.lineStyle(1, black);
         
         drawTriangleLeft(graphics, CX - H / 2, CY - H / 2, 2*H/3, H);
         drawRectangle(graphics, CX + H / 2 - H/3, CY - H / 2, H/3, H);
@@ -1472,12 +1474,12 @@ let ASICON = (function ()
         return graphics;
     }
     
-    let addSave = function asicon_addSave(graphics, color, height)
+    let addSave = function asicon_addSave(color, height)
     {
-        return new PIXI.Text("SAVE");
+        return new PIXI.Text("Save");
     }
     
-    let addLoad = function asicon_addLoad(graphics, color, height)
+    let addLoad = function asicon_addLoad(color, height)
     {
         return new PIXI.Text("LOAD");
     }
@@ -1485,11 +1487,8 @@ let ASICON = (function ()
     let createTexture = function asicon_createTexture(id)
     {
         let color = public.C_COLOR[id];
-        let margin = 0;
-        let height = 3;
-        let graphics = MMAPRENDER.createTexture(0xFFFFFF, margin, height);
-        graphics = public.C_ICON[id](graphics, color, 16);
-        return graphics;
+        let displayObject = public.C_ICON[id](color, 16);
+        return displayObject;
     }
     
     public.C_ICON = {

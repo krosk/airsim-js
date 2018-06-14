@@ -795,13 +795,14 @@ let ASMAPUI = (function ()
         m_currentSaveId = saveId;
         focusSaveSprite();
         let saveEnums = ASICON.saveTile;
-        if (m_currentSaveId == saveEnums[0])
+        let C_DEF = ASICON.C_TILEENUM;
+        if (m_currentSaveId == C_DEF.SAVE)
         {
             let asstateData = ASSTATE.getSerializable();
             localStorage.setItem('ASSTATE', asstateData);
             console.log("Saved");
         }
-        else if (m_currentSaveId == saveEnums[1])
+        else if (m_currentSaveId == C_DEF.LOAD)
         {
             let asstateData = localStorage.getItem('ASSTATE');
             ASSTATE.setSerializable(asstateData);
@@ -1476,12 +1477,20 @@ let ASICON = (function ()
     
     let addSave = function asicon_addSave(color, height)
     {
-        return new PIXI.Text("Save");
+        let CX = MMAPRENDER.getTextureBaseSizeX();
+        let CY = MMAPRENDER.getTextureBaseSizeY();
+        let text = new PIXI.Text("SAVE", {fill:color});
+        text.width = CX; // works as minimal size only
+        return text;
     }
     
     let addLoad = function asicon_addLoad(color, height)
     {
-        return new PIXI.Text("LOAD");
+        let CX = MMAPRENDER.getTextureBaseSizeX();
+        let CY = MMAPRENDER.getTextureBaseSizeY();
+        let text = new PIXI.Text("LOAD", {fill:color});
+        text.width = CX;
+        return text;
     }
     
     let createTexture = function asicon_createTexture(id)
@@ -1614,11 +1623,6 @@ let ASZONE = (function ()
         C.INDLOW,
         C.COMLOW,
         C.DIRT,
-    ];
-    
-    public.saveTile = [
-        C.COMLOW,
-        C.RESLOW
     ];
     
     let isValidZone = function aszone_isValidZone(id)

@@ -797,23 +797,16 @@ let ASMAPUI = (function ()
         let saveEnums = ASZONE.saveTile;
         if (m_currentSaveId == saveEnums[0])
         {
-            //console.log("Saving");
             let asstateData = ASSTATE.getSerializable();
             localStorage.setItem('ASSTATE', asstateData);
-            //let asroadData = ASROAD.getSerializable();
-            //localStorage.setItem('ASROAD', asroadData);
             console.log("Saved");
         }
         else if (m_currentSaveId == saveEnums[1])
         {
-            //console.log("Loading");
             let asstateData = localStorage.getItem('ASSTATE');
             ASSTATE.setSerializable(asstateData);
-            //let asroadData = localStorage.getItem('ASROAD');
-            //ASROAD.setSerializable(asroadData);
             console.log("Loaded");
-            //let viewEnums = ASZONE.viewTile;
-            //m_currentViewId = viewEnums[0];
+            MMAPDATA.refreshAllTiles();
         }
     }
     

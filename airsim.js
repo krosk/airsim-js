@@ -461,7 +461,7 @@ let ASMAPUI = (function ()
         m_currentZoneId = ASZONE.zoneTile[0];
         m_currentRoadId = ASROAD.roadTile[0];
         m_currentRicoId = ASZONE.ricoTile[0];
-        m_currentSaveId = ASZONE.saveTile[0];
+        m_currentSaveId = ASICON.saveTile[0];
         m_currentPlayId = ASICON.playTile[0];
         
         public.resize();
@@ -559,7 +559,7 @@ let ASMAPUI = (function ()
         let ricoEnums = ASZONE.ricoTile;
         buildMenu(ricoEnums, m_uiRicoSpriteTable, createRicoSprite, 1);
         
-        let saveEnums = ASZONE.saveTile;
+        let saveEnums = ASICON.saveTile;
         buildMenu(saveEnums, m_uiSaveSpriteTable, createSaveSprite, 1);
         
         let playEnums = ASICON.playTile;
@@ -706,7 +706,7 @@ let ASMAPUI = (function ()
     
     let createSaveSprite = function asmapui_createSaveSprite(saveId)
     {
-        return createSprite(saveId, onSaveSpritePress, ASZONE);
+        return createSprite(saveId, onSaveSpritePress, ASICON);
     }
     
     let createPlaySprite = function asmapui_cratePlaySprite(playId)
@@ -794,7 +794,7 @@ let ASMAPUI = (function ()
     {
         m_currentSaveId = saveId;
         focusSaveSprite();
-        let saveEnums = ASZONE.saveTile;
+        let saveEnums = ASICON.saveTile;
         if (m_currentSaveId == saveEnums[0])
         {
             let asstateData = ASSTATE.getSerializable();
@@ -1327,6 +1327,8 @@ let ASICON = (function ()
         PLAY3: 903,
         STOP: 904,
         STEP: 905,
+        SAVE: 906,
+        LOAD: 907
     }
     const C = public.C_TILEENUM;
     
@@ -1342,6 +1344,8 @@ let ASICON = (function ()
         [C.PLAY3] : getColor(0, 255, 0),
         [C.STOP] : getColor(255, 0, 0),
         [C.STEP] : getColor(255, 192, 0),
+        [C.SAVE] : getColor(64, 64, 255),
+        [C.LOAD] : getColor(64, 255, 64)
     }
     
     public.initializeTexture = function asicon_initializeTexture()
@@ -1396,6 +1400,8 @@ let ASICON = (function ()
         graphics.lineStyle(1, black);
         
         drawRectangle(graphics, CX - H/2, CY - H/2, H, H);
+        
+        return graphics;
     }
     
     let addPlay = function asicon_addPlay(graphics, color, height)
@@ -1410,6 +1416,8 @@ let ASICON = (function ()
         graphics.lineStyle(1, black);
         
         drawTriangleLeft(graphics, CX - H/2, CY - H/2, H, H);
+        
+        return graphics;
     }
     
     let addPlay2 = function asicon_addPlay2(graphics, color, height)
@@ -1425,6 +1433,8 @@ let ASICON = (function ()
         
         drawTriangleLeft(graphics, CX - H/2, CY - H/2, H/2, H);
         drawTriangleLeft(graphics, CX, CY - H/2, H/2, H);
+        
+        return graphics;
     }
     
     let addPlay3 = function asicon_addPlay3(graphics, color, height)
@@ -1441,6 +1451,8 @@ let ASICON = (function ()
         drawTriangleLeft(graphics, CX - H/2, CY - H/2, H/3, H);
         drawTriangleLeft(graphics, CX - H/2 + H/3, CY - H/2, H/3, H);
         drawTriangleLeft(graphics, CX - H/2 + 2*H/3, CY - H/2, H/3, H);
+        
+        return graphics;
     }
     
     let addTriangleBreak = function asicon_addTriangleBreak(graphics, color, height)
@@ -1456,6 +1468,18 @@ let ASICON = (function ()
         
         drawTriangleLeft(graphics, CX - H / 2, CY - H / 2, 2*H/3, H);
         drawRectangle(graphics, CX + H / 2 - H/3, CY - H / 2, H/3, H);
+        
+        return graphics;
+    }
+    
+    let addSave = function asicon_addSave(graphics, color, height)
+    {
+        return new PIXI.Text("SAVE");
+    }
+    
+    let addLoad = function asicon_addLoad(graphics, color, height)
+    {
+        return new PIXI.Text("LOAD");
     }
     
     let createTexture = function asicon_createTexture(id)
@@ -1464,8 +1488,7 @@ let ASICON = (function ()
         let margin = 0;
         let height = 3;
         let graphics = MMAPRENDER.createTexture(0xFFFFFF, margin, height);
-        //let graphics = new PIXI.Graphics();
-        public.C_ICON[id](graphics, color, 16);
+        graphics = public.C_ICON[id](graphics, color, 16);
         return graphics;
     }
     
@@ -1476,6 +1499,8 @@ let ASICON = (function ()
         [C.PLAY3] : addPlay3,
         [C.STOP] : addSquare,
         [C.STEP] : addTriangleBreak,
+        [C.SAVE] : addSave,
+        [C.LOAD] : addLoad,
     }
     
     public.playTile = [
@@ -1484,6 +1509,11 @@ let ASICON = (function ()
         C.PLAY3,
         C.STOP, // pause
         C.STEP, // frame by frame
+    ];
+    
+    public.saveTile = [
+        C.SAVE,
+        C.LOAD,
     ];
 
     return public;

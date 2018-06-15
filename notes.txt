@@ -1049,6 +1049,79 @@ The change flag needs to be processed at the
 end of the tick, which will process in the same
 tick the render change, and in the next tick
 the building orders.
+The map refreshing can either happen before
+engines updates, in which case we see all
+intermediate states (but is slower) or it
+can be put after all engine updates, in which
+case we don't see anymore the intermediate
+state;
+
+**Interaction during simulation
+
+A point of detail about adding and removing
+tiles: the actions must be validated between
+ticks. Otherwise, if a road is deleted during
+a tick, the traversal state may break at reset
+and some roads will stay visited and will
+never be available for further traversals.
+Hence actions must be synchronous, but orders
+are asynchronous.
+
+To implement this, a possible implementation
+may be:
+- process of actions at tick end/begin only
+    this requires a way to cumulate orders.
+    Once tick starts or ends, the tiles are
+    changed accordingly to their new state
+    and their state changes, their clock reset.
+    
+- order cumulation may be:
+    a buffer state, in the grid
+      pro: it is saved in save state so
+        actions are remembered
+      pro: only one future state per tile
+      con: to link to the change flag mecanism 
+        for knowing when changes happen
+    or a buffer user interaction
+      pro: memory economy
+      pro: direct access to which tile has
+        changed
+
+If I harness the change flag mecanism, then 
+it limits its capability in updating the 
+display during a frame (which relies on it
+happening in-tick).
+So the orders are to be processed between two
+engine ticks, so the engines can run on new 
+data. 
+The actual changes requires upon destruction
+are:
+- reset of any future queue
+- change of road network
+- must not affect distribution
+
+The commitDataChange was at first a graphical
+need, that could run separately from the
+simulation engine and hence separate from
+any tick consideration.
+If I link the action buffer to it, then it
+becomes tied to ticks. It may be a necessity
+if we consider other uses of the change flag.
+However one could also consider two queues,
+one for hidden data change, one for visible
+data change.
+Most parameters changes must be passive (that
+is the data is changed but its dependencies
+are not affected until they query the data).
+Exception may be roads water electricity.
+A change in the data must be trigerred for
+visible change, but hidden data does not
+warrant it.
+About engines, for now ASZONE is the only
+one. The tick system is integrated in ASZONE
+but could be taken out and put in ASMAP
+instead.
+
 
 Since the max size
 is known, it could be stored as a grid flag.

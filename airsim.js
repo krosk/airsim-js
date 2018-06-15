@@ -336,9 +336,9 @@ let ASMAP = (function ()
         }
         let computeTimeLimit = time + m_computeTimeBudget;
         // engines updates
-        commitDataChange(time, computeTimeLimit);
-        ASZONE.update(time, computeTimeLimit);
         //commitDataChange(time, computeTimeLimit);
+        ASZONE.update(time, computeTimeLimit);
+        commitDataChange(time, computeTimeLimit);
     }
     
     let commitDataChange = function asmap_commitDataChange(time, computeTimeLimit)
@@ -1723,9 +1723,11 @@ let ASZONE = (function ()
         }
         const tick = ASSTATE.getTick();
         const frame = ASSTATE.getFrame();
-        const newTick = ASRICO.updateRico(tick, timeLimit);
-        if (newTick > tick)
+        let engineComplete = true;
+        engineComplete &= ASRICO.updateRico(tick, timeLimit);
+        if (engineComplete)
         {
+            let newTick = tick + 1;
             ASRICO.setNextTick(newTick);
             ASSTATE.setTick(newTick);
             ASSTATE.setFrame(0);
@@ -2657,15 +2659,8 @@ let ASRICO = (function ()
                 break;
             }
         }
-        let incrementTick = ASSTATE.getRicoTickProgress() >= tableSize;
-        if (incrementTick)
-        {
-            return tick + 1;
-        }
-        else
-        {
-            return tick;
-        }
+        let complete = ASSTATE.getRicoTickProgress() >= tableSize;
+        return complete;
     }
     
     let isDemandRicoFilled = function asrico_isDemandRicoFilled(demand)
@@ -4188,6 +4183,7 @@ let MMAPRENDER = (function ()
                     // especially if moving batches is
                     // already taking all computation
                     // and leaves nothing to texture 
+                    //console.log('leftovers: ' + (orderedKeys.length) + ' ' + count);
                 }
                 return false;
             }

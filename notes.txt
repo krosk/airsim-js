@@ -1025,6 +1025,13 @@ Removing from the list
     retrieve first tile 
     set first tile equal to ft change flag
 
+Since the max size
+is known, it could be stored as a grid flag.
+Hence writing multiple times the same tile
+will trigger a refresh. A loop could pool the
+grid to build a updatedtiles structure, which
+is used in place of the commitchangelog one.
+
 Is it a waste of space? Would it be better
 to use a datatructure such as set or hash?
 Ultimately I will unlikely store more than
@@ -1054,7 +1061,9 @@ engines updates, in which case we see all
 intermediate states (but is slower) or it
 can be put after all engine updates, in which
 case we don't see anymore the intermediate
-state;
+state.
+
+
 
 **Interaction during simulation
 
@@ -1103,13 +1112,20 @@ are:
 The commitDataChange was at first a graphical
 need, that could run separately from the
 simulation engine and hence separate from
-any tick consideration.
+any tick consideration. That way, graphical
+update happens when it can. The only
+consideration is it takes some compute time
+out of update loop so the speed decreases.
+Note that graphical refresh happens anyway
+for mmaprender (map drag), only the refresh
+of new tiles is concerned.
+
 If I link the action buffer to it, then it
 becomes tied to ticks. It may be a necessity
 if we consider other uses of the change flag.
 However one could also consider two queues,
 one for hidden data change, one for visible
-data change.
+graphic change.
 Most parameters changes must be passive (that
 is the data is changed but its dependencies
 are not affected until they query the data).
@@ -1117,19 +1133,31 @@ Exception may be roads water electricity.
 A change in the data must be trigerred for
 visible change, but hidden data does not
 warrant it.
+
+
 About engines, for now ASZONE is the only
 one. The tick system is integrated in ASZONE
 but could be taken out and put in ASMAP
-instead.
+instead. But ASZONE could be the master
+fot tick based simulation, ie all other sim
+components could be hosted and coordinated
+by it.
+
+Graphically, the difference between a order
+in progress and the actual building could
+be ghosts or translucid tiles, stating change
+is in progress.
 
 
-Since the max size
-is known, it could be stored as a grid flag.
-Hence writing multiple times the same tile
-will trigger a refresh. A loop could pool the
-grid to build a updatedtiles structure, which
-is used in place of the commitchangelog one.
 
+** Linking between asrico and asroad
+The current state is the logic of rico point
+distribution is handled by asrico.
+It could be that asrico only handles leveling
+up the states and the points, while another
+engine queries which building has things
+to distribute and queries asroad to find
+the locations.
 
 
 // ideally, max fps being limited to 60

@@ -319,9 +319,9 @@ let ASMAP = (function ()
     public.update = function asmap_update(dt, time)
     {
         let frameskipped = dt > 17; //1000 / 60;
-        let noBudget = m_computeTimeBudget <= 1;
-        let maxBudget = m_computeTimeBudget >= 16;
-        let fullyProcessed = MMAPRENDER.update(time, frameskipped, noBudget);
+        const noBudget = m_computeTimeBudget <= 1;
+        const maxBudget = m_computeTimeBudget >= 16;
+        const fullyProcessed = MMAPRENDER.update(time, frameskipped, noBudget);
         if (!fullyProcessed && frameskipped && !noBudget)
         {
             m_computeTimeBudget--;
@@ -336,12 +336,10 @@ let ASMAP = (function ()
         }
         let computeTimeLimit = time + m_computeTimeBudget;
         // engines updates
-        //commitDataChange(time, computeTimeLimit);
         ASZONE.update(time, computeTimeLimit);
-        commitDataChange(time, computeTimeLimit);
     }
     
-    let commitDataChange = function asmap_commitDataChange(time, computeTimeLimit)
+    public.commitDisplayChange = function asmap_commitDisplayChange(time, computeTimeLimit)
     {
         while (Date.now() < computeTimeLimit)
         {
@@ -355,9 +353,10 @@ let ASMAP = (function ()
             }
             else
             {
-                break;
+                return true;
             }
         }
+        return false;
     }
     
     public.getComputeTimeBudget = function asmap_getComputeTimeBudget()
@@ -1724,7 +1723,18 @@ let ASZONE = (function ()
         const tick = ASSTATE.getTick();
         const frame = ASSTATE.getFrame();
         let engineComplete = true;
-        engineComplete &= ASRICO.updateRico(tick, timeLimit);
+        if (engineComplete)
+        {
+            engineComplete &= ASMAP.commitDisplayChange(tick, timeLimit);
+        }
+        if (engineComplete)
+        {
+            engineComplete &= ASRICO.updateRico(tick, timeLimit);
+        }
+        if (engineComplete)
+        {
+            //engineComplete &= ASMAP.commitDisplayChange(tick, timeLimit);
+        }
         if (engineComplete)
         {
             let newTick = tick + 1;

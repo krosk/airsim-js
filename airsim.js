@@ -253,15 +253,6 @@ function Update()
     g_state();
     g_stats.end();
     g_frameCounter++;
-    let endUpdateTimestamp = Date.now() - g_updateTimestamp;
-    if (endUpdateTimestamp > 1000 / 60.0)
-    {
-        //console.log(endUpdateTimestamp);
-    }
-    else
-    {
-        //console.log(g_frameCounter);
-    }
 }
 // ---------------------
 let MUTIL = (function ()

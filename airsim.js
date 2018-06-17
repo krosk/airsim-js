@@ -309,9 +309,10 @@ let ASMAP = (function ()
     let m_computeTimeBudget = 1;
     public.update = function asmap_update(dt, time)
     {
-        let frameskipped = dt > 17; //1000 / 60;
+        const fpsdt = 17;
+        let frameskipped = dt > fpsdt; //1000 / 60;
         const noBudget = m_computeTimeBudget <= 1;
-        const maxBudget = m_computeTimeBudget >= 16;
+        const maxBudget = m_computeTimeBudget >= fpsdt - 1;
         const fullyProcessed = MMAPRENDER.update(time, frameskipped, noBudget);
         if (!fullyProcessed && frameskipped && !noBudget)
         {
@@ -1694,7 +1695,11 @@ let ASZONE = (function ()
         }
     }
     
-    let m_lastTickTime = 0;
+    let m_lastTickTime1 = 0;
+    let m_lastTickTime2 = 0;
+    let m_lastTickTime3 = 0;
+    let m_lastTickTime4 = 0;
+    let m_lastTickTime5 = 0;
     let m_countTickTime = 0;
     let m_countTickPerSecond = 0;
     
@@ -1704,7 +1709,6 @@ let ASZONE = (function ()
         {
             ASSTATE.setTickRealSpeed(m_countTickPerSecond);
             m_countTickTime = time;
-            m_countTickPerSecond = 0;
         }
         const tickSpeed = ASSTATE.getTickSpeed();
         if (tickSpeed == -1)
@@ -1726,15 +1730,19 @@ let ASZONE = (function ()
         {
             //engineComplete &= ASMAP.commitDisplayChange(tick, timeLimit);
         }
-        const enoughTimeElapsed = Math.abs(time - m_lastTickTime) >= tickSpeed;
+        const enoughTimeElapsed = Math.abs(time - m_lastTickTime1) >= tickSpeed;
         if (engineComplete && enoughTimeElapsed)
         {
             let newTick = tick + 1;
             ASRICO.setNextTick(newTick);
             ASSTATE.setTick(newTick);
             ASSTATE.setFrame(0);
-            m_lastTickTime = time;
-            m_countTickPerSecond += (newTick - tick);
+            m_lastTickTime5 = m_lastTickTime4;
+            m_lastTickTime4 = m_lastTickTime3;
+            m_lastTickTime3 = m_lastTickTime2;
+            m_lastTickTime2 = m_lastTickTime1;
+            m_lastTickTime1 = time;
+            m_countTickPerSecond = (m_lastTickTime1-m_lastTickTime2)/1;
         }
         else if (!engineComplete)
         {
@@ -4199,7 +4207,6 @@ let MMAPRENDER = (function ()
     let m_lastTime = 0;
     let m_refreshCall = true;
 
-    public.C_FPS = 30;
     public.C_MINBATCHPERCALL = 1;
     public.C_MAXBATCHPERCALL = 300;
 

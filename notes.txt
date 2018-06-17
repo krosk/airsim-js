@@ -1148,6 +1148,20 @@ in progress and the actual building could
 be ghosts or translucid tiles, stating change
 is in progress.
 
+About performance:
+Grid of 4*4 zones, total 9 zones, each zone
+only outer zone being residential.
+Road about 112 blocks
+Residential about 108 blocks
+- at 60fps, on pc, 
+small speed is 23 frames
+mid speed is 23 probably, 390 ms per tick
+high speed reach the same, hence even computer
+can not process the full cycle.
+
+One possible place of optimisation is the
+avoidance of recomputing the current node list,
+which now takes about 1/3 of computation time.
 
 
 ** Linking between asrico and asroad

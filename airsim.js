@@ -1707,7 +1707,7 @@ let ASZONE = (function ()
             m_countTickPerSecond = 0;
         }
         const tickSpeed = ASSTATE.getTickSpeed();
-        if (tickSpeed == -1 || Math.abs(time - m_lastTickTime) < tickSpeed)
+        if (tickSpeed == -1)
         {
             return;
         }
@@ -1726,7 +1726,8 @@ let ASZONE = (function ()
         {
             //engineComplete &= ASMAP.commitDisplayChange(tick, timeLimit);
         }
-        if (engineComplete)
+        const enoughTimeElapsed = Math.abs(time - m_lastTickTime) >= tickSpeed;
+        if (engineComplete && enoughTimeElapsed)
         {
             let newTick = tick + 1;
             ASRICO.setNextTick(newTick);
@@ -1735,7 +1736,7 @@ let ASZONE = (function ()
             m_lastTickTime = time;
             m_countTickPerSecond += (newTick - tick);
         }
-        else
+        else if (!engineComplete)
         {
             ASSTATE.setFrame(frame + 1);
         }

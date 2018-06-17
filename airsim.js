@@ -802,7 +802,7 @@ let ASMAPUI = (function ()
         }
     }
     
-    let onPlaySpritePress = function asmapui_oñPlaySpritePress(event, playId)
+    let onPlaySpritePress = function asmapui_onPlaySpritePress(event, playId)
     {
         m_currentPlayId = playId;
         focusPlaySprite();

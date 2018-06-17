@@ -2177,26 +2177,27 @@ let ASROAD = (function ()
             changeTraversalIndex(node);
         }
     }
+    
+    let addToNodeList = function asroad_addToNodeList(parentNode, dir, nodeList)
+    {
+        let childNode = isConnectedTo(parentNode, dir);
+        if (!hasRoad(childNode))
+        {
+            return;
+        }
+        let isParentNode = getTraversalParent(childNode) == parentNode;
+        if (!isParentNode)
+        {
+            return;
+        }
+        nodeList.push(childNode);
+    }
    
     let getCurrentNodeList = function asroad_getCurrentNodeList()
     {
         let startNode = getTraversalStart();
         let nodeList = [startNode];
         let i = 0;
-        let addToNodeList = function (parentNode, dir, nodeList)
-        {
-            let childNode = isConnectedTo(parentNode, dir);
-            if (!hasRoad(childNode))
-            {
-                return;
-            }
-            let isParentNode = getTraversalParent(childNode) == parentNode;
-            if (!isParentNode)
-            {
-                return;
-            }
-            nodeList.push(childNode);
-        }
         while (i < nodeList.length)
         {
             let parentNode = nodeList[i];

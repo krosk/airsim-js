@@ -32,19 +32,6 @@ let ASICON = (function ()
         [C.LOAD] : getColor(64, 255, 64)
     }
     
-    public.initializeTexture = function asicon_initializeTexture()
-    {
-        let values = Object.values(C);
-        for (let i in values)
-        {
-            let id = values[i] | 0;
-            let textureName = public.getTileTextureName(id);
-            let graphics = createTexture(id);
-            let texture = g_app.renderer.generateTexture(graphics);
-            PIXI.utils.TextureCache[textureName] = texture;
-        }
-    }
-    
     public.getTileTextureName = function asicon_getTileTextureName(tileId)
     {
         return public.C_NAME + tileId;

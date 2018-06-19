@@ -1148,7 +1148,8 @@ in progress and the actual building could
 be ghosts or translucid tiles, stating change
 is in progress.
 
-About performance:
+
+** Performance and compute vs render
 Grid of 4*4 zones, total 9 zones, each zone
 only outer zone being residential.
 Road about 112 blocks
@@ -1159,9 +1160,165 @@ mid speed is 23 probably, 390 ms per tick
 high speed reach the same, hence even computer
 can not process the full cycle.
 
+One optimisation performed is moving
+addRoNodeList to its own function, it saved
+quite a lot of time and possible reduced from
+700 mspt to 300 mspt on mobile (to confirm).
+
 One possible place of optimisation is the
 avoidance of recomputing the current node list,
 which now takes about 1/3 of computation time.
+The problem with it is the constant recompute
+of the whole list, which is the more expensive
+the bigger the road network.
+There is no requirement for the node list
+order.
+There is room for a little improvement.
+The node list is about getting the road network
+that is connected by the traversal.
+We know when something is added, that is upon
+call of traverseNextNode, its neighbours are
+added to the tree.
+One possible strategy is to implement a linked
+list of the traversal node, in the same manner
+as the change flag. I have no lookup 
+requirements, only retreiving the whole list.
+Once an element is added, it stays in the list
+until the whole list is cleared.
+So one could save the list as a regular member.
+Did I make the choice of having no member
+in road and save everything into asstate?
+It helps because it makes it independant from
+saving loading state, so it is a good thing
+probably.
+
+** Webassembly
+Input output of webassembly is arraybuffer 
+based. Hence each module (zone, road) must 
+expose uint32array for the datalayer, and 
+the wrapper for the module will colorize it 
+accordingly.
+Since modules have interaction, the web 
+assembly instance is a master object that 
+provides multiple datalayers.
+The biggest unknown is related to the call to
+the engine. As of now, the engine is called
+and updated every frame, and the graphic as
+well. Hence the engine cycle is performed
+every frame, but is only cut into smaller
+processing units. By moving to web assembly
+the cost of calling the wasm engine may be too
+big to be called every frame which would
+induce frameskip.
+
+** Web worker
+A good alternative to this is having the engine
+to run separately from the graphical thread.
+The engine would run in wasm, never exiting,
+or only exiting after some time, while the
+graphic thread would register user ui and
+the rest without interruption. That would
+require a asynchronous architecture between
+simulation and graphic, which is a good idea
+to invest in as we are permitted to run both
+at the same time without interruption or
+inferrence of the time needed. It potentially
+removes the need of synchronous change between
+ui and engine, and force a asynchronous
+architecture. I am treading in unknown
+territory.
+Web worker is possibly the way to go for this.
+It works as a number crunching thread
+that communicates with the main thread through
+messages.
+The mechanism is through using ArrayBuffer
+to transfer data to web worker. The reference
+is readable by the worker, not the main, until
+it is transferred back to the main.
+Hence after all the crunching is done for
+one or more ticks, we are notified back and the
+graphic takes its time to refresh.
+
+- One caveat is debugging. I would be near
+impossible to pause?
+- Another issue is the graphic refresh must be
+reading something else to display, not asstate.
+This is particularily problematic for
+when ui is switching the view to look at
+something else than the master tile data.
+What could be done is upon change view request,
+the worker can either relax the computation
+and give it back for a time, or return a copy
+of the table. Making a copy is likely the
+safer solution because the copy is saved in
+the mmaprender and it allows scrolling with
+having to block the worker. A new table
+is requested on demand?
+- retrievechange is after webworker is done.
+saving loading too
+- play speed to be excluded from asstate? That 
+cycle count does not depend on it in tick,
+but may depend on it between ticks.
+- Debug window requests
+Aszone is in the worker so it is fine; Same for
+Asrico and Asroad.
+- aszone requires gettablesizex and y are 
+required often by render
+- aszone requires getdatazonebyid
+- aszone setdataid is likely an obstacle
+However, mmaprender is using ASZONE, ASROAD
+and ASRICO as stubs to access data, via
+getDataId. The getDataId is distinct between
+these modules.
+It is possible that transferring a small
+table 128*128 is about 20 ms?
+See link for benchmark + demo
+https://www.loxodrome.io/post/web-worker-performance/
+
+This might require a full rearchitecture to
+separate ui call and engine sim.
+The render is stand alone. Upon ui button press
+it send messages to the web worker or engine,
+which returns the changes.
+UI and render are bundled together, while
+simulation is separate.
+The processing flow changes however. Upon
+call of engine execution, there should be
+no promise of a return value, no waiting of
+the engine. Just a simple do and forget,
+except in the cases of;
+- save/load
+- view switch data
+- commit display change
+    this one is a possible difficult part
+    engine returns now one change at a time.
+    would it be more efficient to retrieve
+    a batch of changes and processing them
+    until depletion?
+- getTileTextureName for all sprite
+    initialization
+    Where should texture name be saved?
+    In engine or in render?
+    Where should basic texture creation
+    happen? Texture creation requires a name,
+    and some basic properties such as name
+    and color; as of now they are stored
+    in a module that executes PIXI objects.
+    One could to a standard template?
+    Should there be a common definition file
+    shared by ui/render and engine?
+  even for the graphical part of the city view
+  there is a plethora of tiles to assign.
+  one needs to retrieve the identifier for
+  tiles through a list? Or is it hard coded?
+  
+  Transforming ui interaction into engine
+  messages.
+  
+
+Web worker is started and run sometimes;
+it is a good starting point for webasm.
+
 
 
 ** Linking between asrico and asroad
@@ -1215,15 +1372,7 @@ point coincide with the middle of the touch.
 
 
 
-Webassembly
-Input output of webassembly is arraybuffer 
-based. Hence each module (zone, road) must 
-expose uint32array for the datalayer, and 
-the wrapper for the module will colorize it 
-accordingly.
-Since modules have interaction, the web 
-assembly instance is a master object that 
-provides multiple datalayers.
+
 
 
 Search algorithm

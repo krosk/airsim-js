@@ -258,11 +258,11 @@ let ASMAP = (function ()
     {
         ASSTATE.initialize(w, h);
         ASZONE.initialize();
-        ASZONE.initializeTexture();
-        ASROAD.initializeTexture();
+        MMAPRENDER.initializeTexture(ASZONE);
+        MMAPRENDER.initializeTexture(ASROAD);
         MMAPRENDER.initializeTexture(ASICON);
         ASRICO.initialize();
-        ASRICO.initializeTexture();
+        MMAPRENDER.initializeTexture(ASRICO);
         MMAPDATA.initialize(w, h, ASZONE);
         MMAPRENDER.initialize(doSingleClick, doDoubleClick);
         ASMAPUI.initialize();

@@ -2,10 +2,7 @@ let ASENGINE = (function ()
 {
     let public = {};
 
-    public.write = function asengine_write(slot, value)
-    {
-        ASSTATE.slot(value);
-    }
+    
 
     return public;
 })();
@@ -503,19 +500,6 @@ let ASZONE = (function ()
     }
     const C = public.C_TILEENUM;
     
-    public.initializeTexture = function aszone_initializeTexture()
-    {
-        let values = Object.values(C);
-        for (let i in values)
-        {
-            let id = values[i] | 0;
-            let textureName = public.getTileTextureName(id);
-            let graphics = createTexture(id);
-            let texture = g_app.renderer.generateTexture(graphics);
-            PIXI.utils.TextureCache[textureName] = texture;
-        }
-    }
-    
     public.getTileTextureName = function aszone_getTileTextureName(tileId)
     {
         return public.C_NAME + tileId;
@@ -549,7 +533,7 @@ let ASZONE = (function ()
         return 0;
     }
     
-    let createTexture = function aszone_createTexture(id)
+    public.createTexture = function aszone_createTexture(id)
     {
         let color = C_CITYCOLOR[id];
         let margin = getCityTextureMargin(id);
@@ -741,19 +725,6 @@ let ASROAD = (function ()
     }
     const C = public.C_TILEENUM;
     
-    public.initializeTexture = function asroad_initializeTexture()
-    {
-        let values = Object.values(C);
-        for (let i in values)
-        {
-            let id = values[i] | 0;
-            let textureName = public.getTileTextureName(id);
-            let graphics = createTexture(id);
-            let texture = g_app.renderer.generateTexture(graphics);
-            PIXI.utils.TextureCache[textureName] = texture;
-        }
-    }
-    
     public.getTileTextureName = function asroad_getTileTextureName(tileId)
     {
         return public.C_NAME + tileId;
@@ -782,7 +753,7 @@ let ASROAD = (function ()
         return 3;
     }
     
-    let createTexture = function asroad_createTexture(id)
+    public.createTexture = function asroad_createTexture(id)
     {
         let color = C_TRAFFICCOLOR[id];
         let margin = getTrafficTextureMargin(id);
@@ -1346,19 +1317,6 @@ let ASRICO = (function ()
     }
     const C = public.C_TILEENUM;
     
-    public.initializeTexture = function asrico_initializeTexture()
-    {
-        let values = Object.values(C);
-        for (let i in values)
-        {
-            let id = values[i] | 0;
-            let textureName = public.getTileTextureName(id);
-            let graphics = createTexture(id);
-            let texture = g_app.renderer.generateTexture(graphics);
-            PIXI.utils.TextureCache[textureName] = texture;
-        }
-    }
-    
     public.getTileTextureName = function asrico_getTileTextureName(tileId)
     {
         return public.C_NAME + tileId;
@@ -1402,7 +1360,7 @@ let ASRICO = (function ()
         return 0;
     }
     
-    let createTexture = function asrico_createTexture(id)
+    public.createTexture = function asrico_createTexture(id)
     {
         let color = C_TILETEXTURE[id][0];
         let margin = getTileTextureMargin(id);

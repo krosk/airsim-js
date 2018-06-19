@@ -260,7 +260,7 @@ let ASMAP = (function ()
         ASZONE.initialize();
         ASZONE.initializeTexture();
         ASROAD.initializeTexture();
-        ASICON.initializeTexture();
+        MMAPRENDER.initializeTexture(ASICON);
         ASRICO.initialize();
         ASRICO.initializeTexture();
         MMAPDATA.initialize(w, h, ASZONE);
@@ -1457,7 +1457,7 @@ let ASICON = (function ()
         return text;
     }
     
-    let createTexture = function asicon_createTexture(id)
+    public.createTexture = function asicon_createTexture(id)
     {
         let color = public.C_COLOR[id];
         let displayObject = public.C_ICON[id](color, 16);
@@ -3771,6 +3771,19 @@ let MMAPRENDER = (function ()
     public.getTileTextureName = function mmaprender_getTileTextureName(tileId)
     {
         return MMAPDATA.getDataLibrary().getTileTextureName(tileId);
+    }
+    
+    public.initializeTexture = function mmaprender_initializeTexture(library)
+    {
+        let values = Object.values(library.C_TILEENUM);
+        for (let i in values)
+        {
+            let id = values[i] | 0;
+            let textureName = library.getTileTextureName(id);
+            let graphics = library.createTexture(id);
+            let texture = g_app.renderer.generateTexture(graphics);
+            PIXI.utils.TextureCache[textureName] = texture;
+        }
     }
     
     public.createTexture = function mmaprender_createTexture(color, margin, height)

@@ -329,7 +329,7 @@ let ASMAP = (function ()
     let doZoneViewSingleClick = function asmap_doZoneViewSingleClick(x, y)
     {
         let selectedId = ASMAPUI.getCurrentZoneId();
-        if (selectedId == ASZONE.C_TILEENUM.ROAD)
+        if (selectedId == ASENGINE.V_ZONE.ROAD)
         {
             ASROAD.addRoad(x, y);
         }
@@ -344,27 +344,27 @@ let ASMAP = (function ()
     let doRoadViewSingleClick = function asmap_doRoadViewSingleClick(x, y)
     {
         let selectedId = ASMAPUI.getCurrentRoadId();
-        if (selectedId == ASROAD.C_TILEENUM.LOW)
+        if (selectedId == ASENGINE.V_ROAD.LOW)
         {
             ASROAD.initializeTraversal(x, y);
             //console.log('start traversal x' + x + 'y' + y + 'c' + m_roadTraversalTemp);
         }
-        else if (selectedId == ASROAD.C_TILEENUM.MID)
+        else if (selectedId == ASENGINE.V_ROAD.MID)
         {
             let next = ASROAD.getNextStepTraversal();
             //console.log('incre traversal x' + next[0] + 'y' + next[1] + 'c' + m_roadTraversalTemp);
         }
-        else if (selectedId == ASROAD.C_TILEENUM.HIG)
+        else if (selectedId == ASENGINE.V_ROAD.HIG)
         {
             let pathXY = ASROAD.getTraversalPath();
             //console.log('finish traversal');
             console.log(pathXY);
         }
-        else if (selectedId == ASROAD.C_TILEENUM.NONE)
+        else if (selectedId == ASENGINE.V_ROAD.NONE)
         {
             ASROAD.resetTraversalPath();
         }
-        else if (selectedId == ASROAD.C_TILEENUM.VHI)
+        else if (selectedId == ASENGINE.V_ROAD.VHI)
         {
             ASROAD.printTraversal();
         }

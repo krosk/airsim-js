@@ -1718,6 +1718,7 @@ let ASENGINE = (function ()
         ASRICO.initialize(... args);
     }
     
+    // directly readable globals
     public.getMapTableSizeX = function asengine_getMapTableSizeX()
     {
         return ASSTATE.getTableSizeX();
@@ -1726,6 +1727,17 @@ let ASENGINE = (function ()
     public.getMapTableSizeY = function asengnine_getMapTableSizeY()
     {
         return ASSTATE.getTableSizeY();
+    }
+    
+    // tiles bank
+    public.V_ZONE = function asengine_v_zone()
+    {
+        return ASZONE.C_TILEENUM;
+    }
+    
+    public.V_ROAD = function asengine_v_road()
+    {
+        return ASROAD.C_TILEENUM;
     }
 
     return public;

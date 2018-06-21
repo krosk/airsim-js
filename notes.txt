@@ -1312,6 +1312,18 @@ except in the cases of;
   one needs to retrieve the identifier for
   tiles through a list? Or is it hard coded?
   
+There are two kind of operations that the engine
+should handle: short direct call and long call.
+The short direct call is for small, direct
+results that will not make ui thread lag.
+Long calls must be message based.
+For now, the calls to engine are limited to
+retrieving data state and editing tiles, and
+this is done through direct calls.
+A message based call may work? ASENGINE can be
+an experimental intermediate.
+
+  
   Transforming ui interaction into engine
   messages.
   

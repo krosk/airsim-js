@@ -1,12 +1,3 @@
-let ASENGINE = (function ()
-{
-    let public = {};
-
-    
-
-    return public;
-})();
-
 let ASSTATE = (function()
 {
     let public = {};
@@ -422,6 +413,12 @@ let ASSTATE = (function()
     public.setTableSizeY = function asstate_setTableSizeY(data)
     {
         w(0, G.SIZE_Y, data);
+    }
+    
+    public.isValidCoordinates = function asstate_isValidCoordinates(tileX, tileY)
+    {
+        let isOutOfBound = tileX < 0 || tileX >= public.getTableSizeX() || tileY < 0 || tileY >= public.getTableSizeY();
+        return !isOutOfBound;
     }
     
     public.notifyChange = function asstate_notifyChange(newIndex)
@@ -1382,7 +1379,7 @@ let ASRICO = (function ()
     
     public.getDataId = function asrico_getDataId(x, y)
     {
-        if (!MMAPDATA.isValidCoordinates(x, y))
+        if (!ASSTATE.isValidCoordinates(x, y))
         {
             return C.NONE;
         }
@@ -1417,7 +1414,7 @@ let ASRICO = (function ()
     
     let addInitial = function asrico_addInitial(code, x, y)
     {
-        if (!MMAPDATA.isValidCoordinates(x, y))
+        if (!ASSTATE.isValidCoordinates(x, y))
         {
             return;
         }
@@ -1686,5 +1683,23 @@ let ASRICO = (function ()
         return !((typeof data === 'undefined') || (data == null)) && (data == ASZONE.C_TYPE.BUILDING);
     }
     
+    return public;
+})();
+
+let ASENGINE = (function ()
+{
+    let public = {};
+    
+    const C_MODULE = {
+        'ZONE' : ASZONE,
+        'ROAD' : ASROAD,
+        'RICO' : ASRICO
+    };
+
+    public.initializeModuleD = function asengine_initialozeModuleD(name)
+    {
+        C_MODULE[name].initialize();
+    }
+
     return public;
 })();

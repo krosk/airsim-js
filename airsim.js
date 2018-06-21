@@ -256,7 +256,7 @@ let ASMAP = (function ()
 
     public.initialize = function asmap_initialize(w, h)
     {
-        ASSTATE.initialize(w, h);
+        ASENGINE.initializeModuleD('DATA', w, h);
         ASENGINE.initializeModuleD('ZONE');
         MMAPRENDER.initializeTexture(ASZONE);
         MMAPRENDER.initializeTexture(ASROAD);

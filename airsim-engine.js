@@ -1693,12 +1693,13 @@ let ASENGINE = (function ()
     const C_MODULE = {
         'ZONE' : ASZONE,
         'ROAD' : ASROAD,
-        'RICO' : ASRICO
+        'RICO' : ASRICO,
+        'DATA' : ASSTATE
     };
 
-    public.initializeModuleD = function asengine_initialozeModuleD(name)
+    public.initializeModuleD = function asengine_initializeModuleD(name, ...args)
     {
-        C_MODULE[name].initialize();
+        C_MODULE[name].initialize(...args);
     }
 
     return public;

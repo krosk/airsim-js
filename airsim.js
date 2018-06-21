@@ -256,12 +256,13 @@ let ASMAP = (function ()
 
     public.initialize = function asmap_initialize(w, h)
     {
-        ASENGINE.initializeModuleD('DATA', w, h);
-        ASENGINE.initializeModuleD('ZONE');
+        const M = ASENGINE.C_MODULE_ID;
+        ASENGINE.initializeModuleD(M.DATA, w, h);
+        ASENGINE.initializeModuleD(M.ZONE);
         MMAPRENDER.initializeTexture(ASZONE);
         MMAPRENDER.initializeTexture(ASROAD);
         MMAPRENDER.initializeTexture(ASICON);
-        ASENGINE.initializeModuleD('RICO');
+        ASENGINE.initializeModuleD(M.RICO);
         MMAPRENDER.initializeTexture(ASRICO);
         MMAPDATA.initialize(w, h, ASZONE);
         MMAPRENDER.initialize(doSingleClick, doDoubleClick);
@@ -270,12 +271,12 @@ let ASMAP = (function ()
 
     public.getWidth = function asmap_getWidth()
     {
-        return MMAPDATA.getMapTableSizeX();
+        return ASENGINE.getMapTableSizeX();
     }
 
     public.getHeight = function asmap_getHeight()
     {
-        return MMAPDATA.getMapTableSizeY();
+        return ASENGINE.getMapTableSizeY();
     }
 
     let m_computeTimeBudget = 1;
@@ -833,14 +834,6 @@ let MMAPDATA = (function ()
         public.refreshAllTiles();
         //console.log("switch to " + m_dataLibrary.C_NAME);
     }
-    public.getMapTableSizeX = function mmapdata_getMapTableSizeX()
-    {
-        return m_mapTableSizeX;
-    }
-    public.getMapTableSizeY = function mmapdata_getMapTableSizeY()
-    {
-        return m_mapTableSizeY;
-    }
     public.initialize = function mmapdata_initialize(x, y, dataLibrary)
     {
         m_mapTableSizeX = x;
@@ -914,7 +907,7 @@ let MMAPDATA = (function ()
     //}
     public.isValidCoordinates = function mmapdata_isValidCoordinates(tileX, tileY)
     {
-        let isOutOfBound = tileX < 0 || tileX >= public.getMapTableSizeX() || tileY < 0 || tileY >= public.getMapTableSizeY();
+        let isOutOfBound = tileX < 0 || tileX >= ASENGINE.getMapTableSizeX() || tileY < 0 || tileY >= ASENGINE.getMapTableSizeY();
         return !isOutOfBound;
     }
 

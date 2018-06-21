@@ -1322,10 +1322,26 @@ retrieving data state and editing tiles, and
 this is done through direct calls.
 A message based call may work? ASENGINE can be
 an experimental intermediate.
+The wasm exports functions so the ASENGINE
+can be a wrapper for multiple functions.
 
-  
-  Transforming ui interaction into engine
-  messages.
+** Multi threading
+Multicore is very interesting in the sim engine.
+There are task that can be processed distinctly.
+Spawning multiple workers is a quick way to
+speed up, if workload is parallelizable.
+Each workload could also work with a webassembly
+routine.
+It could also be modules working separately.
+That means for example that road checking,
+which is today saved in asstate, may need to
+move separately so it is performable in //.
+However that supposes it is not savable and
+this limits saving during a tick.
+Impacted modules are for example road
+distribution and checking.
+
+
   
 
 Web worker is started and run sometimes;

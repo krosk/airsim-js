@@ -1690,16 +1690,34 @@ let ASENGINE = (function ()
 {
     let public = {};
     
+    public.C_MODULE_ID = {
+        DATA : 0,
+        ZONE : 1,
+        RICO : 2,
+        ROAD : 3
+    };
+    const C = public.C_MODULE_ID;
+    
     const C_MODULE = {
-        'ZONE' : ASZONE,
-        'ROAD' : ASROAD,
-        'RICO' : ASRICO,
-        'DATA' : ASSTATE
+        [C.DATA] : ASSTATE,
+        [C.ZONE] : ASZONE,
+        [C.ROAD] : ASROAD,
+        [C.RICO] : ASRICO
     };
 
-    public.initializeModuleD = function asengine_initializeModuleD(name, ...args)
+    public.initializeModuleD = function asengine_initializeModuleD(nameId, ...args)
     {
-        C_MODULE[name].initialize(...args);
+        C_MODULE[nameId].initialize(...args);
+    }
+    
+    public.getMapTableSizeX = function asengine_getMapTableSizeX()
+    {
+        return ASSTATE.getTableSizeX();
+    }
+    
+    public.getMapTableSizeY = function asengnine_getMapTableSizeY()
+    {
+        return ASSTATE.getTableSizeY();
     }
 
     return public;

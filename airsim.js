@@ -256,15 +256,12 @@ let ASMAP = (function ()
 
     public.initialize = function asmap_initialize(w, h)
     {
-        const M = ASENGINE.C_MODULE_ID;
-        ASENGINE.initializeModuleD(M.DATA, w, h);
-        ASENGINE.initializeModuleD(M.ZONE);
+        ASENGINE.initializeModule(w, h);
         MMAPRENDER.initializeTexture(ASZONE);
         MMAPRENDER.initializeTexture(ASROAD);
         MMAPRENDER.initializeTexture(ASICON);
-        ASENGINE.initializeModuleD(M.RICO);
         MMAPRENDER.initializeTexture(ASRICO);
-        MMAPDATA.initialize(w, h, ASZONE);
+        MMAPDATA.initialize(ASZONE);
         MMAPRENDER.initialize(doSingleClick, doDoubleClick);
         ASMAPUI.initialize();
     }
@@ -818,8 +815,6 @@ let MMAPDATA = (function ()
 {
     let public = {};
 
-    let m_mapTableSizeX = 0;
-    let m_mapTableSizeY = 0;
     let m_mapChangeLog = [];
     
     let m_dataLibrary; // module such as ASZONE
@@ -834,10 +829,8 @@ let MMAPDATA = (function ()
         public.refreshAllTiles();
         //console.log("switch to " + m_dataLibrary.C_NAME);
     }
-    public.initialize = function mmapdata_initialize(x, y, dataLibrary)
+    public.initialize = function mmapdata_initialize(dataLibrary)
     {
-        m_mapTableSizeX = x;
-        m_mapTableSizeY = y;
         m_dataLibrary = dataLibrary;
     }
     public.isValidTileId = function mmapdata_isValidTileId(id)
@@ -857,8 +850,8 @@ let MMAPDATA = (function ()
     {
         for (let i = 0; i < count; i++)
         {
-            let x = Math.floor(m_mapTableSizeX * Math.random());
-            let y = Math.floor(m_mapTableSizeY * Math.random());
+            let x = Math.floor(ASENGINE.getMapTableSizeX() * Math.random());
+            let y = Math.floor(ASENGINE.getMapTableSizeY() * Math.random());
             let id = public.getRandomTileId();
             public.setTileId(x, y, id);
         }

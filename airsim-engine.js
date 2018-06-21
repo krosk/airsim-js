@@ -1710,6 +1710,14 @@ let ASENGINE = (function ()
         C_MODULE[nameId].initialize(...args);
     }
     
+    // engine exported functions
+    public.initializeModule = function asengine_initializeModule(... args)
+    {
+        ASSTATE.initialize(... args);
+        ASZONE.initialize(... args);
+        ASRICO.initialize(... args);
+    }
+    
     public.getMapTableSizeX = function asengine_getMapTableSizeX()
     {
         return ASSTATE.getTableSizeX();

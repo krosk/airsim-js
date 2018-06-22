@@ -1729,6 +1729,16 @@ let ASENGINE = (function ()
         return ASSTATE.getTableSizeY();
     }
     
+    public.getXYFromIndex = function asengine_getXYFromIndex(index)
+    {
+        return ASSTATE.getXYFromIndex(index);
+    }
+    
+    public.retrieveChange = function asengine_retrieveChange()
+    {
+        return ASSTATE.retrieveChange();
+    }
+    
     // tiles bank
     public.V_ZONE = function asengine_v_zone()
     {

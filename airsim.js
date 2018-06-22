@@ -277,6 +277,8 @@ let ASMAP = (function ()
     }
 
     let m_computeTimeBudget = 1;
+    // ideally this only process
+    // mmaprender.update
     public.update = function asmap_update(dt, time)
     {
         const fpsdt = 17;
@@ -305,10 +307,10 @@ let ASMAP = (function ()
     {
         while (Date.now() < computeTimeLimit)
         {
-            let newChangeIndex = ASSTATE.retrieveChange();
+            let newChangeIndex = ASENGINE.retrieveChange();
             if (newChangeIndex >= 0)
             {
-                let xy = ASSTATE.getXYFromIndex(newChangeIndex);
+                let xy = ASENGINE.getXYFromIndex(newChangeIndex);
                 let x = xy[0];
                 let y = xy[1];
                 MMAPDATA.refreshTile(x, y);

@@ -662,7 +662,7 @@ let ASZONE = (function ()
         let engineComplete = true;
         if (engineComplete)
         {
-            engineComplete &= ASMAP.commitDisplayChange(tick, timeLimit);
+            //engineComplete &= ASMAP.commitDisplayChange(tick, timeLimit);
         }
         if (engineComplete)
         {
@@ -1734,7 +1734,8 @@ let ASENGINE = (function ()
         return ASSTATE.getXYFromIndex(index);
     }
     
-    public.retrieveChange = function asengine_retrieveChange()
+    // async functions
+    public.retrieveChange = function asengine_retrieveChange(callback)
     {
         return ASSTATE.retrieveChange();
     }

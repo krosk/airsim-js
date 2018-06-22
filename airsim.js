@@ -300,6 +300,7 @@ let ASMAP = (function ()
         }
         let computeTimeLimit = time + m_computeTimeBudget;
         // engines updates
+        public.commitDisplayChange(time, computeTimeLimit);
         ASZONE.update(time, computeTimeLimit);
     }
     

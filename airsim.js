@@ -337,6 +337,7 @@ let ASMAP = (function ()
     let doZoneViewSingleClick = function asmap_doZoneViewSingleClick(x, y)
     {
         let selectedId = ASMAPUI.getCurrentZoneId();
+        // this assumes selectedId is a valid zone id
         ASENGINE.setZone(x, y, selectedId);
     }
     
@@ -345,27 +346,27 @@ let ASMAP = (function ()
         let selectedId = ASMAPUI.getCurrentRoadId();
         if (selectedId == ASENGINE.V_ROAD.LOW)
         {
-            ASROAD.initializeTraversal(x, y);
+            ASENGINE.initializeTraversal(x, y);
             //console.log('start traversal x' + x + 'y' + y + 'c' + m_roadTraversalTemp);
         }
         else if (selectedId == ASENGINE.V_ROAD.MID)
         {
-            let next = ASROAD.getNextStepTraversal();
+            ASENGINE.getNextStepTraversal();
             //console.log('incre traversal x' + next[0] + 'y' + next[1] + 'c' + m_roadTraversalTemp);
         }
         else if (selectedId == ASENGINE.V_ROAD.HIG)
         {
-            let pathXY = ASROAD.getTraversalPath();
+            ASENGINE.getTraversalPath();
             //console.log('finish traversal');
-            console.log(pathXY);
+            //console.log(pathXY);
         }
         else if (selectedId == ASENGINE.V_ROAD.NONE)
         {
-            ASROAD.resetTraversalPath();
+            ASENGINE.resetTraversalPath();
         }
         else if (selectedId == ASENGINE.V_ROAD.VHI)
         {
-            ASROAD.printTraversal();
+            ASENGINE.printTraversal();
         }
     }
     

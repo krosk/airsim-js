@@ -1741,6 +1741,7 @@ let ASENGINE = (function ()
     }
     
     // async functions without callback
+    // direct order
     public.setZone = function asengine_setZone(x, y, selectedId)
     {
         if (selectedId == public.V_ZONE.ROAD)
@@ -1752,6 +1753,31 @@ let ASENGINE = (function ()
             ASROAD.removeRoad(x, y);
         }
         ASZONE.setZone(x, y, selectedId);
+    }
+    
+    public.initializeTraversal = function asengine_initializeTraversal(x, y)
+    {
+        ASROAD.initializeTraversal(x, y);
+    }
+    
+    public.getNextStepTraversal = function asengine_getNextStepTraversal()
+    {
+        ASROAD.getNextStepTraversal();
+    }
+    
+    public.getTraversalPath = function asengine_getTraversalPath()
+    {
+        ASROAD.getTraversalPath();
+    }
+    
+    public.resetTraversalPath = function asengine_resetTraversalPath()
+    {
+        ASROAD.resetTraversalPath();
+    }
+    
+    public.printTraversal = function asengine_printTraversal()
+    {
+        ASROAD.printTraversal();
     }
     
     // tiles bank

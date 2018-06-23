@@ -1734,10 +1734,24 @@ let ASENGINE = (function ()
         return ASSTATE.getXYFromIndex(index);
     }
     
-    // async functions
+    // async functions with callbacks
     public.retrieveChange = function asengine_retrieveChange(callback, timeLimit)
     {
         callback(timeLimit, ASSTATE.retrieveChange());
+    }
+    
+    // async functions without callback
+    public.setZone = function asengine_setZone(x, y, selectedId)
+    {
+        if (selectedId == public.V_ZONE.ROAD)
+        {
+            ASROAD.addRoad(x, y);
+        }
+        else
+        {
+            ASROAD.removeRoad(x, y);
+        }
+        ASZONE.setZone(x, y, selectedId);
     }
     
     // tiles bank

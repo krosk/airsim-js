@@ -337,16 +337,7 @@ let ASMAP = (function ()
     let doZoneViewSingleClick = function asmap_doZoneViewSingleClick(x, y)
     {
         let selectedId = ASMAPUI.getCurrentZoneId();
-        if (selectedId == ASENGINE.V_ZONE.ROAD)
-        {
-            ASROAD.addRoad(x, y);
-        }
-         else
-        {
-            ASROAD.removeRoad(x, y);
-        }
-        ASZONE.setZone(x, y, selectedId);
-        //console.log(ASROAD.findNearestRoad(x, y));
+        ASENGINE.setZone(x, y, selectedId);
     }
     
     let doRoadViewSingleClick = function asmap_doRoadViewSingleClick(x, y)

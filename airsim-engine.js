@@ -1735,9 +1735,9 @@ let ASENGINE = (function ()
     }
     
     // async functions
-    public.retrieveChange = function asengine_retrieveChange(callback)
+    public.retrieveChange = function asengine_retrieveChange(callback, timeLimit)
     {
-        return ASSTATE.retrieveChange();
+        callback(timeLimit, ASSTATE.retrieveChange());
     }
     
     // tiles bank

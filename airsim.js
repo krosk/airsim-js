@@ -300,28 +300,33 @@ let ASMAP = (function ()
         }
         let computeTimeLimit = time + m_computeTimeBudget;
         // engines updates
-        public.commitDisplayChange(time, computeTimeLimit);
+        public.commitDisplayChange(computeTimeLimit);
         ASZONE.update(time, computeTimeLimit);
     }
     
-    public.commitDisplayChange = function asmap_commitDisplayChange(time, computeTimeLimit)
+    public.commitDisplayChange = function asmap_commitDisplayChange(computeTimeLimit)
     {
-        while (Date.now() < computeTimeLimit)
+        if (Date.now() < computeTimeLimit)
         {
-            let newChangeIndex = ASENGINE.retrieveChange();
-            if (newChangeIndex >= 0)
-            {
-                let xy = ASENGINE.getXYFromIndex(newChangeIndex);
-                let x = xy[0];
-                let y = xy[1];
-                MMAPDATA.refreshTile(x, y);
-            }
-            else
-            {
-                return true;
-            }
+            ASENGINE.retrieveChange(commitDisplayChangeResponse, computeTimeLimit);
         }
-        return false;
+    }
+    
+    let commitDisplayChangeResponse = function asmap_commitDisplayChangeResponse(computeTimeLimit, newChangeIndex)
+    {
+        if (newChangeIndex >= 0)
+        {
+            let xy = ASENGINE.getXYFromIndex(newChangeIndex);
+            let x = xy[0];
+            let y = xy[1];
+            MMAPDATA.refreshTile(x, y);
+            public.commitDisplayChange(computeTimeLimit);
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
     
     public.getComputeTimeBudget = function asmap_getComputeTimeBudget()

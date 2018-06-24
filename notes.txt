@@ -1240,7 +1240,7 @@ one or more ticks, we are notified back and the
 graphic takes its time to refresh.
 
 - One caveat is debugging. I would be near
-impossible to pause?
+impossible to pause mid tick or during exec.
 - Another issue is the graphic refresh must be
 reading something else to display, not asstate.
 This is particularily problematic for
@@ -1324,6 +1324,12 @@ A message based call may work? ASENGINE can be
 an experimental intermediate.
 The wasm exports functions so the ASENGINE
 can be a wrapper for multiple functions.
+The form is a table of callbacks. For each wasm
+callback a matching ASENGINE call will work.
+ASENGINE will function as the glue.
+
+Webworkers are async calls while wasm are
+setialized.
 
 ** Multi threading
 Multicore is very interesting in the sim engine.

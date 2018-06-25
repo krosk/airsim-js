@@ -760,13 +760,13 @@ let ASMAPUI = (function ()
         if (m_currentSaveId == C_DEF.SAVE)
         {
             ASENGINE.getSerializable(saveDataResponse);
-            //localStorage.setItem('ASSTATE', asstateData);
+            //localStorage.setItem('ASSTATE', stateData);
             //console.log("Saved");
         }
         else if (m_currentSaveId == C_DEF.LOAD)
         {
-            let asstateData = localStorage.getItem('ASSTATE');
-            ASENGINE.setSerializable(asstateData, loadDataResponse);
+            let stateData = localStorage.getItem('ASSTATE');
+            ASENGINE.setSerializable(stateData, loadDataResponse);
             //console.log("Loaded");
             //MMAPDATA.refreshAllTiles();
         }

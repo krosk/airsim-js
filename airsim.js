@@ -13,7 +13,7 @@ const G_CHECK = true;
         if (typeof g_debugOverlay != 'undefined')
         {
             //exLog.apply(this, arguments);
-            g_debugOverlay.innerHTML = msg + "<br>" + g_debugOverlay.innerHTML;
+            g_debugOverlay.innerHTML = JSON.stringify(msg) + "<br>" + g_debugOverlay.innerHTML;
         }
     }
     

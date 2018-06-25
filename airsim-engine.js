@@ -3,6 +3,7 @@ let ASSTATE = (function()
     let public = {};
     
     let m_dataState = [];
+    let m_dataStateArray;
     
     // map structure
     const C = {
@@ -377,8 +378,7 @@ let ASSTATE = (function()
     public.initialize = function asstate_initialize(tableSizeX, tableSizeY)
     {
         public.clear(0);
-        public.setTableSizeX(tableSizeX);
-        public.setTableSizeY(tableSizeY);
+        public.setTableSize(tableSizeX, tableSizeY);
         public.setPlay(-1);
         public.setTick(0);
         public.setFrame(0);
@@ -397,6 +397,12 @@ let ASSTATE = (function()
         public.setRoadTraversalStart(-1);
         public.setRoadTraversalCurrentIndex(-1);
         public.setRoadTraversalEdgeCount(-1);
+    }
+    
+    public.setTableSize = function asstate_setTableSize(sizeX, sizeY)
+    {
+        public.setTableSizeX(sizeX);
+        public.setTableSizeY(sizeY);
     }
     
     public.getTableSizeX = function asstate_getTableSizeX()

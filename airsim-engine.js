@@ -1740,8 +1740,24 @@ let ASENGINE = (function ()
         callback(timeLimit, ASSTATE.retrieveChange());
     }
     
+    public.getSerializable = function asengine_getSerializable(callback)
+    {
+        callback(ASSTATE.getSerializable())
+    }
+    
+    public.setSerializable = function asengine_setSerializable(value, callback)
+    {
+        ASSTATE.setSerializable(value);
+        callback();
+    }
+    
     // async functions without callback
     // direct order
+    public.setTickSpeed = function asengine_setTickSpeed(value)
+    {
+        ASSTATE.setTickSpeed(value);
+    }
+    
     public.setZone = function asengine_setZone(x, y, selectedId)
     {
         if (selectedId == public.V_ZONE.ROAD)
@@ -1762,12 +1778,12 @@ let ASENGINE = (function ()
     
     public.getNextStepTraversal = function asengine_getNextStepTraversal()
     {
-        ASROAD.getNextStepTraversal();
+        console.log(ASROAD.getNextStepTraversal());
     }
     
     public.getTraversalPath = function asengine_getTraversalPath()
     {
-        ASROAD.getTraversalPath();
+        console.log(ASROAD.getTraversalPath());
     }
     
     public.resetTraversalPath = function asengine_resetTraversalPath()

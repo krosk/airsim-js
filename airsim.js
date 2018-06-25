@@ -759,17 +759,29 @@ let ASMAPUI = (function ()
         let C_DEF = ASICON.C_TILEENUM;
         if (m_currentSaveId == C_DEF.SAVE)
         {
-            let asstateData = ASSTATE.getSerializable();
-            localStorage.setItem('ASSTATE', asstateData);
-            console.log("Saved");
+            ASENGINE.getSerializable(saveDataResponse);
+            //localStorage.setItem('ASSTATE', asstateData);
+            //console.log("Saved");
         }
         else if (m_currentSaveId == C_DEF.LOAD)
         {
             let asstateData = localStorage.getItem('ASSTATE');
-            ASSTATE.setSerializable(asstateData);
-            console.log("Loaded");
-            MMAPDATA.refreshAllTiles();
+            ASENGINE.setSerializable(asstateData, loadDataResponse);
+            //console.log("Loaded");
+            //MMAPDATA.refreshAllTiles();
         }
+    }
+    
+    let saveDataResponse = function asmapui_saveDataResponse(saveData)
+    {
+        localStorage.setItem('ASSTATE', saveData);
+        console.log("Saved");
+    }
+    
+    let loadDataResponse = function asmapui_loadDataResponse()
+    {
+        console.log("Loaded");
+        MMAPDATA.refreshAllTiles();
     }
     
     let onPlaySpritePress = function asmapui_onPlaySpritePress(event, playId)
@@ -781,27 +793,27 @@ let ASMAPUI = (function ()
         if (m_currentPlayId == C_DEF.PLAY)
         {
             //console.log("play");
-            ASSTATE.setTickSpeed(1000);
+            ASENGINE.setTickSpeed(1000);
         }
         else if (m_currentPlayId == C_DEF.PLAY2)
         {
-            ASSTATE.setTickSpeed(100);
+            ASENGINE.setTickSpeed(100);
         }
         else if (m_currentPlayId == C_DEF.PLAY3)
         {
-            ASSTATE.setTickSpeed(0);
+            ASENGINE.setTickSpeed(0);
         }
         else if (m_currentPlayId == C_DEF.STOP)
         {
             //console.log("stop");
             // infinite tick speed in fact
-            ASSTATE.setTickSpeed(-1);
+            ASENGINE.setTickSpeed(-1);
         }
         else if (m_currentPlayId == C_DEF.STEP)
         {
             //console.log("frame");
             // probably needs a special value
-            ASSTATE.setTickSpeed(1001);
+            ASENGINE.setTickSpeed(1001);
         }
     }
     

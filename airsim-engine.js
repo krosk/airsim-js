@@ -379,6 +379,7 @@ let ASSTATE = (function()
         public.clear(0);
         public.setTableSizeX(tableSizeX);
         public.setTableSizeY(tableSizeY);
+        public.setPlay(-1);
         public.setTick(0);
         public.setFrame(0);
         public.setTickSpeed(0);
@@ -393,6 +394,9 @@ let ASSTATE = (function()
                 public.setChangeFlag(index, -1);
             }
         }
+        public.setRoadTraversalStart(-1);
+        public.setRoadTraversalCurrentIndex(-1);
+        public.setRoadTraversalEdgeCount(-1);
     }
     
     public.getTableSizeX = function asstate_getTableSizeX()
@@ -888,12 +892,12 @@ let ASROAD = (function ()
         if (hasRoad(from))
         {
             //delete ASSTATE.getRoad(from).connectTo[d];
-            ASSTATE.setRoadConnectTo(from, d, );
+            ASSTATE.setRoadConnectTo(from, d, -1);
         }
         if (hasRoad(to))
         {
             //delete ASSTATE.getRoad(to).connectTo[C_FROM[d]];
-            ASSTATE.setRoadConnectTo(to, C_FROM[d], );
+            ASSTATE.setRoadConnectTo(to, C_FROM[d], -1);
         }
     }
     
@@ -934,10 +938,10 @@ let ASROAD = (function ()
         {
             ASSTATE.setZoneType(index, ASZONE.C_TYPE.ROAD);
             ASSTATE.setRoadType(index, 0);
-            ASSTATE.setRoadConnectTo(index, C_TO.N, );
-            ASSTATE.setRoadConnectTo(index, C_TO.E, );
-            ASSTATE.setRoadConnectTo(index, C_TO.S, );
-            ASSTATE.setRoadConnectTo(index, C_TO.W, );
+            ASSTATE.setRoadConnectTo(index, C_TO.N, -1);
+            ASSTATE.setRoadConnectTo(index, C_TO.E, -1);
+            ASSTATE.setRoadConnectTo(index, C_TO.S, -1);
+            ASSTATE.setRoadConnectTo(index, C_TO.W, -1);
             ASSTATE.setRoadUsedCapacity(index, 1);
             ASSTATE.setRoadMaxCapacity(index, 10);
             ASSTATE.setRoadDebug(index, C.LOW)
@@ -1047,7 +1051,6 @@ let ASROAD = (function ()
     }
     let clearTraversal = function asroad_clearTraversal(node, index)
     {
-        //setTraversalFrom(data, index, 0);
         setTraversalProcessedNot(node, index);
         setTraversalParent(node, -1);
         setTraversalCost(node, 0);
@@ -1247,20 +1250,17 @@ let ASROAD = (function ()
     
     public.resetTraversalPath = function asroad_resetTraversalPath()
     {
-        if (true)
+        let nodeList = getCurrentNodeList();
+        let edgeCount = nodeList.length;
+        for (let i = 0; i < edgeCount; i++)
         {
-            let nodeList = getCurrentNodeList();
-            let edgeCount = nodeList.length;
-            for (let i = 0; i < edgeCount; i++)
+            let node = nodeList[i];
+            if (hasRoad(node))
             {
-                let node = nodeList[i];
-                if (hasRoad(node))
-                {
-                    ASSTATE.setRoadDebug(node, C.LOW);
-                    changeTraversalIndex(node);
-                }
-                clearTraversal(node, i);
+                ASSTATE.setRoadDebug(node, C.LOW);
+                changeTraversalIndex(node);
             }
+            clearTraversal(node, i);
         }
     }
     

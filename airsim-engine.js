@@ -4,6 +4,7 @@ let ASSTATE = (function()
     
     let m_dataState = [];
     let m_dataStateArray;
+    let m_dataStateBuffer;
     
     // map structure
     const C = {
@@ -30,6 +31,7 @@ let ASSTATE = (function()
         BUILDING_DEMAND_I : 9,
         BUILDING_DEMAND_C : 10,
         BUILDING_TICK_UPDATE : 11,
+        END : 14
     }
     public.C_DATA = C;
     
@@ -48,7 +50,8 @@ let ASSTATE = (function()
         ROAD_TRAVERSAL_CURRENT_INDEX : 10,
         ROAD_TRAVERSAL_EDGE_COUNT : 11,
         CHANGE_FIRST : 12,
-        CHANGE_LAST : 13
+        CHANGE_LAST : 13,
+        END : 15
     }
     
     public.getIndex = function asstate_getIndex(x, y)
@@ -69,6 +72,15 @@ let ASSTATE = (function()
     
     let r = function r(index, subIndex)
     {
+        if (index == 0)
+        {
+            return m_dataStateArray[subIndex];
+        }
+        else
+        {
+            let target = (index - 1)*C.END + G.END + subIndex;
+            return m_dataStateArray[target];;
+        }
         if (G_CHECK && (typeof m_dataState[index] === 'undefined' || m_dataState[index] == null))
         {
             throw ('error accessing dataState at ' + index + ' ' + subIndex);
@@ -79,6 +91,17 @@ let ASSTATE = (function()
     
     let w = function w(index, field, data)
     {
+        if (index == 0)
+        {
+            m_dataStateArray[field] = data;
+            return;
+        }
+        else
+        {
+            let target = (index - 1)*C.END + G.END + field;
+            m_dataStateArray[target] = data;
+            return;
+        }
         if (G_CHECK && (typeof m_dataState[index] === 'undefined' || m_dataState[index] == null))
         {
             throw ('error accessing dataState at ' + index + ' ' + field);
@@ -401,6 +424,10 @@ let ASSTATE = (function()
     
     public.setTableSize = function asstate_setTableSize(sizeX, sizeY)
     {
+        let totalSize = (G.END + sizeX*sizeY*C.END) * Int32Array.BYTES_PER_ELEMENT;
+        console.log(totalSize);
+        m_dataStateBuffer = new ArrayBuffer(totalSize);
+        m_dataStateArray = new Int32Array(m_dataStateBuffer);
         public.setTableSizeX(sizeX);
         public.setTableSizeY(sizeY);
     }
@@ -672,15 +699,7 @@ let ASZONE = (function ()
         let engineComplete = true;
         if (engineComplete)
         {
-            //engineComplete &= ASMAP.commitDisplayChange(tick, timeLimit);
-        }
-        if (engineComplete)
-        {
             engineComplete &= ASRICO.updateRico(tick, timeLimit);
-        }
-        if (engineComplete)
-        {
-            //engineComplete &= ASMAP.commitDisplayChange(tick, timeLimit);
         }
         const enoughTimeElapsed = Math.abs(time - m_lastTickTime1) >= tickSpeed;
         if (engineComplete && enoughTimeElapsed)

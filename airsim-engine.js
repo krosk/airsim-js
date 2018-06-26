@@ -2,9 +2,7 @@ let ASSTATE = (function()
 {
     let public = {};
     
-    let m_dataState = [];
     let m_dataStateArray;
-    let m_dataStateBuffer;
     
     // map structure
     const C = {
@@ -94,7 +92,21 @@ let ASSTATE = (function()
     
     public.clear = function asstate_clear(index)
     {
-        m_dataState[index] = [];
+        if (index == 0)
+        {
+            for (let i = 0; i < G.END; i++)
+            {
+                //m_dataStateArray[i] = 0;
+            }
+        }
+        else
+        {
+            let targetBase = (index - 1)*C.END + G.END;
+            for (let i = 0; i < C.END; i++)
+            {
+                m_dataStateArray[targetBase] = 0;
+            }
+        }
     }
     
     public.getDataZoneAtIndex = function asstate_getDataZoneAtIndex(index)
@@ -406,10 +418,9 @@ let ASSTATE = (function()
     
     public.setTableSize = function asstate_setTableSize(sizeX, sizeY)
     {
-        let totalSize = (G.END + sizeX*sizeY*C.END) * Int32Array.BYTES_PER_ELEMENT;
+        let totalSize = (G.END + sizeX*sizeY*C.END); //* Int32Array.BYTES_PER_ELEMENT;
         console.log(totalSize);
-        m_dataStateBuffer = new ArrayBuffer(totalSize);
-        m_dataStateArray = new Int32Array(m_dataStateBuffer);
+        m_dataStateArray = new Int32Array(totalSize);
         public.setTableSizeX(sizeX);
         public.setTableSizeY(sizeY);
     }
@@ -479,14 +490,14 @@ let ASSTATE = (function()
     
     public.getSerializable = function asstate_getSerializable()
     {
-        console.log(m_dataState);
-        return JSON.stringify(m_dataState);
+        console.log(Array.from(m_dataStateArray));
+        return JSON.stringify(Array.from(m_dataStateArray));
     }
     
     public.setSerializable = function asstate_setSerializable(string)
     {
-        let master = JSON.parse(string);
-        m_dataState = master;
+        let array = JSON.parse(string);
+        m_dataStateArray = Int32Array.from(array);
     }
     
     return public;

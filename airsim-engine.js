@@ -70,44 +70,26 @@ let ASSTATE = (function()
         return [((index - 1) / public.getTableSizeY()) | 0, (index - 1) % public.getTableSizeY()];
     }
     
-    let r = function r(index, subIndex)
+    let r = function r(index, field)
     {
-        if (index == 0)
-        {
-            return m_dataStateArray[subIndex];
-        }
-        else
-        {
-            let target = (index - 1)*C.END + G.END + subIndex;
-            return m_dataStateArray[target];;
-        }
-        if (G_CHECK && (typeof m_dataState[index] === 'undefined' || m_dataState[index] == null))
-        {
-            throw ('error accessing dataState at ' + index + ' ' + subIndex);
-            return;
-        }
-        return m_dataState[index][subIndex];
-    }
-    
-    let w = function w(index, field, data)
-    {
-        if (index == 0)
-        {
-            m_dataStateArray[field] = data;
-            return;
-        }
-        else
-        {
-            let target = (index - 1)*C.END + G.END + field;
-            m_dataStateArray[target] = data;
-            return;
-        }
-        if (G_CHECK && (typeof m_dataState[index] === 'undefined' || m_dataState[index] == null))
+        let target = index == 0 ? field : (index - 1)*C.END + G.END + field;
+        if (G_CHECK && (target < 0 || target > m_dataStateArray.length))
         {
             throw ('error accessing dataState at ' + index + ' ' + field);
             return;
         }
-        m_dataState[index][field] = data;
+        return m_dataStateArray[target];
+    }
+    
+    let w = function w(index, field, data)
+    {
+        let target = index == 0 ? field : (index - 1)*C.END + G.END + field;
+        if (G_CHECK && (target < 0 || target > m_dataStateArray.length))
+        {
+            throw ('error writing to dataState at ' + index + ' ' + field + ' ' + data);
+            return;
+        }
+        m_dataStateArray[target] = data;
     }
     
     public.clear = function asstate_clear(index)

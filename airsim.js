@@ -249,11 +249,12 @@ let MUTIL = (function ()
     
     return public;
 })();
+let g_worker = new Worker('airsim-engine.js');
 // ---------------------
 let ASMAP = (function ()
 {
     let public = {};
-
+    
     public.initialize = function asmap_initialize(w, h)
     {
         ASENGINE.initializeModule(w, h);

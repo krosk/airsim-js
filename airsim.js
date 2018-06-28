@@ -249,7 +249,7 @@ let MUTIL = (function ()
     
     return public;
 })();
-let g_worker = new Worker('airsim-engine.js');
+
 // ---------------------
 let ASMAP = (function ()
 {

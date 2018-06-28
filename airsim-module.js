@@ -1,3 +1,18 @@
+let ASDISPATCH = (function()
+{
+    let public = {};
+    
+    public.decoder = function asdispatch_decoder(e)
+    {
+        let str = 'order ' + e.data[0] + ' ' + e.data[1];
+        postMessage("finish processing " + str);
+    }
+    
+    return public;
+})();
+
+onmessage = ASDISPATCH.decoder;
+
 let ASSTATE = (function()
 {
     let public = {};

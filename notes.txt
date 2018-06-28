@@ -1239,6 +1239,39 @@ Hence after all the crunching is done for
 one or more ticks, we are notified back and the
 graphic takes its time to refresh.
 
+Dataflow:
+Data resides in ASENGINE as a ArrayBuffer.
+The ArrayBuffer is transferred in post message
+to the engine worker, and hence becomes
+unnaccessible on engine space. The view itself
+(Int32Array) probably is not accessible either.
+
+ASSTATE should not be a container for the data,
+it should be a wrapper/reader/interpreter for
+it. That way it can be used by both engine
+and worker.
+
+The architecture can be:
+- asmap calls asengine, provides a callback
+- asengine process the call, sends messages
+    to worker, process the answer
+    This requires data to be resident in
+    asengine
+- data must be reassigned into asstate
+- data should live most of the time in the 
+    webworker, for it to be able to handle
+    incoming messages.
+    Periodically, UI requests a copy of the
+    table, makes a copy of it, and send it
+    back.
+- message structure can be
+    postMessage({method, args})
+- Worker has no access to any global module,
+    and has no way to include any other, so
+    it must live in the module file.
+  UI | Engine | Worker + data | Module
+
+
 - One caveat is debugging. I would be near
 impossible to pause mid tick or during exec.
 - Another issue is the graphic refresh must be

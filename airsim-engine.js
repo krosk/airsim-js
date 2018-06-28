@@ -2,6 +2,13 @@ let ASENGINE = (function ()
 {
     let public = {};
     
+    let m_worker = new Worker('airsim-module.js');
+    
+    m_worker.onmessage = function(e)
+    {
+        console.log('engine ' + e.data);
+    }
+    
     public.C_MODULE_ID = {
         DATA : 0,
         ZONE : 1,
@@ -67,6 +74,7 @@ let ASENGINE = (function ()
     // direct order
     public.setTickSpeed = function asengine_setTickSpeed(value)
     {
+        m_worker.postMessage(['setTickSpeed', value]);
         ASSTATE.setTickSpeed(value);
     }
     

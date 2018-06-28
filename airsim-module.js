@@ -2,7 +2,8 @@ let ASSTATE = (function()
 {
     let public = {};
     
-    let m_dataStateArray;
+    let m_dataStateBuffer;
+    let m_dataStateView;
     
     // map structure
     const C = {
@@ -71,23 +72,23 @@ let ASSTATE = (function()
     let r = function r(index, field)
     {
         let target = index == 0 ? field : (index - 1)*C.END + G.END + field;
-        if (G_CHECK && (target < 0 || target > m_dataStateArray.length))
+        if (G_CHECK && (target < 0 || target > m_dataStateView.length))
         {
             throw ('error accessing dataState at ' + index + ' ' + field);
             return;
         }
-        return m_dataStateArray[target];
+        return m_dataStateView[target];
     }
     
     let w = function w(index, field, data)
     {
         let target = index == 0 ? field : (index - 1)*C.END + G.END + field;
-        if (G_CHECK && (target < 0 || target > m_dataStateArray.length))
+        if (G_CHECK && (target < 0 || target > m_dataStateView.length))
         {
             throw ('error writing to dataState at ' + index + ' ' + field + ' ' + data);
             return;
         }
-        m_dataStateArray[target] = data;
+        m_dataStateView[target] = data;
     }
     
     public.clear = function asstate_clear(index)
@@ -96,7 +97,7 @@ let ASSTATE = (function()
         {
             for (let i = 0; i < G.END; i++)
             {
-                m_dataStateArray[i] = 0;
+                m_dataStateView[i] = 0;
             }
         }
         else
@@ -104,7 +105,7 @@ let ASSTATE = (function()
             let targetBase = (index - 1)*C.END + G.END;
             for (let i = 0; i < C.END; i++)
             {
-                m_dataStateArray[targetBase + i] = 0;
+                m_dataStateView[targetBase + i] = 0;
             }
         }
     }
@@ -419,7 +420,8 @@ let ASSTATE = (function()
     {
         let totalSize = (G.END + sizeX*sizeY*C.END); //* Int32Array.BYTES_PER_ELEMENT;
         console.log(totalSize);
-        m_dataStateArray = new Int32Array(totalSize);
+        m_dataStateBuffer = new ArrayBuffer(totalSize*Int32Array.BYTES_PER_ELEMENT);
+        m_dataStateView = new Int32Array(m_dataStateBuffer);
         public.setTableSizeX(sizeX);
         public.setTableSizeY(sizeY);
     }
@@ -489,14 +491,21 @@ let ASSTATE = (function()
     
     public.getSerializable = function asstate_getSerializable()
     {
-        console.log(Array.from(m_dataStateArray));
-        return JSON.stringify(Array.from(m_dataStateArray));
+        console.log(Array.from(m_dataStateView));
+        return JSON.stringify(Array.from(m_dataStateView));
     }
     
     public.setSerializable = function asstate_setSerializable(string)
     {
         let array = JSON.parse(string);
-        m_dataStateArray = Int32Array.from(array);
+        m_dataStateBuffer = Int32Array.from(array).buffer;
+        m_dataStateView = new Int32Array(m_dataStateBuffer);
+    }
+    
+    public.setRawData = function asstate_setRawData(arrayBuffer)
+    {
+        m_dataStateBuffer = arrayBuffer;
+        m_dataStateView = new Int32Array(m_dataStateBuffer);
     }
     
     return public;

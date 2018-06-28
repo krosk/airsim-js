@@ -420,8 +420,7 @@ let ASSTATE = (function()
     {
         let totalSize = (G.END + sizeX*sizeY*C.END); //* Int32Array.BYTES_PER_ELEMENT;
         console.log(totalSize);
-        m_dataStateBuffer = new ArrayBuffer(totalSize*Int32Array.BYTES_PER_ELEMENT);
-        m_dataStateView = new Int32Array(m_dataStateBuffer);
+        public.setRawData(new ArrayBuffer(totalSize*Int32Array.BYTES_PER_ELEMENT));
         public.setTableSizeX(sizeX);
         public.setTableSizeY(sizeY);
     }
@@ -498,14 +497,18 @@ let ASSTATE = (function()
     public.setSerializable = function asstate_setSerializable(string)
     {
         let array = JSON.parse(string);
-        m_dataStateBuffer = Int32Array.from(array).buffer;
-        m_dataStateView = new Int32Array(m_dataStateBuffer);
+        public.setRawData(Int32Array.from(array).buffer);
     }
     
     public.setRawData = function asstate_setRawData(arrayBuffer)
     {
         m_dataStateBuffer = arrayBuffer;
         m_dataStateView = new Int32Array(m_dataStateBuffer);
+    }
+    
+    public.getRawData = function asstate_getRawData()
+    {
+        return m_dataStateBuffer;
     }
     
     return public;

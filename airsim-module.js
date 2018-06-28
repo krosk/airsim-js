@@ -96,7 +96,7 @@ let ASSTATE = (function()
         {
             for (let i = 0; i < G.END; i++)
             {
-                //m_dataStateArray[i] = 0;
+                m_dataStateArray[i] = 0;
             }
         }
         else
@@ -104,7 +104,7 @@ let ASSTATE = (function()
             let targetBase = (index - 1)*C.END + G.END;
             for (let i = 0; i < C.END; i++)
             {
-                m_dataStateArray[targetBase] = 0;
+                m_dataStateArray[targetBase + i] = 0;
             }
         }
     }
@@ -394,7 +394,6 @@ let ASSTATE = (function()
     
     public.initialize = function asstate_initialize(tableSizeX, tableSizeY)
     {
-        public.clear(0);
         public.setTableSize(tableSizeX, tableSizeY);
         public.setPlay(-1);
         public.setTick(0);

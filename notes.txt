@@ -1254,22 +1254,39 @@ and worker.
 The architecture can be:
 - asmap calls asengine, provides a callback
 - asengine process the call, sends messages
-    to worker, process the answer
+    to worker, process the worker's answer
     This requires data to be resident in
-    asengine
-- data must be reassigned into asstate
+    engine, or in worker
+- Webassembly could work within the worker
+    that would require data to be inside
+    worker anyway.
 - data should live most of the time in the 
     webworker, for it to be able to handle
     incoming messages.
     Periodically, UI requests a copy of the
     table, makes a copy of it, and send it
     back.
-- message structure can be
-    postMessage({method, args})
+    Or maybe the way to go is just put data
+    in the modules, and when needed return
+    some values. Hence no back and forth?
+    Webassembly possibly does not work like
+    that and must have memory provided.
 - Worker has no access to any global module,
     and has no way to include any other, so
     it must live in the module file.
-  UI | Engine | Worker + data | Module
+- to enable/disable worker, one
+    could use a standard message to communicate
+    with modules. Either engine directly calls
+    them, or send a message to the worker which
+    will handle it.
+- another issue is the readonly of some
+    properties such as table size, where
+    there is not much chance that it changes
+    accross the run (except at load), and
+    hence that global may be read only.
+    If however it must be read from asstate,
+    then it must be done early in a call.
+  UI | Engine | Worker | Module + data
 
 
 - One caveat is debugging. I would be near

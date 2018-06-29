@@ -27,9 +27,12 @@ let ASENGINE = (function ()
     };
     
     const C_MODULE_INT = {
+        'ASENGINE' : this,
         'ASMAP' : ASMAP,
         'ASMAPUI' : ASMAPUI,
         'ASSTATE' : ASSTATE,
+        'ASROAD' : ASROAD,
+        'ASZONE' : ASZONE
     };
 
     public.initializeModuleD = function asengine_initializeModuleD(nameId, ...args)
@@ -78,38 +81,52 @@ let ASENGINE = (function ()
     {
         if (selectedId == public.V_ZONE.ROAD)
         {
-            ASROAD.addRoad(x, y);
+            const postData = ['ASROAD', 'addRoad', x, y];
+            dispatch(postData);
         }
         else
         {
-            ASROAD.removeRoad(x, y);
+            const postData = ['ASROAD', 'removeRoad', x, y];
+            dispatch(postData);
         }
-        ASZONE.setZone(x, y, selectedId);
+        const postData = ['ASZONE', 'setZone', x, y, selectedId];
+        dispatch(postData);
     }
     
     public.initializeTraversal = function asengine_initializeTraversal(x, y)
     {
-        ASROAD.initializeTraversal(x, y);
+        const postData = ['ASROAD', 'initializeTraversal', x, y];
+        dispatch(postData);
     }
     
     public.getNextStepTraversal = function asengine_getNextStepTraversal()
     {
-        console.log(ASROAD.getNextStepTraversal());
+        const postData = ['ASROAD', 'getNextStepTraversal'];
+        dispatch(postData);
     }
     
     public.getTraversalPath = function asengine_getTraversalPath()
     {
-        console.log(ASROAD.getTraversalPath());
+        const callbackData = ['ASENGINE', 'printValue'];
+        const postData = ['ASROAD', 'getTraversalPath'];
+        dispatch(postData, callbackData);
     }
     
     public.resetTraversalPath = function asengine_resetTraversalPath()
     {
-        ASROAD.resetTraversalPath();
+        const postData = ['ASROAD', 'resetTraversalPath'];
+        dispatch(postData);
     }
     
     public.printTraversal = function asengine_printTraversal()
     {
-        ASROAD.printTraversal();
+        const postData = ['ASROAD', 'printTraversal'];
+        dispatch(postData);
+    }
+    
+    public.printValue = function asengine_printValue(value)
+    {
+        console.log(value);
     }
     
     // tiles bank
@@ -128,6 +145,8 @@ let ASENGINE = (function ()
         let engineModuleName = postData[0];
         let engineMethodName = postData[1];
         let engineArg0 = postData[2];
+        let engineArg1 = postData[3];
+        let engineArg2 = postData[4];
         
         if (G_WORKER)
         {
@@ -135,19 +154,20 @@ let ASENGINE = (function ()
         }
         else
         {
-            let value = C_MODULE_INT[engineModuleName][engineMethodName](engineArg0);
+            let value = C_MODULE_INT[engineModuleName][engineMethodName](engineArg0, engineArg1, engineArg2);
             if (typeof callbackData !== 'undefined')
             {
                 let uiModuleName = callbackData[0];
                 let uiMethodName = callbackData[1];
                 let uiArg0 = callbackData[2];
+                let uiMethod = C_MODULE_INT[uiModuleName][uiMethodName];
                 if (typeof uiArg0 === 'undefined')
                 {
-                    C_MODULE_INT[uiModuleName][uiMethodName](value);
+                    uiMethod(value);
                 }
                 else
                 {
-                    C_MODULE_INT[uiModuleName][uiMethodName](uiArg0, value);
+                    uiMethod(uiArg0, value);
                 }
             }
         }

@@ -1,3 +1,5 @@
+const G_WORKER = false;
+
 let ASENGINE = (function ()
 {
     let public = {};
@@ -23,6 +25,10 @@ let ASENGINE = (function ()
         [C.ROAD] : ASROAD,
         [C.RICO] : ASRICO
     };
+    
+    const C_MODULE_INT = {
+        'ASSTATE' : ASSTATE,
+    };
 
     public.initializeModuleD = function asengine_initializeModuleD(nameId, ...args)
     {
@@ -40,17 +46,17 @@ let ASENGINE = (function ()
     // directly readable globals
     public.getMapTableSizeX = function asengine_getMapTableSizeX()
     {
-        return ASSTATE.getTableSizeX();
+        return dispatch(['ASSTATE', 'getTableSizeX']);
     }
     
     public.getMapTableSizeY = function asengnine_getMapTableSizeY()
     {
-        return ASSTATE.getTableSizeY();
+        return dispatch(['ASSTATE', 'getTableSizeY']);
     }
     
     public.getXYFromIndex = function asengine_getXYFromIndex(index)
     {
-        return ASSTATE.getXYFromIndex(index);
+        return dispatch(['ASSTATE', 'getXYFromIndex', index]);
     }
     
     // async functions with callbacks
@@ -74,8 +80,7 @@ let ASENGINE = (function ()
     // direct order
     public.setTickSpeed = function asengine_setTickSpeed(value)
     {
-        m_worker.postMessage(['setTickSpeed', value]);
-        ASSTATE.setTickSpeed(value);
+        dispatch(['ASSTATE', 'setTickSpeed', value]);
     }
     
     public.setZone = function asengine_setZone(x, y, selectedId)
@@ -125,6 +130,22 @@ let ASENGINE = (function ()
     public.V_ROAD = function asengine_v_road()
     {
         return ASROAD.C_TILEENUM;
+    }
+    
+    let dispatch = function asengine_dispatch(data)
+    {
+        let moduleName = data[0];
+        let methodName = data[1];
+        let arg0 = data[2];
+        
+        if (G_WORKER)
+        {
+            m_worker.postMessage(data);
+        }
+        else
+        {
+            return C_MODULE_INT[moduleName][methodName](arg0);
+        }
     }
 
     return public;

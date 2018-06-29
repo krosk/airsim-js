@@ -28,6 +28,7 @@ let ASENGINE = (function ()
     
     const C_MODULE_INT = {
         'ASMAP' : ASMAP,
+        'ASMAPUI' : ASMAPUI,
         'ASSTATE' : ASSTATE,
     };
 
@@ -49,25 +50,28 @@ let ASENGINE = (function ()
     // async functions with callbacks
     public.retrieveChange = function asengine_retrieveChange(callbackData)
     {
-        dispatch([['ASSTATE', 'retrieveChange'], callbackData]);
+        let postData = ['ASSTATE', 'retrieveChange'];
+        dispatch(postData, callbackData);
     }
     
-    public.getSerializable = function asengine_getSerializable(callback)
+    public.getSerializable = function asengine_getSerializable(callbackData)
     {
-        callback(ASSTATE.getSerializable())
+        let postData = ['ASSTATE', 'getSerializable'];
+        dispatch(postData, callbackData);
     }
     
-    public.setSerializable = function asengine_setSerializable(value, callback)
+    public.setSerializable = function asengine_setSerializable(value, callbackData)
     {
-        ASSTATE.setSerializable(value);
-        callback();
+        let postData = ['ASSTATE', 'setSerializable', value];
+        dispatch(postData, callbackData);
     }
     
     // async functions without callback
     // direct order
     public.setTickSpeed = function asengine_setTickSpeed(value)
     {
-        dispatch([['ASSTATE', 'setTickSpeed', value]]);
+        let postData = ['ASSTATE', 'setTickSpeed', value];
+        dispatch(postData);
     }
     
     public.setZone = function asengine_setZone(x, y, selectedId)
@@ -119,12 +123,11 @@ let ASENGINE = (function ()
         return ASROAD.C_TILEENUM;
     }
     
-    let dispatch = function asengine_dispatch(data)
+    let dispatch = function asengine_dispatch(postData, callbackData)
     {
-        let toEngine = data[0];
-        let engineModuleName = toEngine[0];
-        let engineMethodName = toEngine[1];
-        let engineArg0 = toEngine[2];
+        let engineModuleName = postData[0];
+        let engineMethodName = postData[1];
+        let engineArg0 = postData[2];
         
         if (G_WORKER)
         {
@@ -133,13 +136,19 @@ let ASENGINE = (function ()
         else
         {
             let value = C_MODULE_INT[engineModuleName][engineMethodName](engineArg0);
-            if (data.length == 2)
+            if (typeof callbackData !== 'undefined')
             {
-                let toUI = data[1];
-                let uiModuleName = toUI[0];
-                let uiMethodName = toUI[1];
-                let uiArg0 = toUI[2];
-                C_MODULE_INT[uiModuleName][uiMethodName](uiArg0, value);
+                let uiModuleName = callbackData[0];
+                let uiMethodName = callbackData[1];
+                let uiArg0 = callbackData[2];
+                if (typeof uiArg0 === 'undefined')
+                {
+                    C_MODULE_INT[uiModuleName][uiMethodName](value);
+                }
+                else
+                {
+                    C_MODULE_INT[uiModuleName][uiMethodName](uiArg0, value);
+                }
             }
         }
     }

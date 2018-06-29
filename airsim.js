@@ -749,26 +749,24 @@ let ASMAPUI = (function ()
         let C_DEF = ASICON.C_TILEENUM;
         if (m_currentSaveId == C_DEF.SAVE)
         {
-            ASENGINE.getSerializable(saveDataResponse);
-            //localStorage.setItem('ASSTATE', stateData);
-            //console.log("Saved");
+            let callbackData = ['ASMAPUI','saveDataResponse'];
+            ASENGINE.getSerializable(callbackData);
         }
         else if (m_currentSaveId == C_DEF.LOAD)
         {
             let stateData = localStorage.getItem('ASSTATE');
-            ASENGINE.setSerializable(stateData, loadDataResponse);
-            //console.log("Loaded");
-            //MMAPDATA.refreshAllTiles();
+            let callbackData = ['ASMAPUI', 'loadDataResponse'];
+            ASENGINE.setSerializable(stateData, callbackData);
         }
     }
     
-    let saveDataResponse = function asmapui_saveDataResponse(saveData)
+    public.saveDataResponse = function asmapui_saveDataResponse(saveData)
     {
         localStorage.setItem('ASSTATE', saveData);
         console.log("Saved");
     }
     
-    let loadDataResponse = function asmapui_loadDataResponse()
+    public.loadDataResponse = function asmapui_loadDataResponse()
     {
         console.log("Loaded");
         MMAPDATA.refreshAllTiles();

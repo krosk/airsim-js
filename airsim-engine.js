@@ -44,20 +44,6 @@ let ASENGINE = (function ()
     }
     
     // directly readable globals
-    public.getMapTableSizeX = function asengine_getMapTableSizeX()
-    {
-        return dispatch(['ASSTATE', 'getTableSizeX']);
-    }
-    
-    public.getMapTableSizeY = function asengnine_getMapTableSizeY()
-    {
-        return dispatch(['ASSTATE', 'getTableSizeY']);
-    }
-    
-    public.getXYFromIndex = function asengine_getXYFromIndex(index)
-    {
-        return dispatch(['ASSTATE', 'getXYFromIndex', index]);
-    }
     
     // async functions with callbacks
     public.retrieveChange = function asengine_retrieveChange(callback, timeLimit)

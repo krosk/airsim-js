@@ -27,6 +27,7 @@ let ASENGINE = (function ()
     };
     
     const C_MODULE_INT = {
+        'ASMAP' : ASMAP,
         'ASSTATE' : ASSTATE,
     };
 
@@ -46,9 +47,9 @@ let ASENGINE = (function ()
     // directly readable globals
     
     // async functions with callbacks
-    public.retrieveChange = function asengine_retrieveChange(callback, timeLimit)
+    public.retrieveChange = function asengine_retrieveChange(callbackData)
     {
-        callback(timeLimit, ASSTATE.retrieveChange());
+        dispatch([['ASSTATE', 'retrieveChange'], callbackData]);
     }
     
     public.getSerializable = function asengine_getSerializable(callback)
@@ -66,7 +67,7 @@ let ASENGINE = (function ()
     // direct order
     public.setTickSpeed = function asengine_setTickSpeed(value)
     {
-        dispatch(['ASSTATE', 'setTickSpeed', value]);
+        dispatch([['ASSTATE', 'setTickSpeed', value]]);
     }
     
     public.setZone = function asengine_setZone(x, y, selectedId)
@@ -120,9 +121,10 @@ let ASENGINE = (function ()
     
     let dispatch = function asengine_dispatch(data)
     {
-        let moduleName = data[0];
-        let methodName = data[1];
-        let arg0 = data[2];
+        let toEngine = data[0];
+        let engineModuleName = toEngine[0];
+        let engineMethodName = toEngine[1];
+        let engineArg0 = toEngine[2];
         
         if (G_WORKER)
         {
@@ -130,7 +132,15 @@ let ASENGINE = (function ()
         }
         else
         {
-            return C_MODULE_INT[moduleName][methodName](arg0);
+            let value = C_MODULE_INT[engineModuleName][engineMethodName](engineArg0);
+            if (data.length == 2)
+            {
+                let toUI = data[1];
+                let uiModuleName = toUI[0];
+                let uiMethodName = toUI[1];
+                let uiArg0 = toUI[2];
+                C_MODULE_INT[uiModuleName][uiMethodName](uiArg0, value);
+            }
         }
     }
 

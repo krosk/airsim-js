@@ -298,11 +298,11 @@ let ASMAP = (function ()
     {
         if (Date.now() < computeTimeLimit)
         {
-            ASENGINE.retrieveChange(commitDisplayChangeResponse, computeTimeLimit);
+            ASENGINE.retrieveChange(['ASMAP', 'commitDisplayChangeResponse', computeTimeLimit]);
         }
     }
     
-    let commitDisplayChangeResponse = function asmap_commitDisplayChangeResponse(computeTimeLimit, newChangeIndex)
+    public.commitDisplayChangeResponse = function asmap_commitDisplayChangeResponse(computeTimeLimit, newChangeIndex)
     {
         if (newChangeIndex >= 0)
         {

@@ -1,3 +1,5 @@
+const G_CHECK = true;
+
 let ASDISPATCH = (function()
 {
     let public = {};

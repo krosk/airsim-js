@@ -256,11 +256,12 @@ let ASMAP = (function ()
     public.initialize = function asmap_initialize(w, h)
     {
         ASENGINE.initializeModule(w, h);
+        MMAPDATA.initializeMapTableSize(w, h);
+        MMAPDATA.initialize(ASZONE);
         MMAPRENDER.initializeTexture(ASZONE);
         MMAPRENDER.initializeTexture(ASROAD);
         MMAPRENDER.initializeTexture(ASICON);
         MMAPRENDER.initializeTexture(ASRICO);
-        MMAPDATA.initialize(ASZONE);
         MMAPRENDER.initialize(doSingleClick, doDoubleClick);
         ASMAPUI.initialize();
     }
@@ -305,7 +306,7 @@ let ASMAP = (function ()
     {
         if (newChangeIndex >= 0)
         {
-            let xy = ASENGINE.getXYFromIndex(newChangeIndex);
+            let xy = MMAPDATA.getXYFromIndex(newChangeIndex);
             let x = xy[0];
             let y = xy[1];
             MMAPDATA.refreshTile(x, y);
@@ -819,6 +820,8 @@ let MMAPDATA = (function ()
     let m_mapChangeLog = [];
     
     let m_dataLibrary; // module such as ASZONE
+    let m_mapTableSizeXCache;
+    let m_mapTableSizeYCache;
 
     public.getDataLibrary = function mmapdata_getDataLibrary()
     {
@@ -833,6 +836,11 @@ let MMAPDATA = (function ()
     public.initialize = function mmapdata_initialize(dataLibrary)
     {
         m_dataLibrary = dataLibrary;
+    }
+    public.initializeMapTableSize = function mmapdata_initializeMapTableSize(w, h)
+    {
+        m_mapTableSizeXCache = w;
+        m_mapTableSizeYCache = h;
     }
     public.isValidTileId = function mmapdata_isValidTileId(id)
     {
@@ -885,13 +893,14 @@ let MMAPDATA = (function ()
         }
         return id;
     }
-    //let isTileIdTypeWalkable = function mmapdata_isTileIdTypeWalkable(id)
-    //{
-    //    return id <= m_dataLibrary.C_TILEENUM.ROAD;
-    //}
+    public.getXYFromIndex = function mmapdata_getXYFromIndex(index)
+    {
+        //copy from asstate
+        return [((index - 1) / m_mapTableSizeYCache) | 0, (index - 1) % m_mapTableSizeYCache];
+    }
     public.isValidCoordinates = function mmapdata_isValidCoordinates(tileX, tileY)
     {
-        let isOutOfBound = tileX < 0 || tileX >= ASENGINE.getMapTableSizeX() || tileY < 0 || tileY >= ASENGINE.getMapTableSizeY();
+        let isOutOfBound = tileX < 0 || tileX >= m_mapTableSizeXCache || tileY < 0 || tileY >= m_mapTableSizeYCache;
         return !isOutOfBound;
     }
 

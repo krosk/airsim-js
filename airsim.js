@@ -2,8 +2,6 @@ let Benchmark = require('benchmark');
 
 'use strict';
 
-const G_CHECK = true;
-
 (function ()
 {
     let exLog = console.log;
@@ -265,16 +263,6 @@ let ASMAP = (function ()
         MMAPDATA.initialize(ASZONE);
         MMAPRENDER.initialize(doSingleClick, doDoubleClick);
         ASMAPUI.initialize();
-    }
-
-    public.getWidth = function asmap_getWidth()
-    {
-        return ASENGINE.getMapTableSizeX();
-    }
-
-    public.getHeight = function asmap_getHeight()
-    {
-        return ASENGINE.getMapTableSizeY();
     }
 
     let m_computeTimeBudget = 1;
@@ -858,16 +846,6 @@ let MMAPDATA = (function ()
         let randomIndex = Math.floor(Math.random() * tileEnumCount);
         let randomId = tileEnumValues[randomIndex];
         return randomId;
-    }
-    public.randomizeTile = function (count)
-    {
-        for (let i = 0; i < count; i++)
-        {
-            let x = Math.floor(ASENGINE.getMapTableSizeX() * Math.random());
-            let y = Math.floor(ASENGINE.getMapTableSizeY() * Math.random());
-            let id = public.getRandomTileId();
-            public.setTileId(x, y, id);
-        }
     }
     public.commitChangeLog = function mmapdata_commitChangeLog()
     {

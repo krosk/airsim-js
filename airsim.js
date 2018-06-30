@@ -820,6 +820,7 @@ let MMAPDATA = (function ()
     let m_dataLibrary; // module such as ASZONE
     let m_mapTableSizeXCache;
     let m_mapTableSizeYCache;
+    let m_mapTableTileCache;
 
     public.getDataLibrary = function mmapdata_getDataLibrary()
     {
@@ -833,12 +834,13 @@ let MMAPDATA = (function ()
     }
     public.initialize = function mmapdata_initialize(dataLibrary)
     {
-        m_dataLibrary = dataLibrary;
+        public.switchData(dataLibrary);
     }
     public.initializeMapTableSize = function mmapdata_initializeMapTableSize(w, h)
     {
         m_mapTableSizeXCache = w;
         m_mapTableSizeYCache = h;
+        m_mapTableTileCache = new Array(w*h);
     }
     public.isValidTileId = function mmapdata_isValidTileId(id)
     {
@@ -876,15 +878,23 @@ let MMAPDATA = (function ()
     public.refreshAllTiles = function mmapdata_refreshAllTiles()
     {
         m_mapChangeLog = [-1];
+        for (let x = 0; x < m_mapTableSizeXCache; x++)
+        {
+            for (let y = 0; y < m_mapTableSizeYCache; y++)
+            {
+                m_mapTableTileCache[x + y*m_mapTableSizeXCache] = m_dataLibrary.getDataId(x, y);
+            }
+        }
     }
     public.refreshTile = function mmapdata_refreshTile(x, y)
     {
         m_mapChangeLog.push(x);
         m_mapChangeLog.push(y);
+        m_mapTableTileCache[x + y*m_mapTableSizeXCache] = m_dataLibrary.getDataId(x, y);
     }
     public.getTileId = function mmapdata_getTileId(tileX, tileY)
     {
-        let id = m_dataLibrary.getDataId(tileX, tileY); //getMapTableData()[index];
+        let id = m_mapTableTileCache[tileX + tileY*m_mapTableSizeXCache];
         if (typeof id === 'undefined')
         {
             throw 'mmapData get uninitialized ' + id + ' ' + m_dataLibrary.C_NAME;

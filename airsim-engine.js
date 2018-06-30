@@ -32,20 +32,19 @@ let ASENGINE = (function ()
         'ASMAPUI' : ASMAPUI,
         'ASSTATE' : ASSTATE,
         'ASROAD' : ASROAD,
-        'ASZONE' : ASZONE
+        'ASZONE' : ASZONE,
+        'ASRICO' : ASRICO
     };
-
-    public.initializeModuleD = function asengine_initializeModuleD(nameId, ...args)
-    {
-        C_MODULE[nameId].initialize(...args);
-    }
     
     // engine exported functions
     public.initializeModule = function asengine_initializeModule(... args)
     {
-        ASSTATE.initialize(... args);
-        ASZONE.initialize(... args);
-        ASRICO.initialize(... args);
+        let postData = ['ASSTATE', 'initialize', ...args];
+        dispatch(postData);
+        postData = ['ASZONE', 'initialize', ...args];
+        dispatch(postData);
+        postData = ['ASRICO', 'initialize', ...args];
+        dispatch(postData);
     }
     
     // directly readable globals

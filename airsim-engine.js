@@ -11,21 +11,6 @@ let ASENGINE = (function ()
         console.log('engine ' + e.data);
     }
     
-    public.C_MODULE_ID = {
-        DATA : 0,
-        ZONE : 1,
-        RICO : 2,
-        ROAD : 3
-    };
-    const C = public.C_MODULE_ID;
-    
-    const C_MODULE = {
-        [C.DATA] : ASSTATE,
-        [C.ZONE] : ASZONE,
-        [C.ROAD] : ASROAD,
-        [C.RICO] : ASRICO
-    };
-    
     const C_MODULE_INT = {
         'ASENGINE' : this,
         'ASMAP' : ASMAP,

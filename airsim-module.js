@@ -453,6 +453,13 @@ let ASSTATE = (function()
         return !isOutOfBound;
     }
     
+    let replaceChangeFirst = function asstate_replaceChangeFirst(newIndex)
+    {
+        public.setChangeFirst(newIndex);
+        public.setChangeLast(newIndex);
+        public.setChangeFlag(newIndex, newIndex);
+    }
+    
     public.notifyChange = function asstate_notifyChange(newIndex)
     {
         let firstIndex = public.getChangeFirst();
@@ -465,9 +472,7 @@ let ASSTATE = (function()
         }
         else
         {
-            public.setChangeFirst(newIndex);
-            public.setChangeLast(newIndex);
-            public.setChangeFlag(newIndex, newIndex);
+            replaceChangeFirst(newIndex);
         }
     }
     

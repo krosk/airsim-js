@@ -1347,7 +1347,16 @@ Graphical refresh of all tiles is cumulated in
 the batchflag, and is processed accross multiple
 frames.
 How can be the table tile transferred to ui?
-Computing a full table feels fine I guess.
+Old implementarion had mmapdata read its
+target module upon request of refreshTile
+and refreshAllTiles. To remove this reading
+it would be the engine providing the tileid
+values. The possible issue comes from switching
+views, where it must request a refresh.
+The good thing is the changelog can act as a
+buffer and be processed asynchronously.
+Possibly, engine is best updating incrementally
+so it can be interrupted at all times.
 
 
 It is possible that transferring a small

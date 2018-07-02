@@ -41,6 +41,12 @@ let ASENGINE = (function ()
         dispatch(postData, callbackData);
     }
     
+    public.update = function asengine_update(callbackData)
+    {
+        let postData = ['ASZONE', 'update', callbackData[2], callbackData[3]];
+        dispatch(postData, callbackData);
+    }
+    
     public.getSerializable = function asengine_getSerializable(callbackData)
     {
         let postData = ['ASSTATE', 'getSerializable'];
@@ -144,14 +150,19 @@ let ASENGINE = (function ()
                 let uiModuleName = callbackData[0];
                 let uiMethodName = callbackData[1];
                 let uiArg0 = callbackData[2];
+                let uiArg1 = callbackData[3];
                 let uiMethod = C_MODULE_INT[uiModuleName][uiMethodName];
                 if (typeof uiArg0 === 'undefined')
                 {
                     uiMethod(value);
                 }
-                else
+                else if (typeof uiArg1 == 'undefined')
                 {
                     uiMethod(uiArg0, value);
+                }
+                else
+                {
+                    uiMethod(uiArg0, uiArg1, value);
                 }
             }
         }

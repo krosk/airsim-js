@@ -706,7 +706,7 @@ let ASZONE = (function ()
     let m_countTickTime = 0;
     let m_countTickPerSecond = 0;
     
-    public.update = function aszone_update(time, timeLimit)
+    public.update = function aszone_update(timeLimit, time)
     {
         if (time - m_countTickTime > 1000)
         {

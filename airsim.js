@@ -291,7 +291,8 @@ let ASMAP = (function ()
         let computeTimeLimit = time + m_computeTimeBudget;
         // engines updates
         public.commitDisplayChange(computeTimeLimit);
-        ASZONE.update(time, computeTimeLimit);
+        //ASZONE.update(time, computeTimeLimit);
+        public.updateEngine(computeTimeLimit, time);
     }
     
     public.commitDisplayChange = function asmap_commitDisplayChange(computeTimeLimit)
@@ -302,6 +303,21 @@ let ASMAP = (function ()
         }
     }
     
+    public.updateEngine = function asmap_updateEngine(computeTimeLimit, time)
+    {
+        // this is uni directional call
+        // in practice
+        if (Date.now() < computeTimeLimit)
+        {
+            ASENGINE.update(['ASMAP', 'updateEngineResponse', computeTimeLimit, time]);
+        }
+    }
+    
+    public.updateEngineResponse = function asmap_updateEngineResponse(computeTimeLimit, time)
+    {
+        //console.log(computeTimeLimit + ' ' + time);
+    }
+    
     public.commitDisplayChangeResponse = function asmap_commitDisplayChangeResponse(computeTimeLimit, newChangeIndex)
     {
         if (newChangeIndex >= 0)
@@ -310,6 +326,7 @@ let ASMAP = (function ()
             let x = xy[0];
             let y = xy[1];
             MMAPDATA.refreshTile(x, y);
+            // loop until no more buffer
             public.commitDisplayChange(computeTimeLimit);
             return true;
         }

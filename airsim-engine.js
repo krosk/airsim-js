@@ -66,6 +66,12 @@ let ASENGINE = (function ()
         dispatch(postData, callbackData);
     }
     
+    public.requestTileId = function asengine_requestTileId(moduleName, x, y, callbackData)
+    {
+        let postData = [moduleName, 'getDataId', x, y];
+        dispatch(postData, callbackData);
+    }
+    
     // async functions without callback
     // direct order
     public.setTickSpeed = function asengine_setTickSpeed(value)

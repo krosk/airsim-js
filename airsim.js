@@ -918,9 +918,14 @@ let MMAPDATA = (function ()
     }
     public.refreshTile = function mmapdata_refreshTile(x, y)
     {
+        let callbackData = ['MMAPDATA', 'refreshTileResponse', x, y];
+        ASENGINE.requestTileId(m_dataLibrary.C_NAME, x, y, callbackData);
+    }
+    public.refreshTileResponse = function mmapdata_refreshTileResponse(x, y, tileId)
+    {
         m_mapChangeLog.push(x);
         m_mapChangeLog.push(y);
-        m_mapTableTileCache[x + y*m_mapTableSizeXCache] = m_dataLibrary.getDataId(x, y);
+        m_mapTableTileCache[x + y*m_mapTableSizeXCache] = tileId;
         m_changeLogCalls++;
     }
     public.getTileId = function mmapdata_getTileId(tileX, tileY)

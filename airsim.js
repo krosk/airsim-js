@@ -821,6 +821,8 @@ let MMAPDATA = (function ()
     let m_mapTableSizeXCache;
     let m_mapTableSizeYCache;
     let m_mapTableTileCache;
+    
+    let m_changeLogCalls = 0;
 
     public.getDataLibrary = function mmapdata_getDataLibrary()
     {
@@ -891,6 +893,7 @@ let MMAPDATA = (function ()
         m_mapChangeLog.push(x);
         m_mapChangeLog.push(y);
         m_mapTableTileCache[x + y*m_mapTableSizeXCache] = m_dataLibrary.getDataId(x, y);
+        m_changeLogCalls++;
     }
     public.getTileId = function mmapdata_getTileId(tileX, tileY)
     {
@@ -910,6 +913,10 @@ let MMAPDATA = (function ()
     {
         let isOutOfBound = tileX < 0 || tileX >= m_mapTableSizeXCache || tileY < 0 || tileY >= m_mapTableSizeYCache;
         return !isOutOfBound;
+    }
+    public.getChangeLogCalls = function mmapdata_getChangeLogCalls()
+    {
+        return m_changeLogCalls;
     }
 
     return public;
@@ -2002,13 +2009,14 @@ let MMAPRENDER = (function ()
         let tickSpeed = 'K(' + ASSTATE.getTickRealSpeed() + ') ';
         let firstChange = 'h(' + ASSTATE.getChangeFirst() + ') ';
         let lastChange = 'H(' + ASSTATE.getChangeLast() + ') ';
+        let changeLog = 'l(' + MMAPDATA.getChangeLogCalls() + ') ';
         //let cache = 'c(' + Object.keys(PIXI.utils.TextureCache).length + ') ';
         //let memUsage = 'o(' + performance.memory.usedJSHeapSize / 1000 + ') ';
         let mapCoords = 'm(' + (m_cameraMapX | 0) + ',' + (m_cameraMapY | 0) + ',' + cameraScale + ') ';
         let tileCoords = 't(' + tileX + ',' + tileY + ') ';
         let batchCoords = 'b(' + MMAPBATCH.getTileXToBatchX(tileX) + ',' + MMAPBATCH.getTileYToBatchY(tileY) + ') ';
         let batchCount = 'B(' + MMAPBATCH.getBatchCount() + '+' + MMAPBATCH.getBatchPoolCount() + '/' + MMAPBATCH.getBatchTotalCount() + ') ';
-        g_counter.innerHTML = interactState + mapCoords + tileCoords + tickElapsed + tickSpeed + frameElapsed + computeTimeBudget + firstChange + lastChange;
+        g_counter.innerHTML = interactState + mapCoords + tileCoords + tickElapsed + tickSpeed + frameElapsed + computeTimeBudget + firstChange + lastChange + changeLog;
     }
 
     public.setCameraScale = function mmaprender_setCameraScale(scaleX, scaleY)

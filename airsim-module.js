@@ -460,15 +460,20 @@ let ASSTATE = (function()
         public.setChangeFlag(newIndex, newIndex);
     }
     
+    let replaceChangeLast = function asstate_replaceChangeLast(newIndex, lastIndex)
+    {
+        public.setChangeFlag(lastIndex, newIndex);
+        public.setChangeFlag(newIndex, newIndex);
+        public.setChangeLast(newIndex);
+    }
+    
     public.notifyChange = function asstate_notifyChange(newIndex)
     {
         let firstIndex = public.getChangeFirst();
         if (firstIndex >= 0)
         {
             let lastIndex = public.getChangeLast();
-            public.setChangeFlag(lastIndex, newIndex);
-            public.setChangeFlag(newIndex, newIndex);
-            public.setChangeLast(newIndex);
+            replaceChangeLast(newIndex, lastIndex);
         }
         else
         {

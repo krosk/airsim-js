@@ -1319,7 +1319,37 @@ required often by render
 However, mmaprender is using ASZONE, ASROAD
 and ASRICO as stubs to access data, via
 getDataId. The getDataId is distinct between
-these modules.
+these modules. Their definition change 
+according to visualization mode and other
+things. The returned tileId is therefore not
+what is saved on asstate. This may be the main
+reason to have a copy of asstate resident in
+the ui while there is one in the worker too.
+In practice, the tile information are within
+modules living in ui space; this is how texture
+are built. That means the data interpretation
+to tile id could be done on the ui thread,
+using data state in ui thread. It is not
+practical to request engine to provide the
+tile id at each request. So the likely easy
+solution is to maintain two asstate, one
+being read only. That solution causes an issue
+though because retrievechange flag is used
+by ui and updated accordingly. Or, changeflag
+is processed by engine only and changes are
+returned upon request.
+Alternatively, MMAPDATA holds a table of cached
+tileIds. That table is reconstructed when
+switching module, while some indices are
+refreshed upon retrieve change (and the tileid
+value is also returned?).
+Graphical refresh of all tiles is cumulated in
+the batchflag, and is processed accross multiple
+frames.
+How can be the table tile transferred to ui?
+Computing a full table feels fine I guess.
+
+
 It is possible that transferring a small
 table 128*128 is about 20 ms?
 See link for benchmark + demo
@@ -1561,6 +1591,5 @@ while (XC has parent)
   XC = XC from parent index of XC in traversal
 end
 return list
-
 
 

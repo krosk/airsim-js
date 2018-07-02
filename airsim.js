@@ -318,7 +318,7 @@ let ASMAP = (function ()
         //console.log(computeTimeLimit + ' ' + time);
     }
     
-    public.commitDisplayChangeResponse = function asmap_commitDisplayChangeResponse(computeTimeLimit, newChangeIndex)
+    public.commitDisplayChangeResponse = function asmap_commitDisplayChangeResponse(computeTimeLimit, newChangeIndex, newChangeTile)
     {
         if (newChangeIndex >= 0)
         {
@@ -896,12 +896,23 @@ let MMAPDATA = (function ()
     }
     public.refreshAllTiles = function mmapdata_refreshAllTiles()
     {
+        let callbackData = ['MMAPDATA', 'refreshAllTilesResponse'];
+        ASENGINE.requestTileIdTable(m_dataLibrary.C_NAME, callbackData);
+    }
+    let setTileCache = function mmapdata_setTileCache(x, y, tileId)
+    {
+        let index = x + y*m_mapTableSizeXCache;
+        m_mapTableTileCache[index] = tileId;
+    }
+    public.refreshAllTilesResponse = function mmapdata_refreshAllTilesResponse(tileIdTable)
+    {
         m_mapChangeLog = [-1];
         for (let x = 0; x < m_mapTableSizeXCache; x++)
         {
             for (let y = 0; y < m_mapTableSizeYCache; y++)
             {
-                m_mapTableTileCache[x + y*m_mapTableSizeXCache] = m_dataLibrary.getDataId(x, y);
+                let index = x + y*m_mapTableSizeXCache;
+                m_mapTableTileCache[index] = tileIdTable[index];
             }
         }
     }

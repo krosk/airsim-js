@@ -1,5 +1,28 @@
 const G_CHECK = true;
 
+let ASCOMMON = (function()
+{
+    let public = {};
+    
+    public.getTileIdTable = function ascommon_getTileIdTable(module)
+    {
+        const tableSizeX = ASSTATE.getTableSizeX();
+        const tableSizeY = ASSTATE.getTableSizeY();
+        let table = [];
+        for (let y = 0; y < tableSizeY; y++)
+        {
+            for (let x = 0; x < tableSizeX; x++)
+            {
+                let index = x + y*tableSizeX;
+                table[index] = module.getDataId(x, y);
+            }
+        }
+        return table;
+    }
+    
+    return public;
+})();
+
 let ASSTATE = (function()
 {
     let public = {};
@@ -539,7 +562,7 @@ let ASZONE = (function ()
 {
     let public = {};
     
-    public.C_NAME = 'aszone';
+    public.C_NAME = 'ASZONE';
     
     public.C_TYPE = {
         NONE: 0,
@@ -651,6 +674,10 @@ let ASZONE = (function ()
         ASSTATE.clear(index);
         ASSTATE.setDataZoneAtIndex(index, zone);
     }
+    public.getTileIdTable = function aszone_getTileIdTable()
+    {
+        return ASCOMMON.getTileIdTable(this);
+    }
     //----------------
     public.setZone = function aszone_setZone(x, y, zone)
     {
@@ -752,7 +779,7 @@ let ASROAD = (function ()
 {
     let public = {};
     
-    public.C_NAME = 'asroad';
+    public.C_NAME = 'ASROAD';
     
     // connected: [] cantor index
     
@@ -906,6 +933,11 @@ let ASROAD = (function ()
         {
             return getDataIdByCongestion(index);
         }
+    }
+    
+    public.getTileIdTable = function asroad_getTileIdTable()
+    {
+        return ASCOMMON.getTileIdTable(this);
     }
     
     let getIndexTo = function asroad_getIndexTo(x, y, d)
@@ -1347,7 +1379,7 @@ let ASRICO = (function ()
 {
     let public = {};
     
-    public.C_NAME = 'asrico';
+    public.C_NAME = 'ASRICO';
     
     public.C_TILEENUM = {
         NONE: 200,

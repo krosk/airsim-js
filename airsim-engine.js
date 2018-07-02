@@ -15,6 +15,7 @@ let ASENGINE = (function ()
         'ASENGINE' : this,
         'ASMAP' : ASMAP,
         'ASMAPUI' : ASMAPUI,
+        'MMAPDATA' : MMAPDATA,
         'ASSTATE' : ASSTATE,
         'ASROAD' : ASROAD,
         'ASZONE' : ASZONE,
@@ -56,6 +57,12 @@ let ASENGINE = (function ()
     public.setSerializable = function asengine_setSerializable(value, callbackData)
     {
         let postData = ['ASSTATE', 'setSerializable', value];
+        dispatch(postData, callbackData);
+    }
+    
+    public.requestTileIdTable = function asengine_requestTileIdTable(moduleName, callbackData)
+    {
+        let postData = [moduleName, 'getTileIdTable'];
         dispatch(postData, callbackData);
     }
     

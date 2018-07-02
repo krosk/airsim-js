@@ -460,8 +460,9 @@ let ASSTATE = (function()
         public.setChangeFlag(newIndex, newIndex);
     }
     
-    let replaceChangeLast = function asstate_replaceChangeLast(newIndex, lastIndex)
+    let replaceChangeLast = function asstate_replaceChangeLast(newIndex)
     {
+        let lastIndex = public.getChangeLast();
         public.setChangeFlag(lastIndex, newIndex);
         public.setChangeFlag(newIndex, newIndex);
         public.setChangeLast(newIndex);
@@ -472,8 +473,15 @@ let ASSTATE = (function()
         let firstIndex = public.getChangeFirst();
         if (firstIndex >= 0)
         {
-            let lastIndex = public.getChangeLast();
-            replaceChangeLast(newIndex, lastIndex);
+            let middleIndex = public.getChangeFlag(newIndex);
+            if (middleIndex >= 0 && middleIndex != newIndex)
+            {
+            
+            }
+            else
+            {
+                replaceChangeLast(newIndex);
+            }
         }
         else
         {

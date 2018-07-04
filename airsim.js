@@ -324,7 +324,7 @@ let ASMAP = (function ()
     
     public.commitDisplayChangeResponse = function asmap_commitDisplayChangeResponse(computeTimeLimit, newChangeIndex, newChangeTile)
     {
-        if (newChangeIndex >= 0)
+        if (newChangeIndex > 0)
         {
             let xy = MMAPDATA.getXYFromIndex(newChangeIndex);
             let x = xy[0];

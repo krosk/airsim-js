@@ -425,15 +425,15 @@ let ASSTATE = (function()
         public.setTick(0);
         public.setFrame(0);
         public.setTickSpeed(0);
-        public.setChangeFirst(-1);
-        public.setChangeLast(-1);
+        public.setChangeFirst(0);
+        public.setChangeLast(0);
         for (let x = 0; x < tableSizeX; x++)
         {
             for (let y = 0; y < tableSizeY; y++)
             {
                 var index = public.getIndex(x, y);
                 public.clear(index);
-                public.setChangeFlag(index, -1);
+                public.setChangeFlag(index, 0);
             }
         }
         public.setRoadTraversalStart(-1);
@@ -516,17 +516,17 @@ let ASSTATE = (function()
     {
         let firstIndex = public.getChangeFirst();
         let lastIndex = public.getChangeLast();
-        if (firstIndex >= 0 && lastIndex >= 0 && firstIndex == lastIndex)
+        if (firstIndex > 0 && lastIndex > 0 && firstIndex == lastIndex)
         {
-            public.setChangeFirst(-1);
-            public.setChangeLast(-1);
-            public.setChangeFlag(firstIndex, -1);
+            public.setChangeFirst(0);
+            public.setChangeLast(0);
+            public.setChangeFlag(firstIndex, 0);
         }
-        else if (firstIndex >= 0)
+        else if (firstIndex > 0)
         {
             let nextIndex = public.getChangeFlag(firstIndex);
             public.setChangeFirst(nextIndex);
-            public.setChangeFlag(firstIndex, -1);
+            public.setChangeFlag(firstIndex, 0);
         }
         return firstIndex;
     }

@@ -494,12 +494,12 @@ let ASSTATE = (function()
     public.notifyChange = function asstate_notifyChange(newIndex)
     {
         let firstIndex = public.getChangeFirst();
-        if (firstIndex >= 0)
+        if (firstIndex > 0)
         {
             let middleIndex = public.getChangeFlag(newIndex);
-            if (middleIndex >= 0 && middleIndex != newIndex)
+            if (middleIndex > 0 && middleIndex != newIndex)
             {
-            
+                
             }
             else
             {

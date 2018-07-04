@@ -14,22 +14,22 @@ let ASENGINE = (function ()
     const C_MODULE_INT = {
         'ASENGINE' : this,
         'ASMAP' : ASMAP,
-        'ASMAPUI' : ASMAPUI,
-        'MMAPDATA' : MMAPDATA,
-        'ASSTATE' : ASSTATE,
-        'ASROAD' : ASROAD,
-        'ASZONE' : ASZONE,
-        'ASRICO' : ASRICO
+        [ASMAPUI.C_NAME] : ASMAPUI,
+        [MMAPDATA.C_NAME] : MMAPDATA,
+        [ASSTATE.C_NAME] : ASSTATE,
+        [ASROAD.C_NAME] : ASROAD,
+        [ASZONE.C_NAME] : ASZONE,
+        [ASRICO.C_NAME] : ASRICO
     };
     
     // engine exported functions
     public.initializeModule = function asengine_initializeModule(... args)
     {
-        let postData = ['ASSTATE', 'initialize', ...args];
+        let postData = [ASSTATE.C_NAME, 'initialize', ...args];
         dispatch(postData);
-        postData = ['ASZONE', 'initialize', ...args];
+        postData = [ASZONE.C_NAME, 'initialize', ...args];
         dispatch(postData);
-        postData = ['ASRICO', 'initialize', ...args];
+        postData = [ASRICO.C_NAME, 'initialize', ...args];
         dispatch(postData);
     }
     
@@ -38,25 +38,25 @@ let ASENGINE = (function ()
     // async functions with callbacks
     public.retrieveChange = function asengine_retrieveChange(callbackData)
     {
-        let postData = ['ASSTATE', 'retrieveChange'];
+        let postData = [ASSTATE.C_NAME, 'retrieveChange'];
         dispatch(postData, callbackData);
     }
     
     public.update = function asengine_update(callbackData)
     {
-        let postData = ['ASZONE', 'update', callbackData[2], callbackData[3]];
+        let postData = [ASZONE.C_NAME, 'update', callbackData[2], callbackData[3]];
         dispatch(postData, callbackData);
     }
     
     public.getSerializable = function asengine_getSerializable(callbackData)
     {
-        let postData = ['ASSTATE', 'getSerializable'];
+        let postData = [ASSTATE.C_NAME, 'getSerializable'];
         dispatch(postData, callbackData);
     }
     
     public.setSerializable = function asengine_setSerializable(value, callbackData)
     {
-        let postData = ['ASSTATE', 'setSerializable', value];
+        let postData = [ASSTATE.C_NAME, 'setSerializable', value];
         dispatch(postData, callbackData);
     }
     
@@ -76,7 +76,7 @@ let ASENGINE = (function ()
     // direct order
     public.setTickSpeed = function asengine_setTickSpeed(value)
     {
-        let postData = ['ASSTATE', 'setTickSpeed', value];
+        let postData = [ASSTATE.C_NAME, 'setTickSpeed', value];
         dispatch(postData);
     }
     
@@ -84,46 +84,46 @@ let ASENGINE = (function ()
     {
         if (selectedId == public.V_ZONE.ROAD)
         {
-            const postData = ['ASROAD', 'addRoad', x, y];
+            const postData = [ASROAD.C_NAME, 'addRoad', x, y];
             dispatch(postData);
         }
         else
         {
-            const postData = ['ASROAD', 'removeRoad', x, y];
+            const postData = [ASROAD.C_NAME, 'removeRoad', x, y];
             dispatch(postData);
         }
-        const postData = ['ASZONE', 'setZone', x, y, selectedId];
+        const postData = [ASZONE.C_NAME, 'setZone', x, y, selectedId];
         dispatch(postData);
     }
     
     public.initializeTraversal = function asengine_initializeTraversal(x, y)
     {
-        const postData = ['ASROAD', 'initializeTraversal', x, y];
+        const postData = [ASROAD.C_NAME, 'initializeTraversal', x, y];
         dispatch(postData);
     }
     
     public.getNextStepTraversal = function asengine_getNextStepTraversal()
     {
-        const postData = ['ASROAD', 'getNextStepTraversal'];
+        const postData = [ASROAD.C_NAME, 'getNextStepTraversal'];
         dispatch(postData);
     }
     
     public.getTraversalPath = function asengine_getTraversalPath()
     {
         const callbackData = ['ASENGINE', 'printValue'];
-        const postData = ['ASROAD', 'getTraversalPath'];
+        const postData = [ASROAD.C_NAME, 'getTraversalPath'];
         dispatch(postData, callbackData);
     }
     
     public.resetTraversalPath = function asengine_resetTraversalPath()
     {
-        const postData = ['ASROAD', 'resetTraversalPath'];
+        const postData = [ASROAD.C_NAME, 'resetTraversalPath'];
         dispatch(postData);
     }
     
     public.printTraversal = function asengine_printTraversal()
     {
-        const postData = ['ASROAD', 'printTraversal'];
+        const postData = [ASROAD.C_NAME, 'printTraversal'];
         dispatch(postData);
     }
     

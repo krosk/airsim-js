@@ -401,6 +401,8 @@ let ASMAPUI = (function ()
 {
     let public = {};
     
+    public.C_NAME = 'ASMAPUI';
+    
     let C_ICON_HEIGHT = 48;
     let C_ICON_WIDTH = 64;
     
@@ -766,13 +768,13 @@ let ASMAPUI = (function ()
         let C_DEF = ASICON.C_TILEENUM;
         if (m_currentSaveId == C_DEF.SAVE)
         {
-            let callbackData = ['ASMAPUI','saveDataResponse'];
+            let callbackData = [ASMAPUI.C_NAME,'saveDataResponse'];
             ASENGINE.getSerializable(callbackData);
         }
         else if (m_currentSaveId == C_DEF.LOAD)
         {
             let stateData = localStorage.getItem('ASSTATE');
-            let callbackData = ['ASMAPUI', 'loadDataResponse'];
+            let callbackData = [ASMAPUI.C_NAME, 'loadDataResponse'];
             ASENGINE.setSerializable(stateData, callbackData);
         }
     }
@@ -831,6 +833,8 @@ let ASMAPUI = (function ()
 let MMAPDATA = (function ()
 {
     let public = {};
+    
+    public.C_NAME = 'MMAPDATA';
 
     let m_mapChangeLog = [];
     
@@ -896,7 +900,7 @@ let MMAPDATA = (function ()
     }
     public.refreshAllTiles = function mmapdata_refreshAllTiles()
     {
-        let callbackData = ['MMAPDATA', 'refreshAllTilesResponse'];
+        let callbackData = [MMAPDATA.C_NAME, 'refreshAllTilesResponse'];
         ASENGINE.requestTileIdTable(m_dataLibrary.C_NAME, callbackData);
     }
     let setTileCache = function mmapdata_setTileCache(x, y, tileId)
@@ -918,7 +922,7 @@ let MMAPDATA = (function ()
     }
     public.refreshTile = function mmapdata_refreshTile(x, y)
     {
-        let callbackData = ['MMAPDATA', 'refreshTileResponse', x, y];
+        let callbackData = [MMAPDATA.C_NAME, 'refreshTileResponse', x, y];
         ASENGINE.requestTileId(m_dataLibrary.C_NAME, x, y, callbackData);
     }
     public.refreshTileResponse = function mmapdata_refreshTileResponse(x, y, tileId)

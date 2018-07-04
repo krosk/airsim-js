@@ -941,7 +941,8 @@ let MMAPDATA = (function ()
         let id = m_mapTableTileCache[tileX + tileY*m_mapTableSizeXCache];
         if (typeof id === 'undefined')
         {
-            throw 'mmapData get uninitialized ' + id + ' ' + m_dataLibrary.C_NAME;
+            return 0;
+            //throw 'mmapData get uninitialized ' + id + ' ' + m_dataLibrary.C_NAME + ' ' + m_mapTableSizeXCache + ' ' + m_mapTableSizeYCache;
         }
         return id;
     }
@@ -2042,14 +2043,15 @@ let MMAPRENDER = (function ()
         let tileX = getCenterTileX();
         let tileY = getCenterTileY();
         let cameraScale = (m_cameraScaleX * 100) | 0;
+        let b = ASENGINE.hasAccess();
         
         let interactState = 'i(' + (MMAPTOUCH.isStatePan() ? 'P' : '-') + (MMAPTOUCH.isStateZoom() ? 'Z' : '-') + (MMAPTOUCH.getTouchCount()) + (MMAPTOUCH.getClickCount()) + ') ';
-        let tickElapsed = 'k(' + ASSTATE.getTick() + ') ';
-        let frameElapsed = 'f(' + ASSTATE.getFrame()+ ') ';
+        let tickElapsed = 'k(' + (b ? ASSTATE.getTick() : 0) + ') ';
+        let frameElapsed = 'f(' + (b ? ASSTATE.getFrame() : 0) + ') ';
         let computeTimeBudget = 'T(' + ASMAP.getComputeTimeBudget() + ') ';
-        let tickSpeed = 'K(' + ASSTATE.getTickRealSpeed() + ') ';
-        let firstChange = 'h(' + ASSTATE.getChangeFirst() + ') ';
-        let lastChange = 'H(' + ASSTATE.getChangeLast() + ') ';
+        let tickSpeed = 'K(' + (b ? ASSTATE.getTickRealSpeed() : 0) + ') ';
+        let firstChange = 'h(' + (b ? ASSTATE.getChangeFirst() : 0) + ') ';
+        let lastChange = 'H(' + (b ? ASSTATE.getChangeLast() : 0) + ') ';
         let changeLog = 'l(' + MMAPDATA.getChangeLogCalls() + ') ';
         //let cache = 'c(' + Object.keys(PIXI.utils.TextureCache).length + ') ';
         //let memUsage = 'o(' + performance.memory.usedJSHeapSize / 1000 + ') ';

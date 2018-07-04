@@ -6,13 +6,6 @@ let ASENGINE = (function ()
     
     public.C_NAME = 'ASENGINE';
     
-    let m_worker = new Worker('airsim-module.js');
-    
-    m_worker.onmessage = function(e)
-    {
-        console.log('engine ' + e.data);
-    }
-    
     const C_MODULE_INT = {
         [public.C_NAME] : this,
         [ASMAP.C_NAME] : ASMAP,
@@ -23,6 +16,11 @@ let ASENGINE = (function ()
         [ASZONE.C_NAME] : ASZONE,
         [ASRICO.C_NAME] : ASRICO
     };
+    
+    public.hasAccess = function asrngine_hasAccess()
+    {
+        return !G_WORKER;
+    }
     
     // engine exported functions
     public.initializeModule = function asengine_initializeModule(... args)
@@ -145,6 +143,30 @@ let ASENGINE = (function ()
         return ASROAD.C_TILEENUM;
     }
     
+    let processCallback = function asengine_processCallback(value, callbackData)
+    {
+        if (typeof callbackData !== 'undefined')
+        {
+            let uiModuleName = callbackData[0];
+            let uiMethodName = callbackData[1];
+            let uiArg0 = callbackData[2];
+            let uiArg1 = callbackData[3];
+            let uiMethod = C_MODULE_INT[uiModuleName][uiMethodName];
+            if (typeof uiArg0 === 'undefined')
+            {
+                uiMethod(value);
+            }
+            else if (typeof uiArg1 == 'undefined')
+            {
+                uiMethod(uiArg0, value);
+            }
+            else
+            {
+                uiMethod(uiArg0, uiArg1, value);
+            }
+        }
+    }
+    
     let dispatch = function asengine_dispatch(postData, callbackData)
     {
         let engineModuleName = postData[0];
@@ -155,32 +177,21 @@ let ASENGINE = (function ()
         
         if (G_WORKER)
         {
-            m_worker.postMessage(data);
+            m_worker.postMessage([postData, callbackData]);
         }
         else
         {
             let value = C_MODULE_INT[engineModuleName][engineMethodName](engineArg0, engineArg1, engineArg2);
-            if (typeof callbackData !== 'undefined')
-            {
-                let uiModuleName = callbackData[0];
-                let uiMethodName = callbackData[1];
-                let uiArg0 = callbackData[2];
-                let uiArg1 = callbackData[3];
-                let uiMethod = C_MODULE_INT[uiModuleName][uiMethodName];
-                if (typeof uiArg0 === 'undefined')
-                {
-                    uiMethod(value);
-                }
-                else if (typeof uiArg1 == 'undefined')
-                {
-                    uiMethod(uiArg0, value);
-                }
-                else
-                {
-                    uiMethod(uiArg0, uiArg1, value);
-                }
-            }
+            processCallback(value, callbackData);
         }
+    }
+    
+    let m_worker = new Worker('airsim-worker.js');
+    m_worker.onmessage = function asengine_onmessage(e)
+    {
+        let value = e.data[0];
+        let callbackData = e.data[1];
+        processCallback(value, callbackData);
     }
 
     return public;

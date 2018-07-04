@@ -1356,7 +1356,12 @@ views, where it must request a refresh.
 The good thing is the changelog can act as a
 buffer and be processed asynchronously.
 Possibly, engine is best updating incrementally
-so it can be interrupted at all times.
+so it can be interrupted at all times. However
+should some messages be postponed until they
+are safe to process? Not sure about the
+inplementation.
+
+Web worker starting time?
 
 
 It is possible that transferring a small

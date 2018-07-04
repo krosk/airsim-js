@@ -97,6 +97,11 @@ let ASSTATE = (function()
     let r = function r(index, field)
     {
         let target = index == 0 ? field : (index - 1)*C.END + G.END + field;
+        if (typeof m_dataStateView == 'undefined')
+        {
+            throw ('dataStateView not initialized for ' + index + ' ' + field);
+            return;
+        }
         if (G_CHECK && (target < 0 || target > m_dataStateView.length))
         {
             throw ('error accessing dataState at ' + index + ' ' + field);

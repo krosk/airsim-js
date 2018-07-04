@@ -4,6 +4,8 @@ let ASENGINE = (function ()
 {
     let public = {};
     
+    public.C_NAME = 'ASENGINE';
+    
     let m_worker = new Worker('airsim-module.js');
     
     m_worker.onmessage = function(e)
@@ -12,8 +14,8 @@ let ASENGINE = (function ()
     }
     
     const C_MODULE_INT = {
-        'ASENGINE' : this,
-        'ASMAP' : ASMAP,
+        [public.C_NAME] : this,
+        [ASMAP.C_NAME] : ASMAP,
         [ASMAPUI.C_NAME] : ASMAPUI,
         [MMAPDATA.C_NAME] : MMAPDATA,
         [ASSTATE.C_NAME] : ASSTATE,
@@ -110,7 +112,7 @@ let ASENGINE = (function ()
     
     public.getTraversalPath = function asengine_getTraversalPath()
     {
-        const callbackData = ['ASENGINE', 'printValue'];
+        const callbackData = [ASENGINE.C_NAME, 'printValue'];
         const postData = [ASROAD.C_NAME, 'getTraversalPath'];
         dispatch(postData, callbackData);
     }

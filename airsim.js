@@ -253,6 +253,8 @@ let ASMAP = (function ()
 {
     let public = {};
     
+    public.C_NAME = 'ASMAP';
+    
     public.initialize = function asmap_initialize(w, h)
     {
         ASENGINE.initializeModule(w, h);
@@ -299,7 +301,8 @@ let ASMAP = (function ()
     {
         if (Date.now() < computeTimeLimit)
         {
-            ASENGINE.retrieveChange(['ASMAP', 'commitDisplayChangeResponse', computeTimeLimit]);
+            let callbackData = [public.C_NAME, 'commitDisplayChangeResponse', computeTimeLimit];
+            ASENGINE.retrieveChange(callbackData);
         }
     }
     
@@ -309,7 +312,8 @@ let ASMAP = (function ()
         // in practice
         if (Date.now() < computeTimeLimit)
         {
-            ASENGINE.update(['ASMAP', 'updateEngineResponse', computeTimeLimit, time]);
+            let callbackData = [public.C_NAME, 'updateEngineResponse', computeTimeLimit, time];
+            ASENGINE.update(callbackData);
         }
     }
     

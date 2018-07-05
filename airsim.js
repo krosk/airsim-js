@@ -306,20 +306,36 @@ let ASMAP = (function ()
         }
     }
     
+    let m_singleShotUpdateEngine = false;
+    
     public.updateEngine = function asmap_updateEngine(computeTimeLimit, time)
     {
         // this is uni directional call
         // in practice
-        if (Date.now() < computeTimeLimit)
+        if (ASENGINE.hasAccess() && Date.now() < computeTimeLimit)
         {
-            let callbackData = [public.C_NAME, 'updateEngineResponse', computeTimeLimit, time];
-            ASENGINE.update(callbackData);
+            let callbackData = [public.C_NAME, 'updateEngineResponse'];
+            ASENGINE.update(computeTimeLimit, time, callbackData);
+        }
+        else if (!ASENGINE.hasAccess() && !m_singleShotUpdateEngine)
+        {
+            m_singleShotUpdateEngine = true;
+            
+            let callbackData = [public.C_NAME, 'doNextTick'];
+            ASENGINE.update(-1, Date.now(), callbackData);
         }
     }
     
-    public.updateEngineResponse = function asmap_updateEngineResponse(computeTimeLimit, time)
+    public.updateEngineResponse = function asmap_updateEngineResponse(computeTimeLimit, time, tick)
     {
         //console.log(computeTimeLimit + ' ' + time);
+    }
+    
+    public.doNextTick = function asmap_doNextTick(value)
+    {
+        //console.log("end " + value);
+        let callbackData = [public.C_NAME, 'doNextTick'];
+        ASENGINE.update(-1, Date.now(), callbackData);
     }
     
     public.commitDisplayChangeResponse = function asmap_commitDisplayChangeResponse(computeTimeLimit, newChangeIndex, newChangeTile)

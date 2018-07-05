@@ -1,4 +1,4 @@
-const G_WORKER = false;
+const G_WORKER = true;
 
 let ASENGINE = (function ()
 {
@@ -42,9 +42,9 @@ let ASENGINE = (function ()
         dispatch(postData, callbackData);
     }
     
-    public.update = function asengine_update(callbackData)
+    public.update = function asengine_update(computeTimeLimit, time, callbackData)
     {
-        let postData = [ASZONE.C_NAME, 'update', callbackData[2], callbackData[3]];
+        let postData = [ASZONE.C_NAME, 'update', computeTimeLimit, time];
         dispatch(postData, callbackData);
     }
     

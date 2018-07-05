@@ -746,11 +746,11 @@ let ASZONE = (function ()
             m_countTickTime = time;
         }
         const tickSpeed = ASSTATE.getTickSpeed();
+        const tick = ASSTATE.getTick();
         if (tickSpeed == -1)
         {
-            return;
+            return tick;
         }
-        const tick = ASSTATE.getTick();
         const frame = ASSTATE.getFrame();
         let engineComplete = true;
         if (engineComplete)
@@ -775,6 +775,7 @@ let ASZONE = (function ()
         {
             ASSTATE.setFrame(frame + 1);
         }
+        return tick;
     }
     
     return public;
@@ -1658,7 +1659,7 @@ let ASRICO = (function ()
         let elapsedCycle = 0;
         let tickSpeed = ASSTATE.getTickSpeed();
         // polling mode
-        while ((progress < tableSize) && (Date.now() < timeLimit))
+        while ((progress < tableSize) && (timeLimit < 0 || Date.now() < timeLimit))
         {
             let index = progress;
             if (updateBuilding(index))

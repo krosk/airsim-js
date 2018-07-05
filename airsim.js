@@ -295,6 +295,7 @@ let ASMAP = (function ()
         public.commitDisplayChange(computeTimeLimit);
         //ASZONE.update(time, computeTimeLimit);
         public.updateEngine(computeTimeLimit, time);
+        updateDebug();
     }
     
     public.commitDisplayChange = function asmap_commitDisplayChange(computeTimeLimit)
@@ -412,6 +413,25 @@ let ASMAP = (function ()
     let doDoubleClick = function asmap_doDoubleClick(x, y)
     {
         console.log('d' + x + ',' + y);
+    }
+
+    let updateDebug = function asmap_updateDebug()
+    {
+        let b = ASENGINE.hasAccess();
+        
+        let interactState = 'i(' + (MMAPTOUCH.isStatePan() ? 'P' : '-') + (MMAPTOUCH.isStateZoom() ? 'Z' : '-') + (MMAPTOUCH.getTouchCount()) + (MMAPTOUCH.getClickCount()) + ') ';
+        let tickElapsed = 'k(' + (b ? ASSTATE.getTick() : 0) + ') ';
+        let frameElapsed = 'f(' + (b ? ASSTATE.getFrame() : 0) + ') ';
+        let computeTimeBudget = 'T(' + ASMAP.getComputeTimeBudget() + ') ';
+        let tickSpeed = 'K(' + (b ? ASSTATE.getTickRealSpeed() : 0) + ') ';
+        let firstChange = 'h(' + (b ? ASSTATE.getChangeFirst() : 0) + ') ';
+        let lastChange = 'H(' + (b ? ASSTATE.getChangeLast() : 0) + ') ';
+        let changeLog = 'l(' + MMAPDATA.getChangeLogCalls() + ') ';
+        //let cache = 'c(' + Object.keys(PIXI.utils.TextureCache).length + ') ';
+        //let memUsage = 'o(' + performance.memory.usedJSHeapSize / 1000 + ') ';
+        let render = MMAPRENDER.getDebugState();
+        
+        g_counter.innerHTML = interactState + render + tickElapsed + tickSpeed + frameElapsed + computeTimeBudget + firstChange + lastChange + changeLog;
     }
 
     return public;
@@ -2050,32 +2070,20 @@ let MMAPRENDER = (function ()
         mapLayer.pivot.y = m_cameraMapY;
         mapLayer.x = cameraScreenX();
         mapLayer.y = cameraScreenY();
-        
-        public.updateDebug();
     }
     
-    public.updateDebug = function mmaprender_updateDebug()
+    public.getDebugState = function mmaprender_getDebugState()
     {
         let tileX = getCenterTileX();
         let tileY = getCenterTileY();
         let cameraScale = (m_cameraScaleX * 100) | 0;
-        let b = ASENGINE.hasAccess();
         
-        let interactState = 'i(' + (MMAPTOUCH.isStatePan() ? 'P' : '-') + (MMAPTOUCH.isStateZoom() ? 'Z' : '-') + (MMAPTOUCH.getTouchCount()) + (MMAPTOUCH.getClickCount()) + ') ';
-        let tickElapsed = 'k(' + (b ? ASSTATE.getTick() : 0) + ') ';
-        let frameElapsed = 'f(' + (b ? ASSTATE.getFrame() : 0) + ') ';
-        let computeTimeBudget = 'T(' + ASMAP.getComputeTimeBudget() + ') ';
-        let tickSpeed = 'K(' + (b ? ASSTATE.getTickRealSpeed() : 0) + ') ';
-        let firstChange = 'h(' + (b ? ASSTATE.getChangeFirst() : 0) + ') ';
-        let lastChange = 'H(' + (b ? ASSTATE.getChangeLast() : 0) + ') ';
-        let changeLog = 'l(' + MMAPDATA.getChangeLogCalls() + ') ';
-        //let cache = 'c(' + Object.keys(PIXI.utils.TextureCache).length + ') ';
-        //let memUsage = 'o(' + performance.memory.usedJSHeapSize / 1000 + ') ';
         let mapCoords = 'm(' + (m_cameraMapX | 0) + ',' + (m_cameraMapY | 0) + ',' + cameraScale + ') ';
         let tileCoords = 't(' + tileX + ',' + tileY + ') ';
         let batchCoords = 'b(' + MMAPBATCH.getTileXToBatchX(tileX) + ',' + MMAPBATCH.getTileYToBatchY(tileY) + ') ';
         let batchCount = 'B(' + MMAPBATCH.getBatchCount() + '+' + MMAPBATCH.getBatchPoolCount() + '/' + MMAPBATCH.getBatchTotalCount() + ') ';
-        g_counter.innerHTML = interactState + mapCoords + tileCoords + tickElapsed + tickSpeed + frameElapsed + computeTimeBudget + firstChange + lastChange + changeLog;
+        
+        return mapCoords + tileCoords;
     }
 
     public.setCameraScale = function mmaprender_setCameraScale(scaleX, scaleY)

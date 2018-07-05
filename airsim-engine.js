@@ -1,4 +1,4 @@
-const G_WORKER = false;
+const G_WORKER = true;
 
 let ASENGINE = (function ()
 {

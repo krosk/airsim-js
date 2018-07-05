@@ -66,7 +66,7 @@ let ASSTATE = (function()
         TICK : 3,
         FRAME : 4,
         TICK_SPEED : 5,
-        TICK_REAL_SPEED : 6,
+        UNUSED : 6,
         RICO_TICK_PROGRESS : 7,
         RICO_STEP : 8,
         ROAD_TRAVERSAL_START : 9,
@@ -323,14 +323,14 @@ let ASSTATE = (function()
         w(0, G.TICK_SPEED, data);
     }
     
-    public.getTickRealSpeed = function asstate_getTickRealSpeed()
+    public.getUnused = function asstate_getUnused()
     {
-        return r(0, G.TICK_REAL_SPEED);
+        return r(0, G.UNUSED);
     }
     
-    public.setTickRealSpeed = function asstate_setTickRealSpeed(data)
+    public.setUnused = function asstate_setUnused(data)
     {
-        w(0, G.TICK_REAL_SPEED, data);
+        w(0, G.UNUSED, data);
     }
     
     public.getFrame = function asstate_getFrame()
@@ -730,21 +730,10 @@ let ASZONE = (function ()
         }
     }
     
-    let m_lastTickTime1 = 0;
-    let m_lastTickTime2 = 0;
-    let m_lastTickTime3 = 0;
-    let m_lastTickTime4 = 0;
-    let m_lastTickTime5 = 0;
-    let m_countTickTime = 0;
-    let m_countTickPerSecond = 0;
+    let m_lastTickTime = 0;
     
     public.update = function aszone_update(timeLimit, time)
     {
-        if (time - m_countTickTime > 1000)
-        {
-            ASSTATE.setTickRealSpeed(m_countTickPerSecond);
-            m_countTickTime = time;
-        }
         const tickSpeed = ASSTATE.getTickSpeed();
         const tick = ASSTATE.getTick();
         if (tickSpeed == -1)
@@ -757,19 +746,14 @@ let ASZONE = (function ()
         {
             engineComplete &= ASRICO.updateRico(tick, timeLimit);
         }
-        const enoughTimeElapsed = Math.abs(time - m_lastTickTime1) >= tickSpeed;
+        const enoughTimeElapsed = Math.abs(time - m_lastTickTime) >= tickSpeed;
         if (engineComplete && enoughTimeElapsed)
         {
             let newTick = tick + 1;
             ASRICO.setNextTick(newTick);
             ASSTATE.setTick(newTick);
             ASSTATE.setFrame(0);
-            m_lastTickTime5 = m_lastTickTime4;
-            m_lastTickTime4 = m_lastTickTime3;
-            m_lastTickTime3 = m_lastTickTime2;
-            m_lastTickTime2 = m_lastTickTime1;
-            m_lastTickTime1 = time;
-            m_countTickPerSecond = (m_lastTickTime1-m_lastTickTime2)/1;
+            m_lastTickTime = time;
         }
         else if (!engineComplete)
         {

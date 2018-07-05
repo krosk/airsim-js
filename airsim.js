@@ -327,14 +327,37 @@ let ASMAP = (function ()
         }
     }
     
-    public.updateEngineResponse = function asmap_updateEngineResponse(computeTimeLimit, time, tick)
+    let m_lastTick = 0;
+    let m_lastTickTime = 0;
+    let m_lastTickDelta = 0;
+    
+    public.updateEngineResponse = function asmap_updateEngineResponse(tick)
     {
-        //console.log(computeTimeLimit + ' ' + time);
+        if (tick < m_lastTick)
+        {
+            m_lastTick = 0;
+            m_lastTickTime = Date.now();
+            m_lastTickDelta = 0;
+        }
+        if (tick > m_lastTick)
+        {
+            m_lastTick = tick;
+            m_lastTickDelta = Date.now() - m_lastTickTime;
+            m_lastTickTime = Date.now();
+        }
     }
     
-    public.doNextTick = function asmap_doNextTick(value)
+    public.getDebugState = function asmap_getDebugState()
     {
-        //console.log("end " + value);
+        let tickElapsed = 'k(' + m_lastTick + ') ';
+        let tickSpeed = 'K(' + m_lastTickDelta + ') ';
+        let computeTimeBudget = 'T(' + m_computeTimeBudget + ') ';
+        return tickElapsed + tickSpeed + computeTimeBudget;
+    }
+    
+    public.doNextTick = function asmap_doNextTick(tick)
+    {
+        public.updateEngineResponse(tick);
         let callbackData = [public.C_NAME, 'doNextTick'];
         ASENGINE.update(-1, Date.now(), callbackData);
     }
@@ -355,11 +378,6 @@ let ASMAP = (function ()
         {
             return false;
         }
-    }
-    
-    public.getComputeTimeBudget = function asmap_getComputeTimeBudget()
-    {
-        return m_computeTimeBudget;
     }
     
     let doZoneViewSingleClick = function asmap_doZoneViewSingleClick(x, y)
@@ -420,18 +438,16 @@ let ASMAP = (function ()
         let b = ASENGINE.hasAccess();
         
         let interactState = 'i(' + (MMAPTOUCH.isStatePan() ? 'P' : '-') + (MMAPTOUCH.isStateZoom() ? 'Z' : '-') + (MMAPTOUCH.getTouchCount()) + (MMAPTOUCH.getClickCount()) + ') ';
-        let tickElapsed = 'k(' + (b ? ASSTATE.getTick() : 0) + ') ';
         let frameElapsed = 'f(' + (b ? ASSTATE.getFrame() : 0) + ') ';
-        let computeTimeBudget = 'T(' + ASMAP.getComputeTimeBudget() + ') ';
-        let tickSpeed = 'K(' + (b ? ASSTATE.getTickRealSpeed() : 0) + ') ';
         let firstChange = 'h(' + (b ? ASSTATE.getChangeFirst() : 0) + ') ';
         let lastChange = 'H(' + (b ? ASSTATE.getChangeLast() : 0) + ') ';
         let changeLog = 'l(' + MMAPDATA.getChangeLogCalls() + ') ';
         //let cache = 'c(' + Object.keys(PIXI.utils.TextureCache).length + ') ';
         //let memUsage = 'o(' + performance.memory.usedJSHeapSize / 1000 + ') ';
         let render = MMAPRENDER.getDebugState();
+        let simulation = ASMAP.getDebugState();
         
-        g_counter.innerHTML = interactState + render + tickElapsed + tickSpeed + frameElapsed + computeTimeBudget + firstChange + lastChange + changeLog;
+        g_counter.innerHTML = interactState + render + simulation + frameElapsed + firstChange + lastChange + changeLog;
     }
 
     return public;

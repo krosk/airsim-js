@@ -1474,6 +1474,11 @@ let ASRICO = (function ()
         return getDataIdByDensityLevel(index);
     }
     
+    public.getTileIdTable = function asrico_getTileIdTable()
+    {
+        return ASCOMMON.getTileIdTable(this);
+    }
+    
     let isValidTileId = function asrico_isValidTileId(id)
     {
         let index = Object.values(C).indexOf(id);

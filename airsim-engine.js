@@ -1,4 +1,4 @@
-const G_WORKER = false;
+const G_WORKER = true;
 
 let ASENGINE = (function ()
 {
@@ -75,6 +75,12 @@ let ASENGINE = (function ()
     public.requestTileId = function asengine_requestTileId(moduleName, x, y, callbackData)
     {
         let postData = [moduleName, 'getDataId', x, y];
+        dispatch(postData, callbackData);
+    }
+    
+    public.requestTileIdList = function asengine_requestTileIdList(moduleName, xylist, callbackData)
+    {
+        let postData = [moduleName, 'getTileIdList', xylist];
         dispatch(postData, callbackData);
     }
     

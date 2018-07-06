@@ -315,9 +315,9 @@ let ASMAP = (function ()
     {
         if (Date.now() < computeTimeLimit)
         {
-            m_updateStateMachine = 1;
             let callbackData = [public.C_NAME, 'retrieveAllDisplayChangeResponse'];
             ASENGINE.retrieveAllChanges(callbackData);
+            m_updateStateMachine = 1;
         }
     }
     
@@ -337,18 +337,23 @@ let ASMAP = (function ()
     {
         if (Date.now() < computeTimeLimit)
         {
-            for (let i = 0; i < m_pendingCommitIndexList.length; i+=2)
-            {
-                let x = m_pendingCommitIndexList[i];
-                let y = m_pendingCommitIndexList[i + 1];
-                if (x >= 0 && y >= 0)
-                {
-                    MMAPDATA.refreshTile(x, y);
-                }
-            }
+            let callbackData = [public.C_NAME, 'refreshTileListResponse'];
+            ASENGINE.requestTileIdList(MMAPDATA.getDataLibrary().C_NAME, m_pendingCommitIndexList, callbackData);
             m_pendingCommitIndexList = [];
-            m_updateStateMachine = 4;
+            m_updateStateMachine = 3;
         }
+    }
+    
+    public.refreshTileListResponse = function asmap_refreshTileListResponse(xytlist)
+    {
+        for (let i = 0; i < xytlist.length; i+=3)
+        {
+            let x = xytlist[i];
+            let y = xytlist[i+1];
+            let t = xytlist[i+2];
+            MMAPDATA.refreshTileResponse(x, y, t);
+        }
+        m_updateStateMachine = 4;
     }
     
     public.commitDisplayChange = function asmap_commitDisplayChange(computeTimeLimit)
@@ -392,10 +397,9 @@ let ASMAP = (function ()
         }
         else if (!ASENGINE.hasAccess() && !m_singleShotUpdateEngine)
         {
-            m_singleShotUpdateEngine = true;
-            
-            let callbackData = [public.C_NAME, 'doNextTick'];
+            let callbackData = [public.C_NAME, 'updateEngineResponse'];
             ASENGINE.update(-1, Date.now(), callbackData);
+            m_updateStateMachine = 0;
         }
     }
     

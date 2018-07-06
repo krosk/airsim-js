@@ -20,6 +20,20 @@ let ASCOMMON = (function()
         return table;
     }
     
+    public.getTileIdList = function ascommon_getTileIdList(module, xylist)
+    {
+        let table = [];
+        for (let i = 0; i < xylist.length; i += 2)
+        {
+            let x = xylist[i];
+            let y = xylist[i+1];
+            let tileId = module.getDataId(x, y);
+            table.push(x, y, tileId);
+        }
+        
+        return table;
+    }
+    
     return public;
 })();
 
@@ -702,6 +716,10 @@ let ASZONE = (function ()
     {
         return ASCOMMON.getTileIdTable(this);
     }
+    public.getTileIdList = function aszone_getTileIdList(xylist)
+    {
+        return ASCOMMON.getTileIdList(this, xylist);
+    }
     //----------------
     public.setZone = function aszone_setZone(x, y, zone)
     {
@@ -947,6 +965,11 @@ let ASROAD = (function ()
     public.getTileIdTable = function asroad_getTileIdTable()
     {
         return ASCOMMON.getTileIdTable(this);
+    }
+    
+    public.getTileIdList = function asroad_getTileIdList(xylist)
+    {
+        return ASCOMMON.getTileIdList(this, xylist);
     }
     
     let getIndexTo = function asroad_getIndexTo(x, y, d)
@@ -1480,6 +1503,11 @@ let ASRICO = (function ()
     public.getTileIdTable = function asrico_getTileIdTable()
     {
         return ASCOMMON.getTileIdTable(this);
+    }
+    
+    public.getTileIdList = function asrico_getTileIdList(xylist)
+    {
+        return ASCOMMON.getTileIdList(this, xylist);
     }
     
     let isValidTileId = function asrico_isValidTileId(id)

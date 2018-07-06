@@ -300,7 +300,6 @@ let ASMAP = (function ()
         {
             public.retrieveAllChangeTileId(computeTimeLimit);
         }
-        //ASZONE.update(time, computeTimeLimit);
         if (m_updateStateMachine == 4)
         {
             public.updateEngine(computeTimeLimit, time);
@@ -356,35 +355,6 @@ let ASMAP = (function ()
         m_updateStateMachine = 4;
     }
     
-    public.commitDisplayChange = function asmap_commitDisplayChange(computeTimeLimit)
-    {
-        if (Date.now() < computeTimeLimit)
-        {
-            let callbackData = [public.C_NAME, 'commitDisplayChangeResponse', computeTimeLimit];
-            ASENGINE.retrieveChange(callbackData);
-        }
-    }
-    
-    public.commitDisplayChangeResponse = function asmap_commitDisplayChangeResponse(computeTimeLimit, newChangeIndex, newChangeTile)
-    {
-        if (newChangeIndex > 0)
-        {
-            let xy = MMAPDATA.getXYFromIndex(newChangeIndex);
-            let x = xy[0];
-            let y = xy[1];
-            MMAPDATA.refreshTile(x, y);
-            // loop until no more buffer
-            public.commitDisplayChange(computeTimeLimit);
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-    
-    let m_singleShotUpdateEngine = false;
-    
     public.updateEngine = function asmap_updateEngine(computeTimeLimit, time)
     {
         // this is uni directional call
@@ -395,7 +365,7 @@ let ASMAP = (function ()
             ASENGINE.update(computeTimeLimit, time, callbackData);
             m_updateStateMachine = 0;
         }
-        else if (!ASENGINE.hasAccess() && !m_singleShotUpdateEngine)
+        else if (!ASENGINE.hasAccess())
         {
             let callbackData = [public.C_NAME, 'updateEngineResponse'];
             ASENGINE.update(-1, Date.now(), callbackData);
@@ -429,13 +399,6 @@ let ASMAP = (function ()
         let tickSpeed = 'K(' + m_lastTickDelta + ') ';
         let computeTimeBudget = 'T(' + m_computeTimeBudget + ') ';
         return tickElapsed + tickSpeed + computeTimeBudget;
-    }
-    
-    public.doNextTick = function asmap_doNextTick(tick)
-    {
-        public.updateEngineResponse(tick);
-        let callbackData = [public.C_NAME, 'doNextTick'];
-        ASENGINE.update(-1, Date.now(), callbackData);
     }
     
     let doZoneViewSingleClick = function asmap_doZoneViewSingleClick(x, y)

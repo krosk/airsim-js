@@ -36,12 +36,6 @@ let ASENGINE = (function ()
     // directly readable globals
     
     // async functions with callbacks
-    public.retrieveChange = function asengine_retrieveChange(callbackData)
-    {
-        let postData = [ASSTATE.C_NAME, 'retrieveChange'];
-        dispatch(postData, callbackData);
-    }
-    
     public.retrieveAllChanges = function asengine_retrieveAllChanges(callbackData)
     {
         let postData = [ASSTATE.C_NAME, 'retrieveAllChanges'];

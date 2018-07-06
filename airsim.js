@@ -314,9 +314,10 @@ let ASMAP = (function ()
     {
         if (Date.now() < computeTimeLimit)
         {
+            // put before callback for noworker
+            m_updateStateMachine = 1;
             let callbackData = [public.C_NAME, 'retrieveAllDisplayChangeResponse'];
             ASENGINE.retrieveAllChanges(callbackData);
-            m_updateStateMachine = 1;
         }
     }
     
@@ -329,17 +330,25 @@ let ASMAP = (function ()
             m_pendingCommitIndexList.push(x);
             m_pendingCommitIndexList.push(y);
         }
-        m_updateStateMachine = 2;
+        if (m_pendingCommitIndexList.length == 0)
+        {
+            m_updateStateMachine = 4;
+        }
+        else
+        {
+            m_updateStateMachine = 2;
+        }
     }
     
     public.retrieveAllChangeTileId = function asmap_retieveAllChangeTileId(computeTimeLimit)
     {
         if (Date.now() < computeTimeLimit)
         {
+            // put before callback for noworker
+            m_updateStateMachine = 3;
             let callbackData = [public.C_NAME, 'refreshTileListResponse'];
             ASENGINE.requestTileIdList(MMAPDATA.getDataLibrary().C_NAME, m_pendingCommitIndexList, callbackData);
             m_pendingCommitIndexList = [];
-            m_updateStateMachine = 3;
         }
     }
     
@@ -361,15 +370,15 @@ let ASMAP = (function ()
         // in practice
         if (ASENGINE.hasAccess() && Date.now() < computeTimeLimit)
         {
+            m_updateStateMachine = 5;
             let callbackData = [public.C_NAME, 'updateEngineResponse'];
             ASENGINE.update(computeTimeLimit, time, callbackData);
-            m_updateStateMachine = 0;
         }
         else if (!ASENGINE.hasAccess())
         {
+            m_updateStateMachine = 5;
             let callbackData = [public.C_NAME, 'updateEngineResponse'];
             ASENGINE.update(-1, Date.now(), callbackData);
-            m_updateStateMachine = 0;
         }
     }
     
@@ -391,6 +400,7 @@ let ASMAP = (function ()
             m_lastTickDelta = Date.now() - m_lastTickTime;
             m_lastTickTime = Date.now();
         }
+        m_updateStateMachine = 0;
     }
     
     public.getDebugState = function asmap_getDebugState()

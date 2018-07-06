@@ -1,4 +1,4 @@
-const G_WORKER = true;
+const G_WORKER = false;
 
 let ASENGINE = (function ()
 {
@@ -36,12 +36,6 @@ let ASENGINE = (function ()
     // directly readable globals
     
     // async functions with callbacks
-    public.retrieveAllChanges = function asengine_retrieveAllChanges(callbackData)
-    {
-        let postData = [ASSTATE.C_NAME, 'retrieveAllChanges'];
-        dispatch(postData, callbackData);
-    }
-    
     public.retrieveAllChangedTileId = function asengine_retrieveAllChangedTileId(moduleName, callbackData)
     {
         let postData = [moduleName, 'getAllChangedTileId'];
@@ -69,18 +63,6 @@ let ASENGINE = (function ()
     public.requestTileIdTable = function asengine_requestTileIdTable(moduleName, callbackData)
     {
         let postData = [moduleName, 'getTileIdTable'];
-        dispatch(postData, callbackData);
-    }
-    
-    public.requestTileId = function asengine_requestTileId(moduleName, x, y, callbackData)
-    {
-        let postData = [moduleName, 'getDataId', x, y];
-        dispatch(postData, callbackData);
-    }
-    
-    public.requestTileIdList = function asengine_requestTileIdList(moduleName, xylist, callbackData)
-    {
-        let postData = [moduleName, 'getTileIdList', xylist];
         dispatch(postData, callbackData);
     }
     

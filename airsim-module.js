@@ -20,20 +20,6 @@ let ASCOMMON = (function()
         return table;
     }
     
-    public.getTileIdList = function ascommon_getTileIdList(module, xylist)
-    {
-        let table = [];
-        for (let i = 0; i < xylist.length; i += 2)
-        {
-            let x = xylist[i];
-            let y = xylist[i+1];
-            let tileId = module.getDataId(x, y);
-            table.push(x, y, tileId);
-        }
-        
-        return table;
-    }
-    
     return public;
 })();
 
@@ -734,14 +720,12 @@ let ASZONE = (function ()
         ASSTATE.clear(index);
         ASSTATE.setDataZoneAtIndex(index, zone);
     }
+    
     public.getTileIdTable = function aszone_getTileIdTable()
     {
         return ASCOMMON.getTileIdTable(this);
     }
-    public.getTileIdList = function aszone_getTileIdList(xylist)
-    {
-        return ASCOMMON.getTileIdList(this, xylist);
-    }
+    
     public.getAllChangedTileId = function aszone_getAllChangedTileId()
     {
         return ASSTATE.retrieveAllChangedTileId(this);
@@ -991,11 +975,6 @@ let ASROAD = (function ()
     public.getTileIdTable = function asroad_getTileIdTable()
     {
         return ASCOMMON.getTileIdTable(this);
-    }
-    
-    public.getTileIdList = function asroad_getTileIdList(xylist)
-    {
-        return ASCOMMON.getTileIdList(this, xylist);
     }
     
     public.getAllChangedTileId = function asroad_getAllChangedTileId()
@@ -1534,11 +1513,6 @@ let ASRICO = (function ()
     public.getTileIdTable = function asrico_getTileIdTable()
     {
         return ASCOMMON.getTileIdTable(this);
-    }
-    
-    public.getTileIdList = function asrico_getTileIdList(xylist)
-    {
-        return ASCOMMON.getTileIdList(this, xylist);
     }
     
     public.getAllChangedTileId = function asrico_getAllChangedTileId()

@@ -296,10 +296,6 @@ let ASMAP = (function ()
         {
             public.retrieveAllDisplayChange(computeTimeLimit);
         }
-        if (m_updateStateMachine == 2)
-        {
-            public.retrieveAllChangeTileId(computeTimeLimit);
-        }
         if (m_updateStateMachine == 4)
         {
             public.updateEngine(computeTimeLimit, time);
@@ -318,37 +314,6 @@ let ASMAP = (function ()
             m_updateStateMachine = 1;
             let callbackData = [public.C_NAME, 'refreshTileListResponse'];
             ASENGINE.retrieveAllChangedTileId(MMAPDATA.getDataLibrary().C_NAME, callbackData);
-        }
-    }
-    
-    public.retrieveAllDisplayChangeResponse = function asmap_retrieveAllDisplayChangeResponse(commitList)
-    {
-        for (let i = 0; i < commitList.length; i+=2)
-        {
-            let x = commitList[i];
-            let y = commitList[i + 1];
-            m_pendingCommitIndexList.push(x);
-            m_pendingCommitIndexList.push(y);
-        }
-        if (m_pendingCommitIndexList.length == 0)
-        {
-            m_updateStateMachine = 4;
-        }
-        else
-        {
-            m_updateStateMachine = 2;
-        }
-    }
-    
-    public.retrieveAllChangeTileId = function asmap_retieveAllChangeTileId(computeTimeLimit)
-    {
-        if (Date.now() < computeTimeLimit)
-        {
-            // put before callback for noworker
-            m_updateStateMachine = 3;
-            let callbackData = [public.C_NAME, 'refreshTileListResponse'];
-            ASENGINE.requestTileIdList(MMAPDATA.getDataLibrary().C_NAME, m_pendingCommitIndexList, callbackData);
-            m_pendingCommitIndexList = [];
         }
     }
     
@@ -1001,11 +966,6 @@ let MMAPDATA = (function ()
                 m_mapTableTileCache[index] = tileIdTable[index];
             }
         }
-    }
-    public.refreshTile = function mmapdata_refreshTile(x, y)
-    {
-        let callbackData = [MMAPDATA.C_NAME, 'refreshTileResponse', x, y];
-        ASENGINE.requestTileId(m_dataLibrary.C_NAME, x, y, callbackData);
     }
     public.refreshTileResponse = function mmapdata_refreshTileResponse(x, y, tileId)
     {

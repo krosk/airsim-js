@@ -531,7 +531,7 @@ let ASSTATE = (function()
         }
     }
     
-    public.retrieveChange = function asstate_retrieveChange()
+    let retrieveChange = function asstate_retrieveChange()
     {
         let firstIndex = public.getChangeFirst();
         let lastIndex = public.getChangeLast();
@@ -555,7 +555,7 @@ let ASSTATE = (function()
         let changeIndices = [];
         while (true)
         {
-            let changeIndex = public.retrieveChange();
+            let changeIndex = retrieveChange();
             if (changeIndex == 0)
             {
                 return changeIndices;

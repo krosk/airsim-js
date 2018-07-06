@@ -552,19 +552,41 @@ let ASSTATE = (function()
     
     public.retrieveAllChanges = function asstate_retrieveAllChanges()
     {
-        let changeIndices = [];
+        let changeXY = [];
         while (true)
         {
             let changeIndex = retrieveChange();
             if (changeIndex == 0)
             {
-                return changeIndices;
+                return changeXY;
             }
             else
             {
                 let xy = ASSTATE.getXYFromIndex(changeIndex);
-                changeIndices.push(xy[0]);
-                changeIndices.push(xy[1]);
+                changeXY.push(xy[0]);
+                changeXY.push(xy[1]);
+            }
+        }
+    }
+    
+    public.retrieveAllChangedTileId = function asstate_retrieveAllChangedTileId(targetModule)
+    {
+        let changeXYT = [];
+        while (true)
+        {
+            let changeIndex = retrieveChange();
+            if (changeIndex == 0)
+            {
+                return changeXYT;
+            }
+            else
+            {
+                let xy = ASSTATE.getXYFromIndex(changeIndex);
+                let x = xy[0];
+                let y = xy[1];
+                changeXYT.push(x);
+                changeXYT.push(y);
+                changeXYT.push(targetModule.getDataId(x, y));
             }
         }
     }
@@ -719,6 +741,10 @@ let ASZONE = (function ()
     public.getTileIdList = function aszone_getTileIdList(xylist)
     {
         return ASCOMMON.getTileIdList(this, xylist);
+    }
+    public.getAllChangedTileId = function aszone_getAllChangedTileId()
+    {
+        return ASSTATE.retrieveAllChangedTileId(this);
     }
     //----------------
     public.setZone = function aszone_setZone(x, y, zone)
@@ -970,6 +996,11 @@ let ASROAD = (function ()
     public.getTileIdList = function asroad_getTileIdList(xylist)
     {
         return ASCOMMON.getTileIdList(this, xylist);
+    }
+    
+    public.getAllChangedTileId = function asroad_getAllChangedTileId()
+    {
+        return ASSTATE.retrieveAllChangedTileId(this);
     }
     
     let getIndexTo = function asroad_getIndexTo(x, y, d)
@@ -1508,6 +1539,11 @@ let ASRICO = (function ()
     public.getTileIdList = function asrico_getTileIdList(xylist)
     {
         return ASCOMMON.getTileIdList(this, xylist);
+    }
+    
+    public.getAllChangedTileId = function asrico_getAllChangedTileId()
+    {
+        return ASSTATE.retrieveAllChangedTileId(this);
     }
     
     let isValidTileId = function asrico_isValidTileId(id)

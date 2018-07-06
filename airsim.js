@@ -316,8 +316,8 @@ let ASMAP = (function ()
         {
             // put before callback for noworker
             m_updateStateMachine = 1;
-            let callbackData = [public.C_NAME, 'retrieveAllDisplayChangeResponse'];
-            ASENGINE.retrieveAllChanges(callbackData);
+            let callbackData = [public.C_NAME, 'refreshTileListResponse'];
+            ASENGINE.retrieveAllChangedTileId(MMAPDATA.getDataLibrary().C_NAME, callbackData);
         }
     }
     
@@ -378,7 +378,7 @@ let ASMAP = (function ()
         {
             m_updateStateMachine = 5;
             let callbackData = [public.C_NAME, 'updateEngineResponse'];
-            ASENGINE.update(-1, Date.now(), callbackData);
+            ASENGINE.update(Date.now() + 300, Date.now(), callbackData);
         }
     }
     

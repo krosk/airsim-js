@@ -17,7 +17,7 @@ let ASENGINE = (function ()
         [ASRICO.C_NAME] : ASRICO
     };
     
-    public.hasAccess = function asrngine_hasAccess()
+    public.hasAccess = function asengine_hasAccess()
     {
         return !G_WORKER;
     }
@@ -39,6 +39,12 @@ let ASENGINE = (function ()
     public.retrieveAllChanges = function asengine_retrieveAllChanges(callbackData)
     {
         let postData = [ASSTATE.C_NAME, 'retrieveAllChanges'];
+        dispatch(postData, callbackData);
+    }
+    
+    public.retrieveAllChangedTileId = function asengine_retrieveAllChangedTileId(moduleName, callbackData)
+    {
+        let postData = [moduleName, 'getAllChangedTileId'];
         dispatch(postData, callbackData);
     }
     

@@ -536,6 +536,23 @@ let ASSTATE = (function()
         return firstIndex;
     }
     
+    public.retrieveAllChanges = function asstate_retrieveAllChanges()
+    {
+        let changeIndices = [];
+        while (true)
+        {
+            let changeIndex = public.retrieveChange();
+            if (changeIndex == 0)
+            {
+                return changeIndices;
+            }
+            else
+            {
+                changeIndices.push(changeIndex);
+            }
+        }
+    }
+    
     public.getSerializable = function asstate_getSerializable()
     {
         console.log(Array.from(m_dataStateView));

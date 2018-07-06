@@ -1,4 +1,4 @@
-const G_WORKER = true;
+const G_WORKER = false;
 
 let ASENGINE = (function ()
 {
@@ -39,6 +39,12 @@ let ASENGINE = (function ()
     public.retrieveChange = function asengine_retrieveChange(callbackData)
     {
         let postData = [ASSTATE.C_NAME, 'retrieveChange'];
+        dispatch(postData, callbackData);
+    }
+    
+    public.retrieveAllChanges = function asengine_retrieveAllChanges(callbackData)
+    {
+        let postData = [ASSTATE.C_NAME, 'retrieveAllChanges'];
         dispatch(postData, callbackData);
     }
     

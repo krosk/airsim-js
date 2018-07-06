@@ -292,10 +292,63 @@ let ASMAP = (function ()
         }
         let computeTimeLimit = time + m_computeTimeBudget;
         // engines updates
-        public.commitDisplayChange(computeTimeLimit);
+        if (m_updateStateMachine == 0)
+        {
+            public.retrieveAllDisplayChange(computeTimeLimit);
+        }
+        if (m_updateStateMachine == 2)
+        {
+            public.retrieveAllChangeTileId(computeTimeLimit);
+        }
         //ASZONE.update(time, computeTimeLimit);
-        public.updateEngine(computeTimeLimit, time);
+        if (m_updateStateMachine == 4)
+        {
+            public.updateEngine(computeTimeLimit, time);
+        }
         updateDebug();
+    }
+    
+    let m_pendingCommitIndexList = [];
+    let m_updateStateMachine = 0;
+    
+    public.retrieveAllDisplayChange = function asmap_retrieveAllDisplayChange(computeTimeLimit)
+    {
+        if (Date.now() < computeTimeLimit)
+        {
+            m_updateStateMachine = 1;
+            let callbackData = [public.C_NAME, 'retrieveAllDisplayChangeResponse'];
+            ASENGINE.retrieveAllChanges(callbackData);
+        }
+    }
+    
+    public.retrieveAllDisplayChangeResponse = function asmap_retrieveAllDisplayChangeResponse(commitList)
+    {
+        for (let i in commitList)
+        {
+            let changedIndex = commitList[i];
+            m_pendingCommitIndexList.push(changedIndex);
+        }
+        m_updateStateMachine = 2;
+    }
+    
+    public.retrieveAllChangeTileId = function asmap_retieveAllChangeTileId(computeTimeLimit)
+    {
+        if (Date.now() < computeTimeLimit)
+        {
+            for (let i in m_pendingCommitIndexList)
+            {
+                let newChangeIndex = m_pendingCommitIndexList[i];
+                if (newChangeIndex > 0)
+                {
+                    let xy = MMAPDATA.getXYFromIndex(newChangeIndex);
+                    let x = xy[0];
+                    let y = xy[1];
+                    MMAPDATA.refreshTile(x, y);
+                }
+            }
+            m_pendingCommitIndexList = [];
+            m_updateStateMachine = 4;
+        }
     }
     
     public.commitDisplayChange = function asmap_commitDisplayChange(computeTimeLimit)
@@ -304,6 +357,24 @@ let ASMAP = (function ()
         {
             let callbackData = [public.C_NAME, 'commitDisplayChangeResponse', computeTimeLimit];
             ASENGINE.retrieveChange(callbackData);
+        }
+    }
+    
+    public.commitDisplayChangeResponse = function asmap_commitDisplayChangeResponse(computeTimeLimit, newChangeIndex, newChangeTile)
+    {
+        if (newChangeIndex > 0)
+        {
+            let xy = MMAPDATA.getXYFromIndex(newChangeIndex);
+            let x = xy[0];
+            let y = xy[1];
+            MMAPDATA.refreshTile(x, y);
+            // loop until no more buffer
+            public.commitDisplayChange(computeTimeLimit);
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
     
@@ -317,6 +388,7 @@ let ASMAP = (function ()
         {
             let callbackData = [public.C_NAME, 'updateEngineResponse'];
             ASENGINE.update(computeTimeLimit, time, callbackData);
+            m_updateStateMachine = 0;
         }
         else if (!ASENGINE.hasAccess() && !m_singleShotUpdateEngine)
         {
@@ -360,24 +432,6 @@ let ASMAP = (function ()
         public.updateEngineResponse(tick);
         let callbackData = [public.C_NAME, 'doNextTick'];
         ASENGINE.update(-1, Date.now(), callbackData);
-    }
-    
-    public.commitDisplayChangeResponse = function asmap_commitDisplayChangeResponse(computeTimeLimit, newChangeIndex, newChangeTile)
-    {
-        if (newChangeIndex > 0)
-        {
-            let xy = MMAPDATA.getXYFromIndex(newChangeIndex);
-            let x = xy[0];
-            let y = xy[1];
-            MMAPDATA.refreshTile(x, y);
-            // loop until no more buffer
-            public.commitDisplayChange(computeTimeLimit);
-            return true;
-        }
-        else
-        {
-            return false;
-        }
     }
     
     let doZoneViewSingleClick = function asmap_doZoneViewSingleClick(x, y)

@@ -323,10 +323,12 @@ let ASMAP = (function ()
     
     public.retrieveAllDisplayChangeResponse = function asmap_retrieveAllDisplayChangeResponse(commitList)
     {
-        for (let i in commitList)
+        for (let i = 0; i < commitList.length; i+=2)
         {
-            let changedIndex = commitList[i];
-            m_pendingCommitIndexList.push(changedIndex);
+            let x = commitList[i];
+            let y = commitList[i + 1];
+            m_pendingCommitIndexList.push(x);
+            m_pendingCommitIndexList.push(y);
         }
         m_updateStateMachine = 2;
     }
@@ -335,14 +337,12 @@ let ASMAP = (function ()
     {
         if (Date.now() < computeTimeLimit)
         {
-            for (let i in m_pendingCommitIndexList)
+            for (let i = 0; i < m_pendingCommitIndexList.length; i+=2)
             {
-                let newChangeIndex = m_pendingCommitIndexList[i];
-                if (newChangeIndex > 0)
+                let x = m_pendingCommitIndexList[i];
+                let y = m_pendingCommitIndexList[i + 1];
+                if (x >= 0 && y >= 0)
                 {
-                    let xy = MMAPDATA.getXYFromIndex(newChangeIndex);
-                    let x = xy[0];
-                    let y = xy[1];
                     MMAPDATA.refreshTile(x, y);
                 }
             }
@@ -1013,11 +1013,6 @@ let MMAPDATA = (function ()
         let callbackData = [MMAPDATA.C_NAME, 'refreshAllTilesResponse'];
         ASENGINE.requestTileIdTable(m_dataLibrary.C_NAME, callbackData);
     }
-    let setTileCache = function mmapdata_setTileCache(x, y, tileId)
-    {
-        let index = x + y*m_mapTableSizeXCache;
-        m_mapTableTileCache[index] = tileId;
-    }
     public.refreshAllTilesResponse = function mmapdata_refreshAllTilesResponse(tileIdTable)
     {
         m_mapChangeLog = [-1];
@@ -1055,7 +1050,7 @@ let MMAPDATA = (function ()
     public.getXYFromIndex = function mmapdata_getXYFromIndex(index)
     {
         //copy from asstate
-        return [((index - 1) / m_mapTableSizeYCache) | 0, (index - 1) % m_mapTableSizeYCache];
+        return index <= 0 ? [-1, -1] : [((index - 1) / m_mapTableSizeYCache) | 0, (index - 1) % m_mapTableSizeYCache];
     }
     public.isValidCoordinates = function mmapdata_isValidCoordinates(tileX, tileY)
     {

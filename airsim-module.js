@@ -91,7 +91,7 @@ let ASSTATE = (function()
     public.getXYFromIndex = function asstate_getXYFromIndex(index)
     {
         //return MUTIL.mathReverseCantorPair(index);
-        return [((index - 1) / public.getTableSizeY()) | 0, (index - 1) % public.getTableSizeY()];
+        return index <= 0 ? [-1, -1] : [((index - 1) / public.getTableSizeY()) | 0, (index - 1) % public.getTableSizeY()];
     }
     
     let r = function r(index, field)
@@ -548,7 +548,9 @@ let ASSTATE = (function()
             }
             else
             {
-                changeIndices.push(changeIndex);
+                let xy = ASSTATE.getXYFromIndex(changeIndex);
+                changeIndices.push(xy[0]);
+                changeIndices.push(xy[1]);
             }
         }
     }

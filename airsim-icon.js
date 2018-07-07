@@ -153,43 +153,16 @@ let ASICON = (function ()
         return graphics;
     }
     
-    let addText = function asicon_addText(color, height, text)
+    let addText = function asicon_addText(text)
     {
-        let CX = MMAPRENDER.getTextureBaseSizeX();
-        let CY = MMAPRENDER.getTextureBaseSizeY();
-        let string = new PIXI.Text(text, {fill:color});
-        string.width = CX; // works as minimal size only
-        return string;
-    }
-    
-    let addViewText = function asicon_addViewText(color, height)
-    {
-        return addText(color, height, "VIEW");
-    }
-    
-    let addZoneText = function asicon_addZoneText(color, height)
-    {
-        return addText(color, height, "ZONE");
-    }
-    
-    let addSpdpText = function asicon_addSpdpText(color, height)
-    {
-        return addText(color, height, "SPDP");
-    }
-    
-    let addSaloText = function asicon_addSaloText(color, height)
-    {
-        return addText(color, height, "SALO");
-    }
-    
-    let addSaveText = function asicon_addSaveText(color, height)
-    {
-        return addText(color, height, "SAVE");
-    }
-    
-    let addLoadText = function asicon_addLoadText(color, height)
-    {
-        return addText(color, height, "LOAD");
+        return function(color, height)
+        {
+            let CX = MMAPRENDER.getTextureBaseSizeX();
+            let CY = MMAPRENDER.getTextureBaseSizeY();
+            let string = new PIXI.Text(text, {fill:color});
+            string.width = CX; // works as minimal size only
+            return string;
+        };
     }
     
     public.createTexture = function asicon_createTexture(id)
@@ -201,17 +174,17 @@ let ASICON = (function ()
     
     public.C_ICON = {
         [C.NONE] : addNothing,
-        [C.VIEW] : addViewText,
-        [C.ZONE] : addZoneText,
-        [C.SPDP] : addSpdpText,
-        [C.SALO] : addSaloText,
+        [C.VIEW] : addText("VIEW"),
+        [C.ZONE] : addText("ZONE"),
+        [C.SPDP] : addText("SPEED"),
+        [C.SALO] : addText("OPTI"),
         [C.PLAY] : addPlay,
         [C.PLAY2] : addPlay2,
         [C.PLAY3] : addPlay3,
         [C.STOP] : addSquare,
         [C.STEP] : addTriangleBreak,
-        [C.SAVE] : addSaveText,
-        [C.LOAD] : addLoadText,
+        [C.SAVE] : addText("SAVE"),
+        [C.LOAD] : addText("LOAD"),
     }
     
     public.masterTile = [

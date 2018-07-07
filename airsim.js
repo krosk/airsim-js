@@ -459,15 +459,15 @@ let ASMAPUI = (function ()
     let C_ICON_WIDTH = 64;
     
     let m_uiLayer;
+    let m_uiMasterSpriteTable = {};
     let m_uiZoneSpriteTable = {};
-    let m_uiViewSpriteTable = {};
     let m_uiRoadSpriteTable = {};
     let m_uiRicoSpriteTable = {};
     let m_uiSaveSpriteTable = {};
     let m_uiPlaySpriteTable = {};
     
+    let m_currentMasterId = 0;
     let m_currentZoneId = 0;
-    let m_currentViewId = 0;
     let m_currentRoadId = 0;
     let m_currentRicoId = 0;
     let m_currentSaveId = 0;
@@ -479,7 +479,7 @@ let ASMAPUI = (function ()
         g_app.stage.addChild(m_uiLayer);
         m_uiLayer.interactive = false;
         
-        m_currentViewId = ASZONE.viewTile[0];
+        m_currentMasterId = ASICON.masterTile[0];
         m_currentZoneId = ASZONE.zoneTile[0];
         m_currentRoadId = ASROAD.roadTile[0];
         m_currentRicoId = ASZONE.ricoTile[0];
@@ -563,7 +563,7 @@ let ASMAPUI = (function ()
         
         m_uiLayer.removeChildren();
         m_uiZoneSpriteTable = {};
-        m_uiViewSpriteTable = {};
+        m_uiMasterSpriteTable = {};
         m_uiRoadSpriteTable = {};
         m_uiRicoSpriteTable = {};
         m_uiSaveSpriteTable = {};
@@ -587,11 +587,11 @@ let ASMAPUI = (function ()
         let playEnums = ASICON.playTile;
         buildMenu(playEnums, m_uiPlaySpriteTable, createPlaySprite, 1);
 
-        let viewEnums = ASZONE.viewTile;
-        buildMenu(viewEnums, m_uiViewSpriteTable, createViewSprite, 0);
+        let masterEnums = ASICON.masterTile;
+        buildMenu(masterEnums, m_uiMasterSpriteTable, createMasterSprite, 0);
         
         focusZoneSprite();
-        focusViewSprite();
+        focusMasterSprite();
         focusRoadSprite();
         focusRicoSprite();
         focusSaveSprite();
@@ -603,40 +603,40 @@ let ASMAPUI = (function ()
         return m_currentZoneId;
     }
     
-    let isViewMode = function asmapui_isViewMode(mode)
+    let isMasterMode = function asmapui_isMasterMode(mode)
     {
-        const viewEnums = ASZONE.viewTile;
-        return getCurrentViewId() == viewEnums[mode];
+        const masterEnums = ASICON.masterTile;
+        return getCurrentMasterId() == masterEnums[mode];
     }
     
     public.isZoneMode = function asmapui_isZoneMode()
     {
-        return isViewMode(0);
+        return isMasterMode(0);
     }
     
     public.isRoadMode = function asmapui_isRoadMode()
     {
-        return isViewMode(1);
+        return isMasterMode(1);
     }
     
     public.isRicoMode = function asmapui_isRicoMode()
     {
-        return isViewMode(2);
+        return isMasterMode(2);
     }
     
     public.isSaveMode = function asmapui_isSaveMode()
     {
-        return isViewMode(3);
+        return isMasterMode(3);
     }
     
     public.isPlayMode = function asmapui_isPlayMode()
     {
-        return isViewMode(4);
+        return isMasterMode(4);
     }
     
-    let getCurrentViewId = function asmapui_getCurrentViewId()
+    let getCurrentMasterId = function asmapui_getCurrentMasterId()
     {
-        return m_currentViewId;
+        return m_currentMasterId;
     }
     
     public.getCurrentRoadId = function asmapui_getCurrentRoadId()
@@ -661,9 +661,9 @@ let ASMAPUI = (function ()
         focusSprite(m_uiZoneSpriteTable, m_currentZoneId, public.isZoneMode());
     }
     
-    let focusViewSprite = function asmapui_focusViewSprite()
+    let focusMasterSprite = function asmapui_focusMasterSprite()
     {
-        focusSprite(m_uiViewSpriteTable, m_currentViewId, true);
+        focusSprite(m_uiMasterSpriteTable, m_currentMasterId, true);
     }
     
     let focusRoadSprite = function asmapui_focusRoadSprite()
@@ -711,9 +711,9 @@ let ASMAPUI = (function ()
         return createSprite(tileId, onZoneSpritePress, ASZONE);
     }
     
-    let createViewSprite = function asmapui_createViewSprite(viewId)
+    let createMasterSprite = function asmapui_createMasterSprite(masterId)
     {
-        return createSprite(viewId, onViewSpritePress, ASZONE);
+        return createSprite(masterId, onMasterSpritePress, ASICON);
     }
     
     let createRoadSprite = function asmapui_createRoadSprite(roadId)
@@ -784,11 +784,11 @@ let ASMAPUI = (function ()
         }
     }
     
-    let onViewSpritePress = function asmapui_onViewSpritePress(event, viewId)
+    let onMasterSpritePress = function asmapui_onMasterSpritePress(event, masterId)
     {
-        let refresh = m_currentViewId != viewId;
-        m_currentViewId = viewId;
-        focusViewSprite();
+        let refresh = m_currentMasterId != masterId;
+        m_currentMasterId = masterId;
+        focusMasterSprite();
         focusZoneSprite();
         focusRoadSprite();
         focusRicoSprite();

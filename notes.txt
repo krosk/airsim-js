@@ -1361,7 +1361,48 @@ should some messages be postponed until they
 are safe to process? Not sure about the
 inplementation.
 
-Web worker starting time?
+Web worker has a starting time that is not
+immediate, and the ui is ready before the
+worker. A change applied is to not block
+the ui from displaying a tile if the engine
+is not ready but to return an invalid tile
+(0, red). Tile info comes later.
+
+Web worker performance is not as good as
+expected, but it garantees a smooth ui at
+the very least. It is slightly faster because
+it makes less updates.
+For the time being the engine yields at the end
+of a turn.
+Step by step update can show all the changes,
+but the engine needs to be stopped to get
+the resource to process the changes.
+Since the worker only yield at tick end in
+normal operation, it could be standard to
+make it yield also without worker, and to
+automatically return the batch of changed
+tiles at tick end.
+What can be done is one cycle of aszone.update
+for one batch of retrieve.change.
+In fact, aszone.update could return the changed
+tiles? Although that would require some
+processing intent.
+
+** Web worker batching messages
+Change is handled one by one.
+It will be more efficient to retrieve a batch
+of it. Same for getDataId, a batching will
+be much more interesting.
+The architecture can be using a state machine:
+- If there are no pending changes, retrieve all 
+    pending changes + matching tile ids
+- If there is a request, wait until there is
+    a response
+- When there is a response, put them in
+    render changelog and let the render process
+    them at its pace
+- After there is response, compute
+
 
 
 It is possible that transferring a small

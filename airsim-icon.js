@@ -6,13 +6,17 @@ let ASICON = (function ()
     
     public.C_TILEENUM = {
         NONE: 900,
-        PLAY: 901,
-        PLAY2: 902,
-        PLAY3: 903,
-        STOP: 904,
-        STEP: 905,
-        SAVE: 906,
-        LOAD: 907
+        VIEW: 910,
+        ZONE: 920,
+        SPDP: 930,
+        SALO: 940,
+        PLAY: 931,
+        PLAY2: 932,
+        PLAY3: 933,
+        STOP: 934,
+        STEP: 935,
+        SAVE: 941,
+        LOAD: 942
     }
     const C = public.C_TILEENUM;
     
@@ -23,6 +27,10 @@ let ASICON = (function ()
     
     public.C_COLOR = {
         [C.NONE] : getColor(64, 64, 64),
+        [C.VIEW] : getColor(0, 255, 255),
+        [C.ZONE] : getColor(0, 192, 0),
+        [C.SPDP] : getColor(0, 192, 192),
+        [C.SALO] : getColor(0, 0, 192),
         [C.PLAY] : getColor(0, 255, 0),
         [C.PLAY2] : getColor(0, 255, 0),
         [C.PLAY3] : getColor(0, 255, 0),
@@ -145,22 +153,43 @@ let ASICON = (function ()
         return graphics;
     }
     
-    let addSave = function asicon_addSave(color, height)
+    let addText = function asicon_addText(color, height, text)
     {
         let CX = MMAPRENDER.getTextureBaseSizeX();
         let CY = MMAPRENDER.getTextureBaseSizeY();
-        let text = new PIXI.Text("SAVE", {fill:color});
-        text.width = CX; // works as minimal size only
-        return text;
+        let string = new PIXI.Text(text, {fill:color});
+        string.width = CX; // works as minimal size only
+        return string;
     }
     
-    let addLoad = function asicon_addLoad(color, height)
+    let addViewText = function asicon_addViewText(color, height)
     {
-        let CX = MMAPRENDER.getTextureBaseSizeX();
-        let CY = MMAPRENDER.getTextureBaseSizeY();
-        let text = new PIXI.Text("LOAD", {fill:color});
-        text.width = CX;
-        return text;
+        return addText(color, height, "VIEW");
+    }
+    
+    let addZoneText = function asicon_addZoneText(color, height)
+    {
+        return addText(color, height, "ZONE");
+    }
+    
+    let addSpdpText = function asicon_addSpdpText(color, height)
+    {
+        return addText(color, height, "SPDP");
+    }
+    
+    let addSaloText = function asicon_addSaloText(color, height)
+    {
+        return addText(color, height, "SALO");
+    }
+    
+    let addSaveText = function asicon_addSaveText(color, height)
+    {
+        return addText(color, height, "SAVE");
+    }
+    
+    let addLoadText = function asicon_addLoadText(color, height)
+    {
+        return addText(color, height, "LOAD");
     }
     
     public.createTexture = function asicon_createTexture(id)
@@ -172,14 +201,25 @@ let ASICON = (function ()
     
     public.C_ICON = {
         [C.NONE] : addNothing,
+        [C.VIEW] : addViewText,
+        [C.ZONE] : addZoneText,
+        [C.SPDP] : addSpdpText,
+        [C.SALO] : addSaloText,
         [C.PLAY] : addPlay,
         [C.PLAY2] : addPlay2,
         [C.PLAY3] : addPlay3,
         [C.STOP] : addSquare,
         [C.STEP] : addTriangleBreak,
-        [C.SAVE] : addSave,
-        [C.LOAD] : addLoad,
+        [C.SAVE] : addSaveText,
+        [C.LOAD] : addLoadText,
     }
+    
+    public.masterTile = [
+        C.VIEW,
+        C.ZONE,
+        C.SPDP,
+        C.SALO
+    ]
     
     public.playTile = [
         C.PLAY, // play 1

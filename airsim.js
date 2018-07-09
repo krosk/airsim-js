@@ -466,12 +466,15 @@ let ASMAPUI = (function ()
     const C_PLAY = ASICON.playTile;
     
     let m_uiLayer;
+    let m_uiSpriteTable = {};
+    /*
     let m_uiZoneSpriteTable = {};
     let m_uiViewSpriteTable = {};
     let m_uiRoadSpriteTable = {};
     let m_uiRicoSpriteTable = {};
     let m_uiSaveSpriteTable = {};
     let m_uiPlaySpriteTable = {};
+    */
     
     let m_currentZoneId = 0;
     let m_currentViewId = 0;
@@ -496,8 +499,10 @@ let ASMAPUI = (function ()
         public.resize();
     }
     
-    let buildMenu = function asmapui_buildMenu(tileEnums, tileTable, callback, level)
+    let buildMenu = function asmapui_buildMenu(tileEnums, callback, level)
     {
+        m_uiSpriteTable[tileEnums] = {};
+        let tileTable = m_uiSpriteTable[tileEnums];
         let landscape = MMAPRENDER.isOrientationLandscape();
         let c = 0;
         let backgroundWidth = 0;
@@ -569,28 +574,31 @@ let ASMAPUI = (function ()
         let landscape = MMAPRENDER.isOrientationLandscape();
         
         m_uiLayer.removeChildren();
+        m_uiSpriteTable = {};
+        /*
         m_uiZoneSpriteTable = {};
         m_uiViewSpriteTable = {};
         m_uiRoadSpriteTable = {};
         m_uiRicoSpriteTable = {};
         m_uiSaveSpriteTable = {};
         m_uiPlaySpriteTable = {};
+        */
         
         let c = 0;
         let maxHeight = 0;
         let maxWidth = 0;
         
-        buildMenu(C_ZONE, m_uiZoneSpriteTable, onZoneSpritePress, 1);
+        buildMenu(C_ZONE, onZoneSpritePress, 1);
         
-        buildMenu(C_ROAD, m_uiRoadSpriteTable, onRoadSpritePress, 1);
+        buildMenu(C_ROAD, onRoadSpritePress, 1);
         
-        buildMenu(C_RICO, m_uiRicoSpriteTable, onRicoSpritePress, 1);
+        buildMenu(C_RICO, onRicoSpritePress, 1);
         
-        buildMenu(C_SAVE, m_uiSaveSpriteTable, onSaveSpritePress, 1);
+        buildMenu(C_SAVE, onSaveSpritePress, 1);
         
-        buildMenu(C_PLAY, m_uiPlaySpriteTable, onPlaySpritePress, 1);
+        buildMenu(C_PLAY, onPlaySpritePress, 1);
 
-        buildMenu(C_VIEW, m_uiViewSpriteTable, onViewSpritePress, 0);
+        buildMenu(C_VIEW, onViewSpritePress, 0);
         
         focusZoneSprite();
         focusViewSprite();
@@ -645,8 +653,9 @@ let ASMAPUI = (function ()
         return m_currentRoadId;
     }
     
-    let focusSprite = function asmapui_focusSprite(spriteTable, currentId, visible)
+    let focusSprite = function asmapui_focusSprite(tileEnums, currentId, visible)
     {
+        let spriteTable = m_uiSpriteTable[tileEnums];
         let keys = Object.keys(spriteTable);
         for (let i in keys)
         {
@@ -659,32 +668,32 @@ let ASMAPUI = (function ()
     
     let focusZoneSprite = function asmapui_focusZoneSprite()
     {
-        focusSprite(m_uiZoneSpriteTable, m_currentZoneId, public.isZoneMode());
+        focusSprite(C_ZONE, m_currentZoneId, public.isZoneMode());
     }
     
     let focusViewSprite = function asmapui_focusViewSprite()
     {
-        focusSprite(m_uiViewSpriteTable, m_currentViewId, true);
+        focusSprite(C_VIEW, m_currentViewId, true);
     }
     
     let focusRoadSprite = function asmapui_focusRoadSprite()
     {
-        focusSprite(m_uiRoadSpriteTable, m_currentRoadId, public.isRoadMode());
+        focusSprite(C_ROAD, m_currentRoadId, public.isRoadMode());
     }
     
     let focusRicoSprite = function asmapui_focusRicoSprite()
     {
-        focusSprite(m_uiRicoSpriteTable, m_currentRicoId, public.isRicoMode());
+        focusSprite(C_RICO, m_currentRicoId, public.isRicoMode());
     }
     
     let focusSaveSprite = function asmapui_focusSaveSprite()
     {
-        focusSprite(m_uiSaveSpriteTable, m_currentSaveId, public.isSaveMode());
+        focusSprite(C_SAVE, m_currentSaveId, public.isSaveMode());
     }
     
     let focusPlaySprite = function asmapui_focusPlaySprite()
     {
-        focusSprite(m_uiPlaySpriteTable, m_currentPlayId, public.isPlayMode());
+        focusSprite(C_PLAY, m_currentPlayId, public.isPlayMode());
     }
     
     let getLayerWidth = function asmapui_getLayerWidth()

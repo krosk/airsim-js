@@ -259,7 +259,7 @@ let ASMAP = (function ()
     {
         ASENGINE.initializeModule(w, h);
         MMAPDATA.initializeMapTableSize(w, h);
-        MMAPDATA.initialize(ASZONE);
+        MMAPDATA.initialize(ASZONE.C_NAME);
         MMAPRENDER.initializeTexture(ASZONE);
         MMAPRENDER.initializeTexture(ASROAD);
         MMAPRENDER.initializeTexture(ASICON);
@@ -313,7 +313,7 @@ let ASMAP = (function ()
             // put before callback for noworker
             m_updateStateMachine = 1;
             let callbackData = [public.C_NAME, 'refreshTileListResponse'];
-            ASENGINE.retrieveAllChangedTileId(MMAPDATA.getDataLibrary().C_NAME, callbackData);
+            ASENGINE.retrieveAllChangedTileId(MMAPDATA.getDataLibraryName(), callbackData);
         }
     }
     
@@ -772,15 +772,15 @@ let ASMAPUI = (function ()
         let viewEnums = ASZONE.viewTile;
         if (public.isZoneMode())
         {
-            MMAPDATA.switchData(ASZONE);
+            MMAPDATA.switchData(ASZONE.C_NAME);
         }
         else if (public.isRoadMode())
         {
-            MMAPDATA.switchData(ASROAD);
+            MMAPDATA.switchData(ASROAD.C_NAME);
         }
         else if (public.isRicoMode())
         {
-            MMAPDATA.switchData(ASRICO);
+            MMAPDATA.switchData(ASRICO.C_NAME);
         }
     }
     
@@ -890,37 +890,32 @@ let MMAPDATA = (function ()
 
     let m_mapChangeLog = [];
     
-    let m_dataLibrary; // module such as ASZONE
+    let m_dataLibraryName; // module such as ASZONE
     let m_mapTableSizeXCache;
     let m_mapTableSizeYCache;
     let m_mapTableTileCache;
     
     let m_changeLogCalls = 0;
 
-    public.getDataLibrary = function mmapdata_getDataLibrary()
+    public.getDataLibraryName = function mmapdata_getDataLibraryName()
     {
-        return m_dataLibrary;
+        return m_dataLibraryName;
     }
-    public.switchData = function mmapdata_switchData(dataLibrary)
+    public.switchData = function mmapdata_switchData(dataLibraryName)
     {
-        m_dataLibrary = dataLibrary;
+        m_dataLibraryName = dataLibraryName;
         public.refreshAllTiles();
         //console.log("switch to " + m_dataLibrary.C_NAME);
     }
-    public.initialize = function mmapdata_initialize(dataLibrary)
+    public.initialize = function mmapdata_initialize(dataLibraryName)
     {
-        public.switchData(dataLibrary);
+        public.switchData(dataLibraryName);
     }
     public.initializeMapTableSize = function mmapdata_initializeMapTableSize(w, h)
     {
         m_mapTableSizeXCache = w;
         m_mapTableSizeYCache = h;
         m_mapTableTileCache = new Array(w*h);
-    }
-    public.isValidTileId = function mmapdata_isValidTileId(id)
-    {
-        let index = Object.values(m_dataLibrary.C_TILEENUM).indexOf(id)
-        return index > -1;
     }
     public.getRandomTileId = function mmapdata_getRandomTileId()
     {
@@ -953,7 +948,7 @@ let MMAPDATA = (function ()
     public.refreshAllTiles = function mmapdata_refreshAllTiles()
     {
         let callbackData = [MMAPDATA.C_NAME, 'refreshAllTilesResponse'];
-        ASENGINE.requestTileIdTable(m_dataLibrary.C_NAME, callbackData);
+        ASENGINE.requestTileIdTable(m_dataLibraryName, callbackData);
     }
     public.refreshAllTilesResponse = function mmapdata_refreshAllTilesResponse(tileIdTable)
     {
@@ -980,7 +975,7 @@ let MMAPDATA = (function ()
         if (typeof id === 'undefined')
         {
             return 0;
-            //throw 'mmapData get uninitialized ' + id + ' ' + m_dataLibrary.C_NAME + ' ' + m_mapTableSizeXCache + ' ' + m_mapTableSizeYCache;
+            //throw 'mmapData get uninitialized ' + id + ' ' + m_dataLibraryName + ' ' + m_mapTableSizeXCache + ' ' + m_mapTableSizeYCache;
         }
         return id;
     }

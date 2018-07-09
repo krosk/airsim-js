@@ -467,14 +467,8 @@ let ASMAPUI = (function ()
     
     let m_uiLayer;
     let m_uiSpriteTable = {};
-    /*
-    let m_uiZoneSpriteTable = {};
-    let m_uiViewSpriteTable = {};
-    let m_uiRoadSpriteTable = {};
-    let m_uiRicoSpriteTable = {};
-    let m_uiSaveSpriteTable = {};
-    let m_uiPlaySpriteTable = {};
-    */
+    
+    let m_uiCurrentId = {};
     
     let m_currentZoneId = 0;
     let m_currentViewId = 0;
@@ -489,12 +483,12 @@ let ASMAPUI = (function ()
         g_app.stage.addChild(m_uiLayer);
         m_uiLayer.interactive = false;
         
-        m_currentViewId = C_VIEW[0];
-        m_currentZoneId = C_ZONE[0];
-        m_currentRoadId = C_ROAD[0];
-        m_currentRicoId = C_RICO[0];
-        m_currentSaveId = C_SAVE[0];
-        m_currentPlayId = C_PLAY[0];
+        m_uiCurrentId[C_VIEW] = C_VIEW[0];
+        m_uiCurrentId[C_ZONE] = C_ZONE[0];
+        m_uiCurrentId[C_ROAD] = C_ROAD[0];
+        m_uiCurrentId[C_RICO] = C_RICO[0];
+        m_uiCurrentId[C_SAVE] = C_SAVE[0];
+        m_uiCurrentId[C_PLAY] = C_PLAY[0];
         
         public.resize();
     }
@@ -575,14 +569,6 @@ let ASMAPUI = (function ()
         
         m_uiLayer.removeChildren();
         m_uiSpriteTable = {};
-        /*
-        m_uiZoneSpriteTable = {};
-        m_uiViewSpriteTable = {};
-        m_uiRoadSpriteTable = {};
-        m_uiRicoSpriteTable = {};
-        m_uiSaveSpriteTable = {};
-        m_uiPlaySpriteTable = {};
-        */
         
         let c = 0;
         let maxHeight = 0;
@@ -610,7 +596,7 @@ let ASMAPUI = (function ()
     
     public.getCurrentZoneId = function asmapui_getCurrentZoneId()
     {
-        return m_currentZoneId;
+        return m_uiCurrentId[C_ZONE];
     }
     
     let isViewMode = function asmapui_isViewMode(mode)
@@ -645,17 +631,31 @@ let ASMAPUI = (function ()
     
     let getCurrentViewId = function asmapui_getCurrentViewId()
     {
-        return m_currentViewId;
+        return m_uiCurrentId[C_VIEW];
     }
     
     public.getCurrentRoadId = function asmapui_getCurrentRoadId()
     {
-        return m_currentRoadId;
+        return m_uiCurrentId[C_ROAD];
     }
     
-    let focusSprite = function asmapui_focusSprite(tileEnums, currentId, visible)
+    let unfocusSprite = function asmapui_unfocusSprite(tileEnums, currentId, visible)
     {
         let spriteTable = m_uiSpriteTable[tileEnums];
+        let keys = Object.keys(spriteTable);
+        for (let i in keys)
+        {
+            let id = keys[i];
+            let sprite = spriteTable[id];
+            sprite.alpha = 1;
+            sprite.visible = visible;
+        }
+    }
+    
+    let focusSprite = function asmapui_focusSprite(tileEnums, visible)
+    {
+        let spriteTable = m_uiSpriteTable[tileEnums];
+        let currentId = m_uiCurrentId[tileEnums];
         let keys = Object.keys(spriteTable);
         for (let i in keys)
         {
@@ -668,32 +668,32 @@ let ASMAPUI = (function ()
     
     let focusZoneSprite = function asmapui_focusZoneSprite()
     {
-        focusSprite(C_ZONE, m_currentZoneId, public.isZoneMode());
+        focusSprite(C_ZONE, public.isZoneMode());
     }
     
     let focusViewSprite = function asmapui_focusViewSprite()
     {
-        focusSprite(C_VIEW, m_currentViewId, true);
+        focusSprite(C_VIEW, true);
     }
     
     let focusRoadSprite = function asmapui_focusRoadSprite()
     {
-        focusSprite(C_ROAD, m_currentRoadId, public.isRoadMode());
+        focusSprite(C_ROAD, public.isRoadMode());
     }
     
     let focusRicoSprite = function asmapui_focusRicoSprite()
     {
-        focusSprite(C_RICO, m_currentRicoId, public.isRicoMode());
+        focusSprite(C_RICO, public.isRicoMode());
     }
     
     let focusSaveSprite = function asmapui_focusSaveSprite()
     {
-        focusSprite(C_SAVE, m_currentSaveId, public.isSaveMode());
+        focusSprite(C_SAVE, public.isSaveMode());
     }
     
     let focusPlaySprite = function asmapui_focusPlaySprite()
     {
-        focusSprite(C_PLAY, m_currentPlayId, public.isPlayMode());
+        focusSprite(C_PLAY, public.isPlayMode());
     }
     
     let getLayerWidth = function asmapui_getLayerWidth()
@@ -743,7 +743,7 @@ let ASMAPUI = (function ()
     
     let onZoneSpritePress = function asmapui_onZoneSpritePress(event, zoneId)
     {
-        m_currentZoneId = zoneId;
+        m_uiCurrentId[C_ZONE] = zoneId;
         focusZoneSprite();
     }
     
@@ -766,7 +766,7 @@ let ASMAPUI = (function ()
     let onViewSpritePress = function asmapui_onViewSpritePress(event, viewId)
     {
         let refresh = m_currentViewId != viewId;
-        m_currentViewId = viewId;
+        m_uiCurrentId[C_VIEW] = viewId;
         focusViewSprite();
         focusZoneSprite();
         focusRoadSprite();
@@ -781,27 +781,27 @@ let ASMAPUI = (function ()
     
     let onRoadSpritePress = function asmapui_onRoadSpritePress(event, roadId)
     {
-        m_currentRoadId = roadId;
+        m_uiCurrentId[C_ROAD] = roadId;
         focusRoadSprite();
     }
     
     let onRicoSpritePress = function asmapui_onRicoSpritePress(event, ricoId)
     {
-        m_currentRicoId = ricoId;
+        m_uiCurrentId[C_RICO] = ricoId;
         focusRicoSprite();
     }
     
     let onSaveSpritePress = function asmapui_onSaveSpritePress(event, saveId)
     {
-        m_currentSaveId = saveId;
+        m_uiCurrentId[C_SAVE] = saveId;
         focusSaveSprite();
         let C_DEF = ASICON.C_TILEENUM;
-        if (m_currentSaveId == C_DEF.SAVE)
+        if (saveId == C_DEF.SAVE)
         {
             let callbackData = [ASMAPUI.C_NAME,'saveDataResponse'];
             ASENGINE.getSerializable(callbackData);
         }
-        else if (m_currentSaveId == C_DEF.LOAD)
+        else if (saveId == C_DEF.LOAD)
         {
             let stateData = localStorage.getItem('ASSTATE');
             let callbackData = [ASMAPUI.C_NAME, 'loadDataResponse'];
@@ -823,29 +823,29 @@ let ASMAPUI = (function ()
     
     let onPlaySpritePress = function asmapui_onPlaySpritePress(event, playId)
     {
-        m_currentPlayId = playId;
+        m_uiCurrentId[C_PLAY] = playId;
         focusPlaySprite();
         let C_DEF = ASICON.C_TILEENUM;
-        if (m_currentPlayId == C_DEF.PLAY)
+        if (playId == C_DEF.PLAY)
         {
             //console.log("play");
             ASENGINE.setTickSpeed(1000);
         }
-        else if (m_currentPlayId == C_DEF.PLAY2)
+        else if (playId == C_DEF.PLAY2)
         {
             ASENGINE.setTickSpeed(100);
         }
-        else if (m_currentPlayId == C_DEF.PLAY3)
+        else if (playId == C_DEF.PLAY3)
         {
             ASENGINE.setTickSpeed(0);
         }
-        else if (m_currentPlayId == C_DEF.STOP)
+        else if (playId == C_DEF.STOP)
         {
             //console.log("stop");
             // infinite tick speed in fact
             ASENGINE.setTickSpeed(-1);
         }
-        else if (m_currentPlayId == C_DEF.STEP)
+        else if (playId == C_DEF.STEP)
         {
             //console.log("frame");
             // probably needs a special value

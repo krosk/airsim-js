@@ -489,7 +489,7 @@ let ASMAPUI = (function ()
         public.resize();
     }
     
-    let buildMenu = function asmapui_buildMenu(tileEnums, tileTable, tileFunction, level)
+    let buildMenu = function asmapui_buildMenu(tileEnums, tileTable, callback, level)
     {
         let landscape = MMAPRENDER.isOrientationLandscape();
         let c = 0;
@@ -500,7 +500,7 @@ let ASMAPUI = (function ()
         for (let i in tileEnums)
         {
             let tileId = tileEnums[i];
-            let sprite = tileFunction(tileId);
+            let sprite = createSprite(tileId, callback);
             m_uiLayer.addChild(sprite);
             tileTable[tileId] = sprite;
             if (maxWidth < sprite.width)
@@ -573,22 +573,22 @@ let ASMAPUI = (function ()
         let maxHeight = 0;
         let maxWidth = 0;
         let zoneEnums = ASZONE.zoneTile;
-        buildMenu(zoneEnums, m_uiZoneSpriteTable, createZoneSprite, 1);
+        buildMenu(zoneEnums, m_uiZoneSpriteTable, onZoneSpritePress, 1);
         
         let roadEnums = ASROAD.roadTile;
-        buildMenu(roadEnums, m_uiRoadSpriteTable, createRoadSprite, 1);
+        buildMenu(roadEnums, m_uiRoadSpriteTable, onRoadSpritePress, 1);
         
         let ricoEnums = ASZONE.ricoTile;
-        buildMenu(ricoEnums, m_uiRicoSpriteTable, createRicoSprite, 1);
+        buildMenu(ricoEnums, m_uiRicoSpriteTable, onRicoSpritePress, 1);
         
         let saveEnums = ASICON.saveTile;
-        buildMenu(saveEnums, m_uiSaveSpriteTable, createSaveSprite, 1);
+        buildMenu(saveEnums, m_uiSaveSpriteTable, onSaveSpritePress, 1);
         
         let playEnums = ASICON.playTile;
-        buildMenu(playEnums, m_uiPlaySpriteTable, createPlaySprite, 1);
+        buildMenu(playEnums, m_uiPlaySpriteTable, onPlaySpritePress, 1);
 
         let viewEnums = ASZONE.viewTile;
-        buildMenu(viewEnums, m_uiViewSpriteTable, createViewSprite, 0);
+        buildMenu(viewEnums, m_uiViewSpriteTable, onViewSpritePress, 0);
         
         focusZoneSprite();
         focusViewSprite();
@@ -704,36 +704,6 @@ let ASMAPUI = (function ()
         sprite.on('pointerdown',
             function(e){callback(e, id);});
         return sprite;
-    }
-    
-    let createZoneSprite = function asmapui_createZoneSprite(tileId)
-    {
-        return createSprite(tileId, onZoneSpritePress);
-    }
-    
-    let createViewSprite = function asmapui_createViewSprite(viewId)
-    {
-        return createSprite(viewId, onViewSpritePress);
-    }
-    
-    let createRoadSprite = function asmapui_createRoadSprite(roadId)
-    {
-        return createSprite(roadId, onRoadSpritePress);
-    }
-    
-    let createRicoSprite = function asmapui_createRicoSprite(ricoId)
-    {
-        return createSprite(ricoId, onRicoSpritePress);
-    }
-    
-    let createSaveSprite = function asmapui_createSaveSprite(saveId)
-    {
-        return createSprite(saveId, onSaveSpritePress);
-    }
-    
-    let createPlaySprite = function asmapui_cratePlaySprite(playId)
-    {
-        return createSprite(playId, onPlaySpritePress);
     }
     
     let createMenuBackground = function asmapui_createMenuBackground(width, height)
@@ -875,6 +845,29 @@ let ASMAPUI = (function ()
             ASENGINE.setTickSpeed(1001);
         }
     }
+    
+    let C_VIEW = ASZONE.viewTile;
+    
+    let viewZone = function asmapui_viewZone()
+    {
+        MMAPDATA.switchData(ASZONE.C_NAME);
+    }
+    
+    let viewRoad = function asmapui_viewRoad()
+    {
+        MMAPDATA.switchData(ASROAD.C_NAME);
+    }
+    
+    let viewRico = function asmapui_viewRico()
+    {
+        MMAPDATA.switchData(ASRICO.C_NAME);
+    }
+    
+    let C_CALLBACK = {
+        [C_VIEW[0]] : viewZone,
+        [C_VIEW[1]] : viewRoad,
+        [C_VIEW[2]] : viewRico
+    };
     
     return public;
 })()

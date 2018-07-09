@@ -1,28 +1,5 @@
 const G_CHECK = true;
 
-let ASCOMMON = (function()
-{
-    let public = {};
-    
-    public.getTileIdTable = function ascommon_getTileIdTable(module)
-    {
-        const tableSizeX = ASSTATE.getTableSizeX();
-        const tableSizeY = ASSTATE.getTableSizeY();
-        let table = [];
-        for (let y = 0; y < tableSizeY; y++)
-        {
-            for (let x = 0; x < tableSizeX; x++)
-            {
-                let index = x + y*tableSizeX;
-                table[index] = module.getDataId(x, y);
-            }
-        }
-        return table;
-    }
-    
-    return public;
-})();
-
 let ASSTATE = (function()
 {
     let public = {};
@@ -577,6 +554,22 @@ let ASSTATE = (function()
         }
     }
     
+    public.getTileIdTable = function asstate_getTileIdTable(module)
+    {
+        const tableSizeX = ASSTATE.getTableSizeX();
+        const tableSizeY = ASSTATE.getTableSizeY();
+        let table = [];
+        for (let y = 0; y < tableSizeY; y++)
+        {
+            for (let x = 0; x < tableSizeX; x++)
+            {
+                let index = x + y*tableSizeX;
+                table[index] = module.getDataId(x, y);
+            }
+        }
+        return table;
+    }
+    
     public.getSerializable = function asstate_getSerializable()
     {
         console.log(Array.from(m_dataStateView));
@@ -723,7 +716,7 @@ let ASZONE = (function ()
     
     public.getTileIdTable = function aszone_getTileIdTable()
     {
-        return ASCOMMON.getTileIdTable(this);
+        return ASSTATE.getTileIdTable(this);
     }
     
     public.getAllChangedTileId = function aszone_getAllChangedTileId()
@@ -974,7 +967,7 @@ let ASROAD = (function ()
     
     public.getTileIdTable = function asroad_getTileIdTable()
     {
-        return ASCOMMON.getTileIdTable(this);
+        return ASSTATE.getTileIdTable(this);
     }
     
     public.getAllChangedTileId = function asroad_getAllChangedTileId()
@@ -1512,7 +1505,7 @@ let ASRICO = (function ()
     
     public.getTileIdTable = function asrico_getTileIdTable()
     {
-        return ASCOMMON.getTileIdTable(this);
+        return ASSTATE.getTileIdTable(this);
     }
     
     public.getAllChangedTileId = function asrico_getAllChangedTileId()

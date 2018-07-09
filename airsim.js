@@ -695,9 +695,9 @@ let ASMAPUI = (function ()
         return g_app.renderer.height;
     }
     
-    let createSprite = function asmapui_createSprite(id, callback, library)
+    let createSprite = function asmapui_createSprite(id, callback)
     {
-        let textureName = library.getTileTextureName(id);
+        let textureName = MMAPRENDER.getTileTextureName(id);
         let textureCache = PIXI.utils.TextureCache[textureName];
         let sprite = new PIXI.Sprite(textureCache);
         sprite.interactive = true;
@@ -708,32 +708,32 @@ let ASMAPUI = (function ()
     
     let createZoneSprite = function asmapui_createZoneSprite(tileId)
     {
-        return createSprite(tileId, onZoneSpritePress, ASZONE);
+        return createSprite(tileId, onZoneSpritePress);
     }
     
     let createViewSprite = function asmapui_createViewSprite(viewId)
     {
-        return createSprite(viewId, onViewSpritePress, ASZONE);
+        return createSprite(viewId, onViewSpritePress);
     }
     
     let createRoadSprite = function asmapui_createRoadSprite(roadId)
     {
-        return createSprite(roadId, onRoadSpritePress, ASROAD);
+        return createSprite(roadId, onRoadSpritePress);
     }
     
     let createRicoSprite = function asmapui_createRicoSprite(ricoId)
     {
-        return createSprite(ricoId, onRicoSpritePress, ASZONE);
+        return createSprite(ricoId, onRicoSpritePress);
     }
     
     let createSaveSprite = function asmapui_createSaveSprite(saveId)
     {
-        return createSprite(saveId, onSaveSpritePress, ASICON);
+        return createSprite(saveId, onSaveSpritePress);
     }
     
     let createPlaySprite = function asmapui_cratePlaySprite(playId)
     {
-        return createSprite(playId, onPlaySpritePress, ASICON);
+        return createSprite(playId, onPlaySpritePress);
     }
     
     let createMenuBackground = function asmapui_createMenuBackground(width, height)
@@ -1904,6 +1904,8 @@ let MMAPRENDER = (function ()
     let m_cameraBatchRadiusRendered = 1;
     let m_cameraBatchListRendered = null;
     
+    let m_textureNameCache = {};
+    
     let m_singleClickCallback;
     let m_doubleClickCallback;
 
@@ -1918,7 +1920,12 @@ let MMAPRENDER = (function ()
     
     public.getTileTextureName = function mmaprender_getTileTextureName(tileId)
     {
-        return MMAPDATA.getDataLibrary().getTileTextureName(tileId);
+        let name = m_textureNameCache[tileId];
+        if (typeof name == 'undefined')
+        {
+            throw "looking for not loaded texture id " + tileId;
+        }
+        return m_textureNameCache[tileId];
     }
     
     public.initializeTexture = function mmaprender_initializeTexture(library)
@@ -1928,6 +1935,7 @@ let MMAPRENDER = (function ()
         {
             let id = values[i] | 0;
             let textureName = library.getTileTextureName(id);
+            m_textureNameCache[id] = textureName;
             let graphics = library.createTexture(id);
             let texture = g_app.renderer.generateTexture(graphics);
             PIXI.utils.TextureCache[textureName] = texture;

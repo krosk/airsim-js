@@ -458,8 +458,12 @@ let ASMAPUI = (function ()
     let C_ICON_HEIGHT = 48;
     let C_ICON_WIDTH = 64;
     
-    let C_VIEW = ASZONE.viewTile;
-    let C_ZONE = ASZONE.zoneTile;
+    const C_VIEW = ASZONE.viewTile;
+    const C_ZONE = ASZONE.zoneTile;
+    const C_ROAD = ASROAD.roadTile;
+    const C_RICO = ASZONE.ricoTile;
+    const C_SAVE = ASICON.saveTile;
+    const C_PLAY = ASICON.playTile;
     
     let m_uiLayer;
     let m_uiZoneSpriteTable = {};
@@ -484,10 +488,10 @@ let ASMAPUI = (function ()
         
         m_currentViewId = C_VIEW[0];
         m_currentZoneId = C_ZONE[0];
-        m_currentRoadId = ASROAD.roadTile[0];
-        m_currentRicoId = ASZONE.ricoTile[0];
-        m_currentSaveId = ASICON.saveTile[0];
-        m_currentPlayId = ASICON.playTile[0];
+        m_currentRoadId = C_ROAD[0];
+        m_currentRicoId = C_RICO[0];
+        m_currentSaveId = C_SAVE[0];
+        m_currentPlayId = C_PLAY[0];
         
         public.resize();
     }
@@ -578,17 +582,13 @@ let ASMAPUI = (function ()
         
         buildMenu(C_ZONE, m_uiZoneSpriteTable, onZoneSpritePress, 1);
         
-        let roadEnums = ASROAD.roadTile;
-        buildMenu(roadEnums, m_uiRoadSpriteTable, onRoadSpritePress, 1);
+        buildMenu(C_ROAD, m_uiRoadSpriteTable, onRoadSpritePress, 1);
         
-        let ricoEnums = ASZONE.ricoTile;
-        buildMenu(ricoEnums, m_uiRicoSpriteTable, onRicoSpritePress, 1);
+        buildMenu(C_RICO, m_uiRicoSpriteTable, onRicoSpritePress, 1);
         
-        let saveEnums = ASICON.saveTile;
-        buildMenu(saveEnums, m_uiSaveSpriteTable, onSaveSpritePress, 1);
+        buildMenu(C_SAVE, m_uiSaveSpriteTable, onSaveSpritePress, 1);
         
-        let playEnums = ASICON.playTile;
-        buildMenu(playEnums, m_uiPlaySpriteTable, onPlaySpritePress, 1);
+        buildMenu(C_PLAY, m_uiPlaySpriteTable, onPlaySpritePress, 1);
 
         buildMenu(C_VIEW, m_uiViewSpriteTable, onViewSpritePress, 0);
         
@@ -786,7 +786,6 @@ let ASMAPUI = (function ()
     {
         m_currentSaveId = saveId;
         focusSaveSprite();
-        let saveEnums = ASICON.saveTile;
         let C_DEF = ASICON.C_TILEENUM;
         if (m_currentSaveId == C_DEF.SAVE)
         {
@@ -817,7 +816,6 @@ let ASMAPUI = (function ()
     {
         m_currentPlayId = playId;
         focusPlaySprite();
-        let playEnums = ASICON.playTile;
         let C_DEF = ASICON.C_TILEENUM;
         if (m_currentPlayId == C_DEF.PLAY)
         {

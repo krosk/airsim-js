@@ -458,6 +458,9 @@ let ASMAPUI = (function ()
     let C_ICON_HEIGHT = 48;
     let C_ICON_WIDTH = 64;
     
+    let C_VIEW = ASZONE.viewTile;
+    let C_ZONE = ASZONE.zoneTile;
+    
     let m_uiLayer;
     let m_uiZoneSpriteTable = {};
     let m_uiViewSpriteTable = {};
@@ -479,8 +482,8 @@ let ASMAPUI = (function ()
         g_app.stage.addChild(m_uiLayer);
         m_uiLayer.interactive = false;
         
-        m_currentViewId = ASZONE.viewTile[0];
-        m_currentZoneId = ASZONE.zoneTile[0];
+        m_currentViewId = C_VIEW[0];
+        m_currentZoneId = C_ZONE[0];
         m_currentRoadId = ASROAD.roadTile[0];
         m_currentRicoId = ASZONE.ricoTile[0];
         m_currentSaveId = ASICON.saveTile[0];
@@ -572,8 +575,8 @@ let ASMAPUI = (function ()
         let c = 0;
         let maxHeight = 0;
         let maxWidth = 0;
-        let zoneEnums = ASZONE.zoneTile;
-        buildMenu(zoneEnums, m_uiZoneSpriteTable, onZoneSpritePress, 1);
+        
+        buildMenu(C_ZONE, m_uiZoneSpriteTable, onZoneSpritePress, 1);
         
         let roadEnums = ASROAD.roadTile;
         buildMenu(roadEnums, m_uiRoadSpriteTable, onRoadSpritePress, 1);
@@ -587,8 +590,7 @@ let ASMAPUI = (function ()
         let playEnums = ASICON.playTile;
         buildMenu(playEnums, m_uiPlaySpriteTable, onPlaySpritePress, 1);
 
-        let viewEnums = ASZONE.viewTile;
-        buildMenu(viewEnums, m_uiViewSpriteTable, onViewSpritePress, 0);
+        buildMenu(C_VIEW, m_uiViewSpriteTable, onViewSpritePress, 0);
         
         focusZoneSprite();
         focusViewSprite();
@@ -605,8 +607,7 @@ let ASMAPUI = (function ()
     
     let isViewMode = function asmapui_isViewMode(mode)
     {
-        const viewEnums = ASZONE.viewTile;
-        return getCurrentViewId() == viewEnums[mode];
+        return getCurrentViewId() == C_VIEW[mode];
     }
     
     public.isZoneMode = function asmapui_isZoneMode()
@@ -739,7 +740,6 @@ let ASMAPUI = (function ()
     
     let refreshMapDisplay = function asmapui_refreshMapDisplay()
     {
-        let viewEnums = ASZONE.viewTile;
         if (public.isZoneMode())
         {
             MMAPDATA.switchData(ASZONE.C_NAME);
@@ -845,8 +845,6 @@ let ASMAPUI = (function ()
             ASENGINE.setTickSpeed(1001);
         }
     }
-    
-    let C_VIEW = ASZONE.viewTile;
     
     let viewZone = function asmapui_viewZone()
     {

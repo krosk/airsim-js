@@ -176,7 +176,7 @@ let ASICON = (function ()
         [C.NONE] : addNothing,
         [C.VIEW] : addText("VIEW"),
         [C.ZONE] : addText("ZONE"),
-        [C.SPDP] : addText("RUN "),
+        [C.SPDP] : addText("SPEED"),
         [C.SALO] : addText("OPTI"),
         [C.PLAY] : addPlay,
         [C.PLAY2] : addPlay2,

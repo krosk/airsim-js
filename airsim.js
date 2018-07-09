@@ -465,17 +465,19 @@ let ASMAPUI = (function ()
     const C_SAVE = ASICON.saveTile;
     const C_PLAY = ASICON.playTile;
     
+    let C_LEVEL = {
+        [C_VIEW] : 0,
+        [C_ZONE] : 1,
+        [C_ROAD] : 1,
+        [C_RICO] : 1,
+        [C_SAVE] : 1,
+        [C_PLAY] : 1
+    };
+    
     let m_uiLayer;
     let m_uiSpriteTable = {};
     
     let m_uiCurrentId = {};
-    
-    let m_currentZoneId = 0;
-    let m_currentViewId = 0;
-    let m_currentRoadId = 0;
-    let m_currentRicoId = 0;
-    let m_currentSaveId = 0;
-    let m_currentPlayId = 0;
     
     public.initialize = function asmapui_initialize()
     {
@@ -493,9 +495,10 @@ let ASMAPUI = (function ()
         public.resize();
     }
     
-    let buildMenu = function asmapui_buildMenu(tileEnums, callback, level)
+    let buildMenu = function asmapui_buildMenu(tileEnums, callback)
     {
         m_uiSpriteTable[tileEnums] = {};
+        let level = C_LEVEL[tileEnums];
         let tileTable = m_uiSpriteTable[tileEnums];
         let landscape = MMAPRENDER.isOrientationLandscape();
         let c = 0;
@@ -574,17 +577,17 @@ let ASMAPUI = (function ()
         let maxHeight = 0;
         let maxWidth = 0;
         
-        buildMenu(C_ZONE, onZoneSpritePress, 1);
+        buildMenu(C_ZONE, onZoneSpritePress);
         
-        buildMenu(C_ROAD, onRoadSpritePress, 1);
+        buildMenu(C_ROAD, onRoadSpritePress);
         
-        buildMenu(C_RICO, onRicoSpritePress, 1);
+        buildMenu(C_RICO, onRicoSpritePress);
         
-        buildMenu(C_SAVE, onSaveSpritePress, 1);
+        buildMenu(C_SAVE, onSaveSpritePress);
         
-        buildMenu(C_PLAY, onPlaySpritePress, 1);
+        buildMenu(C_PLAY, onPlaySpritePress);
 
-        buildMenu(C_VIEW, onViewSpritePress, 0);
+        buildMenu(C_VIEW, onViewSpritePress);
         
         focusZoneSprite();
         focusViewSprite();
@@ -765,7 +768,7 @@ let ASMAPUI = (function ()
     
     let onViewSpritePress = function asmapui_onViewSpritePress(event, viewId)
     {
-        let refresh = m_currentViewId != viewId;
+        let refresh = m_uiCurrentId[C_VIEW] != viewId;
         m_uiCurrentId[C_VIEW] = viewId;
         focusViewSprite();
         focusZoneSprite();

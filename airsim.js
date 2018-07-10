@@ -466,12 +466,12 @@ let ASMAPUI = (function ()
     const C_PLAY = ASICON.playTile;
     
     const C_TABLE = {
-        C_VIEW,
-        C_ZONE,
-        C_ROAD,
-        C_RICO,
-        C_SAVE,
-        C_PLAY
+        0 : C_VIEW,
+        1 : C_ZONE,
+        2 : C_ROAD,
+        3 : C_RICO,
+        4 : C_SAVE,
+        5 : C_PLAY
     }
     
     let C_LEVEL = {
@@ -490,6 +490,15 @@ let ASMAPUI = (function ()
         [C_RICO] : true,
         [C_SAVE] : false,
         [C_PLAY] : true
+    };
+    
+    let C_VISIBLE_BIND = {
+        [C_VIEW] : [-1, -1],
+        [C_ZONE] : [0, 0],
+        [C_ROAD] : [0, 1],
+        [C_RICO] : [0, 2],
+        [C_SAVE] : [0, 3],
+        [C_PLAY] : [0, 4]
     };
     
     let m_uiLayer;
@@ -606,12 +615,15 @@ let ASMAPUI = (function ()
 
         buildMenu(C_VIEW, onViewSpritePress);
         
-        focusZoneSprite();
-        focusViewSprite();
-        focusRoadSprite();
-        focusRicoSprite();
-        focusSaveSprite();
-        focusPlaySprite();
+        focusAllSprite();
+    }
+    
+    let focusAllSprite = function asmapui_focusAllSprite()
+    {
+        for (let i in C_TABLE)
+        {
+            focusSprite(C_TABLE[i]);
+        }
     }
     
     let setSingleId = function asmapui_setSingleId(tileEnum, tileId)
@@ -669,11 +681,23 @@ let ASMAPUI = (function ()
         return getSingleId(C_ROAD);
     }
     
-    let focusSprite = function asmapui_focusSprite(tileEnum, visible)
+    let focusSprite = function asmapui_focusSprite(tileEnum)
     {
         let spriteTable = m_uiSpriteTable[tileEnum];
         let currentId = getSingleId(tileEnum);
         let stateful = C_STATEFUL[tileEnum];
+        let visibleBind = C_VISIBLE_BIND[tileEnum];
+        let visible;
+        if (visibleBind[0] == -1)
+        {
+            visible = true;
+        }
+        else
+        {
+            let parentEnum = C_TABLE[visibleBind[0]];
+            let parentId = parentEnum[visibleBind[1]];
+            visible = getSingleId(parentEnum) == parentId;
+        }
         let keys = Object.keys(spriteTable);
         for (let i in keys)
         {
@@ -682,36 +706,6 @@ let ASMAPUI = (function ()
             sprite.alpha = currentId == id || !stateful ? 1 : 0.25;
             sprite.visible = visible;
         }
-    }
-    
-    let focusZoneSprite = function asmapui_focusZoneSprite()
-    {
-        focusSprite(C_ZONE, public.isZoneMode());
-    }
-    
-    let focusViewSprite = function asmapui_focusViewSprite()
-    {
-        focusSprite(C_VIEW, true);
-    }
-    
-    let focusRoadSprite = function asmapui_focusRoadSprite()
-    {
-        focusSprite(C_ROAD, public.isRoadMode());
-    }
-    
-    let focusRicoSprite = function asmapui_focusRicoSprite()
-    {
-        focusSprite(C_RICO, public.isRicoMode());
-    }
-    
-    let focusSaveSprite = function asmapui_focusSaveSprite()
-    {
-        focusSprite(C_SAVE, public.isSaveMode());
-    }
-    
-    let focusPlaySprite = function asmapui_focusPlaySprite()
-    {
-        focusSprite(C_PLAY, public.isPlayMode());
     }
     
     let getLayerWidth = function asmapui_getLayerWidth()
@@ -785,12 +779,7 @@ let ASMAPUI = (function ()
     {
         let refresh = getSingleId(C_VIEW) != viewId;
         setSingleId(C_VIEW, viewId);
-        focusViewSprite();
-        focusZoneSprite();
-        focusRoadSprite();
-        focusRicoSprite();
-        focusSaveSprite();
-        focusPlaySprite();
+        focusAllSprite();
         if (refresh)
         {
             refreshMapDisplay();
@@ -800,20 +789,20 @@ let ASMAPUI = (function ()
     let onRoadSpritePress = function asmapui_onRoadSpritePress(event, roadId)
     {
         setSingleId(C_ROAD, roadId);
-        focusRoadSprite();
+        focusAllSprite();
     }
     
     let onRicoSpritePress = function asmapui_onRicoSpritePress(event, ricoId)
     {
         setSingleId(C_RICO, ricoId);
-        focusRicoSprite();
+        focusAllSprite();
     }
     
     let onSaveSpritePress = function asmapui_onSaveSpritePress(event, saveId)
     {
         // can skip this?
         setSingleId(C_SAVE, saveId);
-        focusSaveSprite();
+        focusAllSprite();
         let C_DEF = ASICON.C_TILEENUM;
         if (saveId == C_DEF.SAVE)
         {
@@ -843,7 +832,7 @@ let ASMAPUI = (function ()
     let onPlaySpritePress = function asmapui_onPlaySpritePress(event, playId)
     {
         setSingleId(C_PLAY, playId);
-        focusPlaySprite();
+        focusAllSprite();
         let C_DEF = ASICON.C_TILEENUM;
         if (playId == C_DEF.PLAY)
         {

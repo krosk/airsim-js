@@ -483,6 +483,15 @@ let ASMAPUI = (function ()
         [C_PLAY] : 1
     };
     
+    let C_STATEFUL = {
+        [C_VIEW] : true,
+        [C_ZONE] : true,
+        [C_ROAD] : true,
+        [C_RICO] : true,
+        [C_SAVE] : false,
+        [C_PLAY] : true
+    }
+    
     let m_uiLayer;
     let m_uiSpriteTable = {};
     
@@ -650,29 +659,17 @@ let ASMAPUI = (function ()
         return m_uiCurrentId[C_ROAD];
     }
     
-    let unfocusSprite = function asmapui_unfocusSprite(tileEnums, currentId, visible)
-    {
-        let spriteTable = m_uiSpriteTable[tileEnums];
-        let keys = Object.keys(spriteTable);
-        for (let i in keys)
-        {
-            let id = keys[i];
-            let sprite = spriteTable[id];
-            sprite.alpha = 1;
-            sprite.visible = visible;
-        }
-    }
-    
     let focusSprite = function asmapui_focusSprite(tileEnums, visible)
     {
         let spriteTable = m_uiSpriteTable[tileEnums];
         let currentId = m_uiCurrentId[tileEnums];
+        let stateful = C_STATEFUL[tileEnums];
         let keys = Object.keys(spriteTable);
         for (let i in keys)
         {
             let id = keys[i];
             let sprite = spriteTable[id];
-            sprite.alpha = id == currentId ? 1 : 0.25;
+            sprite.alpha = id == currentId || !stateful ? 1 : 0.25;
             sprite.visible = visible;
         }
     }

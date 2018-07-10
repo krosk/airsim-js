@@ -642,27 +642,12 @@ let ASMAPUI = (function ()
     
     public.isZoneMode = function asmapui_isZoneMode()
     {
-        return isViewMode(0);
+        return getVisibleState(C_ZONE);
     }
     
     public.isRoadMode = function asmapui_isRoadMode()
     {
-        return isViewMode(1);
-    }
-    
-    public.isRicoMode = function asmapui_isRicoMode()
-    {
-        return isViewMode(2);
-    }
-    
-    public.isSaveMode = function asmapui_isSaveMode()
-    {
-        return isViewMode(3);
-    }
-    
-    public.isPlayMode = function asmapui_isPlayMode()
-    {
-        return isViewMode(4);
+        return getVisibleState(C_ROAD);
     }
     
     let getCurrentViewId = function asmapui_getCurrentViewId()
@@ -675,11 +660,8 @@ let ASMAPUI = (function ()
         return getSingleId(C_ROAD);
     }
     
-    let focusSprite = function asmapui_focusSprite(tileEnum)
+    let getVisibleState = function asmapui_getVisibleState(tileEnum)
     {
-        let spriteTable = m_uiSpriteTable[tileEnum];
-        let currentId = getSingleId(tileEnum);
-        let stateful = C_STATEFUL[tileEnum];
         let visibleBind = C_VISIBLE_BIND[tileEnum];
         let visible;
         if (visibleBind[0] == -1)
@@ -692,6 +674,16 @@ let ASMAPUI = (function ()
             let parentId = parentEnum[visibleBind[1]];
             visible = getSingleId(parentEnum) == parentId;
         }
+        return visible;
+    }
+    
+    let focusSprite = function asmapui_focusSprite(tileEnum)
+    {
+        let spriteTable = m_uiSpriteTable[tileEnum];
+        let currentId = getSingleId(tileEnum);
+        let stateful = C_STATEFUL[tileEnum];
+        let visibleBind = C_VISIBLE_BIND[tileEnum];
+        let visible = getVisibleState(tileEnum);
         let keys = Object.keys(spriteTable);
         for (let i in keys)
         {
@@ -750,20 +742,20 @@ let ASMAPUI = (function ()
     let onZoneSpritePress = function asmapui_onZoneSpritePress(event, zoneId)
     {
         setSingleId(C_ZONE, zoneId);
-        focusZoneSprite();
+        focusAllSprite();
     }
     
     let refreshMapDisplay = function asmapui_refreshMapDisplay()
     {
-        if (public.isZoneMode())
+        if (getVisibleState(C_ZONE))
         {
             MMAPDATA.switchData(ASZONE.C_NAME);
         }
-        else if (public.isRoadMode())
+        else if (getVisibleState(C_ROAD))
         {
             MMAPDATA.switchData(ASROAD.C_NAME);
         }
-        else if (public.isRicoMode())
+        else if (getVisibleState(C_RICO))
         {
             MMAPDATA.switchData(ASRICO.C_NAME);
         }
@@ -795,7 +787,7 @@ let ASMAPUI = (function ()
     let onSaveSpritePress = function asmapui_onSaveSpritePress(event, saveId)
     {
         // can skip this?
-        setSingleId(C_SAVE, saveId);
+        //setSingleId(C_SAVE, saveId);
         focusAllSprite();
         let C_DEF = ASICON.C_TILEENUM;
         if (saveId == C_DEF.SAVE)

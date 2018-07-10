@@ -506,12 +506,7 @@ let ASMAPUI = (function ()
         for (let i in C_TABLE)
         {
             let tileEnum = C_TABLE[i];
-            m_uiActiveId[tileEnum] = {};
-            for (let j in tileEnum)
-            {
-                let tileId = tileEnum[j];
-                m_uiActiveId[tileEnum][tileId] = j == 0 ? true : false;
-            }
+            setSingleId(tileEnum, tileEnum[0]);
         }
         
         public.resize();
@@ -621,24 +616,12 @@ let ASMAPUI = (function ()
     
     let setSingleId = function asmapui_setSingleId(tileEnum, tileId)
     {
-        for (let i in tileEnum)
-        {
-            let id = tileEnum[i];
-            m_uiActiveId[tileEnum][id] = id == tileId;
-        }
+        m_uiActiveId[tileEnum] = tileId;
     }
     
     let getSingleId = function asmapui_getSingleId(tileEnum)
     {
-        for (let i in tileEnum)
-        {
-            let id = tileEnum[i];
-            if (m_uiActiveId[tileEnum][id])
-            {
-                return id;
-            }
-        }
-        throw tileEnum + 'should have one selected'
+        return m_uiActiveId[tileEnum];
     }
     
     public.getCurrentZoneId = function asmapui_getCurrentZoneId()
@@ -686,17 +669,17 @@ let ASMAPUI = (function ()
         return getSingleId(C_ROAD);
     }
     
-    let focusSprite = function asmapui_focusSprite(tileEnums, visible)
+    let focusSprite = function asmapui_focusSprite(tileEnum, visible)
     {
-        let spriteTable = m_uiSpriteTable[tileEnums];
-        let currentId = m_uiActiveId[tileEnums];
-        let stateful = C_STATEFUL[tileEnums];
+        let spriteTable = m_uiSpriteTable[tileEnum];
+        let currentId = getSingleId(tileEnum);
+        let stateful = C_STATEFUL[tileEnum];
         let keys = Object.keys(spriteTable);
         for (let i in keys)
         {
             let id = keys[i];
             let sprite = spriteTable[id];
-            sprite.alpha = currentId[id] || !stateful ? 1 : 0.25;
+            sprite.alpha = currentId == id || !stateful ? 1 : 0.25;
             sprite.visible = visible;
         }
     }
@@ -800,7 +783,7 @@ let ASMAPUI = (function ()
     
     let onViewSpritePress = function asmapui_onViewSpritePress(event, viewId)
     {
-        let refresh = !m_uiActiveId[C_VIEW][viewId];
+        let refresh = getSingleId(C_VIEW) != viewId;
         setSingleId(C_VIEW, viewId);
         focusViewSprite();
         focusZoneSprite();
@@ -887,6 +870,11 @@ let ASMAPUI = (function ()
             // probably needs a special value
             ASENGINE.setTickSpeed(1001);
         }
+    }
+    
+    let getIdEnabled = function asmapui_getIdEnabled(tileEnum, id)
+    {
+        return getSingleId(tileEnum) == id;
     }
     
     let viewZone = function asmapui_viewZone()

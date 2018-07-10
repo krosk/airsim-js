@@ -465,6 +465,15 @@ let ASMAPUI = (function ()
     const C_SAVE = ASICON.saveTile;
     const C_PLAY = ASICON.playTile;
     
+    const C_TABLE = {
+        C_VIEW,
+        C_ZONE,
+        C_ROAD,
+        C_RICO,
+        C_SAVE,
+        C_PLAY
+    }
+    
     let C_LEVEL = {
         [C_VIEW] : 0,
         [C_ZONE] : 1,
@@ -485,12 +494,11 @@ let ASMAPUI = (function ()
         g_app.stage.addChild(m_uiLayer);
         m_uiLayer.interactive = false;
         
-        m_uiCurrentId[C_VIEW] = C_VIEW[0];
-        m_uiCurrentId[C_ZONE] = C_ZONE[0];
-        m_uiCurrentId[C_ROAD] = C_ROAD[0];
-        m_uiCurrentId[C_RICO] = C_RICO[0];
-        m_uiCurrentId[C_SAVE] = C_SAVE[0];
-        m_uiCurrentId[C_PLAY] = C_PLAY[0];
+        for (let i in C_TABLE)
+        {
+            let tileEnum = C_TABLE[i];
+            m_uiCurrentId[tileEnum] = tileEnum[0];
+        }
         
         public.resize();
     }

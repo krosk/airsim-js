@@ -490,12 +490,12 @@ let ASMAPUI = (function ()
         [C_RICO] : true,
         [C_SAVE] : false,
         [C_PLAY] : true
-    }
+    };
     
     let m_uiLayer;
     let m_uiSpriteTable = {};
     
-    let m_uiCurrentId = {};
+    let m_uiActiveId = {};
     
     public.initialize = function asmapui_initialize()
     {
@@ -506,11 +506,11 @@ let ASMAPUI = (function ()
         for (let i in C_TABLE)
         {
             let tileEnum = C_TABLE[i];
-            m_uiCurrentId[tileEnum] = {};
+            m_uiActiveId[tileEnum] = {};
             for (let j in tileEnum)
             {
                 let tileId = tileEnum[j];
-                m_uiCurrentId[tileEnum][tileId] = j == 0 ? true : false;
+                m_uiActiveId[tileEnum][tileId] = j == 0 ? true : false;
             }
         }
         
@@ -624,7 +624,7 @@ let ASMAPUI = (function ()
         for (let i in tileEnum)
         {
             let id = tileEnum[i];
-            m_uiCurrentId[tileEnum][id] = id == tileId;
+            m_uiActiveId[tileEnum][id] = id == tileId;
         }
     }
     
@@ -633,7 +633,7 @@ let ASMAPUI = (function ()
         for (let i in tileEnum)
         {
             let id = tileEnum[i];
-            if (m_uiCurrentId[tileEnum][id])
+            if (m_uiActiveId[tileEnum][id])
             {
                 return id;
             }
@@ -689,7 +689,7 @@ let ASMAPUI = (function ()
     let focusSprite = function asmapui_focusSprite(tileEnums, visible)
     {
         let spriteTable = m_uiSpriteTable[tileEnums];
-        let currentId = m_uiCurrentId[tileEnums];
+        let currentId = m_uiActiveId[tileEnums];
         let stateful = C_STATEFUL[tileEnums];
         let keys = Object.keys(spriteTable);
         for (let i in keys)
@@ -800,7 +800,7 @@ let ASMAPUI = (function ()
     
     let onViewSpritePress = function asmapui_onViewSpritePress(event, viewId)
     {
-        let refresh = !m_uiCurrentId[C_VIEW][viewId];
+        let refresh = !m_uiActiveId[C_VIEW][viewId];
         setSingleId(C_VIEW, viewId);
         focusViewSprite();
         focusZoneSprite();

@@ -506,7 +506,12 @@ let ASMAPUI = (function ()
         for (let i in C_TABLE)
         {
             let tileEnum = C_TABLE[i];
-            m_uiCurrentId[tileEnum] = tileEnum[0];
+            m_uiCurrentId[tileEnum] = {};
+            for (let j in tileEnum)
+            {
+                let tileId = tileEnum[j];
+                m_uiCurrentId[tileEnum][tileId] = j == 0 ? true : false;
+            }
         }
         
         public.resize();
@@ -614,14 +619,36 @@ let ASMAPUI = (function ()
         focusPlaySprite();
     }
     
+    let setSingleId = function asmapui_setSingleId(tileEnum, tileId)
+    {
+        for (let i in tileEnum)
+        {
+            let id = tileEnum[i];
+            m_uiCurrentId[tileEnum][id] = id == tileId;
+        }
+    }
+    
+    let getSingleId = function asmapui_getSingleId(tileEnum)
+    {
+        for (let i in tileEnum)
+        {
+            let id = tileEnum[i];
+            if (m_uiCurrentId[tileEnum][id])
+            {
+                return id;
+            }
+        }
+        throw tileEnum + 'should have one selected'
+    }
+    
     public.getCurrentZoneId = function asmapui_getCurrentZoneId()
     {
-        return m_uiCurrentId[C_ZONE];
+        return getSingleId(C_ZONE);
     }
     
     let isViewMode = function asmapui_isViewMode(mode)
     {
-        return getCurrentViewId() == C_VIEW[mode];
+        return getSingleId(C_VIEW) == C_VIEW[mode];
     }
     
     public.isZoneMode = function asmapui_isZoneMode()
@@ -651,12 +678,12 @@ let ASMAPUI = (function ()
     
     let getCurrentViewId = function asmapui_getCurrentViewId()
     {
-        return m_uiCurrentId[C_VIEW];
+        return getSingleId(C_VIEW);
     }
     
     public.getCurrentRoadId = function asmapui_getCurrentRoadId()
     {
-        return m_uiCurrentId[C_ROAD];
+        return getSingleId(C_ROAD);
     }
     
     let focusSprite = function asmapui_focusSprite(tileEnums, visible)
@@ -669,7 +696,7 @@ let ASMAPUI = (function ()
         {
             let id = keys[i];
             let sprite = spriteTable[id];
-            sprite.alpha = id == currentId || !stateful ? 1 : 0.25;
+            sprite.alpha = currentId[id] || !stateful ? 1 : 0.25;
             sprite.visible = visible;
         }
     }
@@ -751,7 +778,7 @@ let ASMAPUI = (function ()
     
     let onZoneSpritePress = function asmapui_onZoneSpritePress(event, zoneId)
     {
-        m_uiCurrentId[C_ZONE] = zoneId;
+        setSingleId(C_ZONE, zoneId);
         focusZoneSprite();
     }
     
@@ -773,8 +800,8 @@ let ASMAPUI = (function ()
     
     let onViewSpritePress = function asmapui_onViewSpritePress(event, viewId)
     {
-        let refresh = m_uiCurrentId[C_VIEW] != viewId;
-        m_uiCurrentId[C_VIEW] = viewId;
+        let refresh = !m_uiCurrentId[C_VIEW][viewId];
+        setSingleId(C_VIEW, viewId);
         focusViewSprite();
         focusZoneSprite();
         focusRoadSprite();
@@ -789,19 +816,20 @@ let ASMAPUI = (function ()
     
     let onRoadSpritePress = function asmapui_onRoadSpritePress(event, roadId)
     {
-        m_uiCurrentId[C_ROAD] = roadId;
+        setSingleId(C_ROAD, roadId);
         focusRoadSprite();
     }
     
     let onRicoSpritePress = function asmapui_onRicoSpritePress(event, ricoId)
     {
-        m_uiCurrentId[C_RICO] = ricoId;
+        setSingleId(C_RICO, ricoId);
         focusRicoSprite();
     }
     
     let onSaveSpritePress = function asmapui_onSaveSpritePress(event, saveId)
     {
-        m_uiCurrentId[C_SAVE] = saveId;
+        // can skip this?
+        setSingleId(C_SAVE, saveId);
         focusSaveSprite();
         let C_DEF = ASICON.C_TILEENUM;
         if (saveId == C_DEF.SAVE)
@@ -831,7 +859,7 @@ let ASMAPUI = (function ()
     
     let onPlaySpritePress = function asmapui_onPlaySpritePress(event, playId)
     {
-        m_uiCurrentId[C_PLAY] = playId;
+        setSingleId(C_PLAY, playId);
         focusPlaySprite();
         let C_DEF = ASICON.C_TILEENUM;
         if (playId == C_DEF.PLAY)

@@ -603,17 +603,11 @@ let ASMAPUI = (function ()
         let maxHeight = 0;
         let maxWidth = 0;
         
-        buildMenu(C_ZONE, onZoneSpritePress);
-        
-        buildMenu(C_ROAD, onRoadSpritePress);
-        
-        buildMenu(C_RICO, onRicoSpritePress);
-        
-        buildMenu(C_SAVE, onSaveSpritePress);
-        
-        buildMenu(C_PLAY, onPlaySpritePress);
-
-        buildMenu(C_VIEW, onViewSpritePress);
+        for (let i in C_TABLE)
+        {
+            let module = C_TABLE[i];
+            buildMenu(module, C_SPRITE_TOUCH[module]);
+        }
         
         focusAllSprite();
     }
@@ -865,6 +859,15 @@ let ASMAPUI = (function ()
     {
         return getSingleId(tileEnum) == id;
     }
+    
+    let C_SPRITE_TOUCH = {
+        [C_VIEW] : onViewSpritePress,
+        [C_ZONE] : onZoneSpritePress,
+        [C_ROAD] : onRoadSpritePress,
+        [C_RICO] : onRicoSpritePress,
+        [C_SAVE] : onSaveSpritePress,
+        [C_PLAY] : onPlaySpritePress
+    };
     
     let viewZone = function asmapui_viewZone()
     {

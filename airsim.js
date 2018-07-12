@@ -844,27 +844,6 @@ let ASMAPUI = (function ()
         [C_PLAY] : onPlaySpritePress
     };
     
-    let viewZone = function asmapui_viewZone()
-    {
-        MMAPDATA.switchData(ASZONE.C_NAME);
-    }
-    
-    let viewRoad = function asmapui_viewRoad()
-    {
-        MMAPDATA.switchData(ASROAD.C_NAME);
-    }
-    
-    let viewRico = function asmapui_viewRico()
-    {
-        MMAPDATA.switchData(ASRICO.C_NAME);
-    }
-    
-    let C_CALLBACK = {
-        [C_VIEW[0]] : viewZone,
-        [C_VIEW[1]] : viewRoad,
-        [C_VIEW[2]] : viewRico
-    };
-    
     return public;
 })()
 

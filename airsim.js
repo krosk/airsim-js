@@ -532,15 +532,19 @@ let ASMAPUI = (function ()
         let backgroundHeight = 0;
         let maxWidth = 0;
         let maxHeight = 0;
-        let superCallback = function (e, id)
+        let genericCallback = function (e, id)
         {
-            callback(e, id);
+            setSingleId(tileEnums, id);
+            if (typeof callback != 'undefined')
+            {
+                callback(e, id);
+            }
             focusAllSprite();
         }
         for (let i in tileEnums)
         {
             let tileId = tileEnums[i];
-            let sprite = createSprite(tileId, superCallback);
+            let sprite = createSprite(tileId, genericCallback);
             m_uiLayer.addChild(sprite);
             tileTable[tileId] = sprite;
             if (maxWidth < sprite.width)
@@ -744,11 +748,6 @@ let ASMAPUI = (function ()
         return sprite;
     }
     
-    let onZoneSpritePress = function asmapui_onZoneSpritePress(event, zoneId)
-    {
-        setSingleId(C_ZONE, zoneId);
-    }
-    
     let refreshMapDisplay = function asmapui_refreshMapDisplay()
     {
         if (getVisibleState(C_ZONE))
@@ -768,21 +767,11 @@ let ASMAPUI = (function ()
     let onViewSpritePress = function asmapui_onViewSpritePress(event, viewId)
     {
         let refresh = getSingleId(C_VIEW) != viewId;
-        setSingleId(C_VIEW, viewId);
-        if (refresh)
+        //setSingleId(C_VIEW, viewId);
+        //if (refresh)
         {
             refreshMapDisplay();
         }
-    }
-    
-    let onRoadSpritePress = function asmapui_onRoadSpritePress(event, roadId)
-    {
-        setSingleId(C_ROAD, roadId);
-    }
-    
-    let onRicoSpritePress = function asmapui_onRicoSpritePress(event, ricoId)
-    {
-        setSingleId(C_RICO, ricoId);
     }
     
     let onSaveSpritePress = function asmapui_onSaveSpritePress(event, saveId)
@@ -817,7 +806,7 @@ let ASMAPUI = (function ()
     
     let onPlaySpritePress = function asmapui_onPlaySpritePress(event, playId)
     {
-        setSingleId(C_PLAY, playId);
+        //setSingleId(C_PLAY, playId);
         let C_DEF = ASICON.C_TILEENUM;
         if (playId == C_DEF.PLAY)
         {
@@ -853,9 +842,6 @@ let ASMAPUI = (function ()
     
     let C_SPRITE_TOUCH = {
         [C_VIEW] : onViewSpritePress,
-        [C_ZONE] : onZoneSpritePress,
-        [C_ROAD] : onRoadSpritePress,
-        [C_RICO] : onRicoSpritePress,
         [C_SAVE] : onSaveSpritePress,
         [C_PLAY] : onPlaySpritePress
     };

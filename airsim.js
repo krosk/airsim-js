@@ -418,9 +418,9 @@ let ASMAP = (function ()
         {
             doZoneViewSingleClick(x, y);
         }
-        if (ASMAPUI.isRoadMode())
+        //if (ASMAPUI.isRoadMode())
         {
-            doRoadViewSingleClick(x, y);
+            //doRoadViewSingleClick(x, y);
         }
     }
     
@@ -458,47 +458,43 @@ let ASMAPUI = (function ()
     let C_ICON_HEIGHT = 48;
     let C_ICON_WIDTH = 64;
     
+    const C_MAIN = ASICON.mainTile;
     const C_VIEW = ASZONE.viewTile;
     const C_ZONE = ASZONE.zoneTile;
     const C_ROAD = ASROAD.roadTile;
-    const C_RICO = ASZONE.ricoTile;
     const C_SAVE = ASICON.saveTile;
     const C_PLAY = ASICON.playTile;
     
     const C_TABLE = {
-        0 : C_VIEW,
-        1 : C_ZONE,
-        2 : C_ROAD,
-        3 : C_RICO,
-        4 : C_SAVE,
-        5 : C_PLAY
+        0 : C_MAIN,
+        1 : C_VIEW,
+        2 : C_ZONE,
+        3 : C_PLAY,
+        4 : C_SAVE
     }
     
     let C_LEVEL = {
-        [C_VIEW] : 0,
+        [C_MAIN] : 0,
+        [C_VIEW] : 1,
         [C_ZONE] : 1,
-        [C_ROAD] : 1,
-        [C_RICO] : 1,
-        [C_SAVE] : 1,
-        [C_PLAY] : 1
+        [C_PLAY] : 1,
+        [C_SAVE] : 1
     };
     
     let C_STATEFUL = {
+        [C_MAIN] : true,
         [C_VIEW] : true,
         [C_ZONE] : true,
-        [C_ROAD] : true,
-        [C_RICO] : true,
-        [C_SAVE] : false,
-        [C_PLAY] : true
+        [C_PLAY] : true,
+        [C_SAVE] : false
     };
     
     let C_VISIBLE_BIND = {
-        [C_VIEW] : [-1, -1],
-        [C_ZONE] : [0, 0],
-        [C_ROAD] : [0, 1],
-        [C_RICO] : [0, 2],
-        [C_SAVE] : [0, 3],
-        [C_PLAY] : [0, 4]
+        [C_MAIN] : [-1, -1],
+        [C_VIEW] : [0, 0],
+        [C_ZONE] : [0, 1],
+        [C_PLAY] : [0, 2],
+        [C_SAVE] : [0, 3]
     };
     
     let m_uiLayer;
@@ -732,7 +728,7 @@ let ASMAPUI = (function ()
     
     let isViewMode = function asmapui_isViewMode(mode)
     {
-        return getSingleId(C_VIEW) == C_VIEW[mode];
+        return getSingleId(C_MAIN) == C_MAIN[0];
     }
     
     public.isZoneMode = function asmapui_isZoneMode()
@@ -757,15 +753,15 @@ let ASMAPUI = (function ()
     
     let refreshMapDisplay = function asmapui_refreshMapDisplay()
     {
-        if (getVisibleState(C_ZONE))
+        if (getSingleId(C_VIEW) == C_VIEW[0])
         {
             MMAPDATA.switchData(ASZONE.C_NAME);
         }
-        else if (getVisibleState(C_ROAD))
+        else if (getSingleId(C_VIEW) == C_VIEW[1])
         {
             MMAPDATA.switchData(ASROAD.C_NAME);
         }
-        else if (getVisibleState(C_RICO))
+        else if (getSingleId(C_VIEW) == C_VIEW[3])
         {
             MMAPDATA.switchData(ASRICO.C_NAME);
         }

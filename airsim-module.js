@@ -674,11 +674,12 @@ let ASZONE = (function ()
     ];
     
     public.viewTile = [
-        C.RESLOW,
-        C.ROAD,
-        C.INDLOW,
-        C.COMLOW,
         C.DIRT,
+        C.ROAD,
+        C.NONE,
+        C.RESLOW,
+        C.COMLOW,
+        C.INDLOW,
     ];
     
     let isValidZone = function aszone_isValidZone(id)

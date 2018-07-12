@@ -9,7 +9,7 @@ let ASICON = (function ()
         VIEW: 910,
         ZONE: 920,
         SPDP: 930,
-        SALO: 940,
+        GAME: 940,
         PLAY: 931,
         PLAY2: 932,
         PLAY3: 933,
@@ -30,7 +30,7 @@ let ASICON = (function ()
         [C.VIEW] : getColor(0, 255, 255),
         [C.ZONE] : getColor(0, 192, 0),
         [C.SPDP] : getColor(0, 192, 192),
-        [C.SALO] : getColor(0, 0, 192),
+        [C.GAME] : getColor(0, 0, 192),
         [C.PLAY] : getColor(0, 255, 0),
         [C.PLAY2] : getColor(0, 255, 0),
         [C.PLAY3] : getColor(0, 255, 0),
@@ -176,8 +176,8 @@ let ASICON = (function ()
         [C.NONE] : addNothing,
         [C.VIEW] : addText("VIEW"),
         [C.ZONE] : addText("ZONE"),
-        [C.SPDP] : addText("SPEED"),
-        [C.SALO] : addText("OPTI"),
+        [C.SPDP] : addText("PLAY"),
+        [C.GAME] : addText("GAME"),
         [C.PLAY] : addPlay,
         [C.PLAY2] : addPlay2,
         [C.PLAY3] : addPlay3,
@@ -187,11 +187,11 @@ let ASICON = (function ()
         [C.LOAD] : addText("LOAD"),
     }
     
-    public.masterTile = [
+    public.mainTile = [
         C.VIEW,
         C.ZONE,
         C.SPDP,
-        C.SALO
+        C.GAME
     ]
     
     public.playTile = [

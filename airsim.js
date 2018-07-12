@@ -639,36 +639,6 @@ let ASMAPUI = (function ()
         return m_uiActiveId[tileEnum];
     }
     
-    public.getCurrentZoneId = function asmapui_getCurrentZoneId()
-    {
-        return getSingleId(C_ZONE);
-    }
-    
-    let isViewMode = function asmapui_isViewMode(mode)
-    {
-        return getSingleId(C_VIEW) == C_VIEW[mode];
-    }
-    
-    public.isZoneMode = function asmapui_isZoneMode()
-    {
-        return getVisibleState(C_ZONE);
-    }
-    
-    public.isRoadMode = function asmapui_isRoadMode()
-    {
-        return getVisibleState(C_ROAD);
-    }
-    
-    let getCurrentViewId = function asmapui_getCurrentViewId()
-    {
-        return getSingleId(C_VIEW);
-    }
-    
-    public.getCurrentRoadId = function asmapui_getCurrentRoadId()
-    {
-        return getSingleId(C_ROAD);
-    }
-    
     let getVisibleState = function asmapui_getVisibleState(tileEnum)
     {
         let visibleBind = C_VISIBLE_BIND[tileEnum];
@@ -746,6 +716,43 @@ let ASMAPUI = (function ()
         let texture = g_app.renderer.generateTexture(graphics);
         let sprite = new PIXI.Sprite(texture)
         return sprite;
+    }
+    
+    let getIdEnabled = function asmapui_getIdEnabled(tileEnum, id)
+    {
+        return getSingleId(tileEnum) == id;
+    }
+    
+    // dependants
+    
+    public.getCurrentZoneId = function asmapui_getCurrentZoneId()
+    {
+        return getSingleId(C_ZONE);
+    }
+    
+    let isViewMode = function asmapui_isViewMode(mode)
+    {
+        return getSingleId(C_VIEW) == C_VIEW[mode];
+    }
+    
+    public.isZoneMode = function asmapui_isZoneMode()
+    {
+        return getVisibleState(C_ZONE);
+    }
+    
+    public.isRoadMode = function asmapui_isRoadMode()
+    {
+        return getVisibleState(C_ROAD);
+    }
+    
+    let getCurrentViewId = function asmapui_getCurrentViewId()
+    {
+        return getSingleId(C_VIEW);
+    }
+    
+    public.getCurrentRoadId = function asmapui_getCurrentRoadId()
+    {
+        return getSingleId(C_ROAD);
     }
     
     let refreshMapDisplay = function asmapui_refreshMapDisplay()
@@ -833,11 +840,6 @@ let ASMAPUI = (function ()
             // probably needs a special value
             ASENGINE.setTickSpeed(1001);
         }
-    }
-    
-    let getIdEnabled = function asmapui_getIdEnabled(tileEnum, id)
-    {
-        return getSingleId(tileEnum) == id;
     }
     
     let C_SPRITE_TOUCH = {

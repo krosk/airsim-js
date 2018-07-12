@@ -532,10 +532,15 @@ let ASMAPUI = (function ()
         let backgroundHeight = 0;
         let maxWidth = 0;
         let maxHeight = 0;
+        let superCallback = function (e, id)
+        {
+            callback(e, id);
+            focusAllSprite();
+        }
         for (let i in tileEnums)
         {
             let tileId = tileEnums[i];
-            let sprite = createSprite(tileId, callback);
+            let sprite = createSprite(tileId, superCallback);
             m_uiLayer.addChild(sprite);
             tileTable[tileId] = sprite;
             if (maxWidth < sprite.width)
@@ -742,7 +747,6 @@ let ASMAPUI = (function ()
     let onZoneSpritePress = function asmapui_onZoneSpritePress(event, zoneId)
     {
         setSingleId(C_ZONE, zoneId);
-        focusAllSprite();
     }
     
     let refreshMapDisplay = function asmapui_refreshMapDisplay()
@@ -765,7 +769,6 @@ let ASMAPUI = (function ()
     {
         let refresh = getSingleId(C_VIEW) != viewId;
         setSingleId(C_VIEW, viewId);
-        focusAllSprite();
         if (refresh)
         {
             refreshMapDisplay();
@@ -775,20 +778,17 @@ let ASMAPUI = (function ()
     let onRoadSpritePress = function asmapui_onRoadSpritePress(event, roadId)
     {
         setSingleId(C_ROAD, roadId);
-        focusAllSprite();
     }
     
     let onRicoSpritePress = function asmapui_onRicoSpritePress(event, ricoId)
     {
         setSingleId(C_RICO, ricoId);
-        focusAllSprite();
     }
     
     let onSaveSpritePress = function asmapui_onSaveSpritePress(event, saveId)
     {
         // can skip this?
         //setSingleId(C_SAVE, saveId);
-        focusAllSprite();
         let C_DEF = ASICON.C_TILEENUM;
         if (saveId == C_DEF.SAVE)
         {
@@ -818,7 +818,6 @@ let ASMAPUI = (function ()
     let onPlaySpritePress = function asmapui_onPlaySpritePress(event, playId)
     {
         setSingleId(C_PLAY, playId);
-        focusAllSprite();
         let C_DEF = ASICON.C_TILEENUM;
         if (playId == C_DEF.PLAY)
         {

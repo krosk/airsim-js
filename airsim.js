@@ -537,7 +537,7 @@ let ASMAPUI = (function ()
             setSingleId(tileEnums, id);
             if (typeof callback != 'undefined')
             {
-                callback(e, id);
+                callback(id);
             }
             focusAllSprite();
         }
@@ -764,9 +764,9 @@ let ASMAPUI = (function ()
         }
     }
     
-    let onViewSpritePress = function asmapui_onViewSpritePress(event, viewId)
+    let onViewSpritePress = function asmapui_onViewSpritePress(viewId)
     {
-        let refresh = getSingleId(C_VIEW) != viewId;
+        //let refresh = getSingleId(C_VIEW) != viewId;
         //setSingleId(C_VIEW, viewId);
         //if (refresh)
         {
@@ -774,7 +774,7 @@ let ASMAPUI = (function ()
         }
     }
     
-    let onSaveSpritePress = function asmapui_onSaveSpritePress(event, saveId)
+    let onSaveSpritePress = function asmapui_onSaveSpritePress(saveId)
     {
         // can skip this?
         //setSingleId(C_SAVE, saveId);
@@ -804,7 +804,7 @@ let ASMAPUI = (function ()
         MMAPDATA.refreshAllTiles();
     }
     
-    let onPlaySpritePress = function asmapui_onPlaySpritePress(event, playId)
+    let onPlaySpritePress = function asmapui_onPlaySpritePress(playId)
     {
         //setSingleId(C_PLAY, playId);
         let C_DEF = ASICON.C_TILEENUM;

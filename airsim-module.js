@@ -645,7 +645,7 @@ let ASZONE = (function ()
         let color = C_CITYCOLOR[id];
         let margin = getCityTextureMargin(id);
         let height = C_CITYHEIGHT[id];
-        return MMAPRENDER.createTexture(color, margin, height);
+        return ASTILE.createTexture(color, margin, height);
     }
     
     public.zoneTile = [
@@ -842,7 +842,7 @@ let ASROAD = (function ()
         let color = C_TRAFFICCOLOR[id];
         let margin = getTrafficTextureMargin(id);
         let height = getTrafficTextureHeight(id);
-        return MMAPRENDER.createTexture(color, margin, height);
+        return ASTILE.createTexture(color, margin, height);
     }
     
     public.roadTile = [
@@ -1439,7 +1439,7 @@ let ASRICO = (function ()
         let color = C_TILETEXTURE[id][0];
         let margin = getTileTextureMargin(id);
         let height = C_TILETEXTURE[id][1];
-        return MMAPRENDER.createTexture(color, margin, height);
+        return ASTILE.createTexture(color, margin, height);
     }
     
     let getDataIdByDensityLevel = function asrico_getDataIdByDensityLevel(index)

@@ -262,7 +262,7 @@ let ASMAP = (function ()
         MMAPDATA.initialize(ASZONE.C_NAME);
         ASTILE.initializeTexture(ASZONE);
         ASTILE.initializeTexture(ASROAD);
-        ASTILE.initializeTexture(ASICON);
+        ASTILE.initializeTexture(ASICON_TILE);
         ASTILE.initializeTexture(ASRICO);
         MMAPRENDER.initialize(doSingleClick, doDoubleClick);
         ASMAPUI.initialize();
@@ -458,12 +458,12 @@ let ASMAPUI = (function ()
     let C_ICON_HEIGHT = 48;
     let C_ICON_WIDTH = 64;
     
-    const C_MAIN = ASICON.mainTile;
+    const C_MAIN = ASICON_TILE.mainTile;
     const C_VIEW = ASZONE.viewTile;
     const C_ZONE = ASZONE.zoneTile;
     const C_ROAD = ASROAD.roadTile;
-    const C_SAVE = ASICON.saveTile;
-    const C_PLAY = ASICON.playTile;
+    const C_SAVE = ASICON_TILE.saveTile;
+    const C_PLAY = ASICON_TILE.playTile;
     
     const C_TABLE = {
         0 : C_MAIN,
@@ -1877,36 +1877,6 @@ let MMAPRENDER = (function ()
         MMAPBATCH.initialize();
         m_singleClickCallback = singleClick;
         m_doubleClickCallback = doubleClick;
-    }
-    
-    public.createTexture = function mmaprender_createTexture(color, margin, height)
-    {
-        let graphics = new PIXI.Graphics();
-        
-        let C_TEXTURE_BASE_SIZE_X = MMAPRENDER.getTextureBaseSizeX();
-        let C_TEXTURE_BASE_SIZE_Y = MMAPRENDER.getTextureBaseSizeY();
-    
-        let black = 0x000000;
-        graphics.beginFill(color);
-        graphics.lineStyle(1, black);
-    
-        let M = margin; // margin
-        let H = height;
-    
-        // draw a rectangle
-        graphics.moveTo(C_TEXTURE_BASE_SIZE_X / 2, M);
-        graphics.lineTo(M, C_TEXTURE_BASE_SIZE_Y / 2);
-        graphics.lineTo(M, C_TEXTURE_BASE_SIZE_Y / 2 + H);
-        graphics.lineTo(C_TEXTURE_BASE_SIZE_X / 2, C_TEXTURE_BASE_SIZE_Y - M + H);
-        graphics.lineTo(C_TEXTURE_BASE_SIZE_X - M, C_TEXTURE_BASE_SIZE_Y / 2 + H);
-        graphics.lineTo(C_TEXTURE_BASE_SIZE_X - M, C_TEXTURE_BASE_SIZE_Y / 2);
-        graphics.lineTo(C_TEXTURE_BASE_SIZE_X / 2, M);
-        graphics.moveTo(C_TEXTURE_BASE_SIZE_X / 2, C_TEXTURE_BASE_SIZE_Y - 2 * M + M);
-        graphics.lineTo(M, C_TEXTURE_BASE_SIZE_Y / 2);
-        graphics.moveTo(C_TEXTURE_BASE_SIZE_X / 2, C_TEXTURE_BASE_SIZE_Y - 2 * M + M);
-        graphics.lineTo(C_TEXTURE_BASE_SIZE_X - M, C_TEXTURE_BASE_SIZE_Y / 2);
-    
-        return graphics;
     }
 
     // sprites are rendered at their

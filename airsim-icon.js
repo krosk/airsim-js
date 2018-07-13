@@ -4,20 +4,7 @@ let ASICON = (function ()
     
     public.C_NAME = 'ASICON';
     
-    public.C_TILEENUM = {
-        NONE: 900,
-        VIEW: 910,
-        ZONE: 920,
-        SPDP: 930,
-        GAME: 940,
-        PLAY: 931,
-        PLAY2: 932,
-        PLAY3: 933,
-        STOP: 934,
-        STEP: 935,
-        SAVE: 941,
-        LOAD: 942
-    }
+    public.C_TILEENUM = ASTILE.C_TILE_ICON;
     const C = public.C_TILEENUM;
     
     let getColor = function asicon_getColor(r, g, b)

@@ -612,11 +612,6 @@ let ASZONE = (function ()
     public.C_TILEENUM = ASTILE.C_TILE_ZONE;
     const C = public.C_TILEENUM;
     
-    public.getTileTextureName = function aszone_getTileTextureName(tileId)
-    {
-        return public.C_NAME + tileId;
-    }
-    
     let getColor = function aszone_getColor(r, g, b)
     {
         return (r) * 2**16 + (g) * 2**8 + (b);
@@ -818,11 +813,6 @@ let ASROAD = (function ()
     
     public.C_TILEENUM = ASTILE.C_TILE_ROAD_CONGESTION;
     const C = public.C_TILEENUM;
-    
-    public.getTileTextureName = function asroad_getTileTextureName(tileId)
-    {
-        return public.C_NAME + tileId;
-    }
     
     let getColor = function asroad_getColor(r, g, b)
     {
@@ -1405,11 +1395,6 @@ let ASRICO = (function ()
     
     public.C_TILEENUM = ASTILE.C_TILE_RICO;
     const C = public.C_TILEENUM;
-    
-    public.getTileTextureName = function asrico_getTileTextureName(tileId)
-    {
-        return public.C_NAME + tileId;
-    }
     
     let getColor = function asrico_getColor(r, g, b)
     {

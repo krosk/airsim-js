@@ -260,10 +260,10 @@ let ASMAP = (function ()
         ASENGINE.initializeModule(w, h);
         MMAPDATA.initializeMapTableSize(w, h);
         MMAPDATA.initialize(ASZONE.C_NAME);
-        MMAPRENDER.initializeTexture(ASZONE);
-        MMAPRENDER.initializeTexture(ASROAD);
-        MMAPRENDER.initializeTexture(ASICON);
-        MMAPRENDER.initializeTexture(ASRICO);
+        ASTILE.initializeTexture(ASZONE);
+        ASTILE.initializeTexture(ASROAD);
+        ASTILE.initializeTexture(ASICON);
+        ASTILE.initializeTexture(ASRICO);
         MMAPRENDER.initialize(doSingleClick, doDoubleClick);
         ASMAPUI.initialize();
     }
@@ -680,7 +680,7 @@ let ASMAPUI = (function ()
     
     let createSprite = function asmapui_createSprite(id, callback)
     {
-        let textureName = MMAPRENDER.getTileTextureName(id);
+        let textureName = ASTILE.getTileTextureName(id);
         let textureCache = PIXI.utils.TextureCache[textureName];
         let sprite = new PIXI.Sprite(textureCache);
         sprite.interactive = true;
@@ -1075,7 +1075,7 @@ let MMAPBATCH = (function ()
             {
                 for (let y = 0; y < public.C_BATCH_SIZE_Y; y++)
                 {
-                    let textureName = MMAPRENDER.getTileTextureName(0);
+                    let textureName = ASTILE.getTileTextureName(0);
                     let textureCache = PIXI.utils.TextureCache[textureName];
                     let sprite = new PIXI.Sprite(textureCache);
 
@@ -1246,7 +1246,7 @@ let MMAPBATCH = (function ()
 
             let cTileX = public.getBatchXToStartTileX(batchX);
             let cTileY = public.getBatchYToStartTileY(batchY);
-            let textureName = MMAPRENDER.getTileTextureName(id);
+            let textureName = ASTILE.getTileTextureName(id);
             let textureCache = PIXI.utils.TextureCache[textureName];
             let sprite = getSpriteFromBatch(batch, tileX - cTileX, tileY - cTileY);
             sprite.setTexture(textureCache);
@@ -1867,8 +1867,6 @@ let MMAPRENDER = (function ()
     let m_cameraBatchRadiusRendered = 1;
     let m_cameraBatchListRendered = null;
     
-    let m_textureNameCache = {};
-    
     let m_singleClickCallback;
     let m_doubleClickCallback;
 
@@ -1879,30 +1877,6 @@ let MMAPRENDER = (function ()
         MMAPBATCH.initialize();
         m_singleClickCallback = singleClick;
         m_doubleClickCallback = doubleClick;
-    }
-    
-    public.getTileTextureName = function mmaprender_getTileTextureName(tileId)
-    {
-        let name = m_textureNameCache[tileId];
-        if (typeof name == 'undefined')
-        {
-            throw "looking for not loaded texture id " + tileId;
-        }
-        return m_textureNameCache[tileId];
-    }
-    
-    public.initializeTexture = function mmaprender_initializeTexture(library)
-    {
-        let values = Object.values(library.C_TILEENUM);
-        for (let i in values)
-        {
-            let id = values[i] | 0;
-            let textureName = library.getTileTextureName(id);
-            m_textureNameCache[id] = textureName;
-            let graphics = library.createTexture(id);
-            let texture = g_app.renderer.generateTexture(graphics);
-            PIXI.utils.TextureCache[textureName] = texture;
-        }
     }
     
     public.createTexture = function mmaprender_createTexture(color, margin, height)

@@ -104,6 +104,48 @@ let ASTILE = (function ()
     return public;
 })();
 
+let ASZONE_TILE = (function ()
+{
+    let public = {};
+    let getColor = ASTILE.getColor;
+    
+    public.C_TILEENUM = ASTILE.C_TILE_ZONE;
+    const C = public.C_TILEENUM;
+    
+    const C_CITYCOLOR = {
+        [C.NONE] : getColor(255, 0, 0),
+        [C.DIRT] : getColor(121, 85, 72),
+        [C.ROAD] : getColor(158, 158, 158),
+        [C.RESLOW] : getColor(76, 175, 80),
+        [C.COMLOW] : getColor(33, 150, 243),
+        [C.INDLOW] : getColor(255, 235, 59)
+    }
+    
+    const C_CITYHEIGHT = {
+        [C.NONE] : 0,
+        [C.DIRT] : 3,
+        [C.ROAD] : 6,
+        [C.RESLOW] : 6,
+        [C.COMLOW] : 6,
+        [C.INDLOW] : 6
+    }
+    
+    let getCityTextureMargin = function aszone_getCityTextureMargin(id)
+    {
+        return 0;
+    }
+    
+    public.createTexture = function aszone_createTexture(id)
+    {
+        let color = C_CITYCOLOR[id];
+        let margin = getCityTextureMargin(id);
+        let height = C_CITYHEIGHT[id];
+        return ASTILE.createTexture(color, margin, height);
+    }
+    
+    return public;
+})();
+
 let ASICON_TILE = (function ()
 {
     let public = {};

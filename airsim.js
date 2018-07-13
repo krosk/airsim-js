@@ -781,7 +781,7 @@ let ASMAPUI = (function ()
     {
         // can skip this?
         //setSingleId(C_SAVE, saveId);
-        let C_DEF = ASICON.C_TILEENUM;
+        let C_DEF = ASTILE.C_TILE_ICON;
         if (saveId == C_DEF.SAVE)
         {
             let callbackData = [ASMAPUI.C_NAME,'saveDataResponse'];
@@ -810,7 +810,7 @@ let ASMAPUI = (function ()
     let onPlaySpritePress = function asmapui_onPlaySpritePress(playId)
     {
         //setSingleId(C_PLAY, playId);
-        let C_DEF = ASICON.C_TILEENUM;
+        let C_DEF = ASTILE.C_TILE_ICON;
         if (playId == C_DEF.PLAY)
         {
             //console.log("play");

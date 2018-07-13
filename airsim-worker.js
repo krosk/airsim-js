@@ -1,3 +1,4 @@
+self.importScripts('airsim-tile.js');
 self.importScripts('airsim-module.js');
 
 const G_MODULE_INT = {

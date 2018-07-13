@@ -2,7 +2,7 @@ let ASICON = (function ()
 {
     let public = {};
     
-    public.C_NAME = 'asicon';
+    public.C_NAME = 'ASICON';
     
     public.C_TILEENUM = {
         NONE: 900,

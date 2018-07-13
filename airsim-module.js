@@ -609,15 +609,7 @@ let ASZONE = (function ()
         BUILDING: 2
     }
     
-    public.C_TILEENUM = {
-        NONE: 0,
-        DEFAULT: 1,
-        DIRT: 1,
-        ROAD: 3,
-        RESLOW: 10,
-        COMLOW: 20,
-        INDLOW: 30,
-    }
+    public.C_TILEENUM = ASTILE.C_TILE_ZONE;
     const C = public.C_TILEENUM;
     
     public.getTileTextureName = function aszone_getTileTextureName(tileId)
@@ -824,13 +816,7 @@ let ASROAD = (function ()
     const C_YOFFSET = [0, -1, 0, 1];
     const C_FROM = [2, 3, 0, 1];
     
-    public.C_TILEENUM = {
-        NONE: 100,
-        LOW: 101,
-        MID: 102,
-        HIG: 103,
-        VHI: 104
-    }
+    public.C_TILEENUM = ASTILE.C_TILE_ROAD_CONGESTION;
     const C = public.C_TILEENUM;
     
     public.getTileTextureName = function asroad_getTileTextureName(tileId)
@@ -1417,18 +1403,7 @@ let ASRICO = (function ()
     
     public.C_NAME = 'ASRICO';
     
-    public.C_TILEENUM = {
-        NONE: 200,
-        RESLOW_0: 210,
-        RESLOW_1: 211,
-        RESLOW_2: 212,
-        INDLOW_0: 220,
-        INDLOW_1: 221,
-        INDLOW_2: 222,
-        COMLOW_0: 230,
-        COMLOW_1: 231,
-        COMLOW_2: 232,
-    }
+    public.C_TILEENUM = ASTILE.C_TILE_RICO;
     const C = public.C_TILEENUM;
     
     public.getTileTextureName = function asrico_getTileTextureName(tileId)

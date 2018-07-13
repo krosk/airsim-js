@@ -17,7 +17,7 @@ let ASTILE = (function ()
         INDLOW: 30,
     };
     
-    public.C_TILE_ROAD_CONGESTION = {
+    public.C_TILE_ROAD = {
         NONE: 100,
         LOW: 101,
         MID: 102,
@@ -53,9 +53,22 @@ let ASTILE = (function ()
         LOAD: 942
     };
     
-    public.getTileTextureName = function astile_getTileTextureName(tileId)
+    let m_textureNameCache = {};
+    
+    let getTileTextureNameUnprotected = function astile_getTileTextureNameUnprotected(tileId)
     {
         return "TEXTURE-" + tileId;
+    }
+    
+    public.getTileTextureName = function astile_getTileTextureName(tileId)
+    {
+        let name = getTileTextureNameUnprotected(tileId);
+        if (typeof m_textureNameCache[name] == 'undefined')
+        {
+            console.log('texture not loaded for ' + tileId);
+            return getTileTextureNameUnprotected(0);
+        }
+        return name;
     }
     
     public.createTexture = function astile_createTexture(color, margin, height)
@@ -88,16 +101,25 @@ let ASTILE = (function ()
         return graphics;
     }
     
-    public.initializeTexture = function astile_initializeTexture(library)
+    public.initializeTexture = function astile_initializeTexture()
+    {
+        initializeTextureFor(ASICON_TILE);
+        initializeTextureFor(ASZONE_TILE);
+        initializeTextureFor(ASROAD_TILE);
+        initializeTextureFor(ASRICO_TILE);
+    }
+    
+    let initializeTextureFor = function astile_initializeTextureFor(library)
     {
         let values = Object.values(library.C_TILEENUM);
         for (let i in values)
         {
             let id = values[i] | 0;
-            let textureName = public.getTileTextureName(id);
+            let textureName = getTileTextureNameUnprotected(id);
             let graphics = library.createTexture(id);
             let texture = g_app.renderer.generateTexture(graphics);
             PIXI.utils.TextureCache[textureName] = texture;
+            m_textureNameCache[textureName] = true;
         }
     }
     
@@ -140,6 +162,82 @@ let ASZONE_TILE = (function ()
         let color = C_CITYCOLOR[id];
         let margin = getCityTextureMargin(id);
         let height = C_CITYHEIGHT[id];
+        return ASTILE.createTexture(color, margin, height);
+    }
+    
+    return public;
+})();
+
+let ASROAD_TILE = (function ()
+{
+    let public = {};
+    
+    let getColor = ASTILE.getColor;
+    
+    public.C_TILEENUM = ASTILE.C_TILE_ROAD;
+    const C = public.C_TILEENUM;
+    
+    const C_TRAFFICCOLOR = {
+        [C.NONE] : getColor(255, 255, 255),
+        [C.LOW] : getColor(76, 175, 80),
+        [C.MID] : getColor(255, 235, 59),
+        [C.HIG] : getColor(255, 50, 50),
+        [C.VHI] : getColor(180, 50, 50)
+    };
+    
+    let getTrafficTextureMargin = function asroad_getTrafficTextureMargin(id)
+    {
+        return 0;
+    }
+    
+    let getTrafficTextureHeight = function asroad_getTrafficTextureHeight(id)
+    {
+        return 3;
+    }
+    
+    public.createTexture = function asroad_createTexture(id)
+    {
+        let color = C_TRAFFICCOLOR[id];
+        let margin = getTrafficTextureMargin(id);
+        let height = getTrafficTextureHeight(id);
+        return ASTILE.createTexture(color, margin, height);
+    }
+    
+    return public;
+})();
+
+let ASRICO_TILE = (function ()
+{
+    let public = {};
+    
+    public.C_TILEENUM = ASTILE.C_TILE_RICO;
+    const C = public.C_TILEENUM;
+    
+    let getColor = ASTILE.getColor;
+    
+    const C_TILETEXTURE = {
+        [C.NONE] : [getColor(255, 255, 255), 3],
+        [C.RESLOW_0] : [getColor(76, 175, 80), 3],
+        [C.RESLOW_1] : [getColor(76, 175, 80), 6],
+        [C.RESLOW_2] : [getColor(76, 175, 80), 9],
+        [C.INDLOW_0] : [getColor(255, 235, 59), 3],
+        [C.INDLOW_1] : [getColor(255, 235, 59), 6],
+        [C.INDLOW_2] : [getColor(255, 235, 59), 9],
+        [C.COMLOW_0] : [getColor(33, 150, 243), 3],
+        [C.COMLOW_1] : [getColor(33, 150, 243), 6],
+        [C.COMLOW_2] : [getColor(33, 150, 243), 9],
+    };
+    
+    let getTileTextureMargin = function asrico_getTileTextureMargin(id)
+    {
+        return 0;
+    }
+    
+    public.createTexture = function asrico_createTexture(id)
+    {
+        let color = C_TILETEXTURE[id][0];
+        let margin = getTileTextureMargin(id);
+        let height = C_TILETEXTURE[id][1];
         return ASTILE.createTexture(color, margin, height);
     }
     

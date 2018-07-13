@@ -775,39 +775,8 @@ let ASROAD = (function ()
     const C_YOFFSET = [0, -1, 0, 1];
     const C_FROM = [2, 3, 0, 1];
     
-    public.C_TILEENUM = ASTILE.C_TILE_ROAD_CONGESTION;
+    public.C_TILEENUM = ASTILE.C_TILE_ROAD;
     const C = public.C_TILEENUM;
-    
-    let getColor = function asroad_getColor(r, g, b)
-    {
-        return (r) * 2**16 + (g) * 2**8 + (b);
-    }
-    
-    const C_TRAFFICCOLOR = {
-        [C.NONE] : getColor(255, 255, 255),
-        [C.LOW] : getColor(76, 175, 80),
-        [C.MID] : getColor(255, 235, 59),
-        [C.HIG] : getColor(255, 50, 50),
-        [C.VHI] : getColor(180, 50, 50)
-    };
-    
-    let getTrafficTextureMargin = function asroad_getTrafficTextureMargin(id)
-    {
-        return 0;
-    }
-    
-    let getTrafficTextureHeight = function asroad_getTrafficTextureHeight(id)
-    {
-        return 3;
-    }
-    
-    public.createTexture = function asroad_createTexture(id)
-    {
-        let color = C_TRAFFICCOLOR[id];
-        let margin = getTrafficTextureMargin(id);
-        let height = getTrafficTextureHeight(id);
-        return ASTILE.createTexture(color, margin, height);
-    }
     
     public.roadTile = [
         C.LOW,
@@ -1360,24 +1329,6 @@ let ASRICO = (function ()
     public.C_TILEENUM = ASTILE.C_TILE_RICO;
     const C = public.C_TILEENUM;
     
-    let getColor = function asrico_getColor(r, g, b)
-    {
-        return (r) * 2**16 + (g) * 2**8 + (b);
-    }
-    
-    const C_TILETEXTURE = {
-        [C.NONE] : [getColor(255, 255, 255), 3],
-        [C.RESLOW_0] : [getColor(76, 175, 80), 3],
-        [C.RESLOW_1] : [getColor(76, 175, 80), 6],
-        [C.RESLOW_2] : [getColor(76, 175, 80), 9],
-        [C.INDLOW_0] : [getColor(255, 235, 59), 3],
-        [C.INDLOW_1] : [getColor(255, 235, 59), 6],
-        [C.INDLOW_2] : [getColor(255, 235, 59), 9],
-        [C.COMLOW_0] : [getColor(33, 150, 243), 3],
-        [C.COMLOW_1] : [getColor(33, 150, 243), 6],
-        [C.COMLOW_2] : [getColor(33, 150, 243), 9],
-    };
-    
     // [level, type, offer ric, demand ric]
     
     const C_RICOPROPERTY = {
@@ -1392,19 +1343,6 @@ let ASRICO = (function ()
         [C.COMLOW_2] : [2, 3,   0,   0,  10,   4,   6,   0],
     };
     const C_R = C_RICOPROPERTY;
-    
-    let getTileTextureMargin = function asrico_getTileTextureMargin(id)
-    {
-        return 0;
-    }
-    
-    public.createTexture = function asrico_createTexture(id)
-    {
-        let color = C_TILETEXTURE[id][0];
-        let margin = getTileTextureMargin(id);
-        let height = C_TILETEXTURE[id][1];
-        return ASTILE.createTexture(color, margin, height);
-    }
     
     let getDataIdByDensityLevel = function asrico_getDataIdByDensityLevel(index)
     {

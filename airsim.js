@@ -260,10 +260,7 @@ let ASMAP = (function ()
         ASENGINE.initializeModule(w, h);
         MMAPDATA.initializeMapTableSize(w, h);
         MMAPDATA.initialize(ASZONE.C_NAME);
-        ASTILE.initializeTexture(ASZONE_TILE);
-        ASTILE.initializeTexture(ASROAD);
-        ASTILE.initializeTexture(ASICON_TILE);
-        ASTILE.initializeTexture(ASRICO);
+        ASTILE.initializeTexture();
         MMAPRENDER.initialize(doSingleClick, doDoubleClick);
         ASMAPUI.initialize();
     }

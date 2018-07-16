@@ -1403,6 +1403,37 @@ The architecture can be using a state machine:
     them at its pace
 - After there is response, compute
 
+UI and data view
+As of current implementation, each module has
+one view only. This is limiting the potential
+as one module could in fact provide many views.
+So, there should be a view menu that propose
+different views, while there should be many l
+function menus.
+View menu
+  Zone
+  Road traversal
+  Road congestion
+  Rico residential
+  Rico commercial
+  Rico industrial
+Build Menu
+  Different zones
+Play menu
+  Speed
+Save menu
+  Save
+  Load
+
+The architecture could be
+One function should be able to build the whole
+menu as long as there is the list of tiles, and
+identifier, and a level.
+buildMenu(library, list, level).
+Sprites should be organised into a big table.
+Sprites require the library that has the
+texture name, as well as a callback when
+pressing the function. One is enough.
 
 
 It is possible that transferring a small
@@ -1648,3 +1679,68 @@ end
 return list
 
 
+** Texture and tile architecture
+Tile id can live in the engine and module space.
+It is mandatory to have at least the tile id
+enums in that space both for computation.
+However, tileId is linked to a texture, 
+and require as well:
+  - texture name
+Texture being initialized for the first time
+and never updated, so its is cacheable, even the
+name of the texture is cachable easily.
+
+** menu toolbox thoughts
+Visibility of a sub menu (at level above 0).
+There is only one sub menu visible per level.
+How is it decided? Should it be always through
+the state of a parent button?
+Should it be by class member?
+Since there is only one visible menu per level,
+it can be a class member. Does it fare well
+with concurrent menu visibility? There are
+a few menus that can be concurrent, such as
+info view vs action zoning. Those two can be
+displayed at the same time.
+If a menu is out of sight, its functions must
+be disabled.
+Later, requesting if a view is enabled must
+return the correct number even if the view menu
+is not the active one. So it cannot be based
+on visibility and transparency, and a flag
+for currently selected (or last selected) is
+necessary.
+For now, the implementation will follow a bind
+to parent rule, as a parent is hidden all 
+children are hidden as well.
+
+So far, the menu architecture follows a permenu
+basis. That is the collection is menus, and
+callbacks must cover all the actions for all
+items in the menu. Hence the collection of
+callbacks per item is not straightforward
+to store (if the tile enums change in the 
+module the struct changes too). 
+The menu callback is a pain to write.
+Maybe the issue is the tile enum being provided
+by the modules, while they are in fact just
+a collection of ids.
+
+A menu structure could be a json like.
+The leaf can be
+{
+    tileId : integer,
+    callback : function {}
+    children : []
+}
+A parent could be
+{
+    tileId : integer,
+    callback : function {}
+    children : [ {}, {} ]
+}
+the master could be
+{
+    children : [{}, {}, {}]
+}
+It is very verbose, so do not do this.

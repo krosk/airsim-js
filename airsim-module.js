@@ -1623,35 +1623,50 @@ let ASTILEVIEW = (function ()
     
     public.C_NAME = 'ASTILEVIEW';
     
+    public.C_TILEVIEW = {
+        ZONE : 0,
+        ROAD_TRAVERSAL : 1,
+        RICO : 2
+    }
+    const C = public.C_TILEVIEW;
+    
     public.retrieveAllChangedTileId = function astileview_retrieveAllChangedTileId(viewName)
     {
-        if (viewName == ASZONE.C_NAME)
+        if (viewName == C.ZONE)
         {
             return ASSTATE.retrieveAllChangedTileId(ASZONE);
         }
-        else if (viewName == ASROAD.C_NAME)
+        else if (viewName == C.ROAD_TRAVERSAL)
         {
             return ASSTATE.retrieveAllChangedTileId(ASROAD);
         }
-        else if (viewName == ASRICO.C_NAME)
+        else if (viewName == C.RICO)
         {
             return ASSTATE.retrieveAllChangedTileId(ASRICO);
+        }
+        else
+        {
+            throw 'invalid retrieveallchangeid tileview ' + viewName;
         }
     }
     
     public.getTileIdTable = function astileview_getTileIdTable(viewName)
     {
-        if (viewName == ASZONE.C_NAME)
+        if (viewName == C.ZONE)
         {
             return ASSTATE.getTileIdTable(ASZONE);
         }
-        else if (viewName == ASROAD.C_NAME)
+        else if (viewName == C.ROAD_TRAVERSAL)
         {
             return ASSTATE.getTileIdTable(ASROAD);
         }
-        else if (viewName == ASRICO.C_NAME)
+        else if (viewName == C.RICO)
         {
             return ASSTATE.getTileIdTable(ASRICO);
+        }
+        else
+        {
+            throw 'invalid gettileid tileview ' + viewName;
         }
     }
     

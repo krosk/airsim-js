@@ -5,7 +5,8 @@ const G_MODULE_INT = {
     [ASSTATE.C_NAME] : ASSTATE,
     [ASROAD.C_NAME] : ASROAD,
     [ASZONE.C_NAME] : ASZONE,
-    [ASRICO.C_NAME] : ASRICO
+    [ASRICO.C_NAME] : ASRICO,
+    [ASTILEVIEW.C_NAME] : ASTILEVIEW
 };
 
 self.onmessage = function asworker_onmessage(e)

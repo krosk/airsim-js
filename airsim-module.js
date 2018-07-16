@@ -1645,3 +1645,28 @@ let ASRICO = (function ()
     
     return public;
 })();
+
+let ASTILEVIEW = (function ()
+{
+    let public = {};
+    
+    public.C_NAME = 'ASTILEVIEW';
+    
+    public.getAllChangedTileId = function astileview_getAllChangedTileId(viewName)
+    {
+        if (viewName == ASZONE.C_NAME)
+        {
+            return ASZONE.getAllChangedTileId();
+        }
+        else if (viewName == ASROAD.C_NAME)
+        {
+            return ASROAD.getAllChangedTileId();
+        }
+        else if (viewName == ASRICO.C_NAME)
+        {
+            return ASRICO.getAllChangedTileId();
+        }
+    }
+    
+    return public;
+})();

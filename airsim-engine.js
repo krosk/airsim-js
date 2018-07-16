@@ -14,7 +14,8 @@ let ASENGINE = (function ()
         [ASSTATE.C_NAME] : ASSTATE,
         [ASROAD.C_NAME] : ASROAD,
         [ASZONE.C_NAME] : ASZONE,
-        [ASRICO.C_NAME] : ASRICO
+        [ASRICO.C_NAME] : ASRICO,
+        [ASTILEVIEW.C_NAME] : ASTILEVIEW
     };
     
     public.hasAccess = function asengine_hasAccess()
@@ -36,9 +37,9 @@ let ASENGINE = (function ()
     // directly readable globals
     
     // async functions with callbacks
-    public.retrieveAllChangedTileId = function asengine_retrieveAllChangedTileId(moduleName, callbackData)
+    public.retrieveAllChangedTileId = function asengine_retrieveAllChangedTileId(viewName, callbackData)
     {
-        let postData = [moduleName, 'getAllChangedTileId'];
+        let postData = [ASTILEVIEW.C_NAME, 'getAllChangedTileId', viewName];
         dispatch(postData, callbackData);
     }
     

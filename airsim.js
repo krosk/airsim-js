@@ -310,7 +310,8 @@ let ASMAP = (function ()
             // put before callback for noworker
             m_updateStateMachine = 1;
             let callbackData = [public.C_NAME, 'refreshTileListResponse'];
-            ASENGINE.retrieveAllChangedTileId(MMAPDATA.getDataLibraryName(), callbackData);
+            let viewName = MMAPDATA.getDataLibraryName();
+            ASENGINE.retrieveAllChangedTileId(viewName, callbackData);
         }
     }
     

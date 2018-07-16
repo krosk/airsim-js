@@ -61,9 +61,9 @@ let ASENGINE = (function ()
         dispatch(postData, callbackData);
     }
     
-    public.requestTileIdTable = function asengine_requestTileIdTable(moduleName, callbackData)
+    public.getTileIdTable = function asengine_getTileIdTable(viewName, callbackData)
     {
-        let postData = [moduleName, 'getTileIdTable'];
+        let postData = [ASTILEVIEW.C_NAME, 'getTileIdTable', viewName];
         dispatch(postData, callbackData);
     }
     

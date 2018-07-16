@@ -645,11 +645,6 @@ let ASZONE = (function ()
         ASSTATE.setDataZoneAtIndex(index, zone);
     }
     
-    public.getTileIdTable = function aszone_getTileIdTable()
-    {
-        return ASSTATE.getTileIdTable(this);
-    }
-    
     //----------------
     public.setZone = function aszone_setZone(x, y, zone)
     {
@@ -840,11 +835,6 @@ let ASROAD = (function ()
         {
             return getDataIdByCongestion(index);
         }
-    }
-    
-    public.getTileIdTable = function asroad_getTileIdTable()
-    {
-        return ASSTATE.getTileIdTable(this);
     }
     
     let getIndexTo = function asroad_getIndexTo(x, y, d)
@@ -1328,11 +1318,6 @@ let ASRICO = (function ()
         return getDataIdByDensityLevel(index);
     }
     
-    public.getTileIdTable = function asrico_getTileIdTable()
-    {
-        return ASSTATE.getTileIdTable(this);
-    }
-    
     let isValidTileId = function asrico_isValidTileId(id)
     {
         let index = Object.values(C).indexOf(id);
@@ -1651,6 +1636,22 @@ let ASTILEVIEW = (function ()
         else if (viewName == ASRICO.C_NAME)
         {
             return ASSTATE.retrieveAllChangedTileId(ASRICO);
+        }
+    }
+    
+    public.getTileIdTable = function astileview_getTileIdTable(viewName)
+    {
+        if (viewName == ASZONE.C_NAME)
+        {
+            return ASSTATE.getTileIdTable(ASZONE);
+        }
+        else if (viewName == ASROAD.C_NAME)
+        {
+            return ASSTATE.getTileIdTable(ASROAD);
+        }
+        else if (viewName == ASRICO.C_NAME)
+        {
+            return ASSTATE.getTileIdTable(ASRICO);
         }
     }
     

@@ -950,7 +950,7 @@ let MMAPDATA = (function ()
     public.refreshAllTiles = function mmapdata_refreshAllTiles()
     {
         let callbackData = [MMAPDATA.C_NAME, 'refreshAllTilesResponse'];
-        ASENGINE.requestTileIdTable(m_dataLibraryName, callbackData);
+        ASENGINE.getTileIdTable(m_dataLibraryName, callbackData);
     }
     public.refreshAllTilesResponse = function mmapdata_refreshAllTilesResponse(tileIdTable)
     {

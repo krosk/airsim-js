@@ -650,10 +650,6 @@ let ASZONE = (function ()
         return ASSTATE.getTileIdTable(this);
     }
     
-    public.getAllChangedTileId = function aszone_getAllChangedTileId()
-    {
-        return ASSTATE.retrieveAllChangedTileId(this);
-    }
     //----------------
     public.setZone = function aszone_setZone(x, y, zone)
     {
@@ -849,11 +845,6 @@ let ASROAD = (function ()
     public.getTileIdTable = function asroad_getTileIdTable()
     {
         return ASSTATE.getTileIdTable(this);
-    }
-    
-    public.getAllChangedTileId = function asroad_getAllChangedTileId()
-    {
-        return ASSTATE.retrieveAllChangedTileId(this);
     }
     
     let getIndexTo = function asroad_getIndexTo(x, y, d)
@@ -1342,11 +1333,6 @@ let ASRICO = (function ()
         return ASSTATE.getTileIdTable(this);
     }
     
-    public.getAllChangedTileId = function asrico_getAllChangedTileId()
-    {
-        return ASSTATE.retrieveAllChangedTileId(this);
-    }
-    
     let isValidTileId = function asrico_isValidTileId(id)
     {
         let index = Object.values(C).indexOf(id);
@@ -1652,19 +1638,19 @@ let ASTILEVIEW = (function ()
     
     public.C_NAME = 'ASTILEVIEW';
     
-    public.getAllChangedTileId = function astileview_getAllChangedTileId(viewName)
+    public.retrieveAllChangedTileId = function astileview_retrieveAllChangedTileId(viewName)
     {
         if (viewName == ASZONE.C_NAME)
         {
-            return ASZONE.getAllChangedTileId();
+            return ASSTATE.retrieveAllChangedTileId(ASZONE);
         }
         else if (viewName == ASROAD.C_NAME)
         {
-            return ASROAD.getAllChangedTileId();
+            return ASSTATE.retrieveAllChangedTileId(ASROAD);
         }
         else if (viewName == ASRICO.C_NAME)
         {
-            return ASRICO.getAllChangedTileId();
+            return ASSTATE.retrieveAllChangedTileId(ASRICO);
         }
     }
     

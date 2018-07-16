@@ -39,7 +39,7 @@ let ASENGINE = (function ()
     // async functions with callbacks
     public.retrieveAllChangedTileId = function asengine_retrieveAllChangedTileId(viewName, callbackData)
     {
-        let postData = [ASTILEVIEW.C_NAME, 'getAllChangedTileId', viewName];
+        let postData = [ASTILEVIEW.C_NAME, 'retrieveAllChangedTileId', viewName];
         dispatch(postData, callbackData);
     }
     

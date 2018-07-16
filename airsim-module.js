@@ -612,27 +612,6 @@ let ASZONE = (function ()
     public.C_TILEENUM = ASTILE.C_TILE_ZONE;
     const C = public.C_TILEENUM;
     
-    public.zoneTile = [
-        C.DIRT,
-        C.ROAD, 
-        C.RESLOW,
-        C.COMLOW,
-        C.INDLOW
-    ];
-    
-    public.ricoTile = [
-        C.RESLOW
-    ];
-    
-    public.viewTile = [
-        C.DIRT,
-        C.ROAD,
-        C.NONE,
-        C.RESLOW,
-        C.COMLOW,
-        C.INDLOW,
-    ];
-    
     let isValidZone = function aszone_isValidZone(id)
     {
         let index = Object.values(C).indexOf(id);
@@ -777,14 +756,6 @@ let ASROAD = (function ()
     
     public.C_TILEENUM = ASTILE.C_TILE_ROAD;
     const C = public.C_TILEENUM;
-    
-    public.roadTile = [
-        C.LOW,
-        C.MID,
-        C.HIG,
-        C.NONE,
-        C.VHI
-    ];
     
     // ----------------
     

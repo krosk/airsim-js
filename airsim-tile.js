@@ -42,7 +42,7 @@ let ASTILE = (function ()
         NONE: 900,
         VIEW: 910,
         ZONE: 920,
-        SPDP: 930,
+        SPED: 930,
         GAME: 940,
         PLAY: 931,
         PLAY2: 932,
@@ -257,7 +257,7 @@ let ASICON_TILE = (function ()
         [C.NONE] : getColor(64, 64, 64),
         [C.VIEW] : getColor(0, 255, 255),
         [C.ZONE] : getColor(0, 192, 0),
-        [C.SPDP] : getColor(0, 192, 192),
+        [C.SPED] : getColor(0, 192, 192),
         [C.GAME] : getColor(0, 0, 192),
         [C.PLAY] : getColor(0, 255, 0),
         [C.PLAY2] : getColor(0, 255, 0),
@@ -391,6 +391,11 @@ let ASICON_TILE = (function ()
     public.createTexture = function asicon_createTexture(id)
     {
         let color = public.C_COLOR[id];
+        let f = public.C_ICON[id];
+        if (typeof f != 'function')
+        {
+            throw public.C_NAME + " missing function id " + id;
+        }
         let displayObject = public.C_ICON[id](color, 16);
         return displayObject;
     }
@@ -399,7 +404,7 @@ let ASICON_TILE = (function ()
         [C.NONE] : addNothing,
         [C.VIEW] : addText("VIEW"),
         [C.ZONE] : addText("ZONE"),
-        [C.SPDP] : addText("PLAY"),
+        [C.SPED] : addText("PLAY"),
         [C.GAME] : addText("GAME"),
         [C.PLAY] : addPlay,
         [C.PLAY2] : addPlay2,
@@ -409,26 +414,6 @@ let ASICON_TILE = (function ()
         [C.SAVE] : addText("SAVE"),
         [C.LOAD] : addText("LOAD"),
     }
-    
-    public.mainTile = [
-        C.VIEW,
-        C.ZONE,
-        C.SPDP,
-        C.GAME
-    ]
-    
-    public.playTile = [
-        C.PLAY, // play 1
-        C.PLAY2,
-        C.PLAY3,
-        C.STOP, // pause
-        C.STEP, // frame by frame
-    ];
-    
-    public.saveTile = [
-        C.SAVE,
-        C.LOAD,
-    ];
 
     return public;
 })();

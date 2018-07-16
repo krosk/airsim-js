@@ -455,12 +455,44 @@ let ASMAPUI = (function ()
     let C_ICON_HEIGHT = 48;
     let C_ICON_WIDTH = 64;
     
-    const C_MAIN = ASICON_TILE.mainTile;
-    const C_VIEW = ASZONE.viewTile;
-    const C_ZONE = ASZONE.zoneTile;
-    const C_ROAD = ASROAD.roadTile;
-    const C_SAVE = ASICON_TILE.saveTile;
-    const C_PLAY = ASICON_TILE.playTile;
+    let C = ASTILE.C_TILE_ZONE;
+    const C_ZONE = [
+        C.DIRT,
+        C.ROAD, 
+        C.RESLOW,
+        C.COMLOW,
+        C.INDLOW
+    ];
+    
+    const C_VIEW = [
+        C.DIRT,
+        C.ROAD,
+        C.NONE,
+        C.RESLOW,
+        C.COMLOW,
+        C.INDLOW,
+    ];
+    
+    C = ASTILE.C_TILE_ICON;
+    const C_MAIN = [
+        C.VIEW,
+        C.ZONE,
+        C.SPED,
+        C.GAME
+    ];
+    
+    const C_PLAY = [
+        C.PLAY, // play 1
+        C.PLAY2,
+        C.PLAY3,
+        C.STOP, // pause
+        C.STEP, // frame by frame
+    ];
+    
+    const C_SAVE = [
+        C.SAVE,
+        C.LOAD,
+    ];
     
     const C_TABLE = {
         0 : C_MAIN,
@@ -508,6 +540,10 @@ let ASMAPUI = (function ()
         for (let i in C_TABLE)
         {
             let tileEnum = C_TABLE[i];
+            if (typeof tileEnum == 'undefined')
+            {
+                throw public.C_NAME + " C_TABLE[" + i + "] undefined";
+            }
             setSingleId(tileEnum, tileEnum[0]);
         }
         
@@ -884,7 +920,7 @@ let MMAPDATA = (function ()
     }
     public.getRandomTileId = function mmapdata_getRandomTileId()
     {
-        let tileEnumValues = ASZONE.zoneTile;
+        let tileEnumValues = ASTILE.C_MENU_ZONE;
         let tileEnumCount = tileEnumValues.length;
         let randomIndex = Math.floor(Math.random() * tileEnumCount);
         let randomId = tileEnumValues[randomIndex];

@@ -1239,8 +1239,13 @@ let ASRICO = (function ()
     };
     const C_R = C_RICOPROPERTY;
     
-    let getDataIdByDensityLevel = function asrico_getDataIdByDensityLevel(index)
+    public.getDataIdByDensityLevel = function asrico_getDataIdByDensityLevel(x, y)
     {
+        if (!ASSTATE.isValidCoordinates(x, y))
+        {
+            return C.NONE;
+        }
+        let index = ASSTATE.getIndex(x, y);
         let level = hasBuilding(index) ? ASSTATE.getBuildingData(ASSTATE.C_DATA.BUILDING_DENSITY_LEVEL, index) : 0;
         let type = hasBuilding(index) ? ASSTATE.getBuildingData(ASSTATE.C_DATA.BUILDING_TYPE, index) : 0;
         let id = C.NONE + 10*type + 1*level;
@@ -1249,16 +1254,6 @@ let ASRICO = (function ()
             return id;
         }
         return C.NONE;
-    }
-    
-    public.getDataId = function asrico_getDataId(x, y)
-    {
-        if (!ASSTATE.isValidCoordinates(x, y))
-        {
-            return C.NONE;
-        }
-        const index = ASSTATE.getIndex(x, y);
-        return getDataIdByDensityLevel(index);
     }
     
     let isValidTileId = function asrico_isValidTileId(id)
@@ -1473,7 +1468,10 @@ let ASRICO = (function ()
     {
         let density = ASSTATE.getBuildingDensity(index);
         ASSTATE.setBuildingDensity(index, density + 1);
-        let code = getDataIdByDensityLevel(index);
+        let xy = ASSTATE.getXYFromIndex(index)
+        let x = xy[0];
+        let y = xy[1];
+        let code = public.getDataIdByDensityLevel(x, y);
         //console.log(code);
         setInitial(code, index);
     }
@@ -1569,14 +1567,14 @@ let ASTILEVIEW = (function ()
     public.C_TILEVIEW = {
         ZONE : 0,
         ROAD_TRAVERSAL : 1,
-        RICO : 2
+        RICO_DENSITY : 2
     };
     const C = public.C_TILEVIEW;
     
     const C_MAP = {
         [C.ZONE] : ASZONE.getDataId,
         [C.ROAD_TRAVERSAL] : ASROAD.getDataId,
-        [C.RICO] : ASRICO.getDataId
+        [C.RICO_DENSITY] : ASRICO.getDataIdByDensityLevel
     };
     
     let retrieveAllChangedTileIdLogic = function astileview_retrieveAllChangedTileIdLogic(targetFunction)

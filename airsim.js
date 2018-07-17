@@ -798,7 +798,7 @@ let ASMAPUI = (function ()
         }
         else if (getSingleId(C_VIEW) == C_VIEW[3])
         {
-            MMAPDATA.setTileView(C.RICO);
+            MMAPDATA.setTileView(C.RICO_DENSITY);
         }
     }
     

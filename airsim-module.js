@@ -576,8 +576,12 @@ let ASZONE = (function ()
         }
     }
 
-    public.getDataId = function aszone_getDataId(x, y)
+    public.getDataIdByZone = function aszone_getDataIdByZone(x, y)
     {
+        if (!ASSTATE.isValidCoordinates(x, y))
+        {
+            return C.NONE;
+        }
         const index = ASSTATE.getIndex(x, y);
         return ASSTATE.getDataZoneAtIndex(index);
     }
@@ -595,7 +599,7 @@ let ASZONE = (function ()
         {
             return;
         }
-        const oldZone = public.getDataId(x, y);
+        const oldZone = public.getDataIdByZone(x, y);
         if (oldZone != zone)
         {
             if (oldZone == C.ROAD)
@@ -734,8 +738,13 @@ let ASROAD = (function ()
         }
     }
     
-    let getDataIdByTraversalState = function asroad_getTileByTraversalState(index)
+    public.getDataIdByTraversalState = function asroad_getTileByTraversalState(x, y)
     {
+        if (!ASSTATE.isValidCoordinates(x, y))
+        {
+            return C.NONE;
+        }
+        let index = ASSTATE.getIndex(x, y);
         let value = hasRoad(index) ? ASSTATE.getRoadDebug(index) : 0;
         if (value >= 104)
         {
@@ -760,23 +769,6 @@ let ASROAD = (function ()
         else
         {
             console.log('getTileByTraversalState error ' + index);
-        }
-    }
-    
-    public.getDataId = function asroad_getDataId(x, y)
-    {
-        const index = ASSTATE.getIndex(x, y);
-        if (index < 0)
-        {
-            return 0;
-        }
-        if (C_DEBUG_TRAVERSAL)
-        {
-            return getDataIdByTraversalState(index);
-        }
-        else
-        {
-            return getDataIdByCongestion(index);
         }
     }
     
@@ -1567,13 +1559,14 @@ let ASTILEVIEW = (function ()
     public.C_TILEVIEW = {
         ZONE : 0,
         ROAD_TRAVERSAL : 1,
-        RICO_DENSITY : 2
+        ROAD_CONGESTION : 2,
+        RICO_DENSITY : 3
     };
     const C = public.C_TILEVIEW;
     
     const C_MAP = {
-        [C.ZONE] : ASZONE.getDataId,
-        [C.ROAD_TRAVERSAL] : ASROAD.getDataId,
+        [C.ZONE] : ASZONE.getDataIdByZone,
+        [C.ROAD_TRAVERSAL] : ASROAD.getDataIdByTraversalState,
         [C.RICO_DENSITY] : ASRICO.getDataIdByDensityLevel
     };
     

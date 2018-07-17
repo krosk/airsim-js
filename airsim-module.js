@@ -494,7 +494,7 @@ let ASSTATE = (function()
         }
     }
     
-    let retrieveChange = function asstate_retrieveChange()
+    public.retrieveChange = function asstate_retrieveChange()
     {
         let firstIndex = public.getChangeFirst();
         let lastIndex = public.getChangeLast();
@@ -511,63 +511,6 @@ let ASSTATE = (function()
             public.setChangeFlag(firstIndex, 0);
         }
         return firstIndex;
-    }
-    
-    public.retrieveAllChanges = function asstate_retrieveAllChanges()
-    {
-        let changeXY = [];
-        while (true)
-        {
-            let changeIndex = retrieveChange();
-            if (changeIndex == 0)
-            {
-                return changeXY;
-            }
-            else
-            {
-                let xy = ASSTATE.getXYFromIndex(changeIndex);
-                changeXY.push(xy[0]);
-                changeXY.push(xy[1]);
-            }
-        }
-    }
-    
-    public.retrieveAllChangedTileId = function asstate_retrieveAllChangedTileId(targetModule)
-    {
-        let changeXYT = [];
-        while (true)
-        {
-            let changeIndex = retrieveChange();
-            if (changeIndex == 0)
-            {
-                return changeXYT;
-            }
-            else
-            {
-                let xy = ASSTATE.getXYFromIndex(changeIndex);
-                let x = xy[0];
-                let y = xy[1];
-                changeXYT.push(x);
-                changeXYT.push(y);
-                changeXYT.push(targetModule.getDataId(x, y));
-            }
-        }
-    }
-    
-    public.getTileIdTable = function asstate_getTileIdTable(module)
-    {
-        const tableSizeX = ASSTATE.getTableSizeX();
-        const tableSizeY = ASSTATE.getTableSizeY();
-        let table = [];
-        for (let y = 0; y < tableSizeY; y++)
-        {
-            for (let x = 0; x < tableSizeX; x++)
-            {
-                let index = x + y*tableSizeX;
-                table[index] = module.getDataId(x, y);
-            }
-        }
-        return table;
     }
     
     public.getSerializable = function asstate_getSerializable()
@@ -1627,22 +1570,43 @@ let ASTILEVIEW = (function ()
         ZONE : 0,
         ROAD_TRAVERSAL : 1,
         RICO : 2
-    }
+    };
     const C = public.C_TILEVIEW;
+    
+    const C_MAP = {
+        [C.ZONE] : ASZONE.getDataId,
+        [C.ROAD_TRAVERSAL] : ASROAD.getDataId,
+        [C.RICO] : ASRICO.getDataId
+    };
+    
+    let retrieveAllChangedTileIdLogic = function astileview_retrieveAllChangedTileIdLogic(targetFunction)
+    {
+        let changeXYT = [];
+        while (true)
+        {
+            let changeIndex = ASSTATE.retrieveChange();
+            if (changeIndex == 0)
+            {
+                return changeXYT;
+            }
+            else
+            {
+                let xy = ASSTATE.getXYFromIndex(changeIndex);
+                let x = xy[0];
+                let y = xy[1];
+                changeXYT.push(x);
+                changeXYT.push(y);
+                changeXYT.push(targetFunction(x, y));
+            }
+        }
+    }
     
     public.retrieveAllChangedTileId = function astileview_retrieveAllChangedTileId(viewName)
     {
-        if (viewName == C.ZONE)
+        let targetFunction = C_MAP[viewName];
+        if (typeof targetFunction == 'function')
         {
-            return ASSTATE.retrieveAllChangedTileId(ASZONE);
-        }
-        else if (viewName == C.ROAD_TRAVERSAL)
-        {
-            return ASSTATE.retrieveAllChangedTileId(ASROAD);
-        }
-        else if (viewName == C.RICO)
-        {
-            return ASSTATE.retrieveAllChangedTileId(ASRICO);
+            return retrieveAllChangedTileIdLogic(targetFunction);
         }
         else
         {
@@ -1650,19 +1614,28 @@ let ASTILEVIEW = (function ()
         }
     }
     
+    let getTileIdTableLogic = function astileview_getTileIdTableLogic(targetFunction)
+    {
+        const tableSizeX = ASSTATE.getTableSizeX();
+        const tableSizeY = ASSTATE.getTableSizeY();
+        let table = [];
+        for (let y = 0; y < tableSizeY; y++)
+        {
+            for (let x = 0; x < tableSizeX; x++)
+            {
+                let index = x + y*tableSizeX;
+                table[index] = targetFunction(x, y);
+            }
+        }
+        return table;
+    }
+    
     public.getTileIdTable = function astileview_getTileIdTable(viewName)
     {
-        if (viewName == C.ZONE)
+        let targetFunction = C_MAP[viewName];
+        if (typeof targetFunction == 'function')
         {
-            return ASSTATE.getTileIdTable(ASZONE);
-        }
-        else if (viewName == C.ROAD_TRAVERSAL)
-        {
-            return ASSTATE.getTileIdTable(ASROAD);
-        }
-        else if (viewName == C.RICO)
-        {
-            return ASSTATE.getTileIdTable(ASRICO);
+            return getTileIdTableLogic(targetFunction);
         }
         else
         {

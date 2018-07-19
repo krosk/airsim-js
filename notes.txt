@@ -699,6 +699,30 @@ This is why it is best to get the first tile
 as a processed, so the exploration towards 
 four directions is correct.
 
+The performance bottleneck stems from
+getCurrentNodeList, which is basically the tree
+of traversed tiles. For the time being it is
+built each time it is needed (eg identify next
+node), but most of the structure is in fact
+repeating and only one value is added each
+time it is built.
+The risk of keeping the table instead of
+aleays recomputing one is about unsync,
+if for example data is loaded during a
+traversal. Hence why it is safe to always keep
+it refreshed.
+One needs to take care of these cases.
+Performance wise it should be relatively linear
+as the table keeps growing by adding indices at
+the end. The order may be unimportant, this is
+to test, and will greatly simplify the
+process of keeping a cache.
+
+Cache node optimisation (G_CACHE_NODE):
+- without worker, 180->30 per tick
+- with worker, 116->30 per tick
+Only caveat is notifying caches to invalidate.
+
 
 **Mechanism 7: Checking all buildings
 

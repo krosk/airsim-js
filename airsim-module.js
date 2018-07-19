@@ -1,4 +1,5 @@
 const G_CHECK = true;
+const G_CACHE_NODE = true;
 
 let ASSTATE = (function()
 {
@@ -523,6 +524,7 @@ let ASSTATE = (function()
     {
         let array = JSON.parse(string);
         public.setRawData(Int32Array.from(array).buffer);
+        ASROAD.resetInternal();
     }
     
     public.setRawData = function asstate_setRawData(arrayBuffer)
@@ -859,6 +861,7 @@ let ASROAD = (function ()
             ASSTATE.setRoadMaxCapacity(index, 10);
             ASSTATE.setRoadDebug(index, C.LOW)
             changeDataIndex(index);
+            m_cacheNodeRefresh = true;
             // traversal v2 related
             ASSTATE.setRoadTraversalCost(index, 0);
         }
@@ -884,6 +887,7 @@ let ASROAD = (function ()
         disconnectNodes(x, y, C_TO.S);
         disconnectNodes(x, y, C_TO.W);
         changeDataIndex(index);
+        m_cacheNodeRefresh = true;
     }
     
     // struct is
@@ -991,6 +995,7 @@ let ASROAD = (function ()
             expandTraversal(from, isConnectedTo(from, C_TO.W));
             ASSTATE.setRoadDebug(from, C.HIG);
             changeTraversalIndex(from);
+            m_cacheNodeRefresh = true;
         }
     }
     
@@ -1020,6 +1025,10 @@ let ASROAD = (function ()
             setTraversalAdded(node);
             ASSTATE.setRoadDebug(node, C.MID);
             changeTraversalIndex(node);
+            if (G_CACHE_NODE)
+            {
+                m_cacheNodeList.push(node);
+            }
         }
     }
     
@@ -1037,22 +1046,32 @@ let ASROAD = (function ()
         }
         nodeList.push(childNode);
     }
+    
+    let m_cacheNodeList = [];
+    let m_cacheNodeRefresh = true;
    
     let getCurrentNodeList = function asroad_getCurrentNodeList()
     {
-        let startNode = getTraversalStart();
-        let nodeList = [startNode];
-        let i = 0;
-        while (i < nodeList.length)
+        if (m_cacheNodeRefresh == false && G_CACHE_NODE)
         {
-            let parentNode = nodeList[i];
-            addToNodeList(parentNode, C_TO.N, nodeList);
-            addToNodeList(parentNode, C_TO.E, nodeList);
-            addToNodeList(parentNode, C_TO.S, nodeList);
-            addToNodeList(parentNode, C_TO.W, nodeList);
+            //console.log(m_cacheNodeList);
+            return m_cacheNodeList;
+        }
+        let startNode = getTraversalStart();
+        m_cacheNodeList = [startNode];
+        let i = 0;
+        while (i < m_cacheNodeList.length)
+        {
+            let parentNode = m_cacheNodeList[i];
+            addToNodeList(parentNode, C_TO.N, m_cacheNodeList);
+            addToNodeList(parentNode, C_TO.E, m_cacheNodeList);
+            addToNodeList(parentNode, C_TO.S, m_cacheNodeList);
+            addToNodeList(parentNode, C_TO.W, m_cacheNodeList);
             i++;
         }
-        return nodeList;
+        //console.log(m_cacheNodeList);
+        m_cacheNodeRefresh = false;
+        return m_cacheNodeList;
     }
     
     let identifyNextNode = function asroad_identifyNextNode()
@@ -1175,6 +1194,12 @@ let ASROAD = (function ()
             }
             clearTraversal(node, i);
         }
+        m_cacheNodeRefresh = true;
+    }
+    
+    public.resetInternal = function asroad_resetInternal()
+    {
+        m_cacheNodeRefresh = true;
     }
     
     public.printTraversal = function asroad_printTraversal()

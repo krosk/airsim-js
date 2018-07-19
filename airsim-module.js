@@ -261,6 +261,21 @@ let ASSTATE = (function()
         w(index, C.BUILDING_DEMAND_C, demand[2]);
     }
     
+    public.getBuildingOfferRico = function asstate_getBuildingOfferRico(index)
+    {
+        let or = r(index, C.BUILDING_OFFER_R);
+        let oi = r(index, C.BUILDING_OFFER_I);
+        let oc = r(index, C.BUILDING_OFFER_C);
+        return [or, oi, oc];
+    }
+    
+    public.setBuildingOfferRico = function asstate_setBuildingOfferRico(index, offer)
+    {
+        w(index, C.BUILDING_OFFER_R, offer[0]);
+        w(index, C.BUILDING_OFFER_I, offer[1]);
+        w(index, C.BUILDING_OFFRR_C, offer[2]);
+    }
+    
     public.getBuildingDensity = function asstate_getBuildingDensity(index)
     {
         return r(index, C.BUILDING_DENSITY_LEVEL);
@@ -715,8 +730,13 @@ let ASROAD = (function ()
     }
     
     // for display
-    let getDataIdByCongestion = function asroad_getTileByCongestion(index)
+    public.getDataIdByCongestion = function asroad_getTileByCongestion(x, y)
     {
+        if (!ASSTATE.isValidCoordinates(x, y))
+        {
+            return C.NONE;
+        }
+        let index = ASSTATE.getIndex(x, y);
         let value = hasRoad(index) ? ASSTATE.getRoadUsedCapacity(index) : 0;
         if (value > 90)
         {
@@ -1012,15 +1032,16 @@ let ASROAD = (function ()
         if (hasRoad(node))
         {
             let usedCapacity = ASSTATE.getRoadUsedCapacity(node);
+            let currentCost = usedCapacity;
             if (parent >= 0)
             {
-                let cost = getTraversalCost(parent);
-                usedCapacity += cost;
+                let previousCost = getTraversalCost(parent);
+                currentCost += previousCost;
                 //setTraversalProcessed(data, index);
             }
             let edgeIndex = getTraversalEdgeCount();
             incrementTraversalEdgeCount();
-            setTraversalCost(node, usedCapacity);
+            setTraversalCost(node, currentCost);
             setTraversalParent(node, parent);
             setTraversalAdded(node);
             ASSTATE.setRoadDebug(node, C.MID);
@@ -1551,7 +1572,19 @@ let ASRICO = (function ()
             if (nx < 0 || ny < 0) // traversal finished
             {
                 ASSTATE.setRicoStep(3);
+                return false;
             }
+            let nRoadIndex = ASSTATE.getIndex(nx, ny);
+            //let listBuilding = public.findNearestBuilding(nx, ny);
+            let offer = ASSTATE.getBuildingOfferRico(index);
+            let addCongestion = 0;
+            for (let i in offer)
+            {
+                addCongestion += offer[i];
+            }
+            let usedCapacity = ASSTATE.getRoadUsedCapacity(nRoadIndex);
+            usedCapacity += addCongestion;
+            ASSTATE.setRoadUsedCapacity(nRoadIndex, usedCapacity);
             return false;
         }
         else
@@ -1570,6 +1603,35 @@ let ASRICO = (function ()
         }
         let data = ASSTATE.getZoneType(i);
         return !((typeof data === 'undefined') || (data == null)) && (data == ASZONE.C_TYPE.BUILDING);
+    }
+    
+    const C_TO = {
+        N: 0,
+        E: 1,
+        S: 2,
+        W: 3
+    };
+    
+    public.findNearestBuilding = function asrico_findNearestRico(x, y)
+    {
+        let list = [];
+        let index = ASSTATE.getIndex(x, y);
+        if (hasBuilding(index))
+        {
+            list.push(index);
+        }
+        const lookupX = [x, x, x, x, x-1, x, x+1, x];
+        const lookupY = [y, y, y, y, y, y-1, y, y+1];
+        const lookupD = [C_TO.N, C_TO.E, C_TO.S, C_TO.W, C_TO.N, C_TO.E, C_TO.S, C_TO.W];
+        for (let i = 0; i < 8; i++)
+        {
+            let to = getIndexTo(lookupX[i], lookupY[i], lookupD[i]);
+            if (hasBuilding(to))
+            {
+                list.push(to);
+            }
+        }
+        return list;
     }
     
     return public;
@@ -1592,6 +1654,7 @@ let ASTILEVIEW = (function ()
     const C_MAP = {
         [C.ZONE] : ASZONE.getDataIdByZone,
         [C.ROAD_TRAVERSAL] : ASROAD.getDataIdByTraversalState,
+        [C.ROAD_CONGESTION] : ASROAD.getDataIdByCongestion,
         [C.RICO_DENSITY] : ASRICO.getDataIdByDensityLevel
     };
     

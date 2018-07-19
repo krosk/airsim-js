@@ -788,13 +788,18 @@ let ASMAPUI = (function ()
     let refreshMapDisplay = function asmapui_refreshMapDisplay()
     {
         const C = ASTILEVIEW.C_TILEVIEW;
-        if (getSingleId(C_VIEW) == C_VIEW[0])
+        let view = getSingleId(C_VIEW);
+        if (view == C_VIEW[0])
         {
             MMAPDATA.setTileView(C.ZONE);
         }
-        else if (getSingleId(C_VIEW) == C_VIEW[1])
+        else if (view == C_VIEW[1])
         {
             MMAPDATA.setTileView(C.ROAD_TRAVERSAL);
+        }
+        else if (view == C_VIEW[2])
+        {
+            MMAPDATA.setTileView(C.ROAD_CONGESTION);
         }
         else if (getSingleId(C_VIEW) == C_VIEW[3])
         {

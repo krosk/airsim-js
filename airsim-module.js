@@ -694,8 +694,6 @@ let ASROAD = (function ()
         S: 2,
         W: 3
     };
-    const C_XOFFSET = [-1, 0, 1, 0];
-    const C_YOFFSET = [0, -1, 0, 1];
     const C_FROM = [2, 3, 0, 1];
     
     public.C_TILEENUM = ASTILE.C_TILE_ROAD;
@@ -801,6 +799,8 @@ let ASROAD = (function ()
     
     let getIndexTo = function asroad_getIndexTo(x, y, d)
     {
+        const C_XOFFSET = [-1, 0, 1, 0];
+        const C_YOFFSET = [0, -1, 0, 1];
         let xd = x + C_XOFFSET[d];
         let yd = y + C_YOFFSET[d];
         let to = ASSTATE.getIndex(xd, yd);
@@ -1255,6 +1255,17 @@ let ASROAD = (function ()
         console.log();
         //console.log(data[0]);
     }
+
+    public.assessRoad = function asrico_assessroad(costMax, roadX, roadY)
+    {
+        let roadIndex = ASSTATE.getIndex(roadX, roadY);
+        if (!hasRoad(roadIndex))
+        {
+            return false;
+        }
+        let costSoFar = ASSTATE.getRoadTraversalCost(roadIndex);
+        return true;
+    }
     
     public.findNearestRoad = function asroad_findNearestRoad(x, y)
     {
@@ -1371,9 +1382,11 @@ let ASRICO = (function ()
         let i = 0;
         ASSTATE.setBuildingDensity(index, C_R[code][i++]);
         ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_TYPE, index, C_R[code][i++]);
-        ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_OFFER_R, index, C_R[code][i++]);
-        ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_OFFER_I, index, C_R[code][i++]);
-        ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_OFFER_C, index, C_R[code][i++]);
+        let or = C_R[code][i++];
+        let oi = C_R[code][i++];
+        let oc = C_R[code][i++];
+        let offerRico = [or, oi, oc];
+        ASSTATE.setBuildingOfferRico(index, offerRico);
         let dr = C_R[code][i++];
         let di = C_R[code][i++];
         let dc = C_R[code][i++];
@@ -1593,10 +1606,12 @@ let ASRICO = (function ()
         {
             // process offer
             // run traversal
+            let costMax = getDistanceMax(index);
             let next = ASROAD.getNextStepTraversal();
             let nx = next[0];
             let ny = next[1];
-            if (nx < 0 || ny < 0) // traversal finished
+            let traversed = ASROAD.assessRoad(costMax, nx, ny);
+            if (!traversed) // traversal finished
             {
                 ASSTATE.setRicoStep(3);
                 return false;
@@ -1611,6 +1626,12 @@ let ASRICO = (function ()
             ASSTATE.setRicoStep(0);
             return true;
         }
+    }
+    
+    let getDistanceMax = function asrico_getDistanceMax(index)
+    {
+        let offer = ASSTATE.getBuildingOfferRico(index);
+        return 300;
     }
     
     let dispatchOffer = function asrico_dispatchOffer(offerIndex, roadX, roadY)
@@ -1665,6 +1686,16 @@ let ASRICO = (function ()
         S: 2,
         W: 3
     };
+    
+    let getIndexTo = function asrico_getIndexTo(x, y, d)
+    {
+        const C_XOFFSET = [-1, 0, 1, 0];
+        const C_YOFFSET = [0, -1, 0, 1];
+        let xd = x + C_XOFFSET[d];
+        let yd = y + C_YOFFSET[d];
+        let to = ASSTATE.getIndex(xd, yd);
+        return to;
+    }
     
     let findNearestBuilding = function asrico_findNearestRico(x, y)
     {

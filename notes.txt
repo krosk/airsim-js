@@ -585,8 +585,39 @@ to perform here.
 **Strategy 6: Area of effect based
 
 A building is processed at a certain time. 
-It has a certain offer to distribute.
-It has a distance capacity. The area of effect
+It has an offer to distribute, which is the
+remaining out of a max offer.
+It has a distance balance. The distance balance
+depends on its density level. It could also
+be a function of its max offer.
+The building starts at the nearest road, and 
+travels from road to road, in a breadth first
+depth fashion.
+For each road travelled, the processing is:
+- 0/ Among next road traversal candidate
+     (including starting road):
+     - if it is blocked, skip (go 0/)
+     - if it is available, go 1/
+     - if no more roads, go 3/
+- 1/ increase road congestion level by the sum
+     of offer. It should be fully possible.
+     Check the nearest buildings in four
+     directions and fill their demand,
+     except its own building.
+     Retrieve the cost of the tile so far.
+     If distance balance < cost, go 0/
+     else, go 3/
+- 3/ For all traversed roads, remove remaining
+     offer sum (that is the surplus of offer
+     that was distributed in the 
+
+Blocked road definition is:
+- no road
+- one way road at opposite direction
+- not enough capacity to hold influx of
+    congestion
+
+The area of effect
 stops once the distance capacity is depleted.
 The distribution is through an area of effect.
 The area of effect follows roads, starting
@@ -602,6 +633,30 @@ High congestion reduces the spread of the
 area of effect. The building will therefore
 only serve near zones, nearest first.
 This looks like the most realistic.
+
+Max distance is a function of building
+level. Remaining distance is reduced by
+traversed road congestion level. 
+In exchange, congestion level is increased
+by the offer count. 
+However, if road congestion level cannot
+hold the new offer count under its max, it is 
+blocked and cannot be further passed until its
+capacity frees. The traversal must keep working
+the other tiles though, because there may be
+free capacity elsewhere.
+A problem with this rational is that past
+cars are impacting future traffic.
+
+If distance is covered (or all roads are 
+blocked) then the traversal comes to an end,
+and the remaining offer (that was added to the
+network) comes in deduction of congestion level
+of passed roads.
+The rational for this is this surplus offer
+has no destination and should not exist on
+the network.
+
 
 **Mechanism 6: Road traversal
 

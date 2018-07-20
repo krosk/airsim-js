@@ -19,11 +19,10 @@ let ASSTATE = (function()
         ROAD_CONNECT_S : 6,
         ROAD_CONNECT_W : 7,
         ROAD_USED_CAPACITY : 8,
-        ROAD_MAX_CAPACITY : 9,
-        ROAD_TRAVERSAL_PROCESSED : 10,
-        ROAD_TRAVERSAL_COST : 11,
-        ROAD_TRAVERSAL_PARENT : 12,
-        ROAD_DEBUG : 13,
+        ROAD_TRAVERSAL_PROCESSED : 9,
+        ROAD_TRAVERSAL_COST : 10,
+        ROAD_TRAVERSAL_PARENT : 11,
+        ROAD_DEBUG : 12,
         BUILDING_TYPE : 3, // 1 res 2 com 3 ind 4 off
         BUILDING_DENSITY_LEVEL : 4,
         BUILDING_OFFER_R: 5,
@@ -33,7 +32,7 @@ let ASSTATE = (function()
         BUILDING_DEMAND_I : 9,
         BUILDING_DEMAND_C : 10,
         BUILDING_TICK_UPDATE : 11,
-        END : 14
+        END : 13
     }
     public.C_DATA = C;
     
@@ -193,16 +192,6 @@ let ASSTATE = (function()
     public.setRoadUsedCapacity = function asstate_setRoadUsedCapacity(index, data)
     {
         w(index, C.ROAD_USED_CAPACITY, data);
-    }
-    
-    public.getRoadMaxCapacity = function asstate_getRoadMaxCapacity(index)
-    {
-        return r(index, C.ROAD_MAX_CAPACITY);
-    }
-    
-    public.setRoadMaxCapacity = function asstate_setRoadMaxCapacity(index, data)
-    {
-        w(index, C.ROAD_MAX_CAPACITY, data);
     }
     
     public.getRoadTraversalProcessed = function asstate_getRoadTraversalProcessed(index)
@@ -712,6 +701,20 @@ let ASROAD = (function ()
     public.C_TILEENUM = ASTILE.C_TILE_ROAD;
     const C = public.C_TILEENUM;
     
+    const C_TYPE_ID = {
+        NONE : 0,
+        PATH : 1,
+        ROAD : 2,
+        HIGHWAY : 3
+    }
+    
+    const C_TYPE_CAPACITY = {
+        [C_TYPE_ID.NONE] : 1,
+        [C_TYPE_ID.PATH] : 100,
+        [C_TYPE_ID.ROAD] : 200,
+        [C_TYPE_ID.HIGHWAY] : 400
+    }
+    
     // ----------------
     
     let C_DEBUG_TRAVERSAL = true;
@@ -738,7 +741,7 @@ let ASROAD = (function ()
         }
         let index = ASSTATE.getIndex(x, y);
         let value = hasRoad(index) ? ASSTATE.getRoadUsedCapacity(index) : 0;
-        let max = hasRoad(index) ? ASSTATE.getRoadMaxCapacity(index) : 1;
+        let max = hasRoad(index) ? getRoadMaxCapacity(index) : 1;
         let ratio = value / max;
         if (ratio > 0.75)
         {
@@ -874,13 +877,12 @@ let ASROAD = (function ()
         if (!hasRoad(index))
         {
             ASSTATE.setZoneType(index, ASZONE.C_TYPE.ROAD);
-            ASSTATE.setRoadType(index, 0);
+            ASSTATE.setRoadType(index, C_TYPE_ID.ROAD);
             ASSTATE.setRoadConnectTo(index, C_TO.N, -1);
             ASSTATE.setRoadConnectTo(index, C_TO.E, -1);
             ASSTATE.setRoadConnectTo(index, C_TO.S, -1);
             ASSTATE.setRoadConnectTo(index, C_TO.W, -1);
             ASSTATE.setRoadUsedCapacity(index, 1);
-            ASSTATE.setRoadMaxCapacity(index, 100);
             ASSTATE.setRoadDebug(index, C.LOW)
             changeDataIndex(index);
             m_cacheNodeRefresh = true;
@@ -912,11 +914,21 @@ let ASROAD = (function ()
         m_cacheNodeRefresh = true;
     }
     
+    let getRoadMaxCapacity = function asroad_getRoadMaxCapacity(index)
+    {
+        if (!hasRoad(index))
+        {
+            return 1;
+        }
+        let type = ASSTATE.getRoadType(index);
+        return C_TYPE_CAPACITY[type];
+    }
+    
     public.addCongestion = function asroad_addCongestion(x, y, additional)
     {
         let index = ASSTATE.getIndex(x, y);
         let usedCapacity = ASSTATE.getRoadUsedCapacity(index);
-        let maxCapacity = ASSTATE.getRoadMaxCapacity(index);
+        let maxCapacity = getRoadMaxCapacity(index);
         usedCapacity += additional;
         if (usedCapacity > maxCapacity)
         {

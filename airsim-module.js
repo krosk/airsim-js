@@ -738,19 +738,21 @@ let ASROAD = (function ()
         }
         let index = ASSTATE.getIndex(x, y);
         let value = hasRoad(index) ? ASSTATE.getRoadUsedCapacity(index) : 0;
-        if (value > 90)
+        let max = hasRoad(index) ? ASSTATE.getRoadMaxCapacity(index) : 1;
+        let ratio = value / max;
+        if (ratio > 0.75)
         {
             return C.VHI;
         }
-        else if (value > 60)
+        else if (ratio > 0.5)
         {
             return C.HIG;
         }
-        else if (value > 30)
+        else if (ratio > 0.25)
         {
             return C.MID;
         }
-        else if (value > 0)
+        else if (ratio > 0)
         {
         	return C.LOW;
         }
@@ -878,7 +880,7 @@ let ASROAD = (function ()
             ASSTATE.setRoadConnectTo(index, C_TO.S, -1);
             ASSTATE.setRoadConnectTo(index, C_TO.W, -1);
             ASSTATE.setRoadUsedCapacity(index, 1);
-            ASSTATE.setRoadMaxCapacity(index, 10);
+            ASSTATE.setRoadMaxCapacity(index, 100);
             ASSTATE.setRoadDebug(index, C.LOW)
             changeDataIndex(index);
             m_cacheNodeRefresh = true;
@@ -908,6 +910,19 @@ let ASROAD = (function ()
         disconnectNodes(x, y, C_TO.W);
         changeDataIndex(index);
         m_cacheNodeRefresh = true;
+    }
+    
+    public.addCongestion = function asroad_addCongestion(x, y, additional)
+    {
+        let index = ASSTATE.getIndex(x, y);
+        let usedCapacity = ASSTATE.getRoadUsedCapacity(index);
+        let maxCapacity = ASSTATE.getRoadMaxCapacity(index);
+        usedCapacity += additional;
+        if (usedCapacity > maxCapacity)
+        {
+            usedCapacity = maxCapacity;
+        }
+        ASSTATE.setRoadUsedCapacity(index, usedCapacity);
     }
     
     // struct is
@@ -1574,17 +1589,8 @@ let ASRICO = (function ()
                 ASSTATE.setRicoStep(3);
                 return false;
             }
-            let nRoadIndex = ASSTATE.getIndex(nx, ny);
-            //let listBuilding = public.findNearestBuilding(nx, ny);
-            let offer = ASSTATE.getBuildingOfferRico(index);
-            let addCongestion = 0;
-            for (let i in offer)
-            {
-                addCongestion += offer[i];
-            }
-            let usedCapacity = ASSTATE.getRoadUsedCapacity(nRoadIndex);
-            usedCapacity += addCongestion;
-            ASSTATE.setRoadUsedCapacity(nRoadIndex, usedCapacity);
+            //dispatchOffer(index, nx, ny);
+            increaseCongestion(index, nx, ny);
             return false;
         }
         else
@@ -1593,6 +1599,42 @@ let ASRICO = (function ()
             ASSTATE.setRicoStep(0);
             return true;
         }
+    }
+    
+    let dispatchOffer = function asrico_dispatchOffer(offerIndex, roadX, roadY)
+    {
+        let demandIndexList = findNearestBuilding(roadX, roadY);
+        let offer = ASSTATE.getBuildingOfferRico(offerIndex);
+        for (let i in demandIndexList)
+        {
+            let demandIndex = demandIndexList[i];
+            let demand = ASSTATE.getBuildingDemandRico(demandIndex);
+            for (let j in demand)
+            {
+                if (demand[j] >= offer[j])
+                {
+                    demand[j] -= offer[j];
+                    offer[j] = 0;
+                }
+                else
+                {
+                    offer[j] -= demand[j];
+                    demand[j] = 0;
+                }
+            }
+        }
+        ASSTATE.setBuildingOfferRico(offerIndex, offer);
+    }
+    
+    let increaseCongestion = function asrico_increaseCongestion(offerIndex, roadX, roadY)
+    {
+        let offer = ASSTATE.getBuildingOfferRico(offerIndex);
+        let additionalCongestion = 0;
+        for (let i in offer)
+        {
+            additionalCongestion += offer[i];
+        }
+        ASROAD.addCongestion(roadX, roadY, additionalCongestion);
     }
     
     let hasBuilding = function asrico_hasBuilding(i)
@@ -1612,7 +1654,7 @@ let ASRICO = (function ()
         W: 3
     };
     
-    public.findNearestBuilding = function asrico_findNearestRico(x, y)
+    let findNearestBuilding = function asrico_findNearestRico(x, y)
     {
         let list = [];
         let index = ASSTATE.getIndex(x, y);

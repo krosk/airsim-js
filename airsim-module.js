@@ -1335,12 +1335,8 @@ let ASRICO = (function ()
     };
     const C_R = C_RICOPROPERTY;
     
-    let getInitialOffer = function asrico_getInitialOffer(code, index)
+    let getInitialOffer = function asrico_getInitialOffer(code)
     {
-        if (!ASSTATE.isValidIndex(index))
-        {
-            return [-1, -1, -1];
-        }
         let values = C_R[code];
         if (typeof values == 'undefined' || values == null)
         {
@@ -1352,12 +1348,8 @@ let ASRICO = (function ()
         return [or, oi, oc];
     }
     
-    let getInitialDemand = function asrico_getInitialDemand(code, index)
+    let getInitialDemand = function asrico_getInitialDemand(code)
     {
-        if (!ASSTATE.isValidIndex(index))
-        {
-            return [-1, -1, -1];
-        }
         let values = C_R[code];
         if (typeof values == 'undefined' || values == null)
         {
@@ -1435,9 +1427,9 @@ let ASRICO = (function ()
         let i = 0;
         ASSTATE.setBuildingDensity(index, C_R[code][C_RM.LEVEL]);
         ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_TYPE, index, C_R[code][C_RM.TYPE]);
-        let offerRico = getInitialOffer(code, index);
+        let offerRico = getInitialOffer(code);
         ASSTATE.setBuildingOfferRico(index, offerRico);
-        let demandRico = getInitialDemand(code, index);
+        let demandRico = getInitialDemand(code);
         ASSTATE.setBuildingDemandRico(index, demandRico);
         addChangeLogIndex(index);
     }
@@ -1677,8 +1669,10 @@ let ASRICO = (function ()
     
     let getDistanceMax = function asrico_getDistanceMax(index)
     {
-        let offer = ASSTATE.getBuildingOfferRico(index);
-        return 300;
+        let code = getDataIdByDensityLevel(index);
+        let offer = getInitialOffer(code);
+        let distance = offer[0] + offer[1] + offer[2];
+        return distance * 20;
     }
     
     let dispatchOffer = function asrico_dispatchOffer(offerIndex, roadX, roadY)

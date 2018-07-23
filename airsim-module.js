@@ -1311,7 +1311,17 @@ let ASRICO = (function ()
     const C = public.C_TILEENUM;
     
     // [level, type, offer ric, demand ric]
-    
+    const C_RICOPROPERTY_MAP = {
+        LEVEL : 0,
+        TYPE : 1,
+        OFFER_R : 2,
+        OFFER_I : 3,
+        OFFER_C : 4,
+        DEMAND_R : 5,
+        DEMAND_I : 6,
+        DEMAND_C : 7
+    };
+    const C_RM = C_RICOPROPERTY_MAP;
     const C_RICOPROPERTY = {
         [C.RESLOW_0] : [0, 1,   0,   0,   0,   0,   0,   0],
         [C.RESLOW_1] : [1, 1,   4,   0,   0,   0,   2,   2],
@@ -1324,6 +1334,40 @@ let ASRICO = (function ()
         [C.COMLOW_2] : [2, 3,   0,   0,  10,   4,   6,   0],
     };
     const C_R = C_RICOPROPERTY;
+    
+    let getInitialOffer = function asrico_getInitialOffer(code, index)
+    {
+        if (!ASSTATE.isValidIndex(index))
+        {
+            return [-1, -1, -1];
+        }
+        let values = C_R[code];
+        if (typeof values == 'undefined' || values == null)
+        {
+            return [-1, -1, -1];
+        }
+        let or = C_R[code][C_RM.OFFER_R];
+        let oi = C_R[code][C_RM.OFFER_I];
+        let oc = C_R[code][C_RM.OFFER_C];
+        return [or, oi, oc];
+    }
+    
+    let getInitialDemand = function asrico_getInitialDemand(code, index)
+    {
+        if (!ASSTATE.isValidIndex(index))
+        {
+            return [-1, -1, -1];
+        }
+        let values = C_R[code];
+        if (typeof values == 'undefined' || values == null)
+        {
+            return [-1, -1, -1];
+        }
+        let dr = C_R[code][C_RM.DEMAND_R];
+        let di = C_R[code][C_RM.DEMAND_I];
+        let dc = C_R[code][C_RM.DEMAND_C];
+        return [dr, di, dc];
+    }
     
     public.getDataIdByDensityLevel = function asrico_getDataIdByDensityLevel(x, y)
     {
@@ -1389,17 +1433,11 @@ let ASRICO = (function ()
         ASSTATE.setBuildingType(index, 1);
         ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_TICK_UPDATE, index, 0);
         let i = 0;
-        ASSTATE.setBuildingDensity(index, C_R[code][i++]);
-        ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_TYPE, index, C_R[code][i++]);
-        let or = C_R[code][i++];
-        let oi = C_R[code][i++];
-        let oc = C_R[code][i++];
-        let offerRico = [or, oi, oc];
+        ASSTATE.setBuildingDensity(index, C_R[code][C_RM.LEVEL]);
+        ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_TYPE, index, C_R[code][C_RM.TYPE]);
+        let offerRico = getInitialOffer(code, index);
         ASSTATE.setBuildingOfferRico(index, offerRico);
-        let dr = C_R[code][i++];
-        let di = C_R[code][i++];
-        let dc = C_R[code][i++];
-        let demandRico = [dr, di, dc];
+        let demandRico = getInitialDemand(code, index);
         ASSTATE.setBuildingDemandRico(index, demandRico);
         addChangeLogIndex(index);
     }

@@ -68,7 +68,7 @@ let ASSTATE = (function()
     public.getXYFromIndex = function asstate_getXYFromIndex(index)
     {
         //return MUTIL.mathReverseCantorPair(index);
-        return index <= 0 ? [-1, -1] : [((index - 1) / public.getTableSizeY()) | 0, (index - 1) % public.getTableSizeY()];
+        return public.isValidIndex(index) ? [((index - 1) / public.getTableSizeY()) | 0, (index - 1) % public.getTableSizeY()] : [-1, -1];
     }
     
     let r = function r(index, field)
@@ -455,6 +455,12 @@ let ASSTATE = (function()
     public.setTableSizeY = function asstate_setTableSizeY(data)
     {
         w(0, G.SIZE_Y, data);
+    }
+    
+    public.isValidIndex = function asstate_isValidIndex(index)
+    {
+        let isOutOfBound = index <= 0 || index > public.getTableSizeX() * public.getTableSizeY();
+        return !isOutOfBound;
     }
     
     public.isValidCoordinates = function asstate_isValidCoordinates(tileX, tileY)
@@ -1256,7 +1262,7 @@ let ASROAD = (function ()
         //console.log(data[0]);
     }
 
-    public.assessRoad = function asrico_assessroad(costMax, roadX, roadY)
+    public.assessRoad = function asroad_assessroad(costMax, roadX, roadY)
     {
         let roadIndex = ASSTATE.getIndex(roadX, roadY);
         if (!hasRoad(roadIndex))
@@ -1317,11 +1323,15 @@ let ASRICO = (function ()
     
     public.getDataIdByDensityLevel = function asrico_getDataIdByDensityLevel(x, y)
     {
-        if (!ASSTATE.isValidCoordinates(x, y))
+        let index = ASSTATE.getIndex(x, y);
+        return getDataIdByDensityLevel(index);
+    }
+    let getDataIdByDensityLevel = function asrico_getDataIdByDensityLevel(index)
+    {
+        if (!ASSTATE.isValidIndex(index))
         {
             return C.NONE;
         }
-        let index = ASSTATE.getIndex(x, y);
         let level = hasBuilding(index) ? ASSTATE.getBuildingData(ASSTATE.C_DATA.BUILDING_DENSITY_LEVEL, index) : 0;
         let type = hasBuilding(index) ? ASSTATE.getBuildingData(ASSTATE.C_DATA.BUILDING_TYPE, index) : 0;
         let id = C.NONE + 10*type + 1*level;
@@ -1546,10 +1556,7 @@ let ASRICO = (function ()
     {
         let density = ASSTATE.getBuildingDensity(index);
         ASSTATE.setBuildingDensity(index, density + 1);
-        let xy = ASSTATE.getXYFromIndex(index)
-        let x = xy[0];
-        let y = xy[1];
-        let code = public.getDataIdByDensityLevel(x, y);
+        let code = getDataIdByDensityLevel(index);
         //console.log(code);
         setInitial(code, index);
     }

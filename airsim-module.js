@@ -459,6 +459,10 @@ let ASSTATE = (function()
     
     public.isValidIndex = function asstate_isValidIndex(index)
     {
+        if (typeof index == 'undefined' || index == null)
+        {
+            throw 'undefined index';
+        }
         let isOutOfBound = index <= 0 || index > public.getTableSizeX() * public.getTableSizeY();
         return !isOutOfBound;
     }
@@ -1367,13 +1371,8 @@ let ASRICO = (function ()
         ASSTATE.setRicoStep(0);
     }
     
-    let addInitial = function asrico_addInitial(code, x, y)
+    let addInitial = function asrico_addInitial(code, index)
     {
-        if (!ASSTATE.isValidCoordinates(x, y))
-        {
-            return;
-        }
-        let index = ASSTATE.getIndex(x, y);
         if (!hasBuilding(index))
         {
             setInitial(code, index);
@@ -1407,17 +1406,20 @@ let ASRICO = (function ()
     
     public.addResLow = function asrico_addResLow(x, y)
     {
-        addInitial(C.RESLOW_0, x, y);
+        let index = ASSTATE.getIndex(x, y);
+        addInitial(C.RESLOW_0, index);
     }
    
     public.addComLow = function asrico_addComLow(x, y)
     {
-        addInitial(C.COMLOW_0, x, y);
+        let index = ASSTATE.getIndex(x, y);
+        addInitial(C.COMLOW_0, index);
     }
     
     public.addIndLow = function asrico_addIndLow(x, y)
     {
-        addInitial(C.INDLOW_0, x, y);
+        let index = ASSTATE.getIndex(x, y);
+        addInitial(C.INDLOW_0, index);
     }
     
     public.removeBuilding = function asrico_removeBuilding(x, y)
@@ -1679,7 +1681,7 @@ let ASRICO = (function ()
     
     let hasBuilding = function asrico_hasBuilding(i)
     {
-        if (typeof i === 'undefined' || i == null || i < 0)
+        if (!ASSTATE.isValidIndex(i))
         {
             return false;
         }

@@ -687,6 +687,23 @@ let ASZONE = (function ()
         return tick;
     }
     
+    public.setPreset = function aszone_setPreset()
+    {
+        const tableSizeX = ASSTATE.getTableSizeX();
+        const tableSizeY = ASSTATE.getTableSizeY();
+        for (let x = 0; x < tableSizeX; x++)
+        {
+            for (let y = 0; y < tableSizeY; y++)
+            {
+                let roadId = C.ROAD;
+                if (x % 5 == 0 || y % 5 == 0)
+                {
+                    public.setZone(x, y, roadId);
+                }
+            }
+        }
+    }
+    
     return public;
 })();
 

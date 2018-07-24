@@ -50,7 +50,8 @@ let ASTILE = (function ()
         STOP: 934,
         STEP: 935,
         SAVE: 941,
-        LOAD: 942
+        LOAD: 942,
+        BENC: 943
     };
     
     let m_textureNameCache = {};
@@ -265,7 +266,8 @@ let ASICON_TILE = (function ()
         [C.STOP] : getColor(255, 0, 0),
         [C.STEP] : getColor(255, 192, 0),
         [C.SAVE] : getColor(64, 64, 255),
-        [C.LOAD] : getColor(64, 255, 64)
+        [C.LOAD] : getColor(64, 255, 64),
+        [C.BENC] : getColor(255, 64, 64)
     }
     
     let addNothing = function asicon_addNothing(color, height)
@@ -413,6 +415,7 @@ let ASICON_TILE = (function ()
         [C.STEP] : addTriangleBreak,
         [C.SAVE] : addText("SAVE"),
         [C.LOAD] : addText("LOAD"),
+        [C.BENC] : addText("BENC")
     }
 
     return public;

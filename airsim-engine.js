@@ -61,6 +61,12 @@ let ASENGINE = (function ()
         dispatch(postData, callbackData);
     }
     
+    public.setPreset = function asengine_setPreset(callbackData)
+    {
+        let postData = [ASZONE.C_NAME, 'setPreset'];
+        dispatch(postData, callbackData);
+    }
+    
     public.getTileIdTable = function asengine_getTileIdTable(viewName, callbackData)
     {
         let postData = [ASTILEVIEW.C_NAME, 'getTileIdTable', viewName];

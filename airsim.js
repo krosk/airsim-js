@@ -493,6 +493,7 @@ let ASMAPUI = (function ()
     const C_SAVE = [
         C.SAVE,
         C.LOAD,
+        C.BENC
     ];
     
     const C_TABLE = {
@@ -832,6 +833,11 @@ let ASMAPUI = (function ()
             let stateData = localStorage.getItem('ASSTATE');
             let callbackData = [ASMAPUI.C_NAME, 'loadDataResponse'];
             ASENGINE.setSerializable(stateData, callbackData);
+        }
+        else if (saveId == C_DEF.BENC)
+        {
+            let callbackData = [ASMAPUI.C_NAME, 'loadDataResponse'];
+            ASENGINE.setPreset(callbackData);
         }
     }
     

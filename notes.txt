@@ -617,6 +617,88 @@ Blocked road definition is:
 - not enough capacity to hold influx of
     congestion
 
+Road modelisation:
+Cost can be an inverse of speed.
+Cost is an increasing value that starts at 0.
+For the same road, the cost is kept minimal
+when the flow is good.
+For example, a city road that flows well
+has a speed of 50, which is like a cost of
+200/50 = 4. If the city road has a few cars
+(offer car passing by), its cost stays at
+4. By the time more cars are passing through,
+speed is going down. For example, the threshold
+can be 30 cars per tick.
+Cars are instantaneously added, but they
+dissipate with time, so this is how traffic
+is simulated.
+A 50 km/h car is going through 900 meters per
+minute, 15 m per second. Two cars spacing
+is therefore 15 m to keep full speed.
+If you consider that a tile is 100 meters wide,
+then 6 cars get in at full speed and the tile
+is full. That is, a tile max speed capacity is
+7. The exact formula could be:
+tile length TL = 0.1
+tile max speed in km/h TS = 50
+Max speed threshold is:
+TL / (TS / 3600)
+TL / TS * 3600 = 7 cars
+Below 7 cars, speed is maximal. The cost of
+this can be 200 / TS, which is 4.
+
+
+Assuming an acceptable commuting time is 1 hour
+then the max distance under roads of 100 m tiles
+at 50 km/h is 500 tiles.
+This is too big of a scope, but why not.
+Commuting time can be reduced to 30 minutes,
+which is 250 tiles away.
+TM = 0.5 in hour
+For a TS 50 and TL 0.1, the max distance is
+TM * TS / TL = distance in tile for TS roads
+Assuming arbitrarily that the unit cost is
+200 / TS, then the max distance as cost is:
+TM * TS / TL * 200 / TS
+TM / TL * 200
+That means the max cost is 250 * 4 = 1000 units.
+
+Traversal going through a city road will
+increase cost by 4, as long as there is less
+than 7 cars.
+Once there is more than 7 cars, then
+the speed limit becomes what separates two cars
+by one second.
+Say, if a tile has n cars, then
+TC = n
+TL / TS * 3600 = TC
+TS = 3600 * TL / TC
+And we get a degressive speed.
+Say, 
+7 cars  50 km/h 4 unit : green
+9 cars  40 km/h 5 unit
+11 cars 33 km/h 6 unit
+13 cars 28 km/h 7 unit
+15 cars 24 km/h 8 unit
+for 100 cars, 3 km/h, 66 unit
+
+What about the decay time? It is about how
+long is a tick.
+If you consider a tick as a minute, then
+TS / 60 = 50 / 60 = 833 m in one minute. That
+makes a tile quickly empty.
+With 3 / 60, only 50 m in one minute. That is
+in one minute, 50 / TL ratio of cars have left
+the tile.
+
+
+
+
+As soon as the flow starts to densify, the
+cost must increase. This is the mark of
+congestion.
+
+
 The area of effect
 stops once the distance capacity is depleted.
 The distribution is through an area of effect.

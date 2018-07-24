@@ -1707,14 +1707,7 @@ let ASRICO = (function ()
     
     let getDistanceMax = function asrico_getDistanceMax(index)
     {
-        let code = getDataIdByDensityLevel(index);
-        let offer = getInitialOffer(code);
-        let distance = 0;
-        for (let i in offer)
-        {
-            distance += offer[i];
-        }
-        return distance * 20;
+        return 1000;
     }
     
     let dispatchOffer = function asrico_dispatchOffer(offerIndex, roadX, roadY)

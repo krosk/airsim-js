@@ -749,6 +749,7 @@ let ASROAD = (function ()
     }
     
     const C_TILE_LENGTH = 0.1; // km
+    const C_MAX_SPEED = 200;
     
     // ----------------
     
@@ -775,6 +776,10 @@ let ASROAD = (function ()
             return C.NONE;
         }
         let index = ASSTATE.getIndex(x, y);
+        if (!hasRoad(index))
+        {
+            return C.NONE;
+        }
         let ratio = getRoadSpeedDecrease(index);
         if (ratio > 0.75)
         {
@@ -932,10 +937,6 @@ let ASROAD = (function ()
 
     public.removeRoad = function asroad_removeRoad(x, y)
     {
-        if (x < 0 || y < 0)
-        {
-            return;
-        }
         let index = ASSTATE.getIndex(x, y);
         if (!hasRoad(index))
         {
@@ -949,27 +950,21 @@ let ASROAD = (function ()
         m_cacheNodeRefresh = true;
     }
     
-    let getRoadSpeedDecrease = function asroad_getRoadSpeedDecrease(index)
+    let getRoadSpeed = function asroad_getRoadSpeed(index)
     {
-        if (!hasRoad(index))
-        {
-            return -1;
-        }
         let type = ASSTATE.getRoadType(index);
         let maxSpeed = C_TYPE_SPEED[type];
         let carCount = ASSTATE.getRoadUsedCapacity(index);
         let actualSpeed = carCount <= 0 ? maxSpeed : 3600 * C_TILE_LENGTH / carCount;
-        return actualSpeed / maxSpeed;
+        return actualSpeed > maxSpeed ? maxSpeed : actualSpeed;
     }
     
-    let getRoadMaxCapacity = function asroad_getRoadMaxCapacity(index)
+    let getRoadSpeedDecrease = function asroad_getRoadSpeedDecrease(index)
     {
-        if (!hasRoad(index))
-        {
-            return 1;
-        }
         let type = ASSTATE.getRoadType(index);
-        return C_TYPE_CAPACITY[type];
+        let maxSpeed = C_TYPE_SPEED[type];
+        let actualSpeed = getRoadSpeed(index);
+        return actualSpeed / maxSpeed;
     }
     
     public.addCongestion = function asroad_addCongestion(x, y, additional)
@@ -1111,13 +1106,19 @@ let ASROAD = (function ()
         PROCESSED: 4
     };
     
+    let getTraversalCostIncrease = function asroad_getTraversalCostIncrease(roadIndex)
+    {
+        let speed = getRoadSpeed(roadIndex);
+        return 200 / speed;
+    }
+    
     let expandTraversal = function asroad_expandTraversal(parent, node)
     {
         //console.log('expandTraversal d' + data + 'f' + from + 't' + to);
         if (hasRoad(node))
         {
             let usedCapacity = ASSTATE.getRoadUsedCapacity(node);
-            let currentCost = usedCapacity;
+            let currentCost = getTraversalCostIncrease(node);
             if (parent >= 0)
             {
                 let previousCost = getTraversalCost(parent);

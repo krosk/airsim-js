@@ -1338,7 +1338,7 @@ let ASROAD = (function ()
             return false;
         }
         let costSoFar = ASSTATE.getRoadTraversalCost(roadIndex);
-        return true;
+        return costSoFar < costMax;
     }
     
     public.findNearestRoad = function asroad_findNearestRoad(x, y)

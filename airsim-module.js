@@ -1657,6 +1657,17 @@ let ASRICO = (function ()
         setInitial(code, index);
     }
     
+    let getOfferRicoSum = function asrico_getOfferRicoSum(offerIndex)
+    {
+        let offer = ASSTATE.getBuildingOfferRico(offerIndex);
+        let sum = 0;
+        for (let i in offer)
+        {
+            sum += offer[i];
+        }
+        return sum;
+    }
+    
     // note: could be extracted out of asrico
     // because it binds to asroad
     let updateBuilding = function asrico_updateBuilding(index)
@@ -1709,6 +1720,12 @@ let ASRICO = (function ()
         {
             // process offer
             // run traversal
+            let offerSum = getOfferRicoSum(index);
+            if (offerSum <= 0)
+            {
+                ASSTATE.setRicoStep(3);
+                return false;
+            }
             let costMax = getDistanceMax(index);
             let next = ASROAD.getNextStepTraversal();
             let nx = next[0];
@@ -1719,7 +1736,7 @@ let ASRICO = (function ()
                 ASSTATE.setRicoStep(3);
                 return false;
             }
-            //dispatchOffer(index, nx, ny);
+            dispatchOffer(index, nx, ny);
             increaseCongestion(index, nx, ny);
             return false;
         }
@@ -1764,23 +1781,13 @@ let ASRICO = (function ()
     
     let increaseCongestion = function asrico_increaseCongestion(offerIndex, roadX, roadY)
     {
-        let offer = ASSTATE.getBuildingOfferRico(offerIndex);
-        let additionalCongestion = 0;
-        for (let i in offer)
-        {
-            additionalCongestion += offer[i];
-        }
+        let additionalCongestion = getOfferRicoSum(offerIndex);
         ASROAD.addCongestion(roadX, roadY, additionalCongestion);
     }
     
     let removeCongestionPath = function asrico_decreaseCongestionPath(offerIndex)
     {
-        let offer = ASSTATE.getBuildingOfferRico(offerIndex);
-        let leftoverOffer = 0;
-        for (let i in offer)
-        {
-            leftoverOffer += offer[i];
-        }
+        let leftoverOffer = getOfferRicoSum(offerIndex);
         ASROAD.removeCongestionPath(leftoverOffer);
     }
     

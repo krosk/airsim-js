@@ -976,11 +976,21 @@ let ASROAD = (function ()
     {
         let index = ASSTATE.getIndex(x, y);
         let usedCapacity = ASSTATE.getRoadUsedCapacity(index);
-        let maxCapacity = getRoadMaxCapacity(index);
         usedCapacity += additional;
-        if (usedCapacity > maxCapacity)
+        ASSTATE.setRoadUsedCapacity(index, usedCapacity);
+    }
+    
+    let removeCongestion = function asroad_removeCongestion(index, removal)
+    {
+        if (!hasRoad(index))
         {
-            usedCapacity = maxCapacity;
+            return;
+        }
+        let usedCapacity = ASSTATE.getRoadUsedCapacity(index);
+        usedCapacity -= removal;
+        if (usedCapacity < 0)
+        {
+            usedCapacity = 0;
         }
         ASSTATE.setRoadUsedCapacity(index, usedCapacity);
     }
@@ -1273,6 +1283,21 @@ let ASROAD = (function ()
                 pathNodeXY.push(xy[1]);
             }
             return pathNodeXY;
+        }
+    }
+    
+    public.removeCongestionPath = function asroad_removeCongestionPath(count)
+    {
+        let nodeList = getCurrentNodeList();
+        let edgeCount = nodeList.length;
+        for (let i = 0; i < edgeCount; i++)
+        {
+            let node = nodeList[i];
+            if (hasRoad(node))
+            {
+                removeCongestion(node, count);
+                changeTraversalIndex(node);
+            }
         }
     }
     
@@ -1699,6 +1724,7 @@ let ASRICO = (function ()
         }
         else
         {
+            removeCongestionPath(index);
             ASROAD.resetTraversalPath();
             ASSTATE.setRicoStep(0);
             return true;
@@ -1744,6 +1770,17 @@ let ASRICO = (function ()
             additionalCongestion += offer[i];
         }
         ASROAD.addCongestion(roadX, roadY, additionalCongestion);
+    }
+    
+    let removeCongestionPath = function asrico_decreaseCongestionPath(offerIndex)
+    {
+        let offer = ASSTATE.getBuildingOfferRico(offerIndex);
+        let leftoverOffer = 0;
+        for (let i in offer)
+        {
+            leftoverOffer += offer[i];
+        }
+        ASROAD.removeCongestionPath(leftoverOffer);
     }
     
     let hasBuilding = function asrico_hasBuilding(i)

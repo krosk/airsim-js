@@ -740,6 +740,16 @@ let ASROAD = (function ()
         [C_TYPE_ID.HIGHWAY] : 400
     }
     
+    // in km/h
+    const C_TYPE_SPEED = {
+        [C_TYPE_ID.NONE] : 10,
+        [C_TYPE_ID.PATH] : 20,
+        [C_TYPE_ID.ROAD] : 50,
+        [C_TYPE_ID.HIGHWAY] : 90
+    }
+    
+    const C_TILE_LENGTH = 0.1; // km
+    
     // ----------------
     
     let C_DEBUG_TRAVERSAL = true;
@@ -765,24 +775,22 @@ let ASROAD = (function ()
             return C.NONE;
         }
         let index = ASSTATE.getIndex(x, y);
-        let value = hasRoad(index) ? ASSTATE.getRoadUsedCapacity(index) : 0;
-        let max = hasRoad(index) ? getRoadMaxCapacity(index) : 1;
-        let ratio = value / max;
+        let ratio = getRoadSpeedDecrease(index);
         if (ratio > 0.75)
         {
-            return C.VHI;
+            return C.LOW;
         }
         else if (ratio > 0.5)
         {
-            return C.HIG;
+            return C.MID;
         }
         else if (ratio > 0.25)
         {
-            return C.MID;
+            return C.HIG;
         }
         else if (ratio > 0)
         {
-        	return C.LOW;
+        	return C.VHI;
         }
         else
         {
@@ -939,6 +947,19 @@ let ASROAD = (function ()
         disconnectNodes(x, y, C_TO.W);
         changeDataIndex(index);
         m_cacheNodeRefresh = true;
+    }
+    
+    let getRoadSpeedDecrease = function asroad_getRoadSpeedDecrease(index)
+    {
+        if (!hasRoad(index))
+        {
+            return -1;
+        }
+        let type = ASSTATE.getRoadType(index);
+        let maxSpeed = C_TYPE_SPEED[type];
+        let carCount = ASSTATE.getRoadUsedCapacity(index);
+        let actualSpeed = carCount <= 0 ? maxSpeed : 3600 * C_TILE_LENGTH / carCount;
+        return actualSpeed / maxSpeed;
     }
     
     let getRoadMaxCapacity = function asroad_getRoadMaxCapacity(index)

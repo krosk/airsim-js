@@ -1671,7 +1671,11 @@ let ASRICO = (function ()
     {
         let code = getDataIdByDensityLevel(index);
         let offer = getInitialOffer(code);
-        let distance = offer[0] + offer[1] + offer[2];
+        let distance = 0;
+        for (let i in offer)
+        {
+            distance += offer[i];
+        }
         return distance * 20;
     }
     

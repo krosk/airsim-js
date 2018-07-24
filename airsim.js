@@ -781,7 +781,7 @@ let ASMAPUI = (function ()
     
     public.isViewModeRoadLayer = function asmapui_isViewModeRoadLayer()
     {
-        return isViewMode() && getCurrentViewId() == C_VIEW[1];
+        return isViewMode() && getCurrentViewId() == C_VIEW[2];
     }
     
     let refreshMapDisplay = function asmapui_refreshMapDisplay()

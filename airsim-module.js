@@ -1365,7 +1365,12 @@ let ASROAD = (function ()
     public.getInfo = function asroad_getInfo(x, y)
     {
         let index = ASSTATE.getIndex(x, y);
-        return public.C_NAME + " " + index;
+        if (!hasRoad(index))
+        {
+            return "";
+        }
+        return public.C_NAME + " " + index + " " +
+            getRoadSpeed(index);
     }
     
     return public;

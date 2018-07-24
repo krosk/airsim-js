@@ -1362,6 +1362,12 @@ let ASROAD = (function ()
         return -1;
     }
     
+    public.getInfo = function asroad_getInfo(x, y)
+    {
+        let index = ASSTATE.getIndex(x, y);
+        return public.C_NAME + " " + index;
+    }
+    
     return public;
 })();
 

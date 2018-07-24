@@ -381,8 +381,9 @@ let ASMAP = (function ()
         ASENGINE.setZone(x, y, selectedId);
     }
     
-    let doRoadViewSingleClick = function asmap_doRoadViewSingleClick(x, y)
+    let doViewRoadSingleClick = function asmap_doViewRoadSingleClick(x, y)
     {
+        /*
         let selectedId = ASMAPUI.getCurrentRoadId();
         if (selectedId == ASENGINE.V_ROAD.LOW)
         {
@@ -408,6 +409,8 @@ let ASMAP = (function ()
         {
             ASENGINE.printTraversal();
         }
+        */
+        ASENGINE.getInfoRoad(x, y);
     }
     
     let doSingleClick = function asmap_doSingleClick(x, y)
@@ -416,9 +419,9 @@ let ASMAP = (function ()
         {
             doZoneViewSingleClick(x, y);
         }
-        //if (ASMAPUI.isRoadMode())
+        if (ASMAPUI.isViewModeRoadLayer())
         {
-            //doRoadViewSingleClick(x, y);
+            doViewRoadSingleClick(x, y);
         }
     }
     
@@ -771,19 +774,14 @@ let ASMAPUI = (function ()
         return getVisibleState(C_ZONE);
     }
     
-    public.isRoadMode = function asmapui_isRoadMode()
-    {
-        return getVisibleState(C_ROAD);
-    }
-    
     let getCurrentViewId = function asmapui_getCurrentViewId()
     {
         return getSingleId(C_VIEW);
     }
     
-    public.getCurrentRoadId = function asmapui_getCurrentRoadId()
+    public.isViewModeRoadLayer = function asmapui_isViewModeRoadLayer()
     {
-        return getSingleId(C_ROAD);
+        return isViewMode() && getCurrentViewId() == C_VIEW[1];
     }
     
     let refreshMapDisplay = function asmapui_refreshMapDisplay()

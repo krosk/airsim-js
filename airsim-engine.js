@@ -7,7 +7,7 @@ let ASENGINE = (function ()
     public.C_NAME = 'ASENGINE';
     
     const C_MODULE_INT = {
-        [public.C_NAME] : this,
+        [public.C_NAME] : public,
         [ASMAP.C_NAME] : ASMAP,
         [ASMAPUI.C_NAME] : ASMAPUI,
         [MMAPDATA.C_NAME] : MMAPDATA,
@@ -128,6 +128,13 @@ let ASENGINE = (function ()
         dispatch(postData);
     }
     
+    public.getInfoRoad = function asengine_getInfo(x, y)
+    {
+        const callbackData = [ASENGINE.C_NAME, 'printValue'];
+        const postData = [ASROAD.C_NAME, 'getInfo', x, y];
+        dispatch(postData, callbackData);
+    }
+    
     public.printValue = function asengine_printValue(value)
     {
         console.log(value);
@@ -152,7 +159,15 @@ let ASENGINE = (function ()
             let uiMethodName = callbackData[1];
             let uiArg0 = callbackData[2];
             let uiArg1 = callbackData[3];
+            if (typeof C_MODULE_INT[uiModuleName] === 'undefined')
+            {
+                throw uiModuleName + ' not found';
+            }
             let uiMethod = C_MODULE_INT[uiModuleName][uiMethodName];
+            if (typeof uiMethod === 'undefined')
+            {
+                throw uiModuleName + '.' + uiMethodName + ' not found';
+            }
             if (typeof uiArg0 === 'undefined')
             {
                 uiMethod(value);

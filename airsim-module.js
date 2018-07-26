@@ -615,6 +615,10 @@ let ASZONE = (function ()
         {
             return;
         }
+        if (!ASSTATE.isValidCoordinates(x, y))
+        {
+            return;
+        }
         const oldZone = public.getDataIdByZone(x, y);
         if (oldZone != zone)
         {
@@ -955,7 +959,7 @@ let ASROAD = (function ()
         let type = ASSTATE.getRoadType(index);
         let maxSpeed = C_TYPE_SPEED[type];
         let carCount = ASSTATE.getRoadUsedCapacity(index);
-        let actualSpeed = carCount <= 0 ? maxSpeed : 3600 * C_TILE_LENGTH / carCount;
+        let actualSpeed = carCount <= 0 ? maxSpeed : (3600 * C_TILE_LENGTH / carCount) | 0;
         return actualSpeed > maxSpeed ? maxSpeed : actualSpeed;
     }
     

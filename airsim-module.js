@@ -1781,6 +1781,7 @@ let ASRICO = (function ()
                     demand[j] = 0;
                 }
             }
+            ASSTATE.setBuildingDemandRico(demandIndex, demand);
         }
         ASSTATE.setBuildingOfferRico(offerIndex, offer);
         return filledOffer;
@@ -1848,6 +1849,18 @@ let ASRICO = (function ()
             }
         }
         return list;
+    }
+    
+    public.getInfo = function asrico_getInfo(x, y)
+    {
+        let index = ASSTATE.getIndex(x, y);
+        if (!hasBuilding(index))
+        {
+            return "";
+        }
+        return public.C_NAME + " " + index +
+            " D:" + ASSTATE.getBuildingDemandRico(index) +
+            " O:" + ASSTATE.getBuildingOfferRico(index);
     }
     
     return public;

@@ -128,10 +128,17 @@ let ASENGINE = (function ()
         dispatch(postData);
     }
     
-    public.getInfoRoad = function asengine_getInfo(x, y)
+    public.getInfoRoad = function asengine_getInfoRoad(x, y)
     {
         const callbackData = [ASENGINE.C_NAME, 'printValue'];
         const postData = [ASROAD.C_NAME, 'getInfo', x, y];
+        dispatch(postData, callbackData);
+    }
+    
+    public.getInfoRico = function asengine_getInfoRico(x, y)
+    {
+        const callbackData = [ASENGINE.C_NAME, 'printValue'];
+        const postData = [ASRICO.C_NAME, 'getInfo', x, y];
         dispatch(postData, callbackData);
     }
     

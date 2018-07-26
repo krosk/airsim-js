@@ -381,7 +381,7 @@ let ASMAP = (function ()
         ASENGINE.setZone(x, y, selectedId);
     }
     
-    let doViewRoadSingleClick = function asmap_doViewRoadSingleClick(x, y)
+    let doViewModeRoadLayerSingleClick = function asmap_doViewRoadSingleClick(x, y)
     {
         /*
         let selectedId = ASMAPUI.getCurrentRoadId();
@@ -413,6 +413,11 @@ let ASMAP = (function ()
         ASENGINE.getInfoRoad(x, y);
     }
     
+    let doViewModeRicoLayerSingleClick = function asmap_doViewModeRicoLayerSingleClick(x, y)
+    {
+        ASENGINE.getInfoRico(x, y);
+    }
+    
     let doSingleClick = function asmap_doSingleClick(x, y)
     {
         if (ASMAPUI.isZoneMode())
@@ -421,7 +426,11 @@ let ASMAP = (function ()
         }
         if (ASMAPUI.isViewModeRoadLayer())
         {
-            doViewRoadSingleClick(x, y);
+            doViewModeRoadLayerSingleClick(x, y);
+        }
+        if (ASMAPUI.isViewModeRicoLayer())
+        {
+            doViewModeRicoLayerSingleClick(x, y);
         }
     }
     
@@ -472,9 +481,7 @@ let ASMAPUI = (function ()
         C.DIRT,
         C.ROAD,
         C.NONE,
-        C.RESLOW,
-        C.COMLOW,
-        C.INDLOW,
+        C.RESLOW
     ];
     
     C = ASTILE.C_TILE_ICON;
@@ -782,6 +789,10 @@ let ASMAPUI = (function ()
     public.isViewModeRoadLayer = function asmapui_isViewModeRoadLayer()
     {
         return isViewMode() && getCurrentViewId() == C_VIEW[2];
+    }
+    public.isViewModeRicoLayer = function asmapui_isViewModeRicoLayer()
+    {
+        return isViewMode() && getCurrentViewId() == C_VIEW[3];
     }
     
     let refreshMapDisplay = function asmapui_refreshMapDisplay()

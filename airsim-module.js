@@ -1747,7 +1747,7 @@ let ASRICO = (function ()
                 ASSTATE.setRicoStep(3);
                 return false;
             }
-            dispatchOffer(index, nx, ny);
+            let filledOffer = dispatchOffer(index, nx, ny);
             increaseCongestion(index, nx, ny);
             return false;
         }
@@ -1769,6 +1769,7 @@ let ASRICO = (function ()
     {
         let demandIndexList = findNearestBuilding(roadX, roadY);
         let offer = ASSTATE.getBuildingOfferRico(offerIndex);
+        let filledOffer = 0;
         for (let i in demandIndexList)
         {
             let demandIndex = demandIndexList[i];
@@ -1777,17 +1778,20 @@ let ASRICO = (function ()
             {
                 if (demand[j] >= offer[j])
                 {
+                    filledOffer += offer[j];
                     demand[j] -= offer[j];
                     offer[j] = 0;
                 }
                 else
                 {
+                    filledOffer += demand[j];
                     offer[j] -= demand[j];
                     demand[j] = 0;
                 }
             }
         }
         ASSTATE.setBuildingOfferRico(offerIndex, offer);
+        return filledOffer;
     }
     
     let increaseCongestion = function asrico_increaseCongestion(offerIndex, roadX, roadY)

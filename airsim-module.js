@@ -262,7 +262,7 @@ let ASSTATE = (function()
     {
         w(index, C.BUILDING_OFFER_R, offer[0]);
         w(index, C.BUILDING_OFFER_I, offer[1]);
-        w(index, C.BUILDING_OFFRR_C, offer[2]);
+        w(index, C.BUILDING_OFFER_C, offer[2]);
     }
     
     public.getBuildingDensity = function asstate_getBuildingDensity(index)
@@ -1655,6 +1655,10 @@ let ASRICO = (function ()
     let levelDensityUp = function asrico_levelDensityUp(index)
     {
         let density = ASSTATE.getBuildingDensity(index);
+        if (density >= 2)
+        {
+            return;
+        }
         ASSTATE.setBuildingDensity(index, density + 1);
         let code = getDataIdByDensityLevel(index);
         //console.log(code);
@@ -1690,7 +1694,7 @@ let ASRICO = (function ()
             if (isDemandRicoFilled(demandRico))
             {
                 levelDensityUp(index);
-                console.log('level up ' + index);
+                //console.log('level up ' + index);
             }
             ASSTATE.setRicoStep(1);
             return false;
@@ -1858,9 +1862,12 @@ let ASRICO = (function ()
         {
             return "";
         }
-        return public.C_NAME + " " + index +
+        let code = getDataIdByDensityLevel(index);
+        return public.C_NAME + " " + index + " C:" + code +
             " D:" + ASSTATE.getBuildingDemandRico(index) +
-            " O:" + ASSTATE.getBuildingOfferRico(index);
+            " " + getInitialDemand(code) +
+            " O:" + ASSTATE.getBuildingOfferRico(index) +
+            " " + getInitialOffer(code);
     }
     
     return public;

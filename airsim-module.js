@@ -73,6 +73,10 @@ let ASSTATE = (function()
     
     let r = function r(index, field)
     {
+        if (G_CHECK && typeof field == 'undefined')
+        {
+            throw ('error accessing undefined field');
+        }
         let target = index == 0 ? field : (index - 1)*C.END + G.END + field;
         if (typeof m_dataStateView == 'undefined')
         {
@@ -89,6 +93,10 @@ let ASSTATE = (function()
     
     let w = function w(index, field, data)
     {
+        if (G_CHECK && typeof field == 'undefined')
+        {
+            throw ('error writing undefined field');
+        }
         let target = index == 0 ? field : (index - 1)*C.END + G.END + field;
         if (G_CHECK && (target < 0 || target > m_dataStateView.length))
         {

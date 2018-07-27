@@ -679,10 +679,8 @@ let ASZONE = (function ()
         }
         const frame = ASSTATE.getFrame();
         let engineComplete = true;
-        if (engineComplete)
-        {
-            engineComplete &= ASRICO.updateRico(tick, timeLimit);
-        }
+        engineComplete &= engineComplete ? ASROAD.updateRoad(tick, timeLimit) : false;
+        engineComplete &= engineComplete ? ASRICO.updateRico(tick, timeLimit) : false;
         const enoughTimeElapsed = Math.abs(time - m_lastTickTime) >= tickSpeed;
         if (engineComplete && enoughTimeElapsed)
         {
@@ -761,6 +759,7 @@ let ASROAD = (function ()
     }
     
     const C_TILE_LENGTH = 0.1; // km
+    const C_TICK_DURATION = 1.0/60.0;
     const C_MAX_SPEED = 200; // km/h
     
     // ----------------
@@ -962,6 +961,57 @@ let ASROAD = (function ()
         m_cacheNodeRefresh = true;
     }
     
+    public.updateRoad = function asroad_updateRoad(tick, timeLimit)
+    {
+        // Tick progress is the indicator
+        // that buildings have been checked
+        // in the current tick
+        let progress = ASSTATE.getRicoTickProgress();
+        const tableSizeX = ASSTATE.getTableSizeX();
+        const tableSizeY = ASSTATE.getTableSizeY();
+        const tableSize = tableSizeX * tableSizeY;
+        let elapsedCycle = 0;
+        let tickSpeed = ASSTATE.getTickSpeed();
+        // polling mode
+        while ((progress < tableSize) && (timeLimit < 0 || Date.now() < timeLimit))
+        {
+            let index = progress;
+            if (updateRoadTile(index))
+            {
+                progress += 1;
+            }
+            elapsedCycle += 1;
+            ASSTATE.setRicoTickProgress(progress);
+            if (tickSpeed > 1000) // exception case
+            {
+                break;
+            }
+        }
+        let complete = ASSTATE.getRicoTickProgress() >= tableSize;
+        return complete;
+    }
+    
+    let updateRoadTile = function asroad_updateRoadTilr(index)
+    {
+        if (!hasRoad(index))
+        {
+            return true;
+        }
+        let ratio = getRoadCongestionDecrease(index);
+        let carCount = ASSTATE.getRoadUsedCapacity(index);
+        let newCarCount = carCount * (1 - ratio);
+        if (newCarCount < 0)
+        {
+            newCarCount = 0;
+        }
+        if (carCount != newCarCount)
+        {
+            ASSTATE.setRoadUsedCapacity(index, newCarCount);
+            changeDataIndex(index);
+        }
+        return true;
+    }
+    
     let getRoadSpeed = function asroad_getRoadSpeed(index)
     {
         // 3600 * LN * TL / TC
@@ -980,6 +1030,13 @@ let ASROAD = (function ()
         let maxSpeed = C_TYPE_SPEED[type];
         let actualSpeed = getRoadSpeed(index);
         return actualSpeed / maxSpeed;
+    }
+    
+    let getRoadCongestionDecrease = function asroad_getRoadCongestionDecrease(index)
+    {
+        // TS * TT / TL
+        let actualSpeed = getRoadSpeed(index);
+        return (actualSpeed * C_TICK_DURATION / C_TILE_LENGTH);
     }
     
     public.addCongestion = function asroad_addCongestion(x, y, additional)
@@ -1644,9 +1701,9 @@ let ASRICO = (function ()
         let elapsedCycle = 0;
         let tickSpeed = ASSTATE.getTickSpeed();
         // polling mode
-        while ((progress < tableSize) && (timeLimit < 0 || Date.now() < timeLimit))
+        while ((progress - tableSize < tableSize) && (timeLimit < 0 || Date.now() < timeLimit))
         {
-            let index = progress;
+            let index = progress - tableSize;
             if (updateBuilding(index))
             {
                 progress += 1;
@@ -1658,7 +1715,7 @@ let ASRICO = (function ()
                 break;
             }
         }
-        let complete = ASSTATE.getRicoTickProgress() >= tableSize;
+        let complete = ASSTATE.getRicoTickProgress() - tableSize >= tableSize;
         return complete;
     }
     

@@ -975,7 +975,7 @@ let ASROAD = (function ()
         // polling mode
         while ((progress < tableSize) && (timeLimit < 0 || Date.now() < timeLimit))
         {
-            let index = progress;
+            let index = progress + 1;
             if (updateRoadTile(index))
             {
                 progress += 1;
@@ -1703,7 +1703,7 @@ let ASRICO = (function ()
         // polling mode
         while ((progress - tableSize < tableSize) && (timeLimit < 0 || Date.now() < timeLimit))
         {
-            let index = progress - tableSize;
+            let index = progress - tableSize + 1;
             if (updateBuilding(index))
             {
                 progress += 1;

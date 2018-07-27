@@ -590,6 +590,8 @@ remaining out of a max offer.
 It has a distance balance. The distance balance
 depends on its density level. It could also
 be a function of its max offer.
+Or it could be a max value that does not change
+for all buildings. 
 The building starts at the nearest road, and 
 travels from road to road, in a breadth first
 depth fashion.
@@ -681,23 +683,30 @@ Say,
 13 cars 28 km/h 7 unit
 15 cars 24 km/h 8 unit
 for 100 cars, 3 km/h, 66 unit
+This holds for single lane, bi directional road.
+If we consider roads with multiple lane, then
+TS = (3600 * LN) * TL / TC
+which makes the road capacity increase.
 
-What about the decay time? It is about how
-long is a tick.
+
+
+Experiment shows that congestion successfully
+stop buildings to grow. By adding other paths,
+building find other ways and resume growing.
+With lane count in picture, the range goes
+further.
+
+What about the decay time for roads? 
+It is about how long is a tick.
 If you consider a tick as a minute, then
 TS / 60 = 50 / 60 = 833 m in one minute. That
-makes a tile quickly empty.
+makes a tile quickly empty in normal cobditions.
 With 3 / 60, only 50 m in one minute. That is
 in one minute, 50 / TL ratio of cars have left
-the tile.
-
-
-
-
-As soon as the flow starts to densify, the
-cost must increase. This is the mark of
-congestion.
-
+the tile, making it effective for large
+traffic. So the formula for traffic clearing
+is TS * TT / TL, where TT is tick duration in
+hour
 
 The area of effect
 stops once the distance capacity is depleted.
@@ -738,6 +747,28 @@ of passed roads.
 The rational for this is this surplus offer
 has no destination and should not exist on
 the network.
+
+This implementation shows an issue:
+The cost is increased in roads even if the
+destination is not there, which makes circles
+of congestion even though traffic is one way.
+The way to better implement is to add congestion
+not for the whole offer, but add congestion to
+all tiles from building to destination amount
+to filled offer. This is more consuming, but
+ultimately is realistic of traffic.
+There is then no removal of surplus offer
+since they are added on use.
+
+The next observed oddity is offer tends to
+be distributed to the nearest demand, which
+makes further building starving.
+Putting 3 buildings RIC is not necessarily
+equilibrate: upon leveling unfilled order is
+lost. A way to circumvent this is to keep
+residual, non filled offer across leveling
+up.
+
 
 
 **Mechanism 6: Road traversal

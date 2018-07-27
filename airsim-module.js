@@ -1493,17 +1493,21 @@ let ASRICO = (function ()
     
     let setInitial = function asrico_setInitial(code, index)
     {
-        if (index == null || index < 0)
+        if (!ASSTATE.isValidIndex(index))
         {
             return;
         }
         ASSTATE.setZoneType(index, ASZONE.C_TYPE.BUILDING);
         ASSTATE.setBuildingType(index, 1);
         ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_TICK_UPDATE, index, 0);
-        let i = 0;
         ASSTATE.setBuildingDensity(index, C_R[code][C_RM.LEVEL]);
         ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_TYPE, index, C_R[code][C_RM.TYPE]);
         let offerRico = getInitialOffer(code);
+        let residualOfferRico = ASSTATE.getBuildingOfferRico(index);
+        for (let i in offerRico)
+        {
+            offerRico[i] += residualOfferRico[i];
+        }
         ASSTATE.setBuildingOfferRico(index, offerRico);
         let demandRico = getInitialDemand(code);
         ASSTATE.setBuildingDemandRico(index, demandRico);

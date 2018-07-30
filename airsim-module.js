@@ -761,6 +761,7 @@ let ASROAD = (function ()
     const C_TILE_LENGTH = 0.1; // km
     const C_TICK_DURATION = 1.0/60.0;
     const C_MAX_SPEED = 200; // km/h
+    const C_INTER_CAR = 1.0 / 3600.0; // h
     
     // ----------------
     
@@ -1014,13 +1015,13 @@ let ASROAD = (function ()
     
     let getRoadSpeed = function asroad_getRoadSpeed(index)
     {
-        // 3600 * LN * TL / TC
+        // LN * TL / TC / IC
         // rule is cars separated by one second
         let type = ASSTATE.getRoadType(index);
         let maxSpeed = C_TYPE_SPEED[type];
         let laneCount = C_TYPE_LANE[type];
         let carCount = ASSTATE.getRoadUsedCapacity(index);
-        let actualSpeed = carCount <= 0 ? maxSpeed : (3600 * laneCount * C_TILE_LENGTH / carCount) | 0;
+        let actualSpeed = carCount <= 0 ? maxSpeed : (laneCount * C_TILE_LENGTH / carCount / C_INTER_CAR ) | 0;
         return actualSpeed > maxSpeed ? maxSpeed : actualSpeed;
     }
     

@@ -1038,7 +1038,7 @@ let ASROAD = (function ()
         let type = ASSTATE.getRoadType(index);
         let maxSpeed = C_TYPE_SPEED[type];
         let laneCount = C_TYPE_LANE[type];
-        let carCount = ASSTATE.getRoadCarCount(index);
+        let carCount = ASSTATE.getRoadCarCount(index) / 10;
         let actualSpeed = carCount <= 0 ? maxSpeed : (laneCount * C_TILE_LENGTH / carCount / C_INTER_CAR ) | 0;
         return actualSpeed > maxSpeed ? maxSpeed : actualSpeed;
     }
@@ -1069,7 +1069,7 @@ let ASROAD = (function ()
             return;
         }
         let carCount = ASSTATE.getRoadCarCount(index);
-        carCount += additionalCarCount | 0;
+        carCount += additionalCarCount * 10 | 0;
         ASSTATE.setRoadCarCount(index, carCount);
         let carFlow = ASSTATE.getRoadCarFlow(index);
         carFlow += additionalCarFlow | 0;
@@ -1469,14 +1469,14 @@ let ASRICO = (function ()
     const C_RM = C_RICOPROPERTY_MAP;
     const C_RICOPROPERTY = {
         [C.RESLOW_0] : [0, 1,   0,   0,   0,   0,   0,   0],
-        [C.RESLOW_1] : [1, 1,   40,   0,   0,   0,   20,   20],
-        [C.RESLOW_2] : [2, 1,  100,   0,   0,   0,   40,   60],
+        [C.RESLOW_1] : [1, 1,  20,   0,   0,   0,  10,  10],
+        [C.RESLOW_2] : [2, 1,  50,   0,   0,   0,  20,  30],
         [C.INDLOW_0] : [0, 2,   0,   0,   0,   0,   0,   0],
-        [C.INDLOW_1] : [1, 2,   0,   40,   0,   20,   0,   20],
-        [C.INDLOW_2] : [2, 2,   0,  100,   0,   60,   0,   40],
+        [C.INDLOW_1] : [1, 2,   0,  20,   0,  10,   0,  10],
+        [C.INDLOW_2] : [2, 2,   0,  50,   0,  30,   0,  20],
         [C.COMLOW_0] : [0, 3,   0,   0,   0,   0,   0,   0],
-        [C.COMLOW_1] : [1, 3,   0,   0,   40,   20,   20,   0],
-        [C.COMLOW_2] : [2, 3,   0,   0,  100,   40,   60,   0],
+        [C.COMLOW_1] : [1, 3,   0,   0,  20,  10,  10,   0],
+        [C.COMLOW_2] : [2, 3,   0,   0,  50,  20,  30,   0],
     };
     const C_R = C_RICOPROPERTY;
     

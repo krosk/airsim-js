@@ -946,6 +946,7 @@ let ASROAD = (function ()
             ASSTATE.setRoadConnectTo(index, C_TO.S, -1);
             ASSTATE.setRoadConnectTo(index, C_TO.W, -1);
             ASSTATE.setRoadCarCount(index, 0);
+            ASSTATE.setRoadCarFlow(index, 0);
             ASSTATE.setRoadDebug(index, C.LOW)
             changeDataIndex(index);
             m_cacheNodeRefresh = true;
@@ -1009,16 +1010,23 @@ let ASROAD = (function ()
         {
             return true;
         }
-        let ratio = getRoadCongestionDecrease(index);
+        let ratio = getRoadTrafficDecay(index);
         let carCount = ASSTATE.getRoadCarCount(index);
-        let newCarCount = carCount * (1 - ratio);
-        if (newCarCount < 0)
+        let carFlow = ASSTATE.getRoadCarFlow(index);
+        let newCarCount = (carCount * (1 - ratio)) | 0;
+        if (newCarCount < 1)
         {
             newCarCount = 0;
         }
+        ASSTATE.setRoadCarCount(index, newCarCount);
+        let newCarFlow = (carFlow * (1 - ratio)) | 0;
+        if (newCarFlow < 1)
+        {
+            newCarFlow = 0;
+        }
+        ASSTATE.setRoadCarFlow(index, newCarFlow);
         if (carCount != newCarCount)
         {
-            ASSTATE.setRoadCarCount(index, newCarCount);
             changeDataIndex(index);
         }
         return true;
@@ -1027,7 +1035,6 @@ let ASROAD = (function ()
     let getRoadSpeed = function asroad_getRoadSpeed(index)
     {
         // LN * TL / TC / IC
-        // rule is cars separated by one second
         let type = ASSTATE.getRoadType(index);
         let maxSpeed = C_TYPE_SPEED[type];
         let laneCount = C_TYPE_LANE[type];
@@ -1044,14 +1051,17 @@ let ASROAD = (function ()
         return actualSpeed / maxSpeed;
     }
     
-    let getRoadCongestionDecrease = function asroad_getRoadCongestionDecrease(index)
+    let getRoadTrafficDecay = function asroad_getRoadTrafficDecay(index)
     {
-        // TS * TT / TL
-        let actualSpeed = getRoadSpeed(index);
-        return (actualSpeed * C_TICK_DURATION / C_TILE_LENGTH);
+        // LN / TF / IC * TD
+        let type = ASSTATE.getRoadType(index);
+        let laneCount = C_TYPE_LANE[type];
+        let carFlow = ASSTATE.getRoadCarFlow(index);
+        let decay = (laneCount / carFlow / C_INTER_CAR * C_TICK_DURATION);
+        return decay;
     }
     
-    public.addCongestion = function asroad_addCongestion(x, y, additional)
+    public.addCongestion = function asroad_addCongestion(x, y, additionalCarCount, additionalCarFlow)
     {
         let index = ASSTATE.getIndex(x, y);
         if (!ASSTATE.isValidIndex(index))
@@ -1059,23 +1069,11 @@ let ASROAD = (function ()
             return;
         }
         let carCount = ASSTATE.getRoadCarCount(index);
-        carCount += additional;
+        carCount += additionalCarCount | 0;
         ASSTATE.setRoadCarCount(index, carCount);
-    }
-    
-    let removeCongestion = function asroad_removeCongestion(index, removal)
-    {
-        if (!hasRoad(index))
-        {
-            return;
-        }
-        let carCount = ASSTATE.getRoadCarCount(index);
-        carCount -= removal;
-        if (carCount < 0)
-        {
-            carCount = 0;
-        }
-        ASSTATE.setRoadCarCount(index, carCount);
+        let carFlow = ASSTATE.getRoadCarFlow(index);
+        carFlow += additionalCarFlow | 0;
+        ASSTATE.setRoadCarFlow(index, carFlow);
     }
     
     // struct is
@@ -1173,8 +1171,8 @@ let ASROAD = (function ()
             let nodeIndex = getTraversalEdgeCount();
             incrementTraversalEdgeCount();
             setTraversalCurrentIndex(from);
-            let carCount = ASSTATE.getRoadCarCount(from);
-            setTraversalCost(from, carCount);
+            let cost = getTraversalCostIncrease(from);
+            setTraversalCost(from, cost);
             setTraversalParent(from, -1);
             setTraversalProcessed(from);
             expandTraversal(from, isConnectedTo(from, C_TO.N));
@@ -1205,7 +1203,6 @@ let ASROAD = (function ()
         //console.log('expandTraversal d' + data + 'f' + from + 't' + to);
         if (hasRoad(node))
         {
-            let carCount = ASSTATE.getRoadCarCount(node);
             let currentCost = getTraversalCostIncrease(node);
             if (parent >= 0)
             {
@@ -1443,7 +1440,7 @@ let ASROAD = (function ()
             return "";
         }
         return public.C_NAME + " " + index + " " +
-            getRoadSpeed(index);
+            getRoadSpeed(index) + " " + ASSTATE.getRoadCarFlow(index);
     }
     
     return public;
@@ -1472,14 +1469,14 @@ let ASRICO = (function ()
     const C_RM = C_RICOPROPERTY_MAP;
     const C_RICOPROPERTY = {
         [C.RESLOW_0] : [0, 1,   0,   0,   0,   0,   0,   0],
-        [C.RESLOW_1] : [1, 1,   4,   0,   0,   0,   2,   2],
-        [C.RESLOW_2] : [2, 1,  10,   0,   0,   0,   4,   6],
+        [C.RESLOW_1] : [1, 1,   40,   0,   0,   0,   20,   20],
+        [C.RESLOW_2] : [2, 1,  100,   0,   0,   0,   40,   60],
         [C.INDLOW_0] : [0, 2,   0,   0,   0,   0,   0,   0],
-        [C.INDLOW_1] : [1, 2,   0,   4,   0,   2,   0,   2],
-        [C.INDLOW_2] : [2, 2,   0,  10,   0,   6,   0,   4],
+        [C.INDLOW_1] : [1, 2,   0,   40,   0,   20,   0,   20],
+        [C.INDLOW_2] : [2, 2,   0,  100,   0,   60,   0,   40],
         [C.COMLOW_0] : [0, 3,   0,   0,   0,   0,   0,   0],
-        [C.COMLOW_1] : [1, 3,   0,   0,   4,   2,   2,   0],
-        [C.COMLOW_2] : [2, 3,   0,   0,  10,   4,   6,   0],
+        [C.COMLOW_1] : [1, 3,   0,   0,   40,   20,   20,   0],
+        [C.COMLOW_2] : [2, 3,   0,   0,  100,   40,   60,   0],
     };
     const C_R = C_RICOPROPERTY;
     
@@ -1882,11 +1879,12 @@ let ASRICO = (function ()
             return;
         }
         const path = ASROAD.getTraversalPath();
+        const pathLength = path.length / 2;
         for (let i = 0; i < path.length; i+=2)
         {
             let x = path[i];
             let y = path[i + 1];
-            ASROAD.addCongestion(x, y, filledOffer);
+            ASROAD.addCongestion(x, y, filledOffer / pathLength, filledOffer);
         }
     }
     

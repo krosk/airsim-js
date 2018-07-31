@@ -877,8 +877,8 @@ let ASROAD = (function ()
         //console.log('connectnode x'+x+'y'+y+'xd'+xd+'yd'+yd);
         if (hasRoad(from) && hasRoad(to))
         {
-            ASSTATE.setRoadConnectTo(from, d, to);
-            ASSTATE.setRoadConnectTo(to, C_FROM[d], from);
+            ASSTATE.setRoadConnectTo(from, d, 1);
+            ASSTATE.setRoadConnectTo(to, C_FROM[d], 1);
         }
     }
     
@@ -895,12 +895,12 @@ let ASROAD = (function ()
         if (hasRoad(from))
         {
             //delete ASSTATE.getRoad(from).connectTo[d];
-            ASSTATE.setRoadConnectTo(from, d, -1);
+            ASSTATE.setRoadConnectTo(from, d, 0);
         }
         if (hasRoad(to))
         {
             //delete ASSTATE.getRoad(to).connectTo[C_FROM[d]];
-            ASSTATE.setRoadConnectTo(to, C_FROM[d], -1);
+            ASSTATE.setRoadConnectTo(to, C_FROM[d], 0);
         }
     }
     
@@ -920,8 +920,11 @@ let ASROAD = (function ()
         {
             return -1;
         }
-        //let to = ASSTATE.getRoad(from).connectTo[d];
-        let to = ASSTATE.getRoadConnectTo(from, d);
+        let connected = ASSTATE.getRoadConnectTo(from, d);
+        let xy = ASSTATE.getXYFromIndex(from);
+        let x = xy[0];
+        let y = xy[1];
+        let to = getIndexTo(x, y, d);
         if (!hasRoad(to))
         {
             return -1;
@@ -941,10 +944,10 @@ let ASROAD = (function ()
         {
             ASSTATE.setZoneType(index, ASZONE.C_TYPE.ROAD);
             ASSTATE.setRoadType(index, C_TYPE_ID.ROAD);
-            ASSTATE.setRoadConnectTo(index, C_TO.N, -1);
-            ASSTATE.setRoadConnectTo(index, C_TO.E, -1);
-            ASSTATE.setRoadConnectTo(index, C_TO.S, -1);
-            ASSTATE.setRoadConnectTo(index, C_TO.W, -1);
+            ASSTATE.setRoadConnectTo(index, C_TO.N, 0);
+            ASSTATE.setRoadConnectTo(index, C_TO.E, 0);
+            ASSTATE.setRoadConnectTo(index, C_TO.S, 0);
+            ASSTATE.setRoadConnectTo(index, C_TO.W, 0);
             ASSTATE.setRoadCarCount(index, 0);
             ASSTATE.setRoadCarFlow(index, 0);
             ASSTATE.setRoadDebug(index, C.LOW)

@@ -696,22 +696,12 @@ building find other ways and resume growing.
 With lane count in picture, the range goes
 further.
 
-** Strategy 6.2: Road decay time
+** Strategy 6.2: 
 
-What about the decay time for roads? 
-It is about how long is a tick.
-If you consider a tick as a minute, then
-TS / 60 = 50 / 60 = 833 m in one minute. That
-makes a tile quickly empty in normal cobditions.
-With 3 / 60, only 50 m in one minute. That is
-in one minute, 50 / TL ratio of cars have left
-the tile, making it effective for large
-traffic. So the formula for traffic clearing
-is TS * TT / TL, where TT is tick duration in
-hour. If ratio > 1, tile is cleared.
-If ratio == 1/3, only 1/3 is cleared.
+
 
 ** Strategy 6.3: rico and road exchange
+
 The area of effect stops once the commute time
 capacity is depleted.
 The distribution is through an area of effect.
@@ -773,12 +763,21 @@ lost. A way to circumvent this is to keep
 residual, non filled offer across leveling
 up.
 
-** Strategy 6.4: building offer demand balance
-With road decay in place, there should be
-cyclical demand and offer.
-Congestion can increase over time if there
-is more offer and demand than cars consumed
-by the road.
+** Strategy 6.4: Road decay time
+
+What about the decay time for roads? 
+It is about how long is a tick.
+If you consider a tick as a minute, then
+TS / 60 = 50 / 60 = 833 m in one minute. That
+makes a tile quickly empty in normal cobditions.
+With 3 / 60, only 50 m in one minute. That is
+in one minute, 50 / TL ratio of cars have left
+the tile, making it effective for large
+traffic. So the formula for traffic clearing
+is TS * TT / TL, where TT is tick duration in
+hour. If ratio > 1, tile is cleared.
+If ratio == 1/3, only 1/3 is cleared.
+
 One tile of road consumes 
 TS = LN * TL / TC / IC
    = lane count * tile length / 
@@ -788,6 +787,7 @@ reduction ratio i.e. how many cars leave
   = tile speed * tick duration / tile length
   = LN * TL / TC / IC * TD / TL
   = LN / TC / IC * TD
+  = LN / TF / IC * TD (updated)
 ex: 1 / 100 * 3600 / 60 = 0.6, i.e in 100 cars
 in a 100m long tile, speed is 3,6 km/h which
 is 60m per minute. So 60% leave within 1 minute,
@@ -845,17 +845,18 @@ is same as 100 cars if 1km target, 10 times.
 However cars must leave the structure.
 
 So maybe, there should be 2 figures. The actual
-number of cars on place (1000 cars over 10 km
+number of cars on place TC (1000 cars over 10 km
 is 10 cars per 100m tile), and the number of 
-cars on the network (1000 cars on 10 km, which
-is a leaving rate of 6%). The 6% is applied
-both to the number of cars on place and on
-network.
+cars on the network TF (1000 cars on 10 km, 
+which is a leaving rate of 6%). The 6% is
+applied both to the number of cars on place and 
+on network.
 
 The actual speed is decided by the cars on
 place.
 The decay rate is decided by cars on network.
 
+Cost stays the same, relative to speed.
 
 
 

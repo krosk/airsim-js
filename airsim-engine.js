@@ -1,4 +1,4 @@
-const G_WORKER = false;
+const G_WORKER = true && window.Worker;
 
 let ASENGINE = (function ()
 {
@@ -209,12 +209,16 @@ let ASENGINE = (function ()
         }
     }
     
-    let m_worker = new Worker('airsim-worker.js');
-    m_worker.onmessage = function asengine_onmessage(e)
+    let m_worker;
+    if (G_WORKER)
     {
-        let value = e.data[0];
-        let callbackData = e.data[1];
-        processCallback(value, callbackData);
+        m_worker = new window.Worker('airsim-worker.js');
+        m_worker.onmessage = function asengine_onmessage(e)
+        {
+            let value = e.data[0];
+            let callbackData = e.data[1];
+            processCallback(value, callbackData);
+        }
     }
 
     return public;

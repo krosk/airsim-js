@@ -619,7 +619,8 @@ Blocked road definition is:
 - not enough capacity to hold influx of
     congestion
 
-Road modelisation:
+** Strategy 6.1: Road speed modelisation
+
 Cost can be an inverse of speed.
 Cost is an increasing value that starts at 0.
 For the same road, the cost is kept minimal
@@ -670,11 +671,11 @@ increase cost by 4, as long as there is less
 than 7 cars.
 Once there is more than 7 cars, then
 the speed limit becomes what separates two cars
-by one second.
+by one second TD.
 Say, if a tile has n cars, then
 TC = n
-TL / TS * 3600 = TC
-TS = 3600 * TL / TC
+TL / TS * 3600 / TD = TC
+TS = 3600 / TD * TL / TC
 And we get a degressive speed.
 Say, 
 7 cars  50 km/h 4 unit : green
@@ -685,9 +686,8 @@ Say,
 for 100 cars, 3 km/h, 66 unit
 This holds for single lane, bi directional road.
 If we consider roads with multiple lane, then
-TS = (3600 * LN) * TL / TC
+TS = (3600 / TD * LN) * TL / TC
 which makes the road capacity increase.
-
 
 
 Experiment shows that congestion successfully
@@ -695,6 +695,8 @@ stop buildings to grow. By adding other paths,
 building find other ways and resume growing.
 With lane count in picture, the range goes
 further.
+
+** Strategy 6.2: Road decay time
 
 What about the decay time for roads? 
 It is about how long is a tick.
@@ -706,22 +708,24 @@ in one minute, 50 / TL ratio of cars have left
 the tile, making it effective for large
 traffic. So the formula for traffic clearing
 is TS * TT / TL, where TT is tick duration in
-hour
+hour. If ratio > 1, tile is cleared.
+If ratio == 1/3, only 1/3 is cleared.
 
-The area of effect
-stops once the distance capacity is depleted.
+** Strategy 6.3: rico and road exchange
+The area of effect stops once the commute time
+capacity is depleted.
 The distribution is through an area of effect.
 The area of effect follows roads, starting
 from the building. It follows all roads in a
 breadth first depth. Upon checking a road,
 it transfers the offers to free buildings
 around, raises the congestion of that road
-and reduce the distance capacity, as a function
-of the road congestion.
+followed so far.
 Fullfilled demand decreases over time.
 Congestion decreases over time.
 High congestion reduces the spread of the
-area of effect. The building will therefore
+area of effect by consuming more commute time.
+The building will therefore
 only serve near zones, nearest first.
 This looks like the most realistic.
 
@@ -769,9 +773,93 @@ lost. A way to circumvent this is to keep
 residual, non filled offer across leveling
 up.
 
+** Strategy 6.4: building offer demand balance
+With road decay in place, there should be
+cyclical demand and offer.
+Congestion can increase over time if there
+is more offer and demand than cars consumed
+by the road.
+One tile of road consumes 
+TS = LN * TL / TC / IC
+   = lane count * tile length / 
+       car count / inter car
+reduction ratio i.e. how many cars leave
+  = TS * TD / TL
+  = tile speed * tick duration / tile length
+  = LN * TL / TC / IC * TD / TL
+  = LN / TC / IC * TD
+ex: 1 / 100 * 3600 / 60 = 0.6, i.e in 100 cars
+in a 100m long tile, speed is 3,6 km/h which
+is 60m per minute. So 60% leave within 1 minute,
+assuming they all fit.
+Leaving the tile is leaving the network
+altogether.
+This is a criteria that makes traffic
+unbalanced.
+Assuming 100 cars in 100m, 60% disappear per
+minute on the network.
+Assuming 1000 cars in 1000m, same speed
+conditions, 6% leaves on the network.
+A better equivalent is 100 cars in 1000m
+So assuming 10 tiles of 100m for 1000m,
+60% disappear which is very unbalanced compared
+to 6%. Although this is actually 10000 cars.
+
+One way could be, if 1000 cars must travel
+1000m, then they are stuck at 3.6 km/h.
+It is the same speed as 100 cars wanting to 
+travel 100m, but the difference is the cars
+disappear quicker from the network.
+1000 cars leave the network at a rate of 6%,
+per minute.
+So to have a rate of 6% per minute. Each tile
+of 0.1 km should be marked by 1000 cars.
+
+But, say, 100 cars must travel 1000m. Their
+speed is 36 km/h, and they run 600m in one
+minute, hence they leave at the rate of 60%.
+Say, 100 cars must travel 500m. If they all fit
+in a tile, then they drive at 18 km/h.
+Therefore they drive 300m in one minute, and
+60% leave the network.
+Hence regardless of the distance, 100 cars
+leave the network at the rate of 60% per min,
+assuming they have constant speed on the path.
+
+If 1000 cars must travel 10000m, then
+their speed is 36 km/h. they run 600m per
+minute, which is leaving the network at 6%.
+
+So, the decay is not a function of the speed
+in theory, only of the car count.
+
+But saying that, each tile is supposedly
+marked by 1000 cars, either they run 10km or
+1km. Each tile with an equal number of
+cars will empty at the same time. But marking
+1000 cars for a 1 km target or 10 km target
+changes the road speed. And the speed defines
+the cost in congestion.
+This means 1000 cars if spread to 10km target
+is same as 100 cars if 1km target, 10 times.
+However cars must leave the structure.
+
+So maybe, there should be 2 figures. The actual
+number of cars on place (1000 cars over 10 km
+is 10 cars per 100m tile), and the number of 
+cars on the network (1000 cars on 10 km, which
+is a leaving rate of 6%). The 6% is applied
+both to the number of cars on place and on
+network.
+
+The actual speed is decided by the cars on
+place.
+The decay rate is decided by cars on network.
 
 
-**Mechanism 6: Road traversal
+
+
+** Mechanism 6: Road traversal
 
 Classic implementation is breadth first.
 A separate data structure could work fine.

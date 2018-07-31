@@ -18,11 +18,12 @@ let ASSTATE = (function()
         ROAD_CONNECT_E : 5,
         ROAD_CONNECT_S : 6,
         ROAD_CONNECT_W : 7,
-        ROAD_USED_CAPACITY : 8,
-        ROAD_TRAVERSAL_PROCESSED : 9,
-        ROAD_TRAVERSAL_COST : 10,
-        ROAD_TRAVERSAL_PARENT : 11,
-        ROAD_DEBUG : 12,
+        ROAD_CAR_COUNT : 8,
+        ROAD_CAR_FLOW : 9,
+        ROAD_TRAVERSAL_PROCESSED : 10,
+        ROAD_TRAVERSAL_COST : 11,
+        ROAD_TRAVERSAL_PARENT : 12,
+        ROAD_DEBUG : 13,
         BUILDING_TYPE : 3, // 1 res 2 com 3 ind 4 off
         BUILDING_DENSITY_LEVEL : 4,
         BUILDING_OFFER_R: 5,
@@ -32,7 +33,7 @@ let ASSTATE = (function()
         BUILDING_DEMAND_I : 9,
         BUILDING_DEMAND_C : 10,
         BUILDING_TICK_UPDATE : 11,
-        END : 13
+        END : 14
     }
     public.C_DATA = C;
     
@@ -192,14 +193,24 @@ let ASSTATE = (function()
         w(index, roadConnectToFlag[d], data);
     }
     
-    public.getRoadUsedCapacity = function asstate_getRoadUsedCapacity(index)
+    public.getRoadCarCount = function asstate_getRoadCarCount(index)
     {
-        return r(index, C.ROAD_USED_CAPACITY);
+        return r(index, C.ROAD_CAR_COUNT);
     }
     
-    public.setRoadUsedCapacity = function asstate_setRoadUsedCapacity(index, data)
+    public.setRoadCarCount = function asstate_setRoadCarCount(index, data)
     {
-        w(index, C.ROAD_USED_CAPACITY, data);
+        w(index, C.ROAD_CAR_COUNT, data);
+    }
+    
+    public.getRoadCarFlow = function asstate_getRoadCarFlow(index)
+    {
+        return r(index, C.ROAD_CAR_COUNT);
+    }
+    
+    public.setRoadCarFlow = function asstate_setRoadCarFlow(index, data)
+    {
+        w(index, C.ROAD_CAR_FLOW, data);
     }
     
     public.getRoadTraversalProcessed = function asstate_getRoadTraversalProcessed(index)
@@ -934,7 +945,7 @@ let ASROAD = (function ()
             ASSTATE.setRoadConnectTo(index, C_TO.E, -1);
             ASSTATE.setRoadConnectTo(index, C_TO.S, -1);
             ASSTATE.setRoadConnectTo(index, C_TO.W, -1);
-            ASSTATE.setRoadUsedCapacity(index, 1);
+            ASSTATE.setRoadCarCount(index, 0);
             ASSTATE.setRoadDebug(index, C.LOW)
             changeDataIndex(index);
             m_cacheNodeRefresh = true;
@@ -999,7 +1010,7 @@ let ASROAD = (function ()
             return true;
         }
         let ratio = getRoadCongestionDecrease(index);
-        let carCount = ASSTATE.getRoadUsedCapacity(index);
+        let carCount = ASSTATE.getRoadCarCount(index);
         let newCarCount = carCount * (1 - ratio);
         if (newCarCount < 0)
         {
@@ -1007,7 +1018,7 @@ let ASROAD = (function ()
         }
         if (carCount != newCarCount)
         {
-            ASSTATE.setRoadUsedCapacity(index, newCarCount);
+            ASSTATE.setRoadCarCount(index, newCarCount);
             changeDataIndex(index);
         }
         return true;
@@ -1020,7 +1031,7 @@ let ASROAD = (function ()
         let type = ASSTATE.getRoadType(index);
         let maxSpeed = C_TYPE_SPEED[type];
         let laneCount = C_TYPE_LANE[type];
-        let carCount = ASSTATE.getRoadUsedCapacity(index);
+        let carCount = ASSTATE.getRoadCarCount(index);
         let actualSpeed = carCount <= 0 ? maxSpeed : (laneCount * C_TILE_LENGTH / carCount / C_INTER_CAR ) | 0;
         return actualSpeed > maxSpeed ? maxSpeed : actualSpeed;
     }
@@ -1047,9 +1058,9 @@ let ASROAD = (function ()
         {
             return;
         }
-        let usedCapacity = ASSTATE.getRoadUsedCapacity(index);
-        usedCapacity += additional;
-        ASSTATE.setRoadUsedCapacity(index, usedCapacity);
+        let carCount = ASSTATE.getRoadCarCount(index);
+        carCount += additional;
+        ASSTATE.setRoadCarCount(index, carCount);
     }
     
     let removeCongestion = function asroad_removeCongestion(index, removal)
@@ -1058,13 +1069,13 @@ let ASROAD = (function ()
         {
             return;
         }
-        let usedCapacity = ASSTATE.getRoadUsedCapacity(index);
-        usedCapacity -= removal;
-        if (usedCapacity < 0)
+        let carCount = ASSTATE.getRoadCarCount(index);
+        carCount -= removal;
+        if (carCount < 0)
         {
-            usedCapacity = 0;
+            carCount = 0;
         }
-        ASSTATE.setRoadUsedCapacity(index, usedCapacity);
+        ASSTATE.setRoadCarCount(index, carCount);
     }
     
     // struct is
@@ -1162,8 +1173,8 @@ let ASROAD = (function ()
             let nodeIndex = getTraversalEdgeCount();
             incrementTraversalEdgeCount();
             setTraversalCurrentIndex(from);
-            let usedCapacity = ASSTATE.getRoadUsedCapacity(from);
-            setTraversalCost(from, usedCapacity);
+            let carCount = ASSTATE.getRoadCarCount(from);
+            setTraversalCost(from, carCount);
             setTraversalParent(from, -1);
             setTraversalProcessed(from);
             expandTraversal(from, isConnectedTo(from, C_TO.N));
@@ -1194,7 +1205,7 @@ let ASROAD = (function ()
         //console.log('expandTraversal d' + data + 'f' + from + 't' + to);
         if (hasRoad(node))
         {
-            let usedCapacity = ASSTATE.getRoadUsedCapacity(node);
+            let carCount = ASSTATE.getRoadCarCount(node);
             let currentCost = getTraversalCostIncrease(node);
             if (parent >= 0)
             {

@@ -1008,13 +1008,13 @@ let ASROAD = (function ()
                 progress += 1;
             }
             elapsedCycle += 1;
-            ASSTATE.setRicoTickProgress(progress);
             if (tickSpeed > 1000) // exception case
             {
                 break;
             }
         }
-        let complete = ASSTATE.getRicoTickProgress() >= tableSize;
+        ASSTATE.setRicoTickProgress(progress);
+        let complete = progress >= tableSize;
         return complete;
     }
     
@@ -1732,13 +1732,13 @@ let ASRICO = (function ()
                 progress += 1;
             }
             elapsedCycle += 1;
-            ASSTATE.setRicoTickProgress(progress);
             if (tickSpeed > 1000) // exception case
             {
                 break;
             }
         }
-        let complete = ASSTATE.getRicoTickProgress() - tableSize >= tableSize;
+        ASSTATE.setRicoTickProgress(progress);
+        let complete = progress - tableSize >= tableSize;
         return complete;
     }
     

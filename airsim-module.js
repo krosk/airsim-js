@@ -14,16 +14,13 @@ let ASSTATE = (function()
         CHANGE : 1,
         ZONE_TYPE : 2, // 0 none 1 road 2 building 3 fixed
         ROAD_TYPE : 3,
-        ROAD_CONNECT_N : 4,
-        ROAD_CONNECT_E : 5,
-        ROAD_CONNECT_S : 6,
-        ROAD_CONNECT_W : 7,
-        ROAD_CAR_COUNT : 8,
-        ROAD_CAR_FLOW : 9,
-        ROAD_TRAVERSAL_PROCESSED : 10,
-        ROAD_TRAVERSAL_COST : 11,
-        ROAD_TRAVERSAL_PARENT : 12,
-        ROAD_DEBUG : 13,
+        ROAD_CONNECT : 4,
+        ROAD_CAR_COUNT : 5,
+        ROAD_CAR_FLOW : 6,
+        ROAD_TRAVERSAL_PROCESSED : 7,
+        ROAD_TRAVERSAL_COST : 8,
+        ROAD_TRAVERSAL_PARENT : 9,
+        ROAD_DEBUG : 10,
         BUILDING_TYPE : 3, // 1 res 2 com 3 ind 4 off
         BUILDING_DENSITY_LEVEL : 4,
         BUILDING_OFFER_R: 5,
@@ -33,7 +30,7 @@ let ASSTATE = (function()
         BUILDING_DEMAND_I : 9,
         BUILDING_DEMAND_C : 10,
         BUILDING_TICK_UPDATE : 11,
-        END : 14
+        END : 12
     }
     public.C_DATA = C;
     
@@ -185,12 +182,22 @@ let ASSTATE = (function()
     
     public.getRoadConnectTo = function asstate_getRoadConnectTo(index, d)
     {
-        return r(index, roadConnectToFlag[d]);
+        let mask = 1 << d;
+        return r(index, C.ROAD_CONNECT) & mask;
     }
     
-    public.setRoadConnectTo = function asstate_setRoadConnectTo(index, d, data)
+    public.setRoadConnectTo = function asstate_setRoadConnectTo(index, d)
     {
-        w(index, roadConnectToFlag[d], data);
+        let mask = 1 << d;
+        let data = r(index, C.ROAD_CONNECT) | mask;
+        w(index, C.ROAD_CONNECT, data);
+    }
+    
+    public.setRoadDisconnectTo = function asstate_setRoadDisconnectTo(index, d)
+    {
+        let mask = ~(1 << d);
+        let data = r(index, C.ROAD_CONNECT) & mask;
+        w(index, C.ROAD_CONNECT, data);
     }
     
     public.getRoadCarCount = function asstate_getRoadCarCount(index)
@@ -895,12 +902,12 @@ let ASROAD = (function ()
         if (hasRoad(from))
         {
             //delete ASSTATE.getRoad(from).connectTo[d];
-            ASSTATE.setRoadConnectTo(from, d, 0);
+            ASSTATE.setRoadDisconnectTo(from, d, 0);
         }
         if (hasRoad(to))
         {
             //delete ASSTATE.getRoad(to).connectTo[C_FROM[d]];
-            ASSTATE.setRoadConnectTo(to, C_FROM[d], 0);
+            ASSTATE.setRoadDisconnectTo(to, C_FROM[d], 0);
         }
     }
     
@@ -921,6 +928,10 @@ let ASROAD = (function ()
             return -1;
         }
         let connected = ASSTATE.getRoadConnectTo(from, d);
+        if (!connected)
+        {
+            return -1;
+        }
         let xy = ASSTATE.getXYFromIndex(from);
         let x = xy[0];
         let y = xy[1];
@@ -944,10 +955,10 @@ let ASROAD = (function ()
         {
             ASSTATE.setZoneType(index, ASZONE.C_TYPE.ROAD);
             ASSTATE.setRoadType(index, C_TYPE_ID.ROAD);
-            ASSTATE.setRoadConnectTo(index, C_TO.N, 0);
-            ASSTATE.setRoadConnectTo(index, C_TO.E, 0);
-            ASSTATE.setRoadConnectTo(index, C_TO.S, 0);
-            ASSTATE.setRoadConnectTo(index, C_TO.W, 0);
+            ASSTATE.setRoadDisconnectTo(index, C_TO.N, 0);
+            ASSTATE.setRoadDisconnectTo(index, C_TO.E, 0);
+            ASSTATE.setRoadDisconnectTo(index, C_TO.S, 0);
+            ASSTATE.setRoadDisconnectTo(index, C_TO.W, 0);
             ASSTATE.setRoadCarCount(index, 0);
             ASSTATE.setRoadCarFlow(index, 0);
             ASSTATE.setRoadDebug(index, C.LOW)

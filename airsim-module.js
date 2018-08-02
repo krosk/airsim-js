@@ -724,9 +724,24 @@ let ASZONE = (function ()
             for (let y = 0; y < tableSizeY; y++)
             {
                 let roadId = C.ROAD;
+                let resId = C.RESLOW;
+                let comId = C.COMLOW;
+                let indId = C.INDLOW;
                 if (x % 5 == 0 || y % 5 == 0)
                 {
                     public.setZone(x, y, roadId);
+                }
+                else if (x < 5)
+                {
+                    public.setZone(x, y, resId)
+                }
+                else if (x < 10)
+                {
+                    public.setZone(x, y, comId);
+                }
+                else if (x < 15)
+                {
+                    public.setZone(x, y, indId);
                 }
             }
         }

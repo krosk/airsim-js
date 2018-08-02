@@ -696,7 +696,155 @@ building find other ways and resume growing.
 With lane count in picture, the range goes
 further.
 
-** Strategy 6.2: 
+** Strategy 6.2: Building evolution
+Assuming road decay in place, congestion
+naturally falls as time pass. However, if
+offer is not recharged, then the traffic is a 
+one time thing.
+
+Recharging ponctually causes cyclical traffic,
+which is hard to diagnose from a user point
+of view.
+Recharging not at the same time is causing
+unstable hot spots.
+Recharging every turn could be a solution
+
+Does that make sense?
+Road decay as of writing is function of
+the number of cars, and will gradually
+increase as the capacity cannot absorb all
+the traffic in one tick, leading to a deadlock.
+
+The key parameter for this is the tick duration.
+A 1 min tick shows a decay of 6% for 1000 cars.
+However, a tick of 1 hour shows a decay of
+360 % for 1000 cars, and 100% for 3600 cars.
+That means if there are more than 3600 cars 
+added to the network per hour, the network
+can handle it fine. More than that and it will
+show signs of accunulation, leading to potential
+deadlocks as the flow increase more than the
+network can absorb it.
+A flow based one could be just adding flows
+in the path. If the flow is lower than the
+network decay capacity, it is green.
+If the flow is almost at capacity (above 80%)
+ot is a yellow situation. If it is above
+network capacity then it is definitely red.
+How is defined road capacity?
+As an example, 1000 cars (TC) go through a 100m
+road (TL) limited at 50 km/h (TS max), and 
+cars are separated by 1 second (IC). The 
+observed duration is 1 hour (TD).
+By decay rule, these cars can all go through
+the patch in 1 hour.
+Indeed, a car runs 14m per second, and 
+one car go through the 0.1km patch in
+a little more than 7 seconds. 
+Two cars go through it in 7 + 1 seconds.
+1000 cars go through it in 7 + 1000 seconds.
+3593 cars go through it in 7 + 3593 seconds.
+This is the maximum flow capacity of the road.
+There is a missing detail of cars being too
+close to each other, or that the road can
+only fit 7 cars at all times.
+
+Assuming a highway of 90 km/h, same distance,
+a car runs at the speed of 25 m/s, and cover
+it in 4 secs. In 1 hour the road can see flow
+3596 cars at most.
+
+The formula is
+time to cover tile length = 
+  tile length / road speed
+LD = TL / TS
+
+total car flow per tick =
+  lane count * (tick duration - time to cover)
+TCF = LC * (TD - LD) / IC
+    = LC * (TD - TL / TS) / IC
+
+This formula shows that the speed has limited
+impact on the car flow. It has however an
+impact on the commute time.
+
+Car flow has limited variation accross roads
+speed, eventually lane is the multiplier
+for flow. IC is unlikely to change.
+
+For load to be distributed correctly among
+possible routes, flow needs to be taken into
+the traversal cost. As of now, only the speed
+is what determines the traversal cost.
+It is fine that a route is taken until its flow
+reaches peek, then traffic moving to another
+location. A road that has reached maximum flow
+must have reduced speed, at a fast rate.
+One can consider that flow over max capacity
+will decrease the road speed, at a rate that
+it takes additional time to travel, and
+thus reduces the speed by the same amount.
+That is:
+speed reduction factor =
+  current flow / max flow
+The rational is for a road of 0.1km of speed
+50 km/h, cars cross it by 7 sec. It holds
+3593 cars max in one hour. However, if they 
+were 7186 cars wanting to cross at the same
+time then you would need to cram twice the
+number of cars inside the same space.
+Assuming you need to increase the density, while
+keeping the same IC, then speed must be reduced.
+A sustained flow runs at 14m per second.
+Cramming the double while keeping IC requires
+to get to put in the same space twice more cars
+and therefore reduce speed by two.
+Hence speed is reduced, and cost of traversal
+too.
+
+Is it realistic to assume IC to be 1 second?
+There are issues such as road lights,
+intersects, which will reduce or cut the flow.
+Sustained constant flow is more the realm of
+highways and long flat roads.
+So a possible action is to consider IC as a
+road parameter.
+Highway: IC = 2s
+Straight Road: IC = 4s
+Crossroad: IC = 5s
+Crossroads are likely bottle necks for flow,
+which is even more exacerbed by being 
+point of traffic crossing, but it makes sense.
+Not applying a malus is fine too.
+
+
+
+
+Upon offer dispatch, the entire offer is added
+as flow thorough the path.
+
+
+A red situation is indicative of high flow,
+and that overtime the road is surcharged
+and congestion will start to appear.
+What could be the negative impact of this?
+
+Will traversal equilibrate the traffic?
+Possibly. As the car count is still real,
+the speed is affected, as is the cost. So
+some buildings could also not be able to be
+served due to traffic car count, which is
+the desired effect.
+
+But this depends on whether all buildings are
+resolved each turn, or if they are inactive
+sometimes.
+
+A refresh every turn is likely the best for
+predictive simulation, although overall
+simulation will slow down as the number 
+of building grows.
+
 
 
 

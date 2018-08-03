@@ -42,7 +42,7 @@ let ASSTATE = (function()
         FRAME : 4,
         TICK_SPEED : 5,
         UNUSED : 6,
-        RICO_TICK_PROGRESS : 7,
+        TICK_PROGRESS : 7,
         RICO_STEP : 8,
         ROAD_TRAVERSAL_START : 9,
         ROAD_TRAVERSAL_LAST : 14,
@@ -361,14 +361,14 @@ let ASSTATE = (function()
         w(0, G.PLAY, data);
     }
     
-    public.getRicoTickProgress = function asstate_getRicoTickProgress()
+    public.getTickProgress = function asstate_getTickProgress()
     {
-        return r(0, G.RICO_TICK_PROGRESS);
+        return r(0, G.TICK_PROGRESS);
     }
     
-    public.setRicoTickProgress = function asstate_setRicoTickProgress(data)
+    public.setTickProgress = function asstate_setTickProgress(data)
     {
-        w(0, G.RICO_TICK_PROGRESS, data);
+        w(0, G.TICK_PROGRESS, data);
     }
     
     public.getRicoStep = function asstate_getRicoStep()
@@ -1008,7 +1008,7 @@ let ASROAD = (function ()
         // Tick progress is the indicator
         // that buildings have been checked
         // in the current tick
-        let progress = ASSTATE.getRicoTickProgress();
+        let progress = ASSTATE.getTickProgress();
         const tableSizeX = ASSTATE.getTableSizeX();
         const tableSizeY = ASSTATE.getTableSizeY();
         const tableSize = tableSizeX * tableSizeY;
@@ -1028,7 +1028,7 @@ let ASROAD = (function ()
                 break;
             }
         }
-        ASSTATE.setRicoTickProgress(progress);
+        ASSTATE.setTickProgress(progress);
         let complete = progress >= tableSize;
         return complete;
     }
@@ -1571,13 +1571,13 @@ let ASRICO = (function ()
     
     public.initialize = function asrico_initialize()
     {
-        ASSTATE.setRicoTickProgress(0);
+        ASSTATE.setTickProgress(0);
         ASSTATE.setRicoStep(0);
     }
     
     public.setNextTick = function asrico_setNextTick(tick)
     {
-        ASSTATE.setRicoTickProgress(0);
+        ASSTATE.setTickProgress(0);
         ASSTATE.setRicoStep(0);
     }
     
@@ -1732,7 +1732,7 @@ let ASRICO = (function ()
         // Tick progress is the indicator
         // that buildings have been checked
         // in the current tick
-        let progress = ASSTATE.getRicoTickProgress();
+        let progress = ASSTATE.getTickProgress();
         const tableSizeX = ASSTATE.getTableSizeX();
         const tableSizeY = ASSTATE.getTableSizeY();
         const tableSize = tableSizeX * tableSizeY;
@@ -1752,7 +1752,7 @@ let ASRICO = (function ()
                 break;
             }
         }
-        ASSTATE.setRicoTickProgress(progress);
+        ASSTATE.setTickProgress(progress);
         let complete = progress - tableSize >= tableSize;
         return complete;
     }

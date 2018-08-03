@@ -15,8 +15,8 @@ let ASSTATE = (function()
         ZONE_TYPE : 2, // 0 none 1 road 2 building 3 fixed
         ROAD_TYPE : 3,
         ROAD_CONNECT : 4,
-        ROAD_CAR_COUNT : 5,
-        ROAD_CAR_FLOW : 6,
+        ROAD_CAR_FLOW : 5,
+        ROAD_CAR_LAST_FLOW : 6,
         ROAD_TRAVERSAL_PROCESSED : 7,
         ROAD_TRAVERSAL_COST : 8,
         ROAD_TRAVERSAL_PARENT : 9,
@@ -200,19 +200,19 @@ let ASSTATE = (function()
         w(index, C.ROAD_CONNECT, data);
     }
     
-    public.getRoadCarCount = function asstate_getRoadCarCount(index)
+    public.getRoadCarLastFlow = function asstate_getRoadCarLastFlow(index)
     {
-        return r(index, C.ROAD_CAR_COUNT);
+        return r(index, C.ROAD_CAR_LAST_FLOW);
     }
     
-    public.setRoadCarCount = function asstate_setRoadCarCount(index, data)
+    public.setRoadCarLastFlow = function asstate_setRoadCarLastFlow(index, data)
     {
-        w(index, C.ROAD_CAR_COUNT, data);
+        w(index, C.ROAD_CAR_LAST_FLOW, data);
     }
     
     public.getRoadCarFlow = function asstate_getRoadCarFlow(index)
     {
-        return r(index, C.ROAD_CAR_COUNT);
+        return r(index, C.ROAD_CAR_FLOW);
     }
     
     public.setRoadCarFlow = function asstate_setRoadCarFlow(index, data)
@@ -792,7 +792,7 @@ let ASROAD = (function ()
     }
     
     const C_TILE_LENGTH = 0.1; // km
-    const C_TICK_DURATION = 1.0/60.0;
+    const C_TICK_DURATION = 1.0 / 60 ; // h
     const C_MAX_SPEED = 200; // km/h
     const C_INTER_CAR = 1.0 / 3600.0; // h
     
@@ -974,7 +974,7 @@ let ASROAD = (function ()
             ASSTATE.setRoadDisconnectTo(index, C_TO.E, 0);
             ASSTATE.setRoadDisconnectTo(index, C_TO.S, 0);
             ASSTATE.setRoadDisconnectTo(index, C_TO.W, 0);
-            ASSTATE.setRoadCarCount(index, 0);
+            ASSTATE.setRoadCarLastFlow(index, 0);
             ASSTATE.setRoadCarFlow(index, 0);
             ASSTATE.setRoadDebug(index, C.LOW)
             changeDataIndex(index);
@@ -1039,7 +1039,7 @@ let ASROAD = (function ()
         }
         let ratio = getRoadTrafficDecay(index)
         let carFlow = ASSTATE.getRoadCarFlow(index);
-        ASSTATE.setRoadCarCount(index, carFlow);
+        ASSTATE.setRoadCarLastFlow(index, carFlow);
         let newCarFlow = (carFlow * (1 - ratio)) | 0;
         if (newCarFlow < 1)
         {
@@ -1091,16 +1091,13 @@ let ASROAD = (function ()
         return decay;
     }
     
-    public.addCongestion = function asroad_addCongestion(x, y, additionalCarCount, additionalCarFlow)
+    public.addCongestion = function asroad_addCongestion(x, y, additionalCarFlow)
     {
         let index = ASSTATE.getIndex(x, y);
         if (!ASSTATE.isValidIndex(index))
         {
             return;
         }
-        let carCount = ASSTATE.getRoadCarCount(index);
-        carCount += additionalCarCount * 10 | 0;
-        ASSTATE.setRoadCarCount(index, carCount);
         let carFlow = ASSTATE.getRoadCarFlow(index);
         carFlow += additionalCarFlow | 0;
         ASSTATE.setRoadCarFlow(index, carFlow);
@@ -1470,7 +1467,9 @@ let ASROAD = (function ()
             return "";
         }
         return public.C_NAME + " " + index + " " +
-            getRoadSpeed(index) + " " + ASSTATE.getRoadCarFlow(index);
+            getRoadSpeed(index) + " " + 
+            ASSTATE.getRoadCarFlow(index) + " " +
+            ASSTATE.getRoadCarLastFlow(index);
     }
     
     return public;
@@ -1914,7 +1913,7 @@ let ASRICO = (function ()
         {
             let x = path[i];
             let y = path[i + 1];
-            ASROAD.addCongestion(x, y, filledOffer / pathLength, filledOffer);
+            ASROAD.addCongestion(x, y, filledOffer);
         }
     }
     

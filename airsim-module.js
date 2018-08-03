@@ -1018,10 +1018,8 @@ let ASROAD = (function ()
         while ((progress < tableSize) && (timeLimit < 0 || Date.now() < timeLimit))
         {
             let index = progress + 1;
-            if (updateRoadTile(index))
-            {
-                progress += 1;
-            }
+            updateRoadTile(index);
+            progress += 1;
             elapsedCycle += 1;
             if (hasRoad(index) && tickSpeed > 1000) // exception case
             {
@@ -1037,28 +1035,32 @@ let ASROAD = (function ()
     {
         if (!hasRoad(index))
         {
-            return true;
+            return;
         }
-        let ratio = getRoadTrafficDecay(index);
-        let carCount = ASSTATE.getRoadCarCount(index);
+        let ratio = getRoadTrafficDecay(index)
         let carFlow = ASSTATE.getRoadCarFlow(index);
-        let newCarCount = (carCount * (1 - ratio)) | 0;
-        if (newCarCount < 1)
-        {
-            newCarCount = 0;
-        }
-        ASSTATE.setRoadCarCount(index, newCarCount);
+        ASSTATE.setRoadCarCount(index, carFlow);
         let newCarFlow = (carFlow * (1 - ratio)) | 0;
         if (newCarFlow < 1)
         {
             newCarFlow = 0;
         }
         ASSTATE.setRoadCarFlow(index, newCarFlow);
-        if (carCount != newCarCount)
+        if (carFlow != newCarFlow)
         {
             changeDataIndex(index);
         }
-        return true;
+        return;
+    }
+    
+    let getRoadMaximumCarFlow = function asroad_getRoadMaximumCarFlow(index)
+    {
+        //LC * (TD - TL / TS) / IC
+        let type = ASSTATE.getRoadType(index);
+        let maxSpeed = C_TYPE_SPEED[type];
+        let laneCount = C_TYPE_LANE[type];
+        let maxFlow = laneCount * (C_TICK_DURATION - C_TILE_LENGTH / maxSpeed) / C_INTER_CAR;
+        return maxFlow | 0;
     }
     
     let getRoadSpeed = function asroad_getRoadSpeed(index)
@@ -1066,18 +1068,17 @@ let ASROAD = (function ()
         // LN * TL / TC / IC
         let type = ASSTATE.getRoadType(index);
         let maxSpeed = C_TYPE_SPEED[type];
-        let laneCount = C_TYPE_LANE[type];
-        let carCount = ASSTATE.getRoadCarCount(index) / 10;
-        let actualSpeed = carCount <= 0 ? maxSpeed : (laneCount * C_TILE_LENGTH / carCount / C_INTER_CAR ) | 0;
-        return actualSpeed > maxSpeed ? maxSpeed : actualSpeed;
+        let ratio = getRoadSpeedDecrease(index);
+        return maxSpeed * ratio | 0;
     }
     
     let getRoadSpeedDecrease = function asroad_getRoadSpeedDecrease(index)
     {
         let type = ASSTATE.getRoadType(index);
-        let maxSpeed = C_TYPE_SPEED[type];
-        let actualSpeed = getRoadSpeed(index);
-        return actualSpeed / maxSpeed;
+        let maxFlow = getRoadMaximumCarFlow(index);
+        let currentFlow = ASSTATE.getRoadCarFlow(index);
+        let ratio = maxFlow / currentFlow;
+        return ratio >= 1 ? 1 : ratio;
     }
     
     let getRoadTrafficDecay = function asroad_getRoadTrafficDecay(index)

@@ -696,7 +696,8 @@ building find other ways and resume growing.
 With lane count in picture, the range goes
 further.
 
-** Strategy 6.2: Building evolution
+
+
 Assuming road decay in place, congestion
 naturally falls as time pass. However, if
 offer is not recharged, then the traffic is a 
@@ -817,12 +818,13 @@ which is even more exacerbed by being
 point of traffic crossing, but it makes sense.
 Not applying a malus is fine too.
 
-
-
-
 Upon offer dispatch, the entire offer is added
-as flow thorough the path.
-
+as flow thorough the path. Car count is
+discarded as a stat to keep.
+There is no concept of road decay, as simulation
+is run every tick. One can consider that decay
+is a possible source of confusion. Changing
+the layout will be for the better.
 
 A red situation is indicative of high flow,
 and that overtime the road is surcharged
@@ -840,11 +842,96 @@ But this depends on whether all buildings are
 resolved each turn, or if they are inactive
 sometimes.
 
+Roads don't need to be reset, the decay system
+is still useful and will lead to congestion,
+with buildings not being able to provide
+their offer or receive demand, and as such
+the influx of car will diminish as it reaches
+an equilibrium but still busy.
+
+** Strategy 6.2: refreshing rate
+
+Map wide refresh
+
 A refresh every turn is likely the best for
 predictive simulation, although overall
 simulation will slow down as the number 
 of building grows.
+It has a good advantage of not having to
+process roads separately, and they can
+be processed in one go. Only thing is an 
+initial pass to reset all buildings and roads.
+Eventually one additional pass for the closing
+of a tick.
+Performance wise, it has advantages. Some
+operations can be performed much quicker
+because they are done map wide, such as
+road reset, refresh or decay. Cache locality
+is helping big there.
 
+Different systems can also be refreshed at
+different rates, assuming they are independant.
+For example, road network can be updated every
+tick, while rico can be updated every 3 tick.
+Although ideally, every tick for every one
+is the best.
+
+Roads don't need to be reset, the decay system
+is still useful and will lead to congestion,
+with buildings not being able to provide
+their offer or receive demand, and as such
+the influx of car will diminish as it reaches
+an equilibrium.
+
+To avoid pitfalls of always the same buildings
+being refreshed first and having the advantage
+on the traffic, it could be a randomised
+refresh order, ensuring equilibrate refresh
+advantage. Priority can be based on when it
+was refreshed previously. But it might be
+not the best in term of performance.
+
+The roads need to be refreshed with one single
+pass, to apply the decay. However there may be
+a unsync with the graphics so there should be
+a 'displayed value' which is the value of
+the last peak before decay, and the current
+flow value which is changed by buildings.
+
+This way, roads is processed first,
+before buildings, over the course of a tick.
+Keep it that way.
+
+
+Individual random refresh
+
+It may make sense to refresh entirely a 
+building in a single pass, that is
+level checking, reset offer and demand,
+then dispatch offer, and individually without
+interference from other buildings. Although,
+offer may be not distributed to building that
+don't have been reset yet. Which in the overall
+picture is relatively okay.
+
+However for road networks there is a dependency
+between all road tiles for it to be consistent.
+That is, they must be updated all at once,
+be it that there is decay or not.
+A gradual decay is graceful, and realistic
+looking, but it is taxing the simulation.
+However that way all buildings have a relative
+equal chance toward the traffic, instead of
+the buildings having an advantage when they are
+processed right after the roads have been reset.
+
+With more gradual update, it may make sense for
+roads to be individually decayed because
+statistically they are updated at the same rate.
+This could solve the dependency issue.
+Either they are decayed one after the other in
+one go, or in between. I want to try updating
+individual cells.
 
 
 

@@ -1023,7 +1023,7 @@ let ASROAD = (function ()
                 progress += 1;
             }
             elapsedCycle += 1;
-            if (tickSpeed > 1000) // exception case
+            if (hasRoad(index) && tickSpeed > 1000) // exception case
             {
                 break;
             }
@@ -1747,7 +1747,7 @@ let ASRICO = (function ()
                 progress += 1;
             }
             elapsedCycle += 1;
-            if (tickSpeed > 1000) // exception case
+            if (hasBuilding(index) && tickSpeed > 1000) // exception case
             {
                 break;
             }

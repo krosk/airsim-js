@@ -1093,6 +1093,239 @@ The decay rate is decided by cars on network.
 
 Cost stays the same, relative to speed.
 
+** Strategy 6.5 : building recharge rate
+
+As road congestion decays, building rico
+levels needs to recharge, otherwise road decay
+will prevail and roads gets empty.
+
+A simple strategy is to reset demand and offer
+every tick, and consider a building level up
+only if the building demand has been filled,
+as well as other conditions.
+That is, a partial fill does not count for the
+next tick. Every tick starts at the same state
+in term of road traffic and building offer
+and demand.
+
+Normally, the traffic is equal day to day, and
+should dissipate as going into the next day.
+Hence offer is recharged per day. Eventually if
+I consider a day as 8 hours, then the tick
+number is 8 hours / tick duration, which means
+8 ticks for full recharge, and so demand and
+offer recharges 1/8 of its capacity every tick.
+So the recharge rate is tick duration / day
+duration of maximum. Same for demand or offer.
+But offer start at zero, and raises during the
+day. Same for demand.
+
+If one was to divide the maximum offer and 
+demand, then it becomes as if each tick is
+similar. So offer and demand increase is the
+full amount. Then, a level up is basically
+if maximum offer has been dispatched, while
+maximum demand has been consumed. The amount
+will simply depend on the tick duration.
+
+
+
+Another strategy is to recharge the offer, as
+well as demand as tick increase. Tick duration
+would be a criteria on the rate of recharge.
+With a sufficiently long tick duration, it is
+equivalent to a full reset of offer and demand.
+When a job is filled, it is filled for the day.
+
+Rate of offer recharge will increase road
+traffic, so both must be equilibrated, as well
+as decay. One can consider only what happens
+during rush hour. It is a limited time where:
+ro -> id : jobs being filled
+ro -> cd : jobs being filled
+co -> rd : clients
+co -> id : clients
+io -> rd : clients ?
+io -> cd : restock
+It is a bit awkward but equilibrated.
+
+Unemployment is residential offer, commercial
+and industrial demand not filled.
+Poor clientele is commercial offer not filled, 
+ie industrial demand and residential demand not
+filled.
+This kind of symmetrical demand and offer
+is fairly boring.
+
+One could consider the following model, which
+is more in line with cities skyline and simcity
+mechanics.
+Residential desirability is:
+- low traffic = road property
+- service coverage = service demand
+- commercial access = com demand
+- jobs = res offer filled
+r -> c
+r -> i
+c -> r
+
+Commercial desirability is:
+- high traffic = road property
+- service coverage = service demand
+- employment filled = res demand
+- industry stock = ind demand
+- customers = com offer filled
+c -> r
+r -> c
+i -> c
+
+Industry desirability is:
+- transport variety coverage
+- service coverage = service demand
+- employment filled = res demand
+- customers = ind offer filled
+r -> i
+i -> c
+
+For those to be equilibrate at a 1:1:1 rate,
+Residential 
+offers 20r
+demands 10c
+
+Commercial
+offers 10c
+demands 10r
+demands 10i
+
+Industrial
+offers 10i
+demands 10r
+
+
+Not adopted
+An alternative can be that demand is kept over
+time, while being a lot more bigger than offer.
+It becomes then a sort of gauge to fill until
+it is ready to upgrade. This indicates past
+performance is kept (it may decay thought).
+Offer on another hand is x times lower, and
+slowly fills demand. The advantage to this
+is a well served building will evolve quickly
+but that also means on building that is first
+reached by offers will hog it all from all
+sources. So this is not a viable strategy.
+
+Not adopted
+A basic decay can be that every day (which
+is benchmarked to 4 hours?),
+the recharge is full. So every tick duration
+the offer comes back at a percentage of that
+rate.
+Should you decay demand too?
+It depends on how the level up situation is
+decided. 
+* It cannot be a 'number of ticks',
+because low tick duration has the possibility
+to increase many times the number of ticks.
+* It could be an absolute duration, defined
+by the number of ticks, which number depends
+on tick duration. There may be a discrepancy
+between high tick duration and low tick duration
+in the behavior of the system, and downtime
+during high tick duration is counted as filled
+more quickly than low tick duration.
+* when demand is filled, is it consumed?
+Demand can instead be a buffer, where it is
+slowly consumed to produce value towards the
+level up. Hence the role of decay.
+It could be something such as, building has exp.
+One exp point attribured when all filled:
+- 3 demand filled
+- 1 service filled
+- 1 traffic related factor filled
+- 1 offer filled
+So a building demand can be saturated until
+one of these factors is reached. Could work.
+Should a building offer saturate too?
+This could lead to dead roads though, if there
+are two buildings which demand is filled, so
+they don't take offers and it does not convert
+into traffic leading possibly to conditions
+that will never materialize.
+So maybe demand is never saturated. It always
+take in resources, and that count for exp.
+
+A building generates offers, and when they find
+a demand it generates income through tax. It
+also serves as a level up leverage. However,
+find no one to consume your offer and it
+sits. Sitting offer is still offer so it is
+fine, it just does not generate income.
+On another hand, a building generates demand.
+But if it does not generate anymore demand
+then it is blocked. Not generating demand is
+not normal, it is a lack of growth.
+
+So, r generates jobs, while c and i consume
+jobs. Consumed jobs make income tax.
+I generates goods, and c consume goods.
+Consumed goods generate industry tax.
+C generates sales, and r consume sales. This
+includes the 'service industry' such as eating,
+medical, ... It generates vat.
+
+Can a building stop consuming? Best not.
+Otherwise there may be deadlocks.
+So a building has offers; no offers filled
+means no customers or unemployment, which
+leads to reduced desirability and abandonment,
+or level downgrade. Say offers unfulfilled is
+tossed, to generate demand. So a building
+does not stop demanding.
+Level up is probably something like multiple
+gauges. It is easy to fill up if it is demand
+or service, but it is not the case if it is
+offer and all.
+
+So, finally, assuming demand and offer 
+depends on the tick duration, then as long
+as all checkboxes are filled at the beginning
+of the tick, then an exp point is added,
+and the demand / offer is reset. Scaled
+offer and demand is the way to make sure
+long tick duration is not an advantage due to
+downtime.
+The exp amount may depend on the tick duration.
+
+There is then the consition whether the optimal
+conditions must be maintained over some time
+continuously, to level up. If not maintained
+then it is reset, or decreased.
+
+
+Road traffic property can be a booster or a
+malus.
+
+Traffic can be assymetrical: 
+* res offer, residential to commercial / 
+industrial count as traffic.
+* ind offer, industrial to commercial count as 
+traffic. Heavy one could be an interesting 
+twist to increase traffic.
+* com offer, commercial to residential can be 
+trafficless contribution because it seeps into 
+residential neighboorhood traffic, and it is
+detrimental. But it could also be emulating
+how residential look for commercial zones.
+* service offer can be trafficless contribution
+
+
+Pocket city does it cleanly.
+r -> i is jobs
+r -> c is shopping
+i -> c is manufacturing to selling
+
+
 
 
 ** Mechanism 6: Road traversal

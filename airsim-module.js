@@ -791,8 +791,8 @@ let ASROAD = (function ()
         [C_TYPE_ID.HIGHWAY] : 3
     }
     
-    const C_TILE_LENGTH = 100; // m
-    const C_TICK_DURATION = 1 ; // s
+    const C_TILE_LENGTH = 16; // m
+    const C_TICK_DURATION = 300; // s
     const C_MAX_SPEED = 50; // m / s
     const C_INTER_CAR = 1; // s
     const C_CAR_LENGTH = 4; // m
@@ -1467,10 +1467,11 @@ let ASROAD = (function ()
         {
             return "";
         }
-        return public.C_NAME + " " + index + " Sp:" +
-            getRoadSpeed(index) + " Cf:" + 
-            ASSTATE.getRoadCarFlow(index) + " Mx:" +
-            ASSTATE.getRoadCarLastFlow(index);
+        return public.C_NAME + " " + index + 
+        " Sp:" + getRoadSpeed(index) + 
+        " Cf:" + ASSTATE.getRoadCarFlow(index) + 
+        "/" + (getRoadMaximumCarFlow(index) | 0) +
+        " Ls:" + ASSTATE.getRoadCarLastFlow(index);
     }
     
     return public;

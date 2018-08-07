@@ -776,12 +776,12 @@ let ASROAD = (function ()
         HIGHWAY : 3
     }
     
-    // in km/h
+    // in m/s
     const C_TYPE_SPEED = {
-        [C_TYPE_ID.NONE] : 10,
-        [C_TYPE_ID.PATH] : 20,
-        [C_TYPE_ID.ROAD] : 50,
-        [C_TYPE_ID.HIGHWAY] : 90
+        [C_TYPE_ID.NONE] : 2,
+        [C_TYPE_ID.PATH] : 5,
+        [C_TYPE_ID.ROAD] : 14,
+        [C_TYPE_ID.HIGHWAY] : 25
     }
     
     const C_TYPE_LANE = {
@@ -791,10 +791,11 @@ let ASROAD = (function ()
         [C_TYPE_ID.HIGHWAY] : 3
     }
     
-    const C_TILE_LENGTH = 0.1; // km
-    const C_TICK_DURATION = 1.0 / 60 ; // h
-    const C_MAX_SPEED = 200; // km/h
-    const C_INTER_CAR = 1.0 / 3600.0; // h
+    const C_TILE_LENGTH = 100; // m
+    const C_TICK_DURATION = 1 ; // s
+    const C_MAX_SPEED = 50; // m / s
+    const C_INTER_CAR = 1; // s
+    const C_CAR_LENGTH = 4; // m
     
     // ----------------
     
@@ -1059,8 +1060,8 @@ let ASROAD = (function ()
         let type = ASSTATE.getRoadType(index);
         let maxSpeed = C_TYPE_SPEED[type];
         let laneCount = C_TYPE_LANE[type];
-        let maxFlow = laneCount * (C_TICK_DURATION - C_TILE_LENGTH / maxSpeed) / C_INTER_CAR;
-        return maxFlow | 0;
+        let maxFlow = laneCount * C_TICK_DURATION / (C_CAR_LENGTH / maxSpeed + C_INTER_CAR);
+        return maxFlow;
     }
     
     let getRoadSpeed = function asroad_getRoadSpeed(index)
@@ -1466,9 +1467,9 @@ let ASROAD = (function ()
         {
             return "";
         }
-        return public.C_NAME + " " + index + " " +
-            getRoadSpeed(index) + " " + 
-            ASSTATE.getRoadCarFlow(index) + " " +
+        return public.C_NAME + " " + index + " Sp:" +
+            getRoadSpeed(index) + " Cf:" + 
+            ASSTATE.getRoadCarFlow(index) + " Mx:" +
             ASSTATE.getRoadCarLastFlow(index);
     }
     

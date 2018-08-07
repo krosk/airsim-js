@@ -764,6 +764,42 @@ total car flow per tick =
   lane count * (tick duration - time to cover)
 TCF = LC * (TD - LD) / IC
     = LC * (TD - TL / TS) / IC
+This formula causes negatives values for very
+small tick duration, as long as the time to
+cover it is bigger than tick. It is definitely
+flawed because the number of cars that get it
+is supposedly the same as the number of cars
+that get out.
+Under this assumption the new formula is only
+dependent on IC and TD, and no matter the
+road speed, the flow is the same (flow per
+tick). This is true if we consider cars as
+abstraxlct points. As speed gets lower, 
+assuming cars of length zero allows fitting
+an infinite number of cars in a limited space,
+as long as speed is not zero they will be
+separated by one second.
+Assuming:
+a car runs at one meter per second,
+the inter car is one second,
+the tick duration is one second,
+then the cars leave at a rate of one per tick.
+However, for cars of length 3 meter,
+the cars leave at a rate of one every 4 tick,
+so the max flow dramatically drops as speed
+lowers. But this only applies to speed which
+covered distance during one tick is lower than
+car length. It is in fact a constant added into
+formula.
+A car runs (TD * TS) meters in a tick. 
+The second car is CL + (IC * TS) meters away. 
+The timing to see 2 consecutive cars is 
+(CL + (IC * TS)) / TS = (CL / TS + IC).
+The flow per tick becomes TD / (CL / TS + IC).
+For roads:
+2 5 14 25
+Flow do vary by speed, which is satisfying.
+
 
 This formula shows that the speed has limited
 impact on the car flow. It has however an
@@ -1297,7 +1333,7 @@ long tick duration is not an advantage due to
 downtime.
 The exp amount may depend on the tick duration.
 
-There is then the consition whether the optimal
+There is then the condition whether the optimal
 conditions must be maintained over some time
 continuously, to level up. If not maintained
 then it is reset, or decreased.

@@ -800,14 +800,8 @@ For roads:
 2 5 14 25
 Flow do vary by speed, which is satisfying.
 
-
-This formula shows that the speed has limited
-impact on the car flow. It has however an
-impact on the commute time.
-
-Car flow has limited variation accross roads
-speed, eventually lane is the multiplier
-for flow. IC is unlikely to change.
+Lane is the biggest multiplier for flow. 
+IC is unlikely to change.
 
 For load to be distributed correctly among
 possible routes, flow needs to be taken into
@@ -1163,7 +1157,102 @@ full amount. Then, a level up is basically
 if maximum offer has been dispatched, while
 maximum demand has been consumed. The amount
 will simply depend on the tick duration.
+As demand and offer is supposed to be
+multiplied by the tick duration, the scale
+is very important to avoid overflow issues.
+For the time being, the data is 16bit, which
+is equal to unsigned 65535 or signed 32763.
+This is supposedly the maximum offer per tile
+regardless of tick duration. It is
+potentially limited. Assuming a tick duration
+spans from 1 second to 14400 seconds, it leaves
+very few margin. It is also unlikely to setup
+1 offer per second.
+So, the alternative is to:
+- setup floating point demand and offer, which
+may not be good with int16
+- setting x100 integers, but this reduces the
+maximum capacity
+- move to int32 for the full asstate
+- additional field for 32 bit number based
+on two 16 bits numbers
+The offer and demand per tick could be a
+static number in a known range, then the flow
+added will depend on the tick duration.
+Now is understanding what range of numbers
+are likely to be provided per tile:
 
+
+** Strategy 6.6: Density and buildings
+
+If a tile is 16mx16m wide, 
+a (1x1) tile is:
+- one house no garden
+- one tile of road
+a (2x2) tile is below
+a (3x3) is 48mx48m
+A hotel and its parking
+My home.
+
+If one is to consider a 32x32 wide block, 
+a (1x1) tile is:
+- two houses and two gardens 
+- one house with big garden
+- a medium size 5 stories
+
+Considering a family unit, it is 2 parents
+2 dependants.
+2 parents go to jobs.
+2 dependants do other things, but don't count
+for unemployment. They count for population.
+
+Paris urban density is 21000 / km2, that is
+about 0.21 / m2
+
+Light density housing: between 0 per tile to
+5 per tile. No consideration for wealth?
+Max 2 storey buildings
+1x1 ie 16mx16m
+- 1 $   1 fu / 1. 1st home
+- 2 $   2 fu / 2. 2st multi family
+- 3 $   3 fu / 3. 3st multi family
+
+2x2 ie 32mx32m
+- 1 $   5 fu / 1.2. 5 1st homes with street
+- 2 $  12 fu / 3.   2st dormitory like
+- 3 $  20 fu / 5.   3st hlm
+
+3x3 ie 48mx48m which is an acceptable size.
+That would suppose road reach is 3 tiles
+away, which is not yet possible. To consider?
+
+Medium density housing: between 5 and 20 per 
+tile? Max 5 storey buildings
+
+Maybe it should require 2x2 tiles to fill.
+Or maybe not, parisian buildings are narrow.
+
+
+1x1
+- 4 $   5 fu / 5. 3st fatter chain building
+- 5 $   8 fu / 8. 4st fat building
+Cannot go higher
+
+2x2
+- 4 $  32 fu / 8.   5st hlm
+- 5 $  48 fu / 12.  7st hlm
+- 6 $  72 fu / 18.  10st hlm
+
+High density are 20 upwards
+1x1 cant go higher
+
+2x2 32mx32m
+- 7 $ 100 fu / 25.  14 st hlm
+- 8 $ 144 fu / 36.  21 st hlm
+- 9 $ 200 fu / 50 . 30 st hlm
+
+even bigger buildings should be unlocked
+by 3x3 buildings
 
 
 Another strategy is to recharge the offer, as

@@ -4,7 +4,7 @@ let ASTILE = (function ()
     
     public.getColor = function astile_getColor(r, g, b)
     {
-        return (r) * 2**16 + (g) * 2**8 + (b);
+        return (r | 0) * 2**16 + (g | 0) * 2**8 + (b | 0);
     }
     
     public.C_TILE_ZONE = {
@@ -243,44 +243,54 @@ let ASRICO_TILE = (function ()
     
     let getColor = ASTILE.getColor;
     
+    const C_RESLOW_COLOR = getColor(76*1.0, 175*1.0, 80*1.0);
+    const C_RESMID_COLOR = getColor(76*0.8, 175*0.8, 80*0.8);
+    const C_RESHIG_COLOR = getColor(76*0.6, 175*0.6, 80*0.6);
+    const C_INDLOW_COLOR = getColor(255*1.0, 235*1.0, 59*1.0);
+    const C_INDMID_COLOR = getColor(255*0.8, 235*0.8, 59*0.8);
+    const C_INDHIG_COLOR = getColor(255*0.6, 235*0.6, 59*0.6);
+    const C_COMLOW_COLOR = getColor(33*1.0, 150*1.0, 243*1.0);
+    const C_COMMID_COLOR = getColor(33*0.8, 150*0.8, 243*0.8);
+    const C_COMHIG_COLOR = getColor(33*0.6, 150*0.6, 243*0.6);
+    
     const C_TILETEXTURE = {
         [C.NONE] : [getColor(255, 255, 255), 3],
-        [C.RESLOW_0] : [getColor(76, 175, 80), 3],
-        [C.RESLOW_1] : [getColor(76, 175, 80), 6],
-        [C.RESLOW_2] : [getColor(76, 175, 80), 9],
-        [C.RESLOW_3] : [getColor(76, 175, 80), 12],
-        [C.RESMID_0] : [getColor(66, 165, 70), 3],
-        [C.RESMID_4] : [getColor(66, 165, 70), 15],
-        [C.RESMID_5] : [getColor(66, 165, 70), 18],
-        [C.RESMID_6] : [getColor(66, 165, 70), 21],
-        [C.RESHIG_0] : [getColor(56, 155, 60), 3],
-        [C.RESHIG_7] : [getColor(56, 155, 60), 24],
-        [C.RESHIG_8] : [getColor(56, 155, 60), 27],
-        [C.RESHIG_9] : [getColor(56, 155, 60), 30],
-        [C.INDLOW_0] : [getColor(255, 235, 59), 3],
-        [C.INDLOW_1] : [getColor(255, 235, 59), 6],
-        [C.INDLOW_2] : [getColor(255, 235, 59), 9],
-        [C.INDLOW_3] : [getColor(255, 235, 59), 12],
-        [C.INDMID_0] : [getColor(245, 225, 49), 3],
-        [C.INDMID_4] : [getColor(245, 225, 49), 15],
-        [C.INDMID_5] : [getColor(245, 225, 49), 18],
-        [C.INDMID_6] : [getColor(245, 225, 49), 21],
-        [C.INDHIG_0] : [getColor(235, 215, 39), 3],
-        [C.INDHIG_7] : [getColor(235, 215, 39), 24],
-        [C.INDHIG_8] : [getColor(235, 215, 39), 27],
-        [C.INDHIG_9] : [getColor(235, 215, 39), 30],
-        [C.COMLOW_0] : [getColor(33, 150, 243), 3],
-        [C.COMLOW_1] : [getColor(33, 150, 243), 6],
-        [C.COMLOW_2] : [getColor(33, 150, 243), 9],
-        [C.COMLOW_3] : [getColor(33, 150, 243), 12],
-        [C.COMMID_0] : [getColor(23, 140, 233), 3],
-        [C.COMMID_4] : [getColor(23, 140, 233), 15],
-        [C.COMMID_5] : [getColor(23, 140, 233), 18],
-        [C.COMMID_6] : [getColor(23, 140, 233), 21],
-        [C.COMHIG_0] : [getColor(13, 130, 223), 3],
-        [C.COMHIG_7] : [getColor(13, 130, 223), 24],
-        [C.COMHIG_8] : [getColor(13, 130, 223), 27],
-        [C.COMHIG_9] : [getColor(13, 130, 223), 30],
+        [C.RESLOW_0] : [C_RESLOW_COLOR, 3],
+        [C.RESLOW_1] : [C_RESLOW_COLOR, 6],
+        [C.RESLOW_2] : [C_RESLOW_COLOR, 9],
+        [C.RESLOW_3] : [C_RESLOW_COLOR, 12],
+        [C.RESMID_0] : [C_RESMID_COLOR, 3],
+        [C.RESMID_4] : [C_RESMID_COLOR, 15],
+        [C.RESMID_5] : [C_RESMID_COLOR, 18],
+        [C.RESMID_6] : [C_RESMID_COLOR, 21],
+        [C.RESHIG_0] : [C_RESHIG_COLOR, 3],
+        [C.RESHIG_7] : [C_RESHIG_COLOR, 24],
+        [C.RESHIG_8] : [C_RESHIG_COLOR, 27],
+        [C.RESHIG_9] : [C_RESHIG_COLOR, 30],
+        [C.INDLOW_0] : [C_INDLOW_COLOR, 3],
+        [C.INDLOW_1] : [C_INDLOW_COLOR, 6],
+        [C.INDLOW_2] : [C_INDLOW_COLOR, 9],
+        [C.INDLOW_3] : [C_INDLOW_COLOR, 12],
+        [C.INDMID_0] : [C_INDMID_COLOR, 3],
+        [C.INDMID_4] : [C_INDMID_COLOR, 15],
+        [C.INDMID_5] : [C_INDMID_COLOR, 18],
+        [C.INDMID_6] : [C_INDMID_COLOR, 21],
+        [C.INDHIG_0] : [C_INDMID_COLOR, 3],
+        [C.INDHIG_7] : [C_INDMID_COLOR, 24],
+        [C.INDHIG_8] : [C_INDMID_COLOR, 27],
+        [C.INDHIG_9] : [C_INDMID_COLOR, 30],
+        [C.COMLOW_0] : [C_COMLOW_COLOR, 3],
+        [C.COMLOW_1] : [C_COMLOW_COLOR, 6],
+        [C.COMLOW_2] : [C_COMLOW_COLOR, 9],
+        [C.COMLOW_3] : [C_COMLOW_COLOR, 12],
+        [C.COMMID_0] : [C_COMMID_COLOR, 3],
+        [C.COMMID_4] : [C_COMMID_COLOR, 15],
+        [C.COMMID_5] : [C_COMMID_COLOR, 18],
+        [C.COMMID_6] : [C_COMMID_COLOR, 21],
+        [C.COMHIG_0] : [C_COMHIG_COLOR, 3],
+        [C.COMHIG_7] : [C_COMHIG_COLOR, 24],
+        [C.COMHIG_8] : [C_COMHIG_COLOR, 27],
+        [C.COMHIG_9] : [C_COMHIG_COLOR, 30],
     };
     
     let getTileTextureMargin = function asrico_getTileTextureMargin(id)

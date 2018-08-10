@@ -93,7 +93,11 @@ let ASSTATE = (function()
     {
         if (G_CHECK && typeof field == 'undefined')
         {
-            throw ('error writing undefined field');
+            throw ('error writing undefined field at index ' + index);
+        }
+        if (G_CHECK && typeof data == 'undefined')
+        {
+            throw ('error writing undefined data at index ' + index)
         }
         let target = index == 0 ? field : (index - 1)*C.END + G.END + field;
         if (G_CHECK && (target < 0 || target > m_dataStateView.length))
@@ -1500,14 +1504,23 @@ let ASRICO = (function ()
     const C_RM = C_RICOPROPERTY_MAP;
     const C_RICOPROPERTY = {
         [C.RESLOW_0] : [0, 1,   0,   0,   0,   0,   0,   0],
-        [C.RESLOW_1] : [1, 1,  20,   0,   0,   0,  10,  10],
-        [C.RESLOW_2] : [2, 1,  50,   0,   0,   0,  20,  30],
-        [C.INDLOW_0] : [0, 2,   0,   0,   0,   0,   0,   0],
-        [C.INDLOW_1] : [1, 2,   0,  20,   0,  10,   0,  10],
-        [C.INDLOW_2] : [2, 2,   0,  50,   0,  30,   0,  20],
-        [C.COMLOW_0] : [0, 3,   0,   0,   0,   0,   0,   0],
-        [C.COMLOW_1] : [1, 3,   0,   0,  20,  10,  10,   0],
-        [C.COMLOW_2] : [2, 3,   0,   0,  50,  20,  30,   0],
+        [C.RESLOW_1] : [1, 1,   2,   0,   0,   0,   1,   1],
+        [C.RESLOW_2] : [2, 1,   4,   0,   0,   0,   2,   2],
+        [C.RESLOW_3] : [3, 1,   6,   0,   0,   0,   3,   3],
+        [C.RESMID_4] : [4, 2,  10,   0,   0,   0,   5,   5],
+        [C.RESMID_5] : [5, 2,  16,   0,   0,   0,   8,   8],
+        [C.INDLOW_0] : [0, 4,   0,   0,   0,   0,   0,   0],
+        [C.INDLOW_1] : [1, 4,   0,   2,   0,   1,   0,   1],
+        [C.INDLOW_2] : [2, 4,   0,   4,   0,   2,   0,   2],
+        [C.INDLOW_3] : [3, 4,   0,   6,   0,   3,   0,   3],
+        [C.INDMID_4] : [4, 5,   0,  10,   0,   5,   0,   5],
+        [C.INDMID_5] : [5, 5,   0,  16,   0,   8,   0,   8],
+        [C.COMLOW_0] : [0, 7,   0,   0,   0,   0,   0,   0],
+        [C.COMLOW_1] : [1, 7,   0,   0,   2,   1,   1,   0],
+        [C.COMLOW_2] : [2, 7,   0,   0,   4,   2,   2,   0],
+        [C.COMLOW_3] : [3, 7,   0,   0,   6,   3,   3,   0],
+        [C.COMMID_4] : [4, 8,   0,   0,   6,   3,   3,   0],
+        [C.COMMID_5] : [5, 8,   0,   0,  10,   5,   5,   0],
     };
     const C_R = C_RICOPROPERTY;
     
@@ -1550,10 +1563,15 @@ let ASRICO = (function ()
         }
         let level = hasBuilding(index) ? ASSTATE.getBuildingData(ASSTATE.C_DATA.BUILDING_DENSITY_LEVEL, index) : 0;
         let type = hasBuilding(index) ? ASSTATE.getBuildingData(ASSTATE.C_DATA.BUILDING_TYPE, index) : 0;
+        // below formula is dodgy
         let id = C.NONE + 10*type + 1*level;
         if (isValidTileId(id))
         {
             return id;
+        }
+        else if (G_CHECK)
+        {
+            throw 'Undefined id ' + id + ' at index ' + index;
         }
         return C.NONE;
     }
@@ -1596,6 +1614,10 @@ let ASRICO = (function ()
         if (!ASSTATE.isValidIndex(index))
         {
             return;
+        }
+        if (G_CHECK && typeof C_R[code] == 'undefined')
+        {
+            throw 'Undefined building code ' + code;
         }
         ASSTATE.setZoneType(index, ASZONE.C_TYPE.BUILDING);
         ASSTATE.setBuildingType(index, 1);
@@ -1767,7 +1789,13 @@ let ASRICO = (function ()
     let levelDensityUp = function asrico_levelDensityUp(index)
     {
         let density = ASSTATE.getBuildingDensity(index);
-        if (density >= 2)
+        if (density == 3)
+        {
+            let type = ASSTATE.getBuildingType(index);
+            type++;
+            ASSTATE.setBuildingType(index, type);
+        }
+        else if (density >= 5)
         {
             return;
         }

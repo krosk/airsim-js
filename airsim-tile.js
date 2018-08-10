@@ -30,12 +30,39 @@ let ASTILE = (function ()
         RESLOW_0: 210,
         RESLOW_1: 211,
         RESLOW_2: 212,
-        INDLOW_0: 220,
-        INDLOW_1: 221,
-        INDLOW_2: 222,
-        COMLOW_0: 230,
-        COMLOW_1: 231,
-        COMLOW_2: 232,
+        RESLOW_3: 213,
+        RESMID_0: 220,
+        RESMID_4: 224,
+        RESMID_5: 225,
+        RESMID_6: 226,
+        RESHIG_0: 230,
+        RESHIG_7: 237,
+        RESHIG_8: 238,
+        RESHIG_9: 239,
+        INDLOW_0: 240,
+        INDLOW_1: 241,
+        INDLOW_2: 242,
+        INDLOW_3: 243,
+        INDMID_0: 250,
+        INDMID_4: 254,
+        INDMID_5: 255,
+        INDMID_6: 256,
+        INDHIG_0: 260,
+        INDHIG_7: 267,
+        INDHIG_8: 268,
+        INDHIG_9: 269,
+        COMLOW_0: 270,
+        COMLOW_1: 271,
+        COMLOW_2: 272,
+        COMLOW_3: 273,
+        COMMID_0: 280,
+        COMMID_4: 284,
+        COMMID_5: 285,
+        COMMID_6: 286,
+        COMHIG_0: 290,
+        COMHIG_7: 297,
+        COMHIG_8: 298,
+        COMHIG_9: 299,
     };
     
     public.C_TILE_ICON = {
@@ -221,12 +248,39 @@ let ASRICO_TILE = (function ()
         [C.RESLOW_0] : [getColor(76, 175, 80), 3],
         [C.RESLOW_1] : [getColor(76, 175, 80), 6],
         [C.RESLOW_2] : [getColor(76, 175, 80), 9],
+        [C.RESLOW_3] : [getColor(76, 175, 80), 12],
+        [C.RESMID_0] : [getColor(66, 165, 70), 3],
+        [C.RESMID_4] : [getColor(66, 165, 70), 15],
+        [C.RESMID_5] : [getColor(66, 165, 70), 18],
+        [C.RESMID_6] : [getColor(66, 165, 70), 21],
+        [C.RESHIG_0] : [getColor(56, 155, 60), 3],
+        [C.RESHIG_7] : [getColor(56, 155, 60), 24],
+        [C.RESHIG_8] : [getColor(56, 155, 60), 27],
+        [C.RESHIG_9] : [getColor(56, 155, 60), 30],
         [C.INDLOW_0] : [getColor(255, 235, 59), 3],
         [C.INDLOW_1] : [getColor(255, 235, 59), 6],
         [C.INDLOW_2] : [getColor(255, 235, 59), 9],
+        [C.INDLOW_3] : [getColor(255, 235, 59), 12],
+        [C.INDMID_0] : [getColor(245, 225, 49), 3],
+        [C.INDMID_4] : [getColor(245, 225, 49), 15],
+        [C.INDMID_5] : [getColor(245, 225, 49), 18],
+        [C.INDMID_6] : [getColor(245, 225, 49), 21],
+        [C.INDHIG_0] : [getColor(235, 215, 39), 3],
+        [C.INDHIG_7] : [getColor(235, 215, 39), 24],
+        [C.INDHIG_8] : [getColor(235, 215, 39), 27],
+        [C.INDHIG_9] : [getColor(235, 215, 39), 30],
         [C.COMLOW_0] : [getColor(33, 150, 243), 3],
         [C.COMLOW_1] : [getColor(33, 150, 243), 6],
         [C.COMLOW_2] : [getColor(33, 150, 243), 9],
+        [C.COMLOW_3] : [getColor(33, 150, 243), 12],
+        [C.COMMID_0] : [getColor(23, 140, 233), 3],
+        [C.COMMID_4] : [getColor(23, 140, 233), 15],
+        [C.COMMID_5] : [getColor(23, 140, 233), 18],
+        [C.COMMID_6] : [getColor(23, 140, 233), 21],
+        [C.COMHIG_0] : [getColor(13, 130, 223), 3],
+        [C.COMHIG_7] : [getColor(13, 130, 223), 24],
+        [C.COMHIG_8] : [getColor(13, 130, 223), 27],
+        [C.COMHIG_9] : [getColor(13, 130, 223), 30],
     };
     
     let getTileTextureMargin = function asrico_getTileTextureMargin(id)
@@ -236,6 +290,10 @@ let ASRICO_TILE = (function ()
     
     public.createTexture = function asrico_createTexture(id)
     {
+        if (G_CHECK && typeof C_TILETEXTURE[id] == 'undefined')
+        {
+            throw "ASRICO Tile " + id + " has no texture";
+        }
         let color = C_TILETEXTURE[id][0];
         let margin = getTileTextureMargin(id);
         let height = C_TILETEXTURE[id][1];

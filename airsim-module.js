@@ -1519,8 +1519,8 @@ let ASRICO = (function ()
         [C.COMLOW_1] : [1, 7,   0,   0,   2,   1,   1,   0],
         [C.COMLOW_2] : [2, 7,   0,   0,   4,   2,   2,   0],
         [C.COMLOW_3] : [3, 7,   0,   0,   6,   3,   3,   0],
-        [C.COMMID_4] : [4, 8,   0,   0,   6,   3,   3,   0],
-        [C.COMMID_5] : [5, 8,   0,   0,  10,   5,   5,   0],
+        [C.COMMID_4] : [4, 8,   0,   0,  10,   5,   5,   0],
+        [C.COMMID_5] : [5, 8,   0,   0,  16,   8,   8,   0],
     };
     const C_R = C_RICOPROPERTY;
     
@@ -1625,11 +1625,11 @@ let ASRICO = (function ()
         ASSTATE.setBuildingDensity(index, C_R[code][C_RM.LEVEL]);
         ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_TYPE, index, C_R[code][C_RM.TYPE]);
         let offerRico = getInitialOffer(code);
-        let residualOfferRico = ASSTATE.getBuildingOfferRico(index);
-        for (let i in offerRico)
-        {
-            offerRico[i] += residualOfferRico[i];
-        }
+        //let residualOfferRico = ASSTATE.getBuildingOfferRico(index);
+        //for (let i in offerRico)
+        //{
+            //offerRico[i] += residualOfferRico[i];
+        //}
         ASSTATE.setBuildingOfferRico(index, offerRico);
         let demandRico = getInitialDemand(code);
         ASSTATE.setBuildingDemandRico(index, demandRico);
@@ -1805,9 +1805,6 @@ let ASRICO = (function ()
             return;
         }
         ASSTATE.setBuildingDensity(index, density + 1);
-        let code = getDataIdByDensityLevel(index);
-        //console.log(code);
-        setInitial(code, index);
     }
     
     let getOfferRicoSum = function asrico_getOfferRicoSum(offerIndex)
@@ -1850,6 +1847,9 @@ let ASRICO = (function ()
                 levelDensityUp(index);
                 //console.log('level up ' + index);
             }
+            // reset
+            let code = getDataIdByDensityLevel(index);
+            setInitial(code, index);
             ASSTATE.setRicoStep(1);
             return false;
         }

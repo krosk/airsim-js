@@ -1786,6 +1786,11 @@ let ASRICO = (function ()
         return demand[0] <= 0 && demand[1] <= 0 && demand[2] <= 0;
     }
     
+    let isOfferRicoFilled = function asrico_isOfferRicoFilled(offer)
+    {
+        return offer[0] <= 0 && offer[1] <= 0 && offer[2] <= 0;
+    }
+    
     let levelDensityUp = function asrico_levelDensityUp(index)
     {
         let density = ASSTATE.getBuildingDensity(index);
@@ -1816,6 +1821,17 @@ let ASRICO = (function ()
         return sum;
     }
     
+    let canLevelUp = function asrico_canLevelUp(index)
+    {
+        let flag = true;
+        let demandRico = ASSTATE.getBuildingDemandRico(index);
+        flag &= isDemandRicoFilled(demandRico);
+        let offerRico = ASSTATE.getBuildingOfferRico(index);
+        flag &= isOfferRicoFilled(offerRico);
+        
+        return flag;
+    }
+    
     // note: could be extracted out of asrico
     // because it binds to asroad
     let updateBuilding = function asrico_updateBuilding(index)
@@ -1829,9 +1845,7 @@ let ASRICO = (function ()
         let step = ASSTATE.getRicoStep();
         if (step == 0)
         {
-            // process demand
-            let demandRico = ASSTATE.getBuildingDemandRico(index);
-            if (isDemandRicoFilled(demandRico))
+            if (canLevelUp(index))
             {
                 levelDensityUp(index);
                 //console.log('level up ' + index);

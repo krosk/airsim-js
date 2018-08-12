@@ -458,6 +458,11 @@ let ASSTATE = (function()
         public.setRoadTraversalEdgeCount(-1);
     }
     
+    public.getMaximumValue = function asstate_getMaximumValue()
+    {
+        return (1 << (8 * Int16Array.BYTES_PER_ELEMENT)) - 1; // Int16Array maximum value
+    }
+    
     public.setTableSize = function asstate_setTableSize(sizeX, sizeY)
     {
         let totalSize = (G.END + sizeX*sizeY*C.END); //* Int32Array.BYTES_PER_ELEMENT;
@@ -795,7 +800,7 @@ let ASROAD = (function ()
         [C_TYPE_ID.HIGHWAY] : 3
     }
     
-    const C_DAY_DURATION = 3600*4; // s
+    const C_DAY_DURATION = 300; // s
     const C_TILE_LENGTH = 16; // m
     const C_MAX_SPEED = 50; // m / s
     const C_INTER_CAR = 1; // s
@@ -1074,7 +1079,7 @@ let ASROAD = (function ()
         let type = ASSTATE.getRoadType(index);
         let maxSpeed = C_TYPE_SPEED[type];
         let ratio = getRoadSpeedDecrease(index);
-        return maxSpeed * ratio | 0;
+        return (maxSpeed * ratio) | 0;
     }
     
     let getRoadSpeedDecrease = function asroad_getRoadSpeedDecrease(index)
@@ -1105,6 +1110,11 @@ let ASROAD = (function ()
         }
         let carFlow = ASSTATE.getRoadCarFlow(index);
         carFlow += additionalCarFlow | 0;
+        if (carFlow > ASSTATE.getMaximumValue())
+        {
+            carFlow = ASSTATE.getMaximumValue();
+            console.log(carFlow);
+        }
         ASSTATE.setRoadCarFlow(index, carFlow);
     }
     
@@ -1227,7 +1237,7 @@ let ASROAD = (function ()
     let getTraversalCostIncrease = function asroad_getTraversalCostIncrease(roadIndex)
     {
         let speed = getRoadSpeed(roadIndex);
-        return 200 / speed;
+        return speed > 0 ? 200 / speed : ASSTATE.getMaximumValue();
     }
     
     let expandTraversal = function asroad_expandTraversal(parent, node)

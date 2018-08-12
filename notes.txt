@@ -1421,6 +1421,48 @@ offer and demand is the way to make sure
 long tick duration is not an advantage due to
 downtime.
 The exp amount may depend on the tick duration.
+Offer is likely too small to be divided as. 
+a proper integer. The observable range is
+1 fu to 50 fu per day per tile.
+Hence, there are 4 alternatives:
+- enforce a tick a day
+- discrete distribution of fu every x ticks,
+which is somewhat realistic, but implementation
+may be tricky, as that would mean distributing
+each offer at a different rate, hence at 
+different ticks. I guess demand is the same
+and it is to be dispatched thoroughly.
+- floating point distribution, which is
+data dependant and inconvenient as of now
+because of no 16 bit.
+- Offer and demand as is, but its signification
+depends on current tick duration. That is, 1
+offer and 1 demand per tick, when a tick is
+1 hour, means eg 1 fu. However, 1 offer and 1
+demand when tick is 1 minute, means 1/60 fu.
+How does that impact the flow?
+Car flow is therefore divided by it too.
+Indeed somewhere the car flow must be divided.
+Assuming there is 4 hours per day then every one
+is going out between 6am to 10am.
+Current implementation is absolute flow, the
+number of cars that will go through this road
+today, or a tick duration max of 4 hours.
+Assuming you multiply the flow by 4 artificially
+(same rate, repeated 4 times, tick 1 hour),
+the flow is stored multiplied, so as to make
+sure it is always incremented by 1 at least.
+
+then you have to divide the car flow by 4
+when computing the decay or the speed.
+So the flow becomes a flow per tick.
+The factor is computed by having day in sec
+being 3600*4, and flow divided being
+tick in sec / day in sec.
+Maybe the number is too low to be displayed
+as such.
+
+
 
 There is then the condition whether the optimal
 conditions must be maintained over some time

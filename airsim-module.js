@@ -795,8 +795,8 @@ let ASROAD = (function ()
         [C_TYPE_ID.HIGHWAY] : 3
     }
     
+    const C_DAY_DURATION = 3600*4; // s
     const C_TILE_LENGTH = 16; // m
-    const C_TICK_DURATION = 300; // s
     const C_MAX_SPEED = 50; // m / s
     const C_INTER_CAR = 1; // s
     const C_CAR_LENGTH = 4; // m
@@ -1064,7 +1064,7 @@ let ASROAD = (function ()
         let type = ASSTATE.getRoadType(index);
         let maxSpeed = C_TYPE_SPEED[type];
         let laneCount = C_TYPE_LANE[type];
-        let maxFlow = laneCount * C_TICK_DURATION / (C_CAR_LENGTH / maxSpeed + C_INTER_CAR);
+        let maxFlow = laneCount * C_DAY_DURATION / (C_CAR_LENGTH / maxSpeed + C_INTER_CAR);
         return maxFlow;
     }
     
@@ -1092,7 +1092,7 @@ let ASROAD = (function ()
         let type = ASSTATE.getRoadType(index);
         let laneCount = C_TYPE_LANE[type];
         let carFlow = ASSTATE.getRoadCarFlow(index);
-        let decay = (laneCount / carFlow / C_INTER_CAR * C_TICK_DURATION);
+        let decay = (laneCount / carFlow / C_INTER_CAR * C_DAY_DURATION);
         return decay;
     }
     

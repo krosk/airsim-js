@@ -1486,10 +1486,6 @@ let ASROAD = (function ()
             {
                 roads.push(to);
             }
-            if (i == 3 && roads.length > 0)
-            {
-                break;
-            }
         }
         
         return roads;

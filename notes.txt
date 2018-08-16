@@ -879,6 +879,64 @@ their offer or receive demand, and as such
 the influx of car will diminish as it reaches
 an equilibrium but still busy.
 
+After adjusting the tick duration and how
+maxflow behaves, and introducing the car length
+there is now not only a max flow, but physically
+a max capacity, i.e. how many cars can fit
+the space within a certain time. The maxflow
+at top speed assumes all cars go through
+one by one separated by intercar duration.
+Hence when tick duration is 1 hour, say they
+are something like 2500 cars crossing. In fact
+this is the absolute max amount of car that can
+crosses it. By reducing the speed, you would
+reduce the number of cars that can fit.
+Hemce maybe it makes more sense to not allow
+more cars going through that road, which
+is synonymous to setting speed = 0.
+Current maxflow in truth depends on current
+car speed, while we do approximation that it
+should use car speed. But it may seem unfair
+to set the speed as 0 if flow reaches the max
+as the theoretical max flow can support that
+many cars. So if flow is below max flow, then
+it should make sense that decay is 100% and 
+speed is maintained. 
+Currently car flow does not depend on speed
+or maxspeed, it only assumes every ic there
+will be a car leaving.
+If there are many more cars however, that means:
+- decay cannot absorb that many cars and there
+will be cars left at the next tick
+- It should not be possible to fit that many
+cars within the tick
+- speed may be decreased. Should decay be
+impacted? It seems to be a dangerous loop, as
+speed goes towards zero due to congestion,
+the number of cars to leave a tile is also
+reduced, and so the number of cars stays
+stagnant, which causes a congestion that leaves
+only after quite many ticks, while it should
+be able to clear out quick.
+- should speed is either max or zero? The
+implications is the road will be taken until
+it reaches max flow, then other roads will be
+taken immediately. In fact it is maybe a fine
+modelisation, as the road physically can only
+hold so many cars a day.
+Then the next tick it is supposedly cleared.
+
+Should congestion bleed then? As a form
+of decay. Like, the number of cars that do not
+get absorbed are dispatched in roads arounds
+so as to clear the congestion, i.e. do not
+rely only on the decay to clear up.
+
+
+
+Example solution?
+
+
 ** Strategy 6.2: refreshing rate
 
 Map wide refresh
@@ -1138,6 +1196,7 @@ next tick. Every tick starts at the same state
 in term of road traffic and building offer
 and demand.
 
+Not adopted
 Normally, the traffic is equal day to day, and
 should dissipate as going into the next day.
 Hence offer is recharged per day. Eventually if
@@ -1150,6 +1209,7 @@ duration of maximum. Same for demand or offer.
 But offer start at zero, and raises during the
 day. Same for demand.
 
+Not adopted
 If one was to divide the maximum offer and 
 demand, then it becomes as if each tick is
 similar. So offer and demand increase is the
@@ -1176,11 +1236,76 @@ maximum capacity
 - move to int32 for the full asstate
 - additional field for 32 bit number based
 on two 16 bits numbers
+- setting a fixed offer and demand max that
+does not depend on 
 The offer and demand per tick could be a
 static number in a known range, then the flow
 added will depend on the tick duration.
 Now is understanding what range of numbers
-are likely to be provided per tile:
+are likely to be provided per tile.
+
+So, finally, assuming demand and offer 
+depends on the tick duration, then as long
+as all checkboxes are filled at the beginning
+of the tick, then an exp point is added,
+and the demand / offer is reset. Scaled
+offer and demand is the way to make sure
+long tick duration is not an advantage due to
+downtime.
+The exp amount may depend on the tick duration.
+Offer is likely too small to be divided as. 
+a proper integer. The observable range is
+1 fu to 50 fu per day per tile.
+Hence, there are 4 alternatives:
+- enforce a tick a day
+- discrete distribution of fu every x ticks,
+which is somewhat realistic, but implementation
+may be tricky, as that would mean distributing
+each offer at a different rate, hence at 
+different ticks. I guess demand is the same
+and it is to be dispatched thoroughly.
+- floating point distribution, which is
+data dependant and inconvenient as of now
+because of no 16 bit.
+- Offer and demand as is, but its signification
+depends on current tick duration. That is, 1
+offer and 1 demand per tick, when a tick is
+1 hour, means eg 1 fu. However, 1 offer and 1
+demand when tick is 1 minute, means 1/60 fu.
+How does that impact the flow?
+Car flow is therefore divided by it too.
+Indeed somewhere the car flow must be divided.
+Assuming there is 4 hours per day then every one
+is going out between 6am to 10am.
+Current implementation is absolute flow, the
+number of cars that will go through this road
+today, or a tick duration max of 4 hours.
+Assuming you multiply the flow by 4 artificially
+(same rate, repeated 4 times, tick 1 hour),
+the flow is stored multiplied, so as to make
+sure it is always incremented by 1 at least.
+
+then you have to divide the car flow by 4
+when computing the decay or the speed.
+So the flow becomes a flow per tick.
+The factor is computed by having day in sec
+being 3600*4, and flow divided being
+tick in sec / day in sec.
+Maybe the number is too low to be displayed
+as such.
+
+In the end, the flow signification can depend
+on the tick duration, same as offer and demand.
+It is a matter of interpretation, not simulation
+as the offer and demand is the same regardless
+of tick duration. What changes however is the
+maximum flow that depends on duration, ie as
+duration decreases, maxflow decreases, while
+offer/demand stays the same. Maxflow is in
+theory an absolute value, but now becomes
+maxflow per tick.
+
+The next thing is how speed is controlled.
 
 
 ** Strategy 6.6: Density and buildings
@@ -1411,58 +1536,6 @@ Level up is probably something like multiple
 gauges. It is easy to fill up if it is demand
 or service, but it is not the case if it is
 offer and all.
-
-So, finally, assuming demand and offer 
-depends on the tick duration, then as long
-as all checkboxes are filled at the beginning
-of the tick, then an exp point is added,
-and the demand / offer is reset. Scaled
-offer and demand is the way to make sure
-long tick duration is not an advantage due to
-downtime.
-The exp amount may depend on the tick duration.
-Offer is likely too small to be divided as. 
-a proper integer. The observable range is
-1 fu to 50 fu per day per tile.
-Hence, there are 4 alternatives:
-- enforce a tick a day
-- discrete distribution of fu every x ticks,
-which is somewhat realistic, but implementation
-may be tricky, as that would mean distributing
-each offer at a different rate, hence at 
-different ticks. I guess demand is the same
-and it is to be dispatched thoroughly.
-- floating point distribution, which is
-data dependant and inconvenient as of now
-because of no 16 bit.
-- Offer and demand as is, but its signification
-depends on current tick duration. That is, 1
-offer and 1 demand per tick, when a tick is
-1 hour, means eg 1 fu. However, 1 offer and 1
-demand when tick is 1 minute, means 1/60 fu.
-How does that impact the flow?
-Car flow is therefore divided by it too.
-Indeed somewhere the car flow must be divided.
-Assuming there is 4 hours per day then every one
-is going out between 6am to 10am.
-Current implementation is absolute flow, the
-number of cars that will go through this road
-today, or a tick duration max of 4 hours.
-Assuming you multiply the flow by 4 artificially
-(same rate, repeated 4 times, tick 1 hour),
-the flow is stored multiplied, so as to make
-sure it is always incremented by 1 at least.
-
-then you have to divide the car flow by 4
-when computing the decay or the speed.
-So the flow becomes a flow per tick.
-The factor is computed by having day in sec
-being 3600*4, and flow divided being
-tick in sec / day in sec.
-Maybe the number is too low to be displayed
-as such.
-
-
 
 There is then the condition whether the optimal
 conditions must be maintained over some time

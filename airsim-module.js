@@ -460,7 +460,7 @@ let ASSTATE = (function()
     
     public.getMaximumValue = function asstate_getMaximumValue()
     {
-        return (1 << (8 * Int16Array.BYTES_PER_ELEMENT)) - 1; // Int16Array maximum value
+        return (1 << (8 * Int16Array.BYTES_PER_ELEMENT - 1)) - 1; // Int16Array maximum value
     }
     
     public.setTableSize = function asstate_setTableSize(sizeX, sizeY)
@@ -835,20 +835,20 @@ let ASROAD = (function ()
         {
             return C.NONE;
         }
-        let ratio = getRoadSpeedDecrease(index);
-        if (ratio > 0.75)
+        let ratio = getRoadFlowRatio(index);
+        if (ratio < 0.5)
         {
             return C.LOW;
         }
-        else if (ratio > 0.5)
+        else if (ratio < 0.75)
         {
             return C.MID;
         }
-        else if (ratio > 0.25)
+        else if (ratio < 1)
         {
             return C.HIG;
         }
-        else if (ratio > 0)
+        else if (ratio >= 1)
         {
         	return C.VHI;
         }
@@ -1065,7 +1065,7 @@ let ASROAD = (function ()
     
     let getRoadMaximumCarFlow = function asroad_getRoadMaximumCarFlow(index)
     {
-        //LC * (TD - TL / TS) / IC
+        //LC * (TD - TL / TS) / (CL / SP + IC)
         let type = ASSTATE.getRoadType(index);
         let maxSpeed = C_TYPE_SPEED[type];
         let laneCount = C_TYPE_LANE[type];
@@ -1078,16 +1078,16 @@ let ASROAD = (function ()
         // LN * TL / TC / IC
         let type = ASSTATE.getRoadType(index);
         let maxSpeed = C_TYPE_SPEED[type];
-        let ratio = getRoadSpeedDecrease(index);
-        return (maxSpeed * ratio) | 0;
+        let ratio = getRoadFlowRatio(index);
+        return ratio >= 1 ? 0 : maxSpeed | 0;
     }
     
-    let getRoadSpeedDecrease = function asroad_getRoadSpeedDecrease(index)
+    let getRoadFlowRatio = function asroad_getRoadFlowRatio(index)
     {
         let type = ASSTATE.getRoadType(index);
         let maxFlow = getRoadMaximumCarFlow(index);
         let currentFlow = ASSTATE.getRoadCarFlow(index);
-        let ratio = maxFlow / currentFlow;
+        let ratio = currentFlow / maxFlow;
         return ratio >= 1 ? 1 : ratio;
     }
     
@@ -1159,6 +1159,10 @@ let ASROAD = (function ()
     }
     let setTraversalCost = function asroad_setTraversalCost(node, value)
     {
+        if (value > ASSTATE.getMaximumValue())
+        {
+            value = ASSTATE.getMaximumValue();
+        }
         ASSTATE.setRoadTraversalCost(node, value);
     }
     let setTraversalAdded = function asroad_setTraversalAdded(node)
@@ -1449,7 +1453,7 @@ let ASROAD = (function ()
         {
             return false;
         }
-        let costSoFar = ASSTATE.getRoadTraversalCost(roadIndex);
+        let costSoFar = getTraversalCost(roadIndex);
         return costSoFar < costMax;
     }
     

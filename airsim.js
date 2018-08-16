@@ -200,7 +200,7 @@ function WaitingState()
 function StartState()
 {
     console.log("Start");
-    ASMAP.initialize(16, 16);
+    ASMAP.initialize(32, 32);
     g_state = EngineState;
 }
 
@@ -339,9 +339,10 @@ let ASMAP = (function ()
         }
         else if (!ASENGINE.hasAccess())
         {
+            const ENGINE_YIELD_PERIOD = 250; // ms
             m_updateStateMachine = 5;
             let callbackData = [public.C_NAME, 'updateEngineResponse'];
-            ASENGINE.update(Date.now() + 300, Date.now(), callbackData);
+            ASENGINE.update(Date.now() + ENGINE_YIELD_PERIOD, Date.now(), callbackData);
         }
     }
     

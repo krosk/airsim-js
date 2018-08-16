@@ -204,12 +204,12 @@ let ASSTATE = (function()
         w(index, C.ROAD_CONNECT, data);
     }
     
-    public.getRoadCarLastFlow = function asstate_getRoadCarLastFlow(index)
+    public.getRoadLastCarFlow = function asstate_getRoadLastCarFlow(index)
     {
         return r(index, C.ROAD_CAR_LAST_FLOW);
     }
     
-    public.setRoadCarLastFlow = function asstate_setRoadCarLastFlow(index, data)
+    public.setRoadLastCarFlow = function asstate_setRoadLastCarFlow(index, data)
     {
         w(index, C.ROAD_CAR_LAST_FLOW, data);
     }
@@ -800,7 +800,7 @@ let ASROAD = (function ()
         [C_TYPE_ID.HIGHWAY] : 3
     }
     
-    const C_DAY_DURATION = 300; // s
+    const C_DAY_DURATION = 3600; // s
     const C_TILE_LENGTH = 16; // m
     const C_MAX_SPEED = 50; // m / s
     const C_INTER_CAR = 1; // s
@@ -835,7 +835,7 @@ let ASROAD = (function ()
         {
             return C.NONE;
         }
-        let ratio = getRoadFlowRatio(index);
+        let ratio = getRoadLastCarFlowRatio(index);
         if (ratio < 0.5)
         {
             return C.LOW;
@@ -984,7 +984,7 @@ let ASROAD = (function ()
             ASSTATE.setRoadDisconnectTo(index, C_TO.E, 0);
             ASSTATE.setRoadDisconnectTo(index, C_TO.S, 0);
             ASSTATE.setRoadDisconnectTo(index, C_TO.W, 0);
-            ASSTATE.setRoadCarLastFlow(index, 0);
+            ASSTATE.setRoadLastCarFlow(index, 0);
             ASSTATE.setRoadCarFlow(index, 0);
             ASSTATE.setRoadDebug(index, C.LOW)
             changeDataIndex(index);
@@ -1049,7 +1049,7 @@ let ASROAD = (function ()
         }
         let ratio = getRoadTrafficDecay(index)
         let carFlow = ASSTATE.getRoadCarFlow(index);
-        ASSTATE.setRoadCarLastFlow(index, carFlow);
+        ASSTATE.setRoadLastCarFlow(index, carFlow);
         let newCarFlow = (carFlow * (1 - ratio)) | 0;
         if (newCarFlow < 1)
         {
@@ -1078,16 +1078,25 @@ let ASROAD = (function ()
         // LN * TL / TC / IC
         let type = ASSTATE.getRoadType(index);
         let maxSpeed = C_TYPE_SPEED[type];
-        let ratio = getRoadFlowRatio(index);
+        let ratio = getRoadCarFlowRatio(index);
         return ratio >= 1 ? 0 : maxSpeed | 0;
     }
     
-    let getRoadFlowRatio = function asroad_getRoadFlowRatio(index)
+    let getRoadCarFlowRatio = function asroad_getRoadCarFlowRatio(index)
     {
         let type = ASSTATE.getRoadType(index);
         let maxFlow = getRoadMaximumCarFlow(index);
         let currentFlow = ASSTATE.getRoadCarFlow(index);
         let ratio = currentFlow / maxFlow;
+        return ratio >= 1 ? 1 : ratio;
+    }
+    
+    let getRoadLastCarFlowRatio = function asroad_getRoadLastCarFlowRatio(index)
+    {
+        let type = ASSTATE.getRoadType(index);
+        let maxFlow = getRoadMaximumCarFlow(index);
+        let lastFlow = ASSTATE.getRoadLastCarFlow(index);
+        let ratio = lastFlow / maxFlow;
         return ratio >= 1 ? 1 : ratio;
     }
     
@@ -1457,25 +1466,33 @@ let ASROAD = (function ()
         return costSoFar < costMax;
     }
     
-    public.findNearestRoad = function asroad_findNearestRoad(x, y)
+    public.findNearestRoads = function asroad_findNearestRoads(x, y)
     {
+        let roads = [];
+        
         let index = ASSTATE.getIndex(x, y);
         if (hasRoad(index))
         {
-            return index;
+            roads.push(index);
         }
         const lookupX = [x, x, x, x, x-1, x, x+1, x];
         const lookupY = [y, y, y, y, y, y-1, y, y+1];
         const lookupD = [C_TO.N, C_TO.E, C_TO.S, C_TO.W, C_TO.N, C_TO.E, C_TO.S, C_TO.W];
+        
         for (let i = 0; i < 8; i++)
         {
             let to = getIndexTo(lookupX[i], lookupY[i], lookupD[i]);
             if (hasRoad(to))
             {
-                return to;
+                roads.push(to);
+            }
+            if (i == 3 && roads.length > 0)
+            {
+                break;
             }
         }
-        return -1;
+        
+        return roads;
     }
     
     public.getInfo = function asroad_getInfo(x, y)
@@ -1489,7 +1506,7 @@ let ASROAD = (function ()
         " Sp:" + getRoadSpeed(index) + 
         " Cf:" + ASSTATE.getRoadCarFlow(index) + 
         "/" + (getRoadMaximumCarFlow(index) | 0) +
-        " Ls:" + ASSTATE.getRoadCarLastFlow(index);
+        " Ls:" + ASSTATE.getRoadLastCarFlow(index);
     }
     
     return public;
@@ -1876,14 +1893,15 @@ let ASRICO = (function ()
             let xy = ASSTATE.getXYFromIndex(index);
             let x = xy[0];
             let y = xy[1];
-            let roadIndex = ASROAD.findNearestRoad(x, y);
-            if (roadIndex < 0)
+            let roadIndexList = ASROAD.findNearestRoads(x, y);
+            if (roadIndexList.length <= 0)
             {
                 ASSTATE.setRicoStep(0);
                 return true;
             }
             else
             {
+                let roadIndex = roadIndexList[0];
                 let roadXY = ASSTATE.getXYFromIndex(roadIndex);
                 let roadX = roadXY[0];
                 let roadY = roadXY[1];

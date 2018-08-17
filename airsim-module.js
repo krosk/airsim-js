@@ -188,6 +188,11 @@ let ASSTATE = (function()
         C.ROAD_CONNECT_Ww
     ];
     
+    public.getRoadConnected = function asstate_getRoadConnected(index)
+    {
+        return r(index, C.ROAD_CONNECT) > 0;
+    }
+    
     public.getRoadConnectTo = function asstate_getRoadConnectTo(index, d)
     {
         let mask = 1 << d;
@@ -910,15 +915,30 @@ let ASROAD = (function ()
         return to;
     }
     
-    let connectNodes = function asroad_connectNodes(x, y, d)
+    let connectRoadToRoad = function asroad_connectRoadToRoad(x, y, d)
     {
         let from = ASSTATE.getIndex(x, y);
         let to = getIndexTo(x, y, d);
         //console.log('connectnode x'+x+'y'+y+'xd'+xd+'yd'+yd);
         if (hasRoad(from) && hasRoad(to))
         {
-            ASSTATE.setRoadConnectTo(from, d, 1);
-            ASSTATE.setRoadConnectTo(to, C_FROM[d], 1);
+            ASSTATE.setRoadConnectTo(from, d);
+            ASSTATE.setRoadConnectTo(to, C_FROM[d]);
+        }
+    }
+    
+    let connectRoadToBuilding = function asroad_connectRoadToBuilding(x, y, d)
+    {
+        let from = ASSTATE.getIndex(x, y);
+        let to = getIndexTo(x, y, d);
+        //console.log('connectnode x'+x+'y'+y+'xd'+xd+'yd'+yd);
+        if (hasRoad(from) && hasBuilding(to))
+        {
+            ASSTATE.setRoadConnectTo(to, C_FROM[d]);
+        }
+        if (hasBuilding(from) && hasRoad(to))
+        {
+            ASSTATE.setRoadConnectTo(from, d);
         }
     }
     
@@ -926,27 +946,25 @@ let ASROAD = (function ()
     {
         let from = ASSTATE.getIndex(x, y);
         let to = getIndexTo(x, y, d);
-        if (to < 0)
+        if (ASSTATE.isValidIndex(to))
         {
             return;
         }
         // note: disconnect only if to is valid
         // even if it has no road
-        if (hasRoad(from))
+        if (hasRoad(from) || hasBuilding(from))
         {
-            //delete ASSTATE.getRoad(from).connectTo[d];
-            ASSTATE.setRoadDisconnectTo(from, d, 0);
+            ASSTATE.setRoadDisconnectTo(from, d);
         }
-        if (hasRoad(to))
+        if (hasRoad(to) || hasBuilding(from))
         {
-            //delete ASSTATE.getRoad(to).connectTo[C_FROM[d]];
             ASSTATE.setRoadDisconnectTo(to, C_FROM[d], 0);
         }
     }
     
     let hasRoad = function asroad_hasRoad(i)
     {
-        if (typeof i === 'undefined' || i == null || i < 0)
+        if (!ASSTATE.isValidIndex(i))
         {
             return false;
         }
@@ -956,6 +974,22 @@ let ASROAD = (function ()
             return false;
         }
         return (data == ASZONE.C_TYPE.ROAD);
+    }
+    
+    let hasBuilding = function asroad_hasBuilding(i)
+    {
+        if (!ASSTATE.isValidIndex(i))
+        {
+            return false;
+        }
+        let data = ASSTATE.getZoneType(i);
+        if ((typeof data === 'undefined') || (data == null))
+        {
+            return false;
+        }
+        let isBuilding = (data == ASZONE.C_TYPE.BUILDING);
+        //let isConnected = ASSTATE.getRoadConnected(i);
+        return isBuilding;
     }
     
     let isConnectedTo = function asroad_isConnectedTo(from, d)
@@ -979,6 +1013,14 @@ let ASROAD = (function ()
         }
         //console.log('isConnectedTo f' + from + 't' + to + 'c' + m_network[from].connectTo);
         return to;
+    }
+    
+    let connectAll = function asroad_connectAll(x, y)
+    {
+        connectRoadToRoad(x, y, C_TO.N);
+        connectRoadToRoad(x, y, C_TO.E);
+        connectRoadToRoad(x, y, C_TO.S);
+        connectRoadToRoad(x, y, C_TO.W);
     }
     
     let disconnectAll = function asroad_disconnectAll(index)
@@ -1013,10 +1055,7 @@ let ASROAD = (function ()
             // traversal v2 related
             ASSTATE.setRoadTraversalCost(index, 0);
         }
-        connectNodes(x, y, C_TO.N);
-        connectNodes(x, y, C_TO.E);
-        connectNodes(x, y, C_TO.S);
-        connectNodes(x, y, C_TO.W);
+        connectAll(x, y);
     }
 
     public.removeRoad = function asroad_removeRoad(x, y)
@@ -1255,6 +1294,10 @@ let ASROAD = (function ()
             expandTraversal(from, isConnectedTo(from, C_TO.E));
             expandTraversal(from, isConnectedTo(from, C_TO.S));
             expandTraversal(from, isConnectedTo(from, C_TO.W));
+            expandTraversal(from, isConnectedTo(from, C_TO.NN));
+            expandTraversal(from, isConnectedTo(from, C_TO.EE));
+            expandTraversal(from, isConnectedTo(from, C_TO.SS));
+            expandTraversal(from, isConnectedTo(from, C_TO.WW));
             ASSTATE.setRoadDebug(from, C.HIG);
             changeTraversalIndex(from);
             m_cacheNodeRefresh = true;

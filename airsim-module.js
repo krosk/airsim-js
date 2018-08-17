@@ -1015,7 +1015,7 @@ let ASROAD = (function ()
         return to;
     }
     
-    let connectAll = function asroad_connectAll(x, y)
+    public.connectAll = function asroad_connectAll(x, y)
     {
         connectRoadToRoad(x, y, C_TO.N);
         connectRoadToRoad(x, y, C_TO.E);
@@ -1027,7 +1027,7 @@ let ASROAD = (function ()
         connectRoadToBuilding(x, y, C_TO.W);
     }
     
-    let disconnectAll = function asroad_disconnectAll(x, y)
+    public.disconnectAll = function asroad_disconnectAll(x, y)
     {
         disconnectNodes(x, y, C_TO.N);
         disconnectNodes(x, y, C_TO.E);
@@ -1058,7 +1058,7 @@ let ASROAD = (function ()
             // traversal v2 related
             ASSTATE.setRoadTraversalCost(index, 0);
         }
-        connectAll(x, y);
+        public.connectAll(x, y);
     }
 
     public.removeRoad = function asroad_removeRoad(x, y)
@@ -1068,7 +1068,7 @@ let ASROAD = (function ()
         {
             return;
         }
-        disconnectAll(x, y);
+        public.disconnectAll(x, y);
         changeDataIndex(index);
         m_cacheNodeRefresh = true;
     }
@@ -1687,12 +1687,14 @@ let ASRICO = (function ()
         ASSTATE.setRicoStep(0);
     }
     
-    let addInitial = function asrico_addInitial(code, index)
+    let addBuilding = function asrico_addBuilding(code, x, y)
     {
+        let index = ASSTATE.getIndex(x, y);
         if (!hasBuilding(index))
         {
             setInitial(code, index);
         }
+        ASROAD.connectAll(x, y);
     }
     
     let setInitial = function asrico_setInitial(code, index)
@@ -1724,20 +1726,17 @@ let ASRICO = (function ()
     
     public.addResLow = function asrico_addResLow(x, y)
     {
-        let index = ASSTATE.getIndex(x, y);
-        addInitial(C.RESLOW_0, index);
+        addBuilding(C.RESLOW_0, x, y);
     }
    
     public.addComLow = function asrico_addComLow(x, y)
     {
-        let index = ASSTATE.getIndex(x, y);
-        addInitial(C.COMLOW_0, index);
+        addBuilding(C.COMLOW_0, x, y);
     }
     
     public.addIndLow = function asrico_addIndLow(x, y)
     {
-        let index = ASSTATE.getIndex(x, y);
-        addInitial(C.INDLOW_0, index);
+        addBuilding(C.INDLOW_0, x, y);
     }
     
     public.removeBuilding = function asrico_removeBuilding(x, y)
@@ -1747,6 +1746,7 @@ let ASRICO = (function ()
         {
             return;
         }
+        ASROAD.disconnectAll(x, y);
         addChangeLogIndex(index);
         return;
     }

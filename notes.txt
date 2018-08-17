@@ -641,9 +641,12 @@ that there is one starting point and the
 traversal starts from it, as saved from the
 data. This is how the whole cache is built
 from a starting point.
+
+Not adopted
 Alternatives are assuming buildings as
 traversable tiles, hence building can be a 
 starting position.
+
 
 Alternative is altering the road network
 by adding a special tile that has up to 4
@@ -659,6 +662,23 @@ jumping two tiles away. One could use flags
 to indicate how far away the connection is.
 The data needed for the building is connection,
 but it should not need anything else.
+This connection should be recomputed each
+tick, as road structure may have changed.
+Or one must assume it is always updated
+accordingly when a road is deleted, avoiding
+recomputation.
+This is ideally a one way connection, as we
+don't need traversal to go into buildings.
+Or, if building lookup is time consuming, then
+the connection can happen bidirectional, so
+roads don't need to perform building lookup.
+Traversal must exclude building targets, and
+only accept road targets. They can however
+start from building targets.
+Connection can be done as roads and buildings
+are built. That means connection check should
+be a common implementation between asroad and
+asrico.
 
 
 

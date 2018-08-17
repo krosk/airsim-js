@@ -243,6 +243,17 @@ Connect to is 4 direction, which requires only
 4 bits, so a number from 0 to 15 is enough.
 However, current implementation is holding the
 index of the connected route, not just a flag.
+Further bits could be considered for further
+connection tiles away, which could be useful
+for special cases of connections. A 16 bit
+integer can then hold connection to 4 tiles
+away, which is plenty.
+
+Demand offer bits may have enough with 255 (8b)
+then assuming 16b data storage, demand and
+offer can be stored in the same field for saving
+space.
+
 
 **Structure 2: Road network specifics
 
@@ -618,6 +629,38 @@ Blocked road definition is:
 - one way road at opposite direction
 - not enough capacity to hold influx of
     congestion
+
+One thing to consider is when a building can
+reach more than one distinct networks of roads,
+then it should be accessing the additional
+networks if its offer is still filled.
+Supposedly, traversal is able to be initiated
+with a few starting points.
+The current implementation however supposes
+that there is one starting point and the
+traversal starts from it, as saved from the
+data. This is how the whole cache is built
+from a starting point.
+Alternatives are assuming buildings as
+traversable tiles, hence building can be a 
+starting position.
+
+Alternative is altering the road network
+by adding a special tile that has up to 4
+connection points to nearest roads, then
+consider that point as a starting point.
+But from a datastorage point, it is not
+possible to save it as a conventional road.
+There are missing fields for nwse connections.
+Moreover, the connection was changed from
+getting an index to getting a direction to
+the nearest tile, while here it is about
+jumping two tiles away. One could use flags
+to indicate how far away the connection is.
+The data needed for the building is connection,
+but it should not need anything else.
+
+
 
 ** Strategy 6.1: Road speed modelisation
 

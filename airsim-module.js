@@ -22,15 +22,15 @@ let ASSTATE = (function()
         ROAD_TRAVERSAL_PARENT : 9,
         ROAD_DEBUG : 10,
         BUILDING_TYPE : 3, // 1 res 2 com 3 ind 4 off
-        BUILDING_DENSITY_LEVEL : 4,
-        BUILDING_OFFER_R: 5,
-        BUILDING_OFFER_I: 6,
-        BUILDING_OFFER_C: 7,
-        BUILDING_DEMAND_R : 8,
-        BUILDING_DEMAND_I : 9,
-        BUILDING_DEMAND_C : 10,
-        BUILDING_TICK_UPDATE : 11,
-        END : 12
+        BUILDING_DENSITY_LEVEL : 5,
+        BUILDING_OFFER_R: 6,
+        BUILDING_OFFER_I: 7,
+        BUILDING_OFFER_C: 8,
+        BUILDING_DEMAND_R : 9,
+        BUILDING_DEMAND_I : 10,
+        BUILDING_DEMAND_C : 11,
+        BUILDING_TICK_UPDATE : 12,
+        END : 13
     }
     public.C_DATA = C;
     
@@ -181,7 +181,11 @@ let ASSTATE = (function()
         C.ROAD_CONNECT_N,
         C.ROAD_CONNECT_E,
         C.ROAD_CONNECT_S,
-        C.ROAD_CONNECT_W
+        C.ROAD_CONNECT_W,
+        C.ROAD_CONNECT_NN,
+        C.ROAD_CONNECT_EE,
+        C.ROAD_CONNECT_SS,
+        C.ROAD_CONNECT_Ww
     ];
     
     public.getRoadConnectTo = function asstate_getRoadConnectTo(index, d)
@@ -771,9 +775,13 @@ let ASROAD = (function ()
         N: 0,
         E: 1,
         S: 2,
-        W: 3
+        W: 3,
+        NN: 4,
+        EE: 5,
+        SS: 6,
+        WW: 7
     };
-    const C_FROM = [2, 3, 0, 1];
+    const C_FROM = [2, 3, 0, 1, 6, 7, 4, 5];
     
     public.C_TILEENUM = ASTILE.C_TILE_ROAD;
     const C = public.C_TILEENUM;
@@ -894,8 +902,8 @@ let ASROAD = (function ()
     
     let getIndexTo = function asroad_getIndexTo(x, y, d)
     {
-        const C_XOFFSET = [-1, 0, 1, 0];
-        const C_YOFFSET = [0, -1, 0, 1];
+        const C_XOFFSET = [-1, 0, 1, 0, -2, 0, 2, 0];
+        const C_YOFFSET = [0, -1, 0, 1, 0, -2, 0, 2];
         let xd = x + C_XOFFSET[d];
         let yd = y + C_YOFFSET[d];
         let to = ASSTATE.getIndex(xd, yd);
@@ -943,7 +951,11 @@ let ASROAD = (function ()
             return false;
         }
         let data = ASSTATE.getZoneType(i);
-        return !((typeof data === 'undefined') || (data == null)) && (data == ASZONE.C_TYPE.ROAD);
+        if ((typeof data === 'undefined') || (data == null))
+        {
+            return false;
+        }
+        return (data == ASZONE.C_TYPE.ROAD);
     }
     
     let isConnectedTo = function asroad_isConnectedTo(from, d)
@@ -971,7 +983,7 @@ let ASROAD = (function ()
     
     public.addRoad = function asroad_addRoad(x, y)
     {
-        if (x < 0 || y < 0)
+        if (!ASSTATE.isValidCoordinates(x, y))
         {
             return;
         }
@@ -1475,13 +1487,11 @@ let ASROAD = (function ()
         {
             roads.push(index);
         }
-        const lookupX = [x, x, x, x, x-1, x, x+1, x];
-        const lookupY = [y, y, y, y, y, y-1, y, y+1];
-        const lookupD = [C_TO.N, C_TO.E, C_TO.S, C_TO.W, C_TO.N, C_TO.E, C_TO.S, C_TO.W];
+        const lookupD = [C_TO.N, C_TO.E, C_TO.S, C_TO.W, C_TO.NN, C_TO.EE, C_TO.SS, C_TO.WW];
         
         for (let i = 0; i < 8; i++)
         {
-            let to = getIndexTo(lookupX[i], lookupY[i], lookupD[i]);
+            let to = getIndexTo(x, y, lookupD[i]);
             if (hasRoad(to))
             {
                 roads.push(to);

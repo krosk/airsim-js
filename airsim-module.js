@@ -958,7 +958,7 @@ let ASROAD = (function ()
         }
         if (hasRoad(to) || hasBuilding(from))
         {
-            ASSTATE.setRoadDisconnectTo(to, C_FROM[d], 0);
+            ASSTATE.setRoadDisconnectTo(to, C_FROM[d]);
         }
     }
     
@@ -1025,6 +1025,10 @@ let ASROAD = (function ()
         connectRoadToBuilding(x, y, C_TO.E);
         connectRoadToBuilding(x, y, C_TO.S);
         connectRoadToBuilding(x, y, C_TO.W);
+        connectRoadToBuilding(x, y, C_TO.NN);
+        connectRoadToBuilding(x, y, C_TO.EE);
+        connectRoadToBuilding(x, y, C_TO.SS);
+        connectRoadToBuilding(x, y, C_TO.WW);
     }
     
     public.disconnectAll = function asroad_disconnectAll(x, y)
@@ -1033,6 +1037,10 @@ let ASROAD = (function ()
         disconnectNodes(x, y, C_TO.E);
         disconnectNodes(x, y, C_TO.S);
         disconnectNodes(x, y, C_TO.W);
+        disconnectNodes(x, y, C_TO.NN);
+        disconnectNodes(x, y, C_TO.EE);
+        disconnectNodes(x, y, C_TO.SS);
+        disconnectNodes(x, y, C_TO.WW);
     }
     
     public.addRoad = function asroad_addRoad(x, y)
@@ -1294,6 +1302,10 @@ let ASROAD = (function ()
             expandTraversal(from, isConnectedTo(from, C_TO.E));
             expandTraversal(from, isConnectedTo(from, C_TO.S));
             expandTraversal(from, isConnectedTo(from, C_TO.W));
+            expandTraversal(from, isConnectedTo(from, C_TO.NN));
+            expandTraversal(from, isConnectedTo(from, C_TO.EE));
+            expandTraversal(from, isConnectedTo(from, C_TO.SS));
+            expandTraversal(from, isConnectedTo(from, C_TO.WW));
             //ASSTATE.setRoadDebug(from, C.HIG);
             //changeTraversalIndex(from);
             m_cacheNodeRefresh = true;
@@ -1373,6 +1385,10 @@ let ASROAD = (function ()
             addToNodeList(parentNode, C_TO.E, m_cacheNodeList);
             addToNodeList(parentNode, C_TO.S, m_cacheNodeList);
             addToNodeList(parentNode, C_TO.W, m_cacheNodeList);
+            addToNodeList(parentNode, C_TO.NN, m_cacheNodeList);
+            addToNodeList(parentNode, C_TO.EE, m_cacheNodeList);
+            addToNodeList(parentNode, C_TO.SS, m_cacheNodeList);
+            addToNodeList(parentNode, C_TO.WW, m_cacheNodeList);
             i++;
         }
         //console.log(m_cacheNodeList);
@@ -1439,6 +1455,10 @@ let ASROAD = (function ()
         expandIfNotTraversed(node, C_TO.E);
         expandIfNotTraversed(node, C_TO.S);
         expandIfNotTraversed(node, C_TO.W);
+        expandIfNotTraversed(node, C_TO.NN);
+        expandIfNotTraversed(node, C_TO.EE);
+        expandIfNotTraversed(node, C_TO.SS);
+        expandIfNotTraversed(node, C_TO.WW);
         changeTraversalIndex(node);
         return ASSTATE.getXYFromIndex(node);
     }

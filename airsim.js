@@ -270,7 +270,7 @@ let ASMAP = (function ()
     // mmaprender.update
     public.update = function asmap_update(dt, time)
     {
-        const fpsdt = 17;
+        const fpsdt = 17*2;
         let frameskipped = dt > fpsdt; //1000 / 60;
         const noBudget = m_computeTimeBudget <= 1;
         const maxBudget = m_computeTimeBudget >= fpsdt - 1;
@@ -339,7 +339,7 @@ let ASMAP = (function ()
         }
         else if (!ASENGINE.hasAccess())
         {
-            const ENGINE_YIELD_PERIOD = 250; // ms
+            const ENGINE_YIELD_PERIOD = 330; // ms
             m_updateStateMachine = 5;
             let callbackData = [public.C_NAME, 'updateEngineResponse'];
             ASENGINE.update(Date.now() + ENGINE_YIELD_PERIOD, Date.now(), callbackData);

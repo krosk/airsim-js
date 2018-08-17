@@ -981,6 +981,18 @@ let ASROAD = (function ()
         return to;
     }
     
+    let disconnectAll = function asroad_disconnectAll(index)
+    {
+        ASSTATE.setRoadDisconnectTo(index, C_TO.N, 0);
+        ASSTATE.setRoadDisconnectTo(index, C_TO.E, 0);
+        ASSTATE.setRoadDisconnectTo(index, C_TO.S, 0);
+        ASSTATE.setRoadDisconnectTo(index, C_TO.W, 0);
+        ASSTATE.setRoadDisconnectTo(index, C_TO.NN, 0);
+        ASSTATE.setRoadDisconnectTo(index, C_TO.EE, 0);
+        ASSTATE.setRoadDisconnectTo(index, C_TO.SS, 0);
+        ASSTATE.setRoadDisconnectTo(index, C_TO.WW, 0);
+    }
+    
     public.addRoad = function asroad_addRoad(x, y)
     {
         if (!ASSTATE.isValidCoordinates(x, y))
@@ -992,10 +1004,7 @@ let ASROAD = (function ()
         {
             ASSTATE.setZoneType(index, ASZONE.C_TYPE.ROAD);
             ASSTATE.setRoadType(index, C_TYPE_ID.ROAD);
-            ASSTATE.setRoadDisconnectTo(index, C_TO.N, 0);
-            ASSTATE.setRoadDisconnectTo(index, C_TO.E, 0);
-            ASSTATE.setRoadDisconnectTo(index, C_TO.S, 0);
-            ASSTATE.setRoadDisconnectTo(index, C_TO.W, 0);
+            disconnectAll(index);
             ASSTATE.setRoadLastCarFlow(index, 0);
             ASSTATE.setRoadCarFlow(index, 0);
             ASSTATE.setRoadDebug(index, C.LOW)

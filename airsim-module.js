@@ -994,7 +994,7 @@ let ASROAD = (function ()
     
     let isConnectedTo = function asroad_isConnectedTo(from, d)
     {
-        if (!hasRoad(from))
+        if (!(hasRoad(from) || hasBuilding(from)))
         {
             return -1;
         }
@@ -1007,7 +1007,7 @@ let ASROAD = (function ()
         let x = xy[0];
         let y = xy[1];
         let to = getIndexTo(x, y, d);
-        if (!hasRoad(to))
+        if (!(hasRoad(to) || hasBuilding(to)))
         {
             return -1;
         }
@@ -1021,18 +1021,18 @@ let ASROAD = (function ()
         connectRoadToRoad(x, y, C_TO.E);
         connectRoadToRoad(x, y, C_TO.S);
         connectRoadToRoad(x, y, C_TO.W);
+        connectRoadToBuilding(x, y, C_TO.N);
+        connectRoadToBuilding(x, y, C_TO.E);
+        connectRoadToBuilding(x, y, C_TO.S);
+        connectRoadToBuilding(x, y, C_TO.W);
     }
     
-    let disconnectAll = function asroad_disconnectAll(index)
+    let disconnectAll = function asroad_disconnectAll(x, y)
     {
-        ASSTATE.setRoadDisconnectTo(index, C_TO.N, 0);
-        ASSTATE.setRoadDisconnectTo(index, C_TO.E, 0);
-        ASSTATE.setRoadDisconnectTo(index, C_TO.S, 0);
-        ASSTATE.setRoadDisconnectTo(index, C_TO.W, 0);
-        ASSTATE.setRoadDisconnectTo(index, C_TO.NN, 0);
-        ASSTATE.setRoadDisconnectTo(index, C_TO.EE, 0);
-        ASSTATE.setRoadDisconnectTo(index, C_TO.SS, 0);
-        ASSTATE.setRoadDisconnectTo(index, C_TO.WW, 0);
+        disconnectNodes(x, y, C_TO.N);
+        disconnectNodes(x, y, C_TO.E);
+        disconnectNodes(x, y, C_TO.S);
+        disconnectNodes(x, y, C_TO.W);
     }
     
     public.addRoad = function asroad_addRoad(x, y)
@@ -1046,7 +1046,10 @@ let ASROAD = (function ()
         {
             ASSTATE.setZoneType(index, ASZONE.C_TYPE.ROAD);
             ASSTATE.setRoadType(index, C_TYPE_ID.ROAD);
-            disconnectAll(index);
+            ASSTATE.setRoadDisconnectTo(index, C_TO.N, 0);
+            ASSTATE.setRoadDisconnectTo(index, C_TO.E, 0);
+            ASSTATE.setRoadDisconnectTo(index, C_TO.S, 0);
+            ASSTATE.setRoadDisconnectTo(index, C_TO.W, 0);
             ASSTATE.setRoadLastCarFlow(index, 0);
             ASSTATE.setRoadCarFlow(index, 0);
             ASSTATE.setRoadDebug(index, C.LOW)
@@ -1065,10 +1068,7 @@ let ASROAD = (function ()
         {
             return;
         }
-        disconnectNodes(x, y, C_TO.N);
-        disconnectNodes(x, y, C_TO.E);
-        disconnectNodes(x, y, C_TO.S);
-        disconnectNodes(x, y, C_TO.W);
+        disconnectAll(x, y);
         changeDataIndex(index);
         m_cacheNodeRefresh = true;
     }
@@ -1281,25 +1281,21 @@ let ASROAD = (function ()
         setTraversalStart(from);
         setTraversalCurrentIndex(-1);
         setTraversalEdgeCount(0);
-        if (hasRoad(from))
+        if (hasBuilding(from))
         {
             let nodeIndex = getTraversalEdgeCount();
             incrementTraversalEdgeCount();
             setTraversalCurrentIndex(from);
-            let cost = getTraversalCostIncrease(from);
-            setTraversalCost(from, cost);
-            setTraversalParent(from, -1);
-            setTraversalProcessed(from);
+            //let cost = getTraversalCostIncrease(from);
+            //setTraversalCost(from, cost);
+            //setTraversalParent(from, -1);
+            //setTraversalProcessed(from);
             expandTraversal(from, isConnectedTo(from, C_TO.N));
             expandTraversal(from, isConnectedTo(from, C_TO.E));
             expandTraversal(from, isConnectedTo(from, C_TO.S));
             expandTraversal(from, isConnectedTo(from, C_TO.W));
-            expandTraversal(from, isConnectedTo(from, C_TO.NN));
-            expandTraversal(from, isConnectedTo(from, C_TO.EE));
-            expandTraversal(from, isConnectedTo(from, C_TO.SS));
-            expandTraversal(from, isConnectedTo(from, C_TO.WW));
-            ASSTATE.setRoadDebug(from, C.HIG);
-            changeTraversalIndex(from);
+            //ASSTATE.setRoadDebug(from, C.HIG);
+            //changeTraversalIndex(from);
             m_cacheNodeRefresh = true;
         }
     }
@@ -1319,15 +1315,14 @@ let ASROAD = (function ()
     
     let expandTraversal = function asroad_expandTraversal(parent, node)
     {
-        //console.log('expandTraversal d' + data + 'f' + from + 't' + to);
+        //console.log('expandTraversal f' + parent + 't' + node);
         if (hasRoad(node))
         {
             let currentCost = getTraversalCostIncrease(node);
-            if (parent >= 0)
+            if (parent >= 0 && hasRoad(parent))
             {
                 let previousCost = getTraversalCost(parent);
                 currentCost += previousCost;
-                //setTraversalProcessed(data, index);
             }
             let edgeIndex = getTraversalEdgeCount();
             incrementTraversalEdgeCount();
@@ -1391,7 +1386,8 @@ let ASROAD = (function ()
         let nodeCount = nodeList.length;
         let minCost = -1;
         let minNode = -1;
-        for (let i = 0; i < nodeCount; i++)
+        // skip the first node = a building
+        for (let i = 1; i < nodeCount; i++)
         {
             let node = nodeList[i];
             let localCost = getTraversalCost(node);
@@ -1451,7 +1447,7 @@ let ASROAD = (function ()
     {
         // start explore
         let minNode = identifyNextNode();
-        if (minNode >= 0)
+        if (minNode > 0)
         {
             return traverseNextNode(minNode);
         }
@@ -1465,7 +1461,7 @@ let ASROAD = (function ()
     public.getTraversalPath = function asroad_getTraversalPath()
     {
         let lastNode = getTraversalCurrentIndex();
-        if (lastNode < 0)
+        if (!ASSTATE.isValidIndex(lastNode))
         {
             console.log('invalid');
             return [-1, -1];
@@ -1473,7 +1469,7 @@ let ASROAD = (function ()
         else
         {
             let reversePathNode = [];
-            while (lastNode >= 0)
+            while (!hasBuilding(lastNode))
             {
                 reversePathNode.push(lastNode);
                 lastNode = getTraversalParent(lastNode);
@@ -1495,7 +1491,8 @@ let ASROAD = (function ()
     {
         let nodeList = getCurrentNodeList();
         let edgeCount = nodeList.length;
-        for (let i = 0; i < edgeCount; i++)
+        // first index is building
+        for (let i = 1; i < edgeCount; i++)
         {
             let node = nodeList[i];
             if (hasRoad(node))
@@ -1948,22 +1945,18 @@ let ASRICO = (function ()
             // initialize traversal
             // risk of unsync if interaction
             // happen at the same time
-            let xy = ASSTATE.getXYFromIndex(index);
-            let x = xy[0];
-            let y = xy[1];
-            let roadIndexList = ASROAD.findNearestRoads(x, y);
-            if (roadIndexList.length <= 0)
+            let isConnected = ASSTATE.getRoadConnected(index);
+            if (!isConnected)
             {
                 ASSTATE.setRicoStep(0);
                 return true;
             }
             else
             {
-                let roadIndex = roadIndexList[0];
-                let roadXY = ASSTATE.getXYFromIndex(roadIndex);
-                let roadX = roadXY[0];
-                let roadY = roadXY[1];
-                ASROAD.initializeTraversal(roadX, roadY);
+                let xy = ASSTATE.getXYFromIndex(index);
+                let x = xy[0];
+                let y = xy[1];
+                ASROAD.initializeTraversal(x, y);
                 ASSTATE.setRicoStep(2);
                 return false;
             }

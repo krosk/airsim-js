@@ -1054,10 +1054,6 @@ let ASROAD = (function ()
         {
             ASSTATE.setZoneType(index, ASZONE.C_TYPE.ROAD);
             ASSTATE.setRoadType(index, C_TYPE_ID.ROAD);
-            ASSTATE.setRoadDisconnectTo(index, C_TO.N, 0);
-            ASSTATE.setRoadDisconnectTo(index, C_TO.E, 0);
-            ASSTATE.setRoadDisconnectTo(index, C_TO.S, 0);
-            ASSTATE.setRoadDisconnectTo(index, C_TO.W, 0);
             ASSTATE.setRoadLastCarFlow(index, 0);
             ASSTATE.setRoadCarFlow(index, 0);
             ASSTATE.setRoadDebug(index, C.LOW)
@@ -1066,6 +1062,7 @@ let ASROAD = (function ()
             // traversal v2 related
             ASSTATE.setRoadTraversalCost(index, 0);
         }
+        public.disconnectAll(x, y);
         public.connectAll(x, y);
     }
 
@@ -1714,6 +1711,7 @@ let ASRICO = (function ()
         {
             setInitial(code, index);
         }
+        ASROAD.disconnectAll(x, y);
         ASROAD.connectAll(x, y);
     }
     

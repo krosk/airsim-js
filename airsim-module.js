@@ -946,7 +946,7 @@ let ASROAD = (function ()
     {
         let from = ASSTATE.getIndex(x, y);
         let to = getIndexTo(x, y, d);
-        if (ASSTATE.isValidIndex(to))
+        if (!ASSTATE.isValidIndex(to))
         {
             return;
         }

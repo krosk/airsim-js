@@ -679,6 +679,10 @@ Connection can be done as roads and buildings
 are built. That means connection check should
 be a common implementation between asroad and
 asrico.
+Implementation must cover:
+- connect upon placing roads, done
+- connect upon placing rico
+- check upon refreshing node list cache
 
 
 
@@ -1751,8 +1755,46 @@ Cache node optimisation (G_CACHE_NODE):
 - with worker, 116->30 per tick
 Only caveat is notifying caches to invalidate.
 
+** Mechanism 6.2: Road change during traversal
+Current implementation is able to sustend the
+following situations:
+- adding a road linked to untraversed road,
+traversed roads, and roads in waiting
+- removing untraversed road
+However the following situations will result in
+invalid state:
+- removing traversed road or roads waiting
+to be processed.
+The root cause is the reupdate of the node list
+cache, at which time the cut down portion of
+the path disappear from the list and cannot
+be reupdated.
+*A solution may be to reset the path upon
+updating. This allow a clean state for all
+roads before adding / removing a new link.
+The implication is a road traversal is likely
+ongoing, so there need to be support of
+traversal being invalidated during the machine
+state. Which means it can impact the 
+distribution of offer/demand at a key time.
+*Another solution could have been to not reset
+some fields upon replacing roads, but it does 
+not solve the problem with removing roads.
+*Another solution is to replace the road only
+when a traversal has been completed, i.e.
+locking the road network for the duration.
+To do this, a buffer is possibly needed in top
+of addRoad, and this buffer is cleaned upon
+starting updateBuilding. Same for removeRoad.
+This is to introduce a safe time to process
+orders. This queue does not need to be saved
+in data state, but surely needs to be cleaned
+upon load/save.
+A traversal should be short enough to see no
+latency is this.
 
-**Mechanism 7: Checking all buildings
+
+** Mechanism 7: Checking all buildings
 
 For now, one can just pool over all buildings
 until the tick is reached.

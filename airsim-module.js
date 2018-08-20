@@ -582,6 +582,7 @@ let ASSTATE = (function()
     {
         let array = JSON.parse(string);
         public.setRawData(Int16Array.from(array).buffer);
+        ASZONE.resetInternal();
         ASROAD.resetInternal();
     }
     
@@ -796,6 +797,11 @@ let ASZONE = (function ()
                 }
             }
         }
+    }
+    
+    public.resetInternal = function aszone_resetInternal()
+    {
+        m_cacheSetZone = [];
     }
     
     return public;

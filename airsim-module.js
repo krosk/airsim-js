@@ -652,8 +652,29 @@ let ASZONE = (function ()
         ASSTATE.setDataZoneAtIndex(index, zone);
     }
     
-    //----------------
-    public.setZone = function aszone_setZone(x, y, zone)
+    let m_cacheSetZone = [];
+    
+    let queueSetZone = function aszone_queueSetZone(x, y, zone)
+    {
+        m_cacheSetZone.push([x, y, zone]);
+    }
+    
+    let processQueueSetZone = function aszone_processQueueSetZone()
+    {
+        let i = 0;
+        while (m_cacheSetZone.length > 0)
+        {
+            let data = m_cacheSetZone[0];
+            let x = data[0];
+            let y = data[1];
+            let zone = data[2];
+            processSetZone(x, y, zone);
+            m_cacheSetZone.shift();
+            i++;
+        }
+    }
+    
+    let processSetZone = function aszone_processSetZobe(x, y, zone)
     {
         if (!isValidZone(zone))
         {
@@ -684,6 +705,11 @@ let ASZONE = (function ()
             }
         }
         setDataId(x, y, zone);
+        if (oldZone != zone)
+        {
+            let index = ASSTATE.getIndex(x, y);
+            ASSTATE.notifyChange(index);
+        }
         // update other systems
         if (zone == C.ROAD)
         {
@@ -703,6 +729,12 @@ let ASZONE = (function ()
         }
     }
     
+    //----------------
+    public.setZone = function aszone_setZone(x, y, zone)
+    {
+        queueSetZone(x, y, zone);
+    }
+    
     let m_lastTickTime = 0;
     
     public.update = function aszone_update(timeLimit, time)
@@ -715,6 +747,7 @@ let ASZONE = (function ()
         }
         const frame = ASSTATE.getFrame();
         let engineComplete = true;
+        processQueueSetZone();
         engineComplete &= engineComplete ? ASROAD.updateRoad(tick, timeLimit) : false;
         engineComplete &= engineComplete ? ASRICO.updateRico(tick, timeLimit) : false;
         const enoughTimeElapsed = Math.abs(time - m_lastTickTime) >= tickSpeed;
@@ -1057,7 +1090,6 @@ let ASROAD = (function ()
             ASSTATE.setRoadLastCarFlow(index, 0);
             ASSTATE.setRoadCarFlow(index, 0);
             ASSTATE.setRoadDebug(index, C.LOW)
-            changeDataIndex(index);
             m_cacheNodeRefresh = true;
             // traversal v2 related
             ASSTATE.setRoadTraversalCost(index, 0);
@@ -1074,7 +1106,6 @@ let ASROAD = (function ()
             return;
         }
         public.disconnectAll(x, y);
-        changeDataIndex(index);
         m_cacheNodeRefresh = true;
     }
     
@@ -1687,7 +1718,7 @@ let ASRICO = (function ()
     
     // ---------
     
-    let addChangeLogIndex = function asrico_addChangeLogIndex(index)
+    let changeDataIndex = function asrico_changeDataIndex(index)
     {
         ASSTATE.notifyChange(index);
     }
@@ -1739,7 +1770,7 @@ let ASRICO = (function ()
         ASSTATE.setBuildingOfferRico(index, offerRico);
         let demandRico = getInitialDemand(code);
         ASSTATE.setBuildingDemandRico(index, demandRico);
-        addChangeLogIndex(index);
+        changeDataIndex(index);
     }
     
     public.addResLow = function asrico_addResLow(x, y)
@@ -1765,8 +1796,6 @@ let ASRICO = (function ()
             return;
         }
         ASROAD.disconnectAll(x, y);
-        addChangeLogIndex(index);
-        return;
     }
     
     // from stackoverflow

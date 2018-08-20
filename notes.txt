@@ -1792,6 +1792,45 @@ in data state, but surely needs to be cleaned
 upon load/save.
 A traversal should be short enough to see no
 latency is this.
+The only possible problem I foresee is that
+the data id changes only when the simulation
+is playing. Upon pausing, no road or building
+is actually put. There needs to be a phantom
+placeholder I believe, in place of the tile
+being replaced, for the duration of the
+next turn. Doing it that way probably needs
+an additional field, which is like "waiting
+for change". Upon requesting its id, the tile
+is using a building site instead. It could
+also be a phantom tile looking like the one
+to be placed, but just with an alpha. Alpha 
+tile is not supported under current rendering
+strategy though.
+*Another strategy, looking similar to the
+previous, is a field in datastate, which is
+nextZoneId. SetZone freely sets it, but the
+engine is the one commiting it at its pace.
+That way, graphically it can be already
+displayed as both, or with a build site
+placeholder. That could also allow change of
+planning as long as it has not been commited.
+The commit could either happen during a tick
+or after the tick, but always upon traversal
+end.
+The difference is that the order is saved
+and can be resumed, i.e. no cache of setZone.
+But if there is a need to process the setZone
+asap, then there is a need of a queue of some
+sort, which means it needs two fields instead
+of one in datastate, plus 2 fields in global.
+If no urgency, then it is processed as part
+of update tile routine, in which case it is
+almost fine: the simulation can handle it
+when in need, but it might take some time
+to complete, maybe up to 10 seconds for very
+big cities? For roads, as long as it is
+completed before the next tick, i guess it
+is okay.
 
 
 ** Mechanism 7: Checking all buildings

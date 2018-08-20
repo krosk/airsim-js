@@ -12,25 +12,26 @@ let ASSTATE = (function()
     const C = {
         ZONE : 0,
         CHANGE : 1,
-        ZONE_TYPE : 2, // 0 none 1 road 2 building 3 fixed
-        ROAD_TYPE : 3,
+        NEW_ZONE : 2,
+        ZONE_TYPE : 3, // 0 none 1 road 2 building 3 fixed
         ROAD_CONNECT : 4,
-        ROAD_CAR_FLOW : 5,
-        ROAD_CAR_LAST_FLOW : 6,
-        ROAD_TRAVERSAL_PROCESSED : 7,
-        ROAD_TRAVERSAL_COST : 8,
-        ROAD_TRAVERSAL_PARENT : 9,
-        ROAD_DEBUG : 10,
-        BUILDING_TYPE : 3, // 1 res 2 com 3 ind 4 off
-        BUILDING_DENSITY_LEVEL : 5,
-        BUILDING_OFFER_R: 6,
-        BUILDING_OFFER_I: 7,
-        BUILDING_OFFER_C: 8,
-        BUILDING_DEMAND_R : 9,
-        BUILDING_DEMAND_I : 10,
-        BUILDING_DEMAND_C : 11,
-        BUILDING_TICK_UPDATE : 12,
-        END : 13
+        ROAD_TYPE : 5,
+        ROAD_CAR_FLOW : 6,
+        ROAD_CAR_LAST_FLOW : 7,
+        ROAD_TRAVERSAL_PROCESSED : 8,
+        ROAD_TRAVERSAL_COST : 9,
+        ROAD_TRAVERSAL_PARENT : 10,
+        ROAD_DEBUG : 11,
+        BUILDING_TYPE : 5, // 1 res 2 com 3 ind 4 off
+        BUILDING_DENSITY_LEVEL : 6,
+        BUILDING_OFFER_R: 7,
+        BUILDING_OFFER_I: 8,
+        BUILDING_OFFER_C: 9,
+        BUILDING_DEMAND_R : 10,
+        BUILDING_DEMAND_I : 11,
+        BUILDING_DEMAND_C : 12,
+        BUILDING_TICK_UPDATE : 13,
+        END : 14
     }
     public.C_DATA = C;
     
@@ -135,6 +136,16 @@ let ASSTATE = (function()
     public.setDataZoneAtIndex = function asstate_setDataZoneAtIndex(index, data)
     {
         w(index, C.ZONE, data);
+    }
+    
+    public.getZoneWait = function asstate_getZoneWait(index)
+    {
+        return r(index, C.NEW_ZONE);
+    }
+    
+    public.setZoneWait = function asstate_setZoneWait(index, data)
+    {
+        w(index, C.NEW_ZONE, data);
     }
     
     public.getChangeFlag = function asstate_getChangeFlag(index)
@@ -582,7 +593,6 @@ let ASSTATE = (function()
     {
         let array = JSON.parse(string);
         public.setRawData(Int16Array.from(array).buffer);
-        ASZONE.resetInternal();
         ASROAD.resetInternal();
     }
     
@@ -646,6 +656,7 @@ let ASZONE = (function ()
         const index = ASSTATE.getIndex(x, y);
         return ASSTATE.getDataZoneAtIndex(index);
     }
+    
     let setDataId = function aszone_setDataId(x, y, zone)
     {
         const index = ASSTATE.getIndex(x, y);
@@ -653,38 +664,17 @@ let ASZONE = (function ()
         ASSTATE.setDataZoneAtIndex(index, zone);
     }
     
-    let m_cacheSetZone = [];
-    
-    let queueSetZone = function aszone_queueSetZone(x, y, zone)
+    let updateZoneTile = function aszone_updateZoneTile(index)
     {
-        m_cacheSetZone.push([x, y, zone]);
-    }
-    
-    let processQueueSetZone = function aszone_processQueueSetZone()
-    {
-        let i = 0;
-        while (m_cacheSetZone.length > 0)
-        {
-            let data = m_cacheSetZone[0];
-            let x = data[0];
-            let y = data[1];
-            let zone = data[2];
-            processSetZone(x, y, zone);
-            m_cacheSetZone.shift();
-            i++;
-        }
-    }
-    
-    let processSetZone = function aszone_processSetZobe(x, y, zone)
-    {
-        if (!isValidZone(zone))
+        let zone = ASSTATE.getZoneWait(index);
+        ASSTATE.setZoneWait(index, 0);
+        if (zone <= 0 || !isValidZone(zone))
         {
             return;
         }
-        if (!ASSTATE.isValidCoordinates(x, y))
-        {
-            return;
-        }
+        let xy = ASSTATE.getXYFromIndex(index);
+        let x = xy[0];
+        let y = xy[1];
         const oldZone = public.getDataIdByZone(x, y);
         if (oldZone != zone)
         {
@@ -730,10 +720,18 @@ let ASZONE = (function ()
         }
     }
     
-    //----------------
     public.setZone = function aszone_setZone(x, y, zone)
     {
-        queueSetZone(x, y, zone);
+        if (!isValidZone(zone))
+        {
+            return;
+        }
+        if (!ASSTATE.isValidCoordinates(x, y))
+        {
+            return;
+        }
+        let index = ASSTATE.getIndex(x, y);
+        ASSTATE.setZoneWait(index, zone);
     }
     
     let m_lastTickTime = 0;
@@ -748,7 +746,7 @@ let ASZONE = (function ()
         }
         const frame = ASSTATE.getFrame();
         let engineComplete = true;
-        processQueueSetZone();
+        engineComplete &= engineComplete ? public.updateZone(tick, timeLimit) : false;
         engineComplete &= engineComplete ? ASROAD.updateRoad(tick, timeLimit) : false;
         engineComplete &= engineComplete ? ASRICO.updateRico(tick, timeLimit) : false;
         const enoughTimeElapsed = Math.abs(time - m_lastTickTime) >= tickSpeed;
@@ -765,6 +763,34 @@ let ASZONE = (function ()
             ASSTATE.setFrame(frame + 1);
         }
         return tick;
+    }
+    
+    public.updateZone = function aszone_updateZone(tick, timeLimit)
+    {
+        // Tick progress is the indicator
+        // that buildings have been checked
+        // in the current tick
+        let progress = ASSTATE.getTickProgress();
+        const tableSizeX = ASSTATE.getTableSizeX();
+        const tableSizeY = ASSTATE.getTableSizeY();
+        const tableSize = tableSizeX * tableSizeY;
+        let elapsedCycle = 0;
+        let tickSpeed = ASSTATE.getTickSpeed();
+        // polling mode
+        while ((progress < tableSize) && (timeLimit < 0 || Date.now() < timeLimit))
+        {
+            let index = progress + 1;
+            updateZoneTile(index);
+            progress += 1;
+            elapsedCycle += 1;
+            if (tickSpeed > 1000) // exception case
+            {
+                break;
+            }
+        }
+        ASSTATE.setTickProgress(progress);
+        let complete = progress >= tableSize;
+        return complete;
     }
     
     public.setPreset = function aszone_setPreset()
@@ -797,11 +823,6 @@ let ASZONE = (function ()
                 }
             }
         }
-    }
-    
-    public.resetInternal = function aszone_resetInternal()
-    {
-        m_cacheSetZone = [];
     }
     
     return public;
@@ -1127,9 +1148,9 @@ let ASROAD = (function ()
         let elapsedCycle = 0;
         let tickSpeed = ASSTATE.getTickSpeed();
         // polling mode
-        while ((progress < tableSize) && (timeLimit < 0 || Date.now() < timeLimit))
+        while ((progress - tableSize < tableSize) && (timeLimit < 0 || Date.now() < timeLimit))
         {
-            let index = progress + 1;
+            let index = progress - tableSize + 1;
             updateRoadTile(index);
             progress += 1;
             elapsedCycle += 1;
@@ -1139,7 +1160,7 @@ let ASROAD = (function ()
             }
         }
         ASSTATE.setTickProgress(progress);
-        let complete = progress >= tableSize;
+        let complete = progress - tableSize >= tableSize;
         return complete;
     }
     
@@ -1902,9 +1923,9 @@ let ASRICO = (function ()
         let elapsedCycle = 0;
         let tickSpeed = ASSTATE.getTickSpeed();
         // polling mode
-        while ((progress - tableSize < tableSize) && (timeLimit < 0 || Date.now() < timeLimit))
+        while ((progress - 2 * tableSize < tableSize) && (timeLimit < 0 || Date.now() < timeLimit))
         {
-            let index = progress - tableSize + 1;
+            let index = progress - 2 * tableSize + 1;
             if (updateBuilding(index))
             {
                 progress += 1;
@@ -1916,7 +1937,7 @@ let ASRICO = (function ()
             }
         }
         ASSTATE.setTickProgress(progress);
-        let complete = progress - tableSize >= tableSize;
+        let complete = progress - 2 * tableSize >= tableSize;
         return complete;
     }
     

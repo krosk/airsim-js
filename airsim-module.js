@@ -1624,6 +1624,13 @@ let ASRICO = (function ()
     
     public.C_TILEENUM = ASTILE.C_TILE_RICO;
     const C = public.C_TILEENUM;
+    const C_ZONE = ASTILE.C_TILE_ZONE;
+    
+    const C_ZONE_RICO = {
+        [C_ZONE.RESLOW] : true,
+        [C_ZONE.INDLOW] : true,
+        [C_ZONE.COMLOW] : true
+    }
     
     // [level, type, offer ric, demand ric]
     const C_RICOPROPERTY_MAP = {
@@ -2092,14 +2099,23 @@ let ASRICO = (function ()
         }
     }
     
-    let hasBuilding = function asrico_hasBuilding(i)
+    let hasBuilding = function asrico_hasBuilding(index)
     {
-        if (!ASSTATE.isValidIndex(i))
+        if (!ASSTATE.isValidIndex(index))
         {
             return false;
         }
-        let data = ASSTATE.getZoneType(i);
-        return !((typeof data === 'undefined') || (data == null)) && (data == ASZONE.C_TYPE.BUILDING);
+        let data = ASSTATE.getZoneType(index);
+        let has = !((typeof data === 'undefined') || (data == null)) && (data == ASZONE.C_TYPE.BUILDING);
+        
+        let zoneId = ASSTATE.getZoneId(index);
+        let type = C_ZONE_RICO[zoneId];
+        let has2 = typeof type !== 'undefined';
+        if (has != has2)
+        {
+            console.log(zoneId + ' ' + type + ' ' + data);
+        }
+        return has;
     }
     
     const C_TO = {

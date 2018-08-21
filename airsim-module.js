@@ -642,7 +642,7 @@ let ASZONE = (function ()
             for (let y = 0; y < tableSizeY; y++)
             {
                 let defaultId = C.DEFAULT;
-                public.setZone(x, y, defaultId);
+                paintZone(x, y, defaultId);
             }
         }
     }
@@ -657,24 +657,8 @@ let ASZONE = (function ()
         return ASSTATE.getDataZoneAtIndex(index);
     }
     
-    let setDataId = function aszone_setDataId(x, y, zone)
+    let clearZone = function aszone_clearZone(x, y, zone)
     {
-        const index = ASSTATE.getIndex(x, y);
-        ASSTATE.clear(index);
-        ASSTATE.setDataZoneAtIndex(index, zone);
-    }
-    
-    let updateZoneTile = function aszone_updateZoneTile(index)
-    {
-        let zone = ASSTATE.getZoneWait(index);
-        ASSTATE.setZoneWait(index, 0);
-        if (zone <= 0 || !isValidZone(zone))
-        {
-            return;
-        }
-        let xy = ASSTATE.getXYFromIndex(index);
-        let x = xy[0];
-        let y = xy[1];
         const oldZone = public.getDataIdByZone(x, y);
         if (oldZone != zone)
         {
@@ -694,13 +678,16 @@ let ASZONE = (function ()
             {
                 ASRICO.removeBuilding(x, y);
             }
-        }
-        setDataId(x, y, zone);
-        if (oldZone != zone)
-        {
             let index = ASSTATE.getIndex(x, y);
             ASSTATE.notifyChange(index);
         }
+    }
+    
+    let paintZone = function aszone_paintZone(x, y, zone)
+    {
+        const index = ASSTATE.getIndex(x, y);
+        ASSTATE.clear(index);
+        ASSTATE.setDataZoneAtIndex(index, zone);
         // update other systems
         if (zone == C.ROAD)
         {
@@ -718,6 +705,21 @@ let ASZONE = (function ()
         {
             ASRICO.addIndLow(x, y);
         }
+    }
+    
+    let applyZoneWait = function aszone_applyZoneWait(index)
+    {
+        let zone = ASSTATE.getZoneWait(index);
+        ASSTATE.setZoneWait(index, 0);
+        if (zone <= 0 || !isValidZone(zone))
+        {
+            return;
+        }
+        let xy = ASSTATE.getXYFromIndex(index);
+        let x = xy[0];
+        let y = xy[1];
+        cleanZone(x, y, zone);
+        paintZone(x, y, zone);
     }
     
     public.setZone = function aszone_setZone(x, y, zone)
@@ -780,7 +782,7 @@ let ASZONE = (function ()
         while ((progress < tableSize) && (timeLimit < 0 || Date.now() < timeLimit))
         {
             let index = progress + 1;
-            updateZoneTile(index);
+            applyZoneWait(index);
             progress += 1;
             elapsedCycle += 1;
             if (tickSpeed > 1000) // exception case
@@ -807,19 +809,19 @@ let ASZONE = (function ()
                 let indId = C.INDLOW;
                 if (x % 5 == 0 || y % 5 == 0)
                 {
-                    public.setZone(x, y, roadId);
+                    paintZone(x, y, roadId);
                 }
                 else if (x < 5)
                 {
-                    public.setZone(x, y, resId)
+                    paintZone(x, y, resId)
                 }
                 else if (x < 10)
                 {
-                    public.setZone(x, y, comId);
+                    paintZone(x, y, comId);
                 }
                 else if (x < 15)
                 {
-                    public.setZone(x, y, indId);
+                    paintZone(x, y, indId);
                 }
             }
         }

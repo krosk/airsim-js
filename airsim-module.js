@@ -883,7 +883,7 @@ let ASROAD = (function ()
     {
         let zoneId = ASSTATE.getZoneId(index);
         let type = C_MAP_ZONE_TYPE[zoneId];
-        if (G_CHECK && (typeof type === 'undefined'))
+        if (G_CHECK && (type == null))
         {
             throw 'zone ' + zoneId + ' at ' + index + ' is not a road';
         }
@@ -1029,18 +1029,16 @@ let ASROAD = (function ()
         }
     }
     
-    let hasRoad = function asroad_hasRoad(i)
+    let hasRoad = function asroad_hasRoad(index)
     {
-        if (!ASSTATE.isValidIndex(i))
+        if (!ASSTATE.isValidIndex(index))
         {
             return false;
         }
-        let data = ASSTATE.getZoneType(i);
-        if ((typeof data === 'undefined') || (data == null))
-        {
-            return false;
-        }
-        return (data == ASZONE.C_TYPE.ROAD);
+        let zoneId = ASSTATE.getZoneId(index);
+        let type = C_MAP_ZONE_TYPE[zoneId];
+        // no need to check for undefined
+        return type != null;
     }
     
     let hasBuilding = function asroad_hasBuilding(i)

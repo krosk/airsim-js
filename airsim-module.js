@@ -10,9 +10,9 @@ let ASSTATE = (function()
     
     // map structure
     const C = {
-        ZONE : 0,
+        ZONE_ID : 0,
         CHANGE : 1,
-        NEW_ZONE : 2,
+        ZONE_REQUEST : 2,
         ZONE_TYPE : 3, // 0 none 1 road 2 building 3 fixed
         ROAD_CONNECT : 4,
         ROAD_TYPE : 5,
@@ -128,24 +128,24 @@ let ASSTATE = (function()
         }
     }
     
-    public.getDataZoneAtIndex = function asstate_getDataZoneAtIndex(index)
+    public.getZoneId = function asstate_getZoneId(index)
     {
-        return r(index, C.ZONE);
+        return r(index, C.ZONE_ID);
     }
     
-    public.setDataZoneAtIndex = function asstate_setDataZoneAtIndex(index, data)
+    public.setZoneId = function asstate_setZoneId(index, data)
     {
-        w(index, C.ZONE, data);
+        w(index, C.ZONE_ID, data);
     }
     
-    public.getZoneWait = function asstate_getZoneWait(index)
+    public.getZoneRequest = function asstate_getZoneRequest(index)
     {
-        return r(index, C.NEW_ZONE);
+        return r(index, C.ZONE_REQUEST);
     }
     
-    public.setZoneWait = function asstate_setZoneWait(index, data)
+    public.setZoneRequest = function asstate_setZoneRequest(index, data)
     {
-        w(index, C.NEW_ZONE, data);
+        w(index, C.ZONE_REQUEST, data);
     }
     
     public.getChangeFlag = function asstate_getChangeFlag(index)
@@ -654,7 +654,7 @@ let ASZONE = (function ()
             return C.NONE;
         }
         const index = ASSTATE.getIndex(x, y);
-        return ASSTATE.getDataZoneAtIndex(index);
+        return ASSTATE.getZoneId(index);
     }
     
     let clearZone = function aszone_clearZone(x, y, zone)
@@ -687,7 +687,7 @@ let ASZONE = (function ()
     {
         const index = ASSTATE.getIndex(x, y);
         ASSTATE.clear(index);
-        ASSTATE.setDataZoneAtIndex(index, zone);
+        ASSTATE.setZoneId(index, zone);
         // update other systems
         if (zone == C.ROAD)
         {
@@ -707,10 +707,10 @@ let ASZONE = (function ()
         }
     }
     
-    let applyZoneWait = function aszone_applyZoneWait(index)
+    let applyZoneRequest = function aszone_applyZoneRequest(index)
     {
-        let zone = ASSTATE.getZoneWait(index);
-        ASSTATE.setZoneWait(index, 0);
+        let zone = ASSTATE.getZoneRequest(index);
+        ASSTATE.setZoneRequest(index, 0);
         if (zone <= 0 || !isValidZone(zone))
         {
             return;
@@ -718,7 +718,7 @@ let ASZONE = (function ()
         let xy = ASSTATE.getXYFromIndex(index);
         let x = xy[0];
         let y = xy[1];
-        cleanZone(x, y, zone);
+        clearZone(x, y, zone);
         paintZone(x, y, zone);
     }
     
@@ -733,7 +733,7 @@ let ASZONE = (function ()
             return;
         }
         let index = ASSTATE.getIndex(x, y);
-        ASSTATE.setZoneWait(index, zone);
+        ASSTATE.setZoneRequest(index, zone);
     }
     
     let m_lastTickTime = 0;
@@ -782,7 +782,7 @@ let ASZONE = (function ()
         while ((progress < tableSize) && (timeLimit < 0 || Date.now() < timeLimit))
         {
             let index = progress + 1;
-            applyZoneWait(index);
+            applyZoneRequest(index);
             progress += 1;
             elapsedCycle += 1;
             if (tickSpeed > 1000) // exception case

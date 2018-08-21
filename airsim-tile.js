@@ -7,17 +7,20 @@ let ASTILE = (function ()
         return (r | 0) * 2**16 + (g | 0) * 2**8 + (b | 0);
     }
     
+    // each zone is a function
     public.C_TILE_ZONE = {
         NONE: 0,
         DEFAULT: 1,
         DIRT: 1,
-        ROAD: 3,
+        PATH: 3,
+        ROAD: 4,
+        HIGHWAY: 5,
         RESLOW: 10,
         COMLOW: 20,
         INDLOW: 30,
     };
     
-    public.C_TILE_ROAD = {
+    public.C_TILE_ROAD_CONGESTION = {
         NONE: 100,
         LOW: 101,
         MID: 102,
@@ -202,7 +205,7 @@ let ASROAD_TILE = (function ()
     
     let getColor = ASTILE.getColor;
     
-    public.C_TILEENUM = ASTILE.C_TILE_ROAD;
+    public.C_TILEENUM = ASTILE.C_TILE_ROAD_CONGESTION;
     const C = public.C_TILEENUM;
     
     const C_TRAFFICCOLOR = {

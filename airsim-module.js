@@ -839,34 +839,27 @@ let ASROAD = (function ()
     };
     const C_FROM = [2, 3, 0, 1, 6, 7, 4, 5];
     
-    public.C_TILEENUM = ASTILE.C_TILE_ROAD;
+    public.C_TILEENUM = ASTILE.C_TILE_ROAD_CONGESTION;
     const C = public.C_TILEENUM;
     const C_ZONE = ASTILE.C_TILE_ZONE;
     
-    const C_TYPE_ID = {
-        NONE : 0,
-        PATH : 1,
-        ROAD : 2,
-        HIGHWAY : 3
-    }
-    
-    const C_MAP_ZONE_TYPE = {
-        [C_ZONE.ROAD] : C_TYPE_ID.ROAD
+    const C_ZONE_ROAD = {
+        [C_ZONE.PATH] : true,
+        [C_ZONE.ROAD] : true,
+        [C_ZONE.HIGHWAY] : true
     }
     
     // in m/s
     const C_TYPE_SPEED = {
-        [C_TYPE_ID.NONE] : 2,
-        [C_TYPE_ID.PATH] : 5,
-        [C_TYPE_ID.ROAD] : 14,
-        [C_TYPE_ID.HIGHWAY] : 25
+        [C_ZONE.PATH] : 5,
+        [C_ZONE.ROAD] : 14,
+        [C_ZONE.HIGHWAY] : 25
     }
     
     const C_TYPE_LANE = {
-        [C_TYPE_ID.NONE] : 1,
-        [C_TYPE_ID.PATH] : 1,
-        [C_TYPE_ID.ROAD] : 1,
-        [C_TYPE_ID.HIGHWAY] : 3
+        [C_ZONE.PATH] : 1,
+        [C_ZONE.ROAD] : 1,
+        [C_ZONE.HIGHWAY] : 3
     }
     
     const C_DAY_DURATION = 3600; // s
@@ -882,12 +875,12 @@ let ASROAD = (function ()
     let getRoadType = function asroad_getRoadType(index)
     {
         let zoneId = ASSTATE.getZoneId(index);
-        let type = C_MAP_ZONE_TYPE[zoneId];
+        let type = C_ZONE_ROAD[zoneId];
         if (G_CHECK && (type == null))
         {
             throw 'zone ' + zoneId + ' at ' + index + ' is not a road';
         }
-        return type;
+        return zoneId;
     }
     
     let changeDataIndex = function asroad_changeDataIndex(index)
@@ -1036,7 +1029,7 @@ let ASROAD = (function ()
             return false;
         }
         let zoneId = ASSTATE.getZoneId(index);
-        let type = C_MAP_ZONE_TYPE[zoneId];
+        let type = C_ZONE_ROAD[zoneId];
         // no need to check for undefined
         return type != null;
     }

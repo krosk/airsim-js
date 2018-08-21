@@ -1599,29 +1599,6 @@ let ASROAD = (function ()
         return costSoFar < costMax;
     }
     
-    public.findNearestRoads = function asroad_findNearestRoads(x, y)
-    {
-        let roads = [];
-        
-        let index = ASSTATE.getIndex(x, y);
-        if (hasRoad(index))
-        {
-            roads.push(index);
-        }
-        const lookupD = [C_TO.N, C_TO.E, C_TO.S, C_TO.W, C_TO.NN, C_TO.EE, C_TO.SS, C_TO.WW];
-        
-        for (let i = 0; i < 8; i++)
-        {
-            let to = getIndexTo(x, y, lookupD[i]);
-            if (hasRoad(to))
-            {
-                roads.push(to);
-            }
-        }
-        
-        return roads;
-    }
-    
     public.getInfo = function asroad_getInfo(x, y)
     {
         let index = ASSTATE.getIndex(x, y);

@@ -15,13 +15,12 @@ let ASSTATE = (function()
         ZONE_REQUEST : 2,
         ZONE_TYPE : 3, // 0 none 1 road 2 building 3 fixed
         ROAD_CONNECT : 4,
-        ROAD_TYPE : 5,
-        ROAD_CAR_FLOW : 6,
-        ROAD_CAR_LAST_FLOW : 7,
-        ROAD_TRAVERSAL_PROCESSED : 8,
-        ROAD_TRAVERSAL_COST : 9,
-        ROAD_TRAVERSAL_PARENT : 10,
-        ROAD_DEBUG : 11,
+        ROAD_CAR_FLOW : 5,
+        ROAD_CAR_LAST_FLOW : 6,
+        ROAD_TRAVERSAL_PROCESSED : 7,
+        ROAD_TRAVERSAL_COST : 8,
+        ROAD_TRAVERSAL_PARENT : 9,
+        ROAD_DEBUG : 10,
         BUILDING_TYPE : 5, // 1 res 2 com 3 ind 4 off
         BUILDING_DENSITY_LEVEL : 6,
         BUILDING_OFFER_R: 7,
@@ -166,16 +165,6 @@ let ASSTATE = (function()
     public.setZoneType = function asstate_setZoneType(index, data)
     {
         w(index, C.ZONE_TYPE, data);
-    }
-    
-    public.getRoadType = function asstate_getRoadType(index)
-    {
-        return r(index, C.ROAD_TYPE);
-    }
-    
-    public.setRoadType = function asstate_setRoadType(index, data)
-    {
-        w(index, C.ROAD_TYPE, data);
     }
     
     public.getBuildingType = function asstate_getBuildingType(index)
@@ -852,12 +841,17 @@ let ASROAD = (function ()
     
     public.C_TILEENUM = ASTILE.C_TILE_ROAD;
     const C = public.C_TILEENUM;
+    const C_ZONE = ASTILE.C_TILE_ZONE;
     
     const C_TYPE_ID = {
         NONE : 0,
         PATH : 1,
         ROAD : 2,
         HIGHWAY : 3
+    }
+    
+    const C_MAP_ZONE_TYPE = {
+        [C_ZONE.ROAD] : C_TYPE_ID.ROAD
     }
     
     // in m/s
@@ -884,6 +878,17 @@ let ASROAD = (function ()
     // ----------------
     
     let C_DEBUG_TRAVERSAL = true;
+    
+    let getRoadType = function asroad_getRoadType(index)
+    {
+        let zoneId = ASSTATE.getZoneId(index);
+        let type = C_MAP_ZONE_TYPE[zoneId];
+        if (G_CHECK && (typeof type === 'undefined'))
+        {
+            throw 'zone ' + zoneId + ' at ' + index + ' is not a road';
+        }
+        return type;
+    }
     
     let changeDataIndex = function asroad_changeDataIndex(index)
     {
@@ -1115,7 +1120,6 @@ let ASROAD = (function ()
         if (!hasRoad(index))
         {
             ASSTATE.setZoneType(index, ASZONE.C_TYPE.ROAD);
-            ASSTATE.setRoadType(index, C_TYPE_ID.ROAD);
             ASSTATE.setRoadLastCarFlow(index, 0);
             ASSTATE.setRoadCarFlow(index, 0);
             ASSTATE.setRoadDebug(index, C.LOW)
@@ -1191,7 +1195,7 @@ let ASROAD = (function ()
     let getRoadMaximumCarFlow = function asroad_getRoadMaximumCarFlow(index)
     {
         //LC * (TD - TL / TS) / (CL / SP + IC)
-        let type = ASSTATE.getRoadType(index);
+        let type = getRoadType(index);
         let maxSpeed = C_TYPE_SPEED[type];
         let laneCount = C_TYPE_LANE[type];
         let maxFlow = laneCount * C_DAY_DURATION / (C_CAR_LENGTH / maxSpeed + C_INTER_CAR);
@@ -1201,7 +1205,7 @@ let ASROAD = (function ()
     let getRoadSpeed = function asroad_getRoadSpeed(index)
     {
         // LN * TL / TC / IC
-        let type = ASSTATE.getRoadType(index);
+        let type = getRoadType(index);
         let maxSpeed = C_TYPE_SPEED[type];
         let ratio = getRoadCarFlowRatio(index);
         return ratio >= 1 ? 0 : maxSpeed | 0;
@@ -1209,7 +1213,7 @@ let ASROAD = (function ()
     
     let getRoadCarFlowRatio = function asroad_getRoadCarFlowRatio(index)
     {
-        let type = ASSTATE.getRoadType(index);
+        let type = getRoadType(index);
         let maxFlow = getRoadMaximumCarFlow(index);
         let currentFlow = ASSTATE.getRoadCarFlow(index);
         let ratio = currentFlow / maxFlow;
@@ -1218,7 +1222,7 @@ let ASROAD = (function ()
     
     let getRoadLastCarFlowRatio = function asroad_getRoadLastCarFlowRatio(index)
     {
-        let type = ASSTATE.getRoadType(index);
+        let type = getRoadType(index);
         let maxFlow = getRoadMaximumCarFlow(index);
         let lastFlow = ASSTATE.getRoadLastCarFlow(index);
         let ratio = lastFlow / maxFlow;
@@ -1228,7 +1232,7 @@ let ASROAD = (function ()
     let getRoadTrafficDecay = function asroad_getRoadTrafficDecay(index)
     {
         // LN / TF / IC * TD
-        let type = ASSTATE.getRoadType(index);
+        let type = getRoadType(index);
         let laneCount = C_TYPE_LANE[type];
         let carFlow = ASSTATE.getRoadCarFlow(index);
         let decay = (laneCount / carFlow / C_INTER_CAR * C_DAY_DURATION);

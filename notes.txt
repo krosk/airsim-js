@@ -1633,6 +1633,22 @@ r -> c is shopping
 i -> c is manufacturing to selling
 
 
+Cities skylines buildings stay within the
+confine of their zoning. That is, a low
+density zone will only ever grow low density
+buildings, and a high density zone will
+only grow high density buildings. Level
+is independant from zone, as there is low dens
+level 1 just like there is high dens level 1.
+Once reaching max level, there is no evolution
+from low dens to high dens.
+Hence there should be no concept of zoning
+evolve. It simplifies the simulation to do
+it like this.
+Hence, there can be just a concept of density
+level within the confine of a zone, but we can
+increase the levels.
+
 
 
 ** Mechanism 6: Road traversal

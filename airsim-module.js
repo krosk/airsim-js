@@ -22,7 +22,7 @@ let ASSTATE = (function()
         ROAD_TRAVERSAL_PARENT : 9,
         ROAD_DEBUG : 10,
         BUILDING_TYPE : 5, // 1 res 2 com 3 ind 4 off
-        BUILDING_DENSITY_LEVEL : 6,
+        RICO_DENSITY_LEVEL : 6,
         BUILDING_OFFER_R: 7,
         BUILDING_OFFER_I: 8,
         BUILDING_OFFER_C: 9,
@@ -304,14 +304,14 @@ let ASSTATE = (function()
         w(index, C.BUILDING_OFFER_C, offer[2]);
     }
     
-    public.getBuildingDensity = function asstate_getBuildingDensity(index)
+    public.getRicoDensity = function asstate_getRicoDensity(index)
     {
-        return r(index, C.BUILDING_DENSITY_LEVEL);
+        return r(index, C.RICO_DENSITY_LEVEL);
     }
     
-    public.setBuildingDensity = function asstate_setBuildingDensity(index, data)
+    public.setRicoDensity = function asstate_setRicoDensity(index, data)
     {
-        w(index, C.BUILDING_DENSITY_LEVEL, data);
+        w(index, C.RICO_DENSITY_LEVEL, data);
     }
     
     public.getBuildingData = function asstate_getBuildingData(field, index)
@@ -1703,7 +1703,7 @@ let ASRICO = (function ()
         {
             return C.NONE;
         }
-        let level = hasBuilding(index) ? ASSTATE.getBuildingDensity(index) : 0;
+        let level = hasBuilding(index) ? ASSTATE.getRicoDensity(index) : 0;
         let type = hasBuilding(index) ? ASSTATE.getBuildingType(index) : 0;
         // below formula is dodgy
         let id = C.NONE + 10*type + 1*level;
@@ -1766,7 +1766,7 @@ let ASRICO = (function ()
         }
         ASSTATE.setZoneType(index, ASZONE.C_TYPE.BUILDING);
         ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_TICK_UPDATE, index, 0);
-        ASSTATE.setBuildingDensity(index, C_R[code][C_RM.LEVEL]);
+        ASSTATE.setRicoDensity(index, C_R[code][C_RM.LEVEL]);
         ASSTATE.setBuildingType(index, C_R[code][C_RM.TYPE]);
         let offerRico = getInitialOffer(code);
         //let residualOfferRico = ASSTATE.getBuildingOfferRico(index);
@@ -1933,12 +1933,12 @@ let ASRICO = (function ()
     
     let levelDensityUp = function asrico_levelDensityUp(index)
     {
-        let density = ASSTATE.getBuildingDensity(index);
+        let density = ASSTATE.getRicoDensity(index);
         if (density >= 3)
         {
             return;
         }
-        ASSTATE.setBuildingDensity(index, density + 1);
+        ASSTATE.setRicoDensity(index, density + 1);
     }
     
     let getOfferRicoSum = function asrico_getOfferRicoSum(offerIndex)

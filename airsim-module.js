@@ -776,6 +776,7 @@ let ASZONE = (function ()
             elapsedCycle += 1;
             if (tickSpeed > 1000) // exception case
             {
+                //console.log(progress);
                 break;
             }
         }
@@ -1034,20 +1035,16 @@ let ASROAD = (function ()
         return type != null;
     }
     
-    let hasBuilding = function asroad_hasBuilding(i)
+    let hasBuilding = function asroad_hasBuilding(index)
     {
-        if (!ASSTATE.isValidIndex(i))
+        if (!ASSTATE.isValidIndex(index))
         {
             return false;
         }
-        let data = ASSTATE.getZoneType(i);
-        if ((typeof data === 'undefined') || (data == null))
-        {
-            return false;
-        }
-        let isBuilding = (data == ASZONE.C_TYPE.BUILDING);
-        //let isConnected = ASSTATE.getRoadConnected(i);
-        return isBuilding;
+        let data = ASRICO.getRicoType(index);
+        let has = !((typeof data === 'undefined') || (data == null));
+        
+        return has;
     }
     
     let isConnectedTo = function asroad_isConnectedTo(from, d)
@@ -1110,7 +1107,6 @@ let ASROAD = (function ()
         let index = ASSTATE.getIndex(x, y);
         if (!hasRoad(index))
         {
-            ASSTATE.setZoneType(index, ASZONE.C_TYPE.ROAD);
             ASSTATE.setRoadLastCarFlow(index, 0);
             ASSTATE.setRoadCarFlow(index, 0);
             ASSTATE.setRoadDebug(index, C.LOW)
@@ -1627,9 +1623,9 @@ let ASRICO = (function ()
     const C_ZONE = ASTILE.C_TILE_ZONE;
     
     const C_ZONE_RICO = {
-        [C_ZONE.RESLOW] : true,
-        [C_ZONE.INDLOW] : true,
-        [C_ZONE.COMLOW] : true
+        [C_ZONE.RESLOW] : 1,
+        [C_ZONE.INDLOW] : 4,
+        [C_ZONE.COMLOW] : 7
     }
     
     // [level, type, offer ric, demand ric]
@@ -1698,6 +1694,13 @@ let ASRICO = (function ()
         return [dr, di, dc];
     }
     
+    public.getRicoType = function asrico_getRicoType(index)
+    {
+        let zoneId = ASSTATE.getZoneId(index);
+        let type = C_ZONE_RICO[zoneId];
+        return type;
+    }
+    
     public.getDataIdByDensityLevel = function asrico_getDataIdByDensityLevel(x, y)
     {
         let index = ASSTATE.getIndex(x, y);
@@ -1709,8 +1712,12 @@ let ASRICO = (function ()
         {
             return C.NONE;
         }
-        let level = hasBuilding(index) ? ASSTATE.getRicoDensity(index) : 0;
-        let type = hasBuilding(index) ? ASSTATE.getBuildingType(index) : 0;
+        if (!hasBuilding(index))
+        {
+            return C.NONE;
+        }
+        let level = ASSTATE.getRicoDensity(index);
+        let type = public.getRicoType(index);
         // below formula is dodgy
         let id = C.NONE + 10*type + 1*level;
         if (isValidTileId(id))
@@ -1752,10 +1759,7 @@ let ASRICO = (function ()
     let addBuilding = function asrico_addBuilding(code, x, y)
     {
         let index = ASSTATE.getIndex(x, y);
-        if (!hasBuilding(index))
-        {
-            setInitial(code, index);
-        }
+        setInitial(code, index);
         ASROAD.disconnectAll(x, y);
         ASROAD.connectAll(x, y);
     }
@@ -1770,10 +1774,8 @@ let ASRICO = (function ()
         {
             throw 'Undefined building code ' + code;
         }
-        ASSTATE.setZoneType(index, ASZONE.C_TYPE.BUILDING);
         ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_TICK_UPDATE, index, 0);
         ASSTATE.setRicoDensity(index, C_R[code][C_RM.LEVEL]);
-        ASSTATE.setBuildingType(index, C_R[code][C_RM.TYPE]);
         let offerRico = getInitialOffer(code);
         //let residualOfferRico = ASSTATE.getRicoOffer(index);
         //for (let i in offerRico)
@@ -2104,16 +2106,9 @@ let ASRICO = (function ()
         {
             return false;
         }
-        let data = ASSTATE.getZoneType(index);
-        let has = !((typeof data === 'undefined') || (data == null)) && (data == ASZONE.C_TYPE.BUILDING);
+        let data = public.getRicoType(index);
+        let has = !((typeof data === 'undefined') || (data == null));
         
-        let zoneId = ASSTATE.getZoneId(index);
-        let type = C_ZONE_RICO[zoneId];
-        let has2 = typeof type !== 'undefined';
-        if (has != has2)
-        {
-            //console.log(zoneId + ' ' + type + ' ' + data);
-        }
         return has;
     }
     

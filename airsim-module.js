@@ -23,12 +23,12 @@ let ASSTATE = (function()
         ROAD_DEBUG : 10,
         BUILDING_TYPE : 5, // 1 res 2 com 3 ind 4 off
         RICO_DENSITY_LEVEL : 6,
-        BUILDING_OFFER_R: 7,
-        BUILDING_OFFER_I: 8,
-        BUILDING_OFFER_C: 9,
-        BUILDING_DEMAND_R : 10,
-        BUILDING_DEMAND_I : 11,
-        BUILDING_DEMAND_C : 12,
+        RICO_OFFER_R: 7,
+        RICO_OFFER_I: 8,
+        RICO_OFFER_C: 9,
+        RICO_DEMAND_R : 10,
+        RICO_DEMAND_I : 11,
+        RICO_DEMAND_C : 12,
         BUILDING_TICK_UPDATE : 13,
         END : 14
     }
@@ -274,34 +274,34 @@ let ASSTATE = (function()
         w(index, C.ROAD_DEBUG, data);
     }
     
-    public.getBuildingDemandRico = function asstate_getBuildingDemandRico(index)
+    public.getRicoDemand = function asstate_getRicoDemand(index)
     {
-        let dr = r(index, C.BUILDING_DEMAND_R);
-        let di = r(index, C.BUILDING_DEMAND_I);
-        let dc = r(index, C.BUILDING_DEMAND_C);
+        let dr = r(index, C.RICO_DEMAND_R);
+        let di = r(index, C.RICO_DEMAND_I);
+        let dc = r(index, C.RICO_DEMAND_C);
         return [dr, di, dc];
     }
     
-    public.setBuildingDemandRico = function asstate_setBuildingDemandRico(index, demand)
+    public.setRicoDemand = function asstate_setRicoDemand(index, demand)
     {
-        w(index, C.BUILDING_DEMAND_R, demand[0]);
-        w(index, C.BUILDING_DEMAND_I, demand[1]);
-        w(index, C.BUILDING_DEMAND_C, demand[2]);
+        w(index, C.RICO_DEMAND_R, demand[0]);
+        w(index, C.RICO_DEMAND_I, demand[1]);
+        w(index, C.RICO_DEMAND_C, demand[2]);
     }
     
-    public.getBuildingOfferRico = function asstate_getBuildingOfferRico(index)
+    public.getRicoOffer = function asstate_getRicoOffer(index)
     {
-        let or = r(index, C.BUILDING_OFFER_R);
-        let oi = r(index, C.BUILDING_OFFER_I);
-        let oc = r(index, C.BUILDING_OFFER_C);
+        let or = r(index, C.RICO_OFFER_R);
+        let oi = r(index, C.RICO_OFFER_I);
+        let oc = r(index, C.RICO_OFFER_C);
         return [or, oi, oc];
     }
     
-    public.setBuildingOfferRico = function asstate_setBuildingOfferRico(index, offer)
+    public.setRicoOffer = function asstate_setRicoOffer(index, offer)
     {
-        w(index, C.BUILDING_OFFER_R, offer[0]);
-        w(index, C.BUILDING_OFFER_I, offer[1]);
-        w(index, C.BUILDING_OFFER_C, offer[2]);
+        w(index, C.RICO_OFFER_R, offer[0]);
+        w(index, C.RICO_OFFER_I, offer[1]);
+        w(index, C.RICO_OFFER_C, offer[2]);
     }
     
     public.getRicoDensity = function asstate_getRicoDensity(index)
@@ -1769,14 +1769,14 @@ let ASRICO = (function ()
         ASSTATE.setRicoDensity(index, C_R[code][C_RM.LEVEL]);
         ASSTATE.setBuildingType(index, C_R[code][C_RM.TYPE]);
         let offerRico = getInitialOffer(code);
-        //let residualOfferRico = ASSTATE.getBuildingOfferRico(index);
+        //let residualOfferRico = ASSTATE.getRicoOffer(index);
         //for (let i in offerRico)
         //{
             //offerRico[i] += residualOfferRico[i];
         //}
-        ASSTATE.setBuildingOfferRico(index, offerRico);
+        ASSTATE.setRicoOffer(index, offerRico);
         let demandRico = getInitialDemand(code);
-        ASSTATE.setBuildingDemandRico(index, demandRico);
+        ASSTATE.setRicoDemand(index, demandRico);
         changeDataIndex(index);
     }
     
@@ -1943,7 +1943,7 @@ let ASRICO = (function ()
     
     let getOfferRicoSum = function asrico_getOfferRicoSum(offerIndex)
     {
-        let offer = ASSTATE.getBuildingOfferRico(offerIndex);
+        let offer = ASSTATE.getRicoOffer(offerIndex);
         let sum = 0;
         for (let i in offer)
         {
@@ -1955,9 +1955,9 @@ let ASRICO = (function ()
     let canLevelUp = function asrico_canLevelUp(index)
     {
         let flag = true;
-        let demandRico = ASSTATE.getBuildingDemandRico(index);
+        let demandRico = ASSTATE.getRicoDemand(index);
         flag &= isDemandRicoFilled(demandRico);
-        let offerRico = ASSTATE.getBuildingOfferRico(index);
+        let offerRico = ASSTATE.getRicoOffer(index);
         flag &= isOfferRicoFilled(offerRico);
         
         return flag;
@@ -2049,12 +2049,12 @@ let ASRICO = (function ()
     let dispatchOffer = function asrico_dispatchOffer(offerIndex, roadX, roadY)
     {
         let demandIndexList = findNearestBuilding(roadX, roadY);
-        let offer = ASSTATE.getBuildingOfferRico(offerIndex);
+        let offer = ASSTATE.getRicoOffer(offerIndex);
         let filledOffer = 0;
         for (let i in demandIndexList)
         {
             let demandIndex = demandIndexList[i];
-            let demand = ASSTATE.getBuildingDemandRico(demandIndex);
+            let demand = ASSTATE.getRicoDemand(demandIndex);
             for (let j in demand)
             {
                 if (demand[j] >= offer[j])
@@ -2070,9 +2070,9 @@ let ASRICO = (function ()
                     demand[j] = 0;
                 }
             }
-            ASSTATE.setBuildingDemandRico(demandIndex, demand);
+            ASSTATE.setRicoDemand(demandIndex, demand);
         }
-        ASSTATE.setBuildingOfferRico(offerIndex, offer);
+        ASSTATE.setRicoOffer(offerIndex, offer);
         return filledOffer;
     }
     
@@ -2159,9 +2159,9 @@ let ASRICO = (function ()
         }
         let code = getDataIdByDensityLevel(index);
         return public.C_NAME + " " + index + " C:" + code +
-            " D:" + ASSTATE.getBuildingDemandRico(index) +
+            " D:" + ASSTATE.getRicoDemand(index) +
             " " + getInitialDemand(code) +
-            " O:" + ASSTATE.getBuildingOfferRico(index) +
+            " O:" + ASSTATE.getRicoOffer(index) +
             " " + getInitialOffer(code);
     }
     

@@ -1703,8 +1703,8 @@ let ASRICO = (function ()
         {
             return C.NONE;
         }
-        let level = hasBuilding(index) ? ASSTATE.getBuildingData(ASSTATE.C_DATA.BUILDING_DENSITY_LEVEL, index) : 0;
-        let type = hasBuilding(index) ? ASSTATE.getBuildingData(ASSTATE.C_DATA.BUILDING_TYPE, index) : 0;
+        let level = hasBuilding(index) ? ASSTATE.getBuildingDensity(index) : 0;
+        let type = hasBuilding(index) ? ASSTATE.getBuildingType(index) : 0;
         // below formula is dodgy
         let id = C.NONE + 10*type + 1*level;
         if (isValidTileId(id))
@@ -1765,10 +1765,9 @@ let ASRICO = (function ()
             throw 'Undefined building code ' + code;
         }
         ASSTATE.setZoneType(index, ASZONE.C_TYPE.BUILDING);
-        ASSTATE.setBuildingType(index, 1);
         ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_TICK_UPDATE, index, 0);
         ASSTATE.setBuildingDensity(index, C_R[code][C_RM.LEVEL]);
-        ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_TYPE, index, C_R[code][C_RM.TYPE]);
+        ASSTATE.setBuildingType(index, C_R[code][C_RM.TYPE]);
         let offerRico = getInitialOffer(code);
         //let residualOfferRico = ASSTATE.getBuildingOfferRico(index);
         //for (let i in offerRico)
@@ -2113,7 +2112,7 @@ let ASRICO = (function ()
         let has2 = typeof type !== 'undefined';
         if (has != has2)
         {
-            console.log(zoneId + ' ' + type + ' ' + data);
+            //console.log(zoneId + ' ' + type + ' ' + data);
         }
         return has;
     }

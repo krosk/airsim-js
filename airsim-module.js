@@ -1934,13 +1934,7 @@ let ASRICO = (function ()
     let levelDensityUp = function asrico_levelDensityUp(index)
     {
         let density = ASSTATE.getBuildingDensity(index);
-        if (density == 3)
-        {
-            let type = ASSTATE.getBuildingType(index);
-            type++;
-            ASSTATE.setBuildingType(index, type);
-        }
-        else if (density >= 5)
+        if (density >= 3)
         {
             return;
         }

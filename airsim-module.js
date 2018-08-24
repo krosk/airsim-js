@@ -1890,7 +1890,7 @@ let ASRICO = (function ()
         while ((progress - 2 * tableSize < tableSize) && (timeLimit < 0 || Date.now() < timeLimit))
         {
             let index = progress - 2 * tableSize + 1;
-            if (updateBuilding(index))
+            if (updateRicoTile(index))
             {
                 progress += 1;
             }
@@ -1949,7 +1949,7 @@ let ASRICO = (function ()
     
     // note: could be extracted out of asrico
     // because it binds to asroad
-    let updateBuilding = function asrico_updateBuilding(index)
+    let updateRicoTile = function asrico_updateRicoTile(index)
     {
         // machine state
         if (!hasBuilding(index))

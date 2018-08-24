@@ -13,24 +13,21 @@ let ASSTATE = (function()
         ZONE_ID : 0,
         CHANGE : 1,
         ZONE_REQUEST : 2,
-        ZONE_TYPE : 3, // 0 none 1 road 2 building 3 fixed
-        ROAD_CONNECT : 4,
-        ROAD_CAR_FLOW : 5,
-        ROAD_CAR_LAST_FLOW : 6,
-        ROAD_TRAVERSAL_PROCESSED : 7,
-        ROAD_TRAVERSAL_COST : 8,
-        ROAD_TRAVERSAL_PARENT : 9,
-        ROAD_DEBUG : 10,
-        BUILDING_TYPE : 5, // 1 res 2 com 3 ind 4 off
-        RICO_DENSITY_LEVEL : 6,
-        RICO_OFFER_R: 7,
-        RICO_OFFER_I: 8,
-        RICO_OFFER_C: 9,
-        RICO_DEMAND_R : 10,
-        RICO_DEMAND_I : 11,
-        RICO_DEMAND_C : 12,
-        BUILDING_TICK_UPDATE : 13,
-        END : 14
+        ROAD_CONNECT : 3,
+        ROAD_CAR_FLOW : 4,
+        ROAD_CAR_LAST_FLOW : 5,
+        ROAD_TRAVERSAL_PROCESSED : 6,
+        ROAD_TRAVERSAL_COST : 7,
+        ROAD_TRAVERSAL_PARENT : 8,
+        ROAD_DEBUG : 9,
+        RICO_DENSITY_LEVEL : 4,
+        RICO_OFFER_R: 5,
+        RICO_OFFER_I: 6,
+        RICO_OFFER_C: 7,
+        RICO_DEMAND_R : 8,
+        RICO_DEMAND_I : 9,
+        RICO_DEMAND_C : 10,
+        END : 11
     }
     public.C_DATA = C;
     
@@ -155,26 +152,6 @@ let ASSTATE = (function()
     public.setChangeFlag = function asstate_setChangeFlag(index, data)
     {
         w(index, C.CHANGE, data);
-    }
-    
-    public.getZoneType = function asstate_getZoneType(index)
-    {
-        return r(index, C.ZONE_TYPE);
-    }
-    
-    public.setZoneType = function asstate_setZoneType(index, data)
-    {
-        w(index, C.ZONE_TYPE, data);
-    }
-    
-    public.getBuildingType = function asstate_getBuildingType(index)
-    {
-        return r(index, C.BUILDING_TYPE);
-    }
-    
-    public.setBuildingType = function asstate_setBuildingType(index, data)
-    {
-        w(index, C.BUILDING_TYPE, data);
     }
     
     const roadConnectToFlag = [
@@ -1774,7 +1751,6 @@ let ASRICO = (function ()
         {
             throw 'Undefined building code ' + code;
         }
-        ASSTATE.setBuildingData(ASSTATE.C_DATA.BUILDING_TICK_UPDATE, index, 0);
         ASSTATE.setRicoDensity(index, C_R[code][C_RM.LEVEL]);
         let offerRico = getInitialOffer(code);
         //let residualOfferRico = ASSTATE.getRicoOffer(index);

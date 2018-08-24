@@ -634,15 +634,15 @@ let ASZONE = (function ()
             }
             else if (oldZone == C.RESLOW)
             {
-                ASRICO.removeBuilding(x, y);
+                ASRICO.removeRico(x, y);
             }
             else if (oldZone == C.COMLOW)
             {
-                ASRICO.removeBuilding(x, y);
+                ASRICO.removeRico(x, y);
             }
             else if (oldZone == C.INDLOW)
             {
-                ASRICO.removeBuilding(x, y);
+                ASRICO.removeRico(x, y);
             }
             let index = ASSTATE.getIndex(x, y);
             ASSTATE.notifyChange(index);
@@ -1733,7 +1733,7 @@ let ASRICO = (function ()
         ASSTATE.setRicoStep(0);
     }
     
-    let addBuilding = function asrico_addBuilding(code, x, y)
+    let addRico = function asrico_addRico(code, x, y)
     {
         let index = ASSTATE.getIndex(x, y);
         setInitial(code, index);
@@ -1766,20 +1766,20 @@ let ASRICO = (function ()
     
     public.addResLow = function asrico_addResLow(x, y)
     {
-        addBuilding(C.RESLOW_0, x, y);
+        addRico(C.RESLOW_0, x, y);
     }
    
     public.addComLow = function asrico_addComLow(x, y)
     {
-        addBuilding(C.COMLOW_0, x, y);
+        addRico(C.COMLOW_0, x, y);
     }
     
     public.addIndLow = function asrico_addIndLow(x, y)
     {
-        addBuilding(C.INDLOW_0, x, y);
+        addRico(C.INDLOW_0, x, y);
     }
     
-    public.removeBuilding = function asrico_removeBuilding(x, y)
+    public.removeRico = function asrico_removeRico(x, y)
     {
         let index = ASSTATE.getIndex(x, y);
         if (!hasBuilding(index))
@@ -1963,7 +1963,6 @@ let ASRICO = (function ()
             if (canLevelUp(index))
             {
                 levelDensityUp(index);
-                //console.log('level up ' + index);
             }
             // reset
             let code = getDataIdByDensityLevel(index);

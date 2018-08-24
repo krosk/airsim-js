@@ -52,7 +52,13 @@ let ASSTATE = (function()
         STAT_OFFER_R_TOTAL_LAST : 17,
         STAT_OFFER_I_TOTAL_LAST : 18,
         STAT_OFFER_C_TOTAL_LAST : 19,
-        END : 20
+        STAT_DEMAND_R_TOTAL : 20,
+        STAT_DEMAND_I_TOTAL : 21,
+        STAT_DEMAND_C_TOTAL : 22,
+        STAT_DEMAND_R_TOTAL_LAST : 23,
+        STAT_DEMAND_I_TOTAL_LAST : 24,
+        STAT_DEMAND_C_TOTAL_LAST : 25,
+        END : 26
     }
     
     public.getIndex = function asstate_getIndex(x, y)
@@ -456,6 +462,36 @@ let ASSTATE = (function()
         w(0, G.STAT_OFFER_C_TOTAL_LAST, data[2]);
     }
     
+    public.getRicoDemandTotal = function asstate_getRicoDemandTotal()
+    {
+        let ro = r(0, G.STAT_DEMAND_R_TOTAL);
+        let io = r(0, G.STAT_DEMAND_I_TOTAL);
+        let co = r(0, G.STAT_DEMAND_C_TOTAL);
+        return [ro, io, co];
+    }
+    
+    public.setRicoDemandTotal = function asstate_setRicoDemandTotal(data)
+    {
+        w(0, G.STAT_DEMAND_R_TOTAL, data[0]);
+        w(0, G.STAT_DEMAND_I_TOTAL, data[1]);
+        w(0, G.STAT_DEMAND_C_TOTAL, data[2]);
+    }
+    
+    public.getRicoDemandTotalLast = function asstate_getRicoDemandTotalLast()
+    {
+        let ro = r(0, G.STAT_DEMAND_R_TOTAL_LAST);
+        let io = r(0, G.STAT_DEMAND_I_TOTAL_LAST);
+        let co = r(0, G.STAT_DEMAND_C_TOTAL_LAST);
+        return [ro, io, co];
+    }
+    
+    public.setRicoDemandTotalLast = function asstate_setRicoDemandTotalLast(data)
+    {
+        w(0, G.STAT_DEMAND_R_TOTAL_LAST, data[0]);
+        w(0, G.STAT_DEMAND_I_TOTAL_LAST, data[1]);
+        w(0, G.STAT_DEMAND_C_TOTAL_LAST, data[2]);
+    }
+    
     public.initialize = function asstate_initialize(tableSizeX, tableSizeY)
     {
         public.setTableSize(tableSizeX, tableSizeY);
@@ -771,9 +807,12 @@ let ASZONE = (function ()
     
     let commitStats = function aszone_commitStats()
     {
-        let data = ASSTATE.getRicoOfferTotal();
-        ASSTATE.setRicoOfferTotalLast(data);
+        let offerData = ASSTATE.getRicoOfferTotal();
+        ASSTATE.setRicoOfferTotalLast(offerData);
         ASSTATE.setRicoOfferTotal([0, 0, 0]);
+        let demandData = ASSTATE.getRicoDemandTotal();
+        ASSTATE.setRicoDemandTotalLast(demandData);
+        ASSTATE.setRicoDemandTotal([0, 0, 0]);
     }
     
     public.updateZone = function aszone_updateZone(tick, timeLimit)
@@ -839,7 +878,7 @@ let ASZONE = (function ()
     
     public.getInfo = function aszone_getInfo()
     {
-        return ASSTATE.getRicoOfferTotalLast();
+        return ASSTATE.getRicoOfferTotalLast() + ' ' + ASSTATE.getRicoDemandTotalLast();
     }
     
     return public;
@@ -2025,6 +2064,7 @@ let ASRICO = (function ()
             let code = getDataIdByDensityLevel(index);
             setInitial(code, index);
             incrementStatOfferTotal(index);
+            incrementStatDemandTotal(index);
             ASSTATE.setRicoStep(1);
             return false;
         }
@@ -2092,6 +2132,18 @@ let ASRICO = (function ()
             total[i] += data[i];
         }
         ASSTATE.setRicoOfferTotal(total);
+    }
+    
+    let incrementStatDemandTotal = function asrico_incrementStatDemandTotal(index)
+    {
+        let code = getDataIdByDensityLevel(index);
+        let data = getInitialDemand(code);
+        let total = ASSTATE.getRicoDemandTotal();
+        for (let i = 0; i < total.length; i++)
+        {
+            total[i] += data[i];
+        }
+        ASSTATE.setRicoDemandTotal(total);
     }
     
     let getDistanceMax = function asrico_getDistanceMax(index)

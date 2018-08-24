@@ -2086,7 +2086,6 @@ let ASRICO = (function ()
     {
         let code = getDataIdByDensityLevel(index);
         let data = getInitialOffer(code);
-        console.log(data);
         let total = ASSTATE.getRicoOfferTotal();
         for (let i = 0; i < total.length; i++)
         {

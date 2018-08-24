@@ -38,16 +38,21 @@ let ASSTATE = (function()
         TICK : 3,
         FRAME : 4,
         TICK_SPEED : 5,
-        UNUSED : 6,
-        TICK_PROGRESS : 7,
-        RICO_STEP : 8,
-        ROAD_TRAVERSAL_START : 9,
-        ROAD_TRAVERSAL_LAST : 14,
+        TICK_PROGRESS : 6,
+        RICO_STEP : 7,
+        ROAD_TRAVERSAL_START : 8,
+        ROAD_TRAVERSAL_LAST : 9,
         ROAD_TRAVERSAL_CURRENT_INDEX : 10,
         ROAD_TRAVERSAL_EDGE_COUNT : 11,
         CHANGE_FIRST : 12,
         CHANGE_LAST : 13,
-        END : 15
+        STAT_OFFER_R_TOTAL : 14,
+        STAT_OFFER_I_TOTAL : 15,
+        STAT_OFFER_C_TOTAL : 16,
+        STAT_OFFER_R_TOTAL_LAST : 17,
+        STAT_OFFER_I_TOTAL_LAST : 18,
+        STAT_OFFER_C_TOTAL_LAST : 19,
+        END : 20
     }
     
     public.getIndex = function asstate_getIndex(x, y)
@@ -421,6 +426,36 @@ let ASSTATE = (function()
         w(0, G.CHANGE_LAST, data);
     }
     
+    public.getRicoOfferTotal = function asstate_getRicoOfferTotal()
+    {
+        let ro = r(0, G.STAT_OFFER_R_TOTAL);
+        let io = r(0, G.STAT_OFFER_I_TOTAL);
+        let co = r(0, G.STAT_OFFER_C_TOTAL);
+        return [ro, io, co];
+    }
+    
+    public.setRicoOfferTotal = function asstate_setRicoOfferTotal(data)
+    {
+        w(0, G.STAT_OFFER_R_TOTAL, data[0]);
+        w(0, G.STAT_OFFER_I_TOTAL, data[1]);
+        w(0, G.STAT_OFFER_C_TOTAL, data[2]);
+    }
+    
+    public.getRicoOfferTotalLast = function asstate_getRicoOfferTotalLast()
+    {
+        let ro = r(0, G.STAT_OFFER_R_TOTAL_LAST);
+        let io = r(0, G.STAT_OFFER_I_TOTAL_LAST);
+        let co = r(0, G.STAT_OFFER_C_TOTAL_LAST);
+        return [ro, io, co];
+    }
+    
+    public.setRicoOfferTotalLast = function asstate_setRicoOfferTotalLast(data)
+    {
+        w(0, G.STAT_OFFER_R_TOTAL_LAST, data[0]);
+        w(0, G.STAT_OFFER_I_TOTAL_LAST, data[1]);
+        w(0, G.STAT_OFFER_C_TOTAL_LAST, data[2]);
+    }
+    
     public.initialize = function asstate_initialize(tableSizeX, tableSizeY)
     {
         public.setTableSize(tableSizeX, tableSizeY);
@@ -721,6 +756,7 @@ let ASZONE = (function ()
         if (engineComplete && enoughTimeElapsed)
         {
             let newTick = tick + 1;
+            commitStats();
             ASRICO.setNextTick(newTick);
             ASSTATE.setTick(newTick);
             ASSTATE.setFrame(0);
@@ -731,6 +767,13 @@ let ASZONE = (function ()
             ASSTATE.setFrame(frame + 1);
         }
         return tick;
+    }
+    
+    let commitStats = function aszone_commitStats()
+    {
+        let data = ASSTATE.getRicoOfferTotal();
+        ASSTATE.setRicoOfferTotalLast(data);
+        ASSTATE.setRicoOfferTotal([0, 0, 0]);
     }
     
     public.updateZone = function aszone_updateZone(tick, timeLimit)
@@ -792,6 +835,11 @@ let ASZONE = (function ()
                 }
             }
         }
+    }
+    
+    public.getInfo = function aszone_getInfo()
+    {
+        return ASSTATE.getRicoOfferTotalLast();
     }
     
     return public;
@@ -1753,11 +1801,6 @@ let ASRICO = (function ()
         }
         ASSTATE.setRicoDensity(index, C_R[code][C_RM.LEVEL]);
         let offerRico = getInitialOffer(code);
-        //let residualOfferRico = ASSTATE.getRicoOffer(index);
-        //for (let i in offerRico)
-        //{
-            //offerRico[i] += residualOfferRico[i];
-        //}
         ASSTATE.setRicoOffer(index, offerRico);
         let demandRico = getInitialDemand(code);
         ASSTATE.setRicoDemand(index, demandRico);
@@ -1981,6 +2024,7 @@ let ASRICO = (function ()
             // reset
             let code = getDataIdByDensityLevel(index);
             setInitial(code, index);
+            incrementStatOfferTotal(index);
             ASSTATE.setRicoStep(1);
             return false;
         }
@@ -2036,6 +2080,19 @@ let ASRICO = (function ()
             ASSTATE.setRicoStep(0);
             return true;
         }
+    }
+    
+    let incrementStatOfferTotal = function asrico_incrementStatOfferTotal(index)
+    {
+        let code = getDataIdByDensityLevel(index);
+        let data = getInitialOffer(code);
+        console.log(data);
+        let total = ASSTATE.getRicoOfferTotal();
+        for (let i = 0; i < total.length; i++)
+        {
+            total[i] += data[i];
+        }
+        ASSTATE.setRicoOfferTotal(total);
     }
     
     let getDistanceMax = function asrico_getDistanceMax(index)

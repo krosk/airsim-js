@@ -344,6 +344,8 @@ let ASMAP = (function ()
             let callbackData = [public.C_NAME, 'updateEngineResponse'];
             ASENGINE.update(Date.now() + ENGINE_YIELD_PERIOD, Date.now(), callbackData);
         }
+        let infoCallbackData = [public.C_NAME, 'updateEngineInfo'];
+        ASENGINE.getInfo(infoCallbackData);
     }
     
     let m_lastTick = 0;
@@ -367,12 +369,20 @@ let ASMAP = (function ()
         m_updateStateMachine = 0;
     }
     
+    let m_engineData = [];
+    
+    public.updateEngineInfo = function asmap_updateEngineInfo(data)
+    {
+        m_engineData = data;
+    }
+    
     public.getDebugState = function asmap_getDebugState()
     {
         let tickElapsed = 'k(' + m_lastTick + ') ';
         let tickSpeed = 'K(' + m_lastTickDelta + ') ';
         let computeTimeBudget = 'T(' + m_computeTimeBudget + ') ';
-        return tickElapsed + tickSpeed + computeTimeBudget;
+        let engineData = 'O(' + m_engineData + ') ';
+        return tickElapsed + tickSpeed + computeTimeBudget + engineData;
     }
     
     let doZoneViewSingleClick = function asmap_doZoneViewSingleClick(x, y)

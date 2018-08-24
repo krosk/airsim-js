@@ -128,6 +128,12 @@ let ASENGINE = (function ()
         dispatch(postData);
     }
     
+    public.getInfo = function asengine_getInfo(callbackData)
+    {
+        const postData = [ASZONE.C_NAME, 'getInfo'];
+        dispatch(postData, callbackData);
+    }
+    
     public.getInfoRoad = function asengine_getInfoRoad(x, y)
     {
         const callbackData = [ASENGINE.C_NAME, 'printValue'];

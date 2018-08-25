@@ -1649,6 +1649,30 @@ Hence, there can be just a concept of density
 level within the confine of a zone, but we can
 increase the levels.
 
+* Strategy 6.7: building level up and down
+Sim city 3/4 had a wave effect of buildings
+getting abandonned then refilled cyclically.
+An unstable system like this probably needs
+time to stabilize.
+With the initial implementation of 5 level
+buildings, they were growing and shrinking
+non stop, as a building was levelled down
+immediately if its demand was not met, but
+that was not the case in a 3 level structure.
+Probably, a level 5 building is able to
+fill most buildings around and was starving
+the others. Probably there was also a chain
+effect, by growing inadequately, there was
+demand that was left unmet.
+
+Maybe there can be a sustained effect using
+macro stats. 
+For example, if demand is bigger than offer,
+then a building is not authorized to downgrade.
+This could eventually block the moving of
+people.
+Maybe the reason is the cyclical nature of
+the dependency between ricos.
 
 
 ** Mechanism 6: Road traversal

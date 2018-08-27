@@ -1654,6 +1654,7 @@ Sim city 3/4 had a wave effect of buildings
 getting abandonned then refilled cyclically.
 An unstable system like this probably needs
 time to stabilize.
+
 With the initial implementation of 5 level
 buildings, they were growing and shrinking
 non stop, as a building was levelled down
@@ -1664,6 +1665,27 @@ fill most buildings around and was starving
 the others. Probably there was also a chain
 effect, by growing inadequately, there was
 demand that was left unmet.
+Should a building grow because there is
+demand for it? it is kind of the case for
+a building to grow to the next level, when
+a residential has a demand for commercial and
+induatrial.
+
+Now, there should be a timing for level up,
+where a building levels upon a certain time
+as opposed to leveling when the conditions
+have been met. 
+This could either be implemented through some
+kind of exp which amount depends on the tick
+duration. Exp raises when all factors are
+met, and decrease when the factors of the
+previous level are not met anymore. This is
+important to distinguish the conditions for
+levelling up or down, otherwise there is
+no stable condition over which a building
+has reached a plateau.
+The implementation is
+do parent init + do leftover - do init <= 0
 
 Maybe there can be a sustained effect using
 macro stats. 
@@ -1673,6 +1695,19 @@ This could eventually block the moving of
 people.
 Maybe the reason is the cyclical nature of
 the dependency between ricos.
+A building growing spontaneously is problematic
+in it grows and capture demand that makes other
+building not growing in places that are more
+relevant. A building growing because it captures
+the offer of nearer buildings could be fine
+as it expresses people moving to better or
+nearer locations.
+Since traffic is resetting every tick, there
+is also the problem of priorityin roads,
+where some buildings will always have priority
+over the others in taking the available space
+in roads which may lead to starving buildings,
+just maybe.
 
 
 ** Mechanism 6: Road traversal

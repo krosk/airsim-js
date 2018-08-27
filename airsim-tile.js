@@ -30,6 +30,7 @@ let ASTILE = (function ()
     
     public.C_TILE_RICO = {
         NONE: 200,
+        ROAD: 201,
         RESLOW_0: 210,
         RESLOW_1: 211,
         RESLOW_2: 212,
@@ -255,6 +256,7 @@ let ASRICO_TILE = (function ()
     
     const C_TILETEXTURE = {
         [C.NONE] : [getColor(255, 255, 255), 3],
+        [C.ROAD] : [getColor(158, 158, 158), 3],
         [C.RESLOW_0] : [C_RESLOW_COLOR, 3],
         [C.RESLOW_1] : [C_RESLOW_COLOR, 6],
         [C.RESLOW_2] : [C_RESLOW_COLOR, 9],

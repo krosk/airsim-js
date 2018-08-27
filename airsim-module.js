@@ -1722,7 +1722,7 @@ let ASRICO = (function ()
         [C.INDLOW_2] : [2, 4,   0,   4,   0,   2,   0,   2],
         [C.INDLOW_3] : [3, 4,   0,   6,   0,   3,   0,   3],
         [C.INDLOW_4] : [4, 4,   0,   8,   0,   4,   0,   4],
-        [C.INDLOW_5] : [5, 4,   0,  10,   0,  10,   0,   5],
+        [C.INDLOW_5] : [5, 4,   0,  10,   0,   5,   0,   5],
         [C.INDHIG_0] : [0, 6,   0,   0,   0,   0,   0,   0],
         [C.INDHIG_1] : [1, 6,   0,  10,   0,   5,   0,   5],
         [C.INDHIG_2] : [2, 6,   0,  16,   0,   8,   0,   8],
@@ -1782,7 +1782,7 @@ let ASRICO = (function ()
         let index = ASSTATE.getIndex(x, y);
         return getDataIdByDensityLevel(index);
     }
-    let getDataIdByDensityLevel = function asrico_getDataIdByDensityLevel(index)
+    let getDataIdByDensityLevel = function asrico_getDataIdByDensityLevel(index, levelOffset)
     {
         if (!ASSTATE.isValidIndex(index))
         {
@@ -1793,6 +1793,15 @@ let ASRICO = (function ()
             return C.NONE;
         }
         let level = ASSTATE.getRicoDensity(index);
+        let offsetFlag = (typeof levelOffset !== 'undefined') && levelOffset != 0;
+        if (offsetFlag)
+        {
+            level += levelOffset;
+            if (level < 0)
+            {
+                level = 0;
+            }
+        }
         let type = public.getRicoType(index);
         // below formula is dodgy
         let id = C.NONE + 10*type + 1*level;
@@ -1800,7 +1809,7 @@ let ASRICO = (function ()
         {
             return id;
         }
-        else if (G_CHECK)
+        else if (G_CHECK && !offsetFlag)
         {
             throw 'Undefined id ' + id + ' at index ' + index;
         }
@@ -2022,7 +2031,7 @@ let ASRICO = (function ()
     let levelDensityDown = function asrico_levelDensityDown(index)
     {
         let density = ASSTATE.getRicoDensity(index);
-        if (density <= 1)
+        if (density <= 0)
         {
             return;
         }
@@ -2051,6 +2060,29 @@ let ASRICO = (function ()
         return flag;
     }
     
+    let canLevelDown = function asrico_canLevelDown(index)
+    {
+        let notEnough = false;
+        let code = getDataIdByDensityLevel(index);
+        let demandInitial = getInitialDemand(code);
+        let offerInitial = getInitialOffer(code);
+        
+        let parentCode = getDataIdByDensityLevel(index, -1);
+        let parentDemandInitial = getInitialDemand(parentCode);
+        let parentOfferInitial = getInitialOffer(parentCode);
+        
+        let demand = ASSTATE.getRicoDemand(index);
+        let offer = ASSTATE.getRicoOffer(index);
+        
+        for (let i in parentDemandInitial)
+        {
+            notEnough |= (parentDemandInitial[i] + demand[i] - demandInitial[i] > 0);
+            notEnough |= (parentOfferInitial[i] + offer[i] - offerInitial[i] > 0);
+        }
+        
+        return notEnough;
+    }
+    
     // note: could be extracted out of asrico
     // because it binds to asroad
     let updateRicoTile = function asrico_updateRicoTile(index)
@@ -2068,7 +2100,7 @@ let ASRICO = (function ()
             {
                 levelDensityUp(index);
             }
-            else
+            else if (canLevelDown(index))
             {
                 levelDensityDown(index);
             }

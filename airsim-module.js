@@ -1057,11 +1057,11 @@ let ASROAD = (function ()
         let from = ASSTATE.getIndex(x, y);
         let to = getIndexTo(x, y, d);
         //console.log('connectnode x'+x+'y'+y+'xd'+xd+'yd'+yd);
-        if (hasRoad(from) && hasBuilding(to))
+        if (hasRoad(from) && ASRICO.hasBuilding(to))
         {
             ASSTATE.setRoadConnectTo(to, C_FROM[d]);
         }
-        if (hasBuilding(from) && hasRoad(to))
+        if (ASRICO.hasBuilding(from) && hasRoad(to))
         {
             ASSTATE.setRoadConnectTo(from, d);
         }
@@ -1077,16 +1077,21 @@ let ASROAD = (function ()
         }
         // note: disconnect only if to is valid
         // even if it has no road
-        if (hasRoad(from) || hasBuilding(from))
+        if (hasRoad(from) || ASRICO.hasBuilding(from))
         {
             ASSTATE.setRoadDisconnectTo(from, d);
         }
-        if (hasRoad(to) || hasBuilding(from))
+        if (hasRoad(to) || ASRICO.hasBuilding(from))
         {
             ASSTATE.setRoadDisconnectTo(to, C_FROM[d]);
         }
     }
     
+    public.hasRoad = function asroad_hasRoad(index)
+    {
+        //let index = ASSTATE.getIndex(x, y);
+        return hasRoad(index);
+    }
     let hasRoad = function asroad_hasRoad(index)
     {
         if (!ASSTATE.isValidIndex(index))
@@ -1099,21 +1104,9 @@ let ASROAD = (function ()
         return type != null;
     }
     
-    let hasBuilding = function asroad_hasBuilding(index)
-    {
-        if (!ASSTATE.isValidIndex(index))
-        {
-            return false;
-        }
-        let data = ASRICO.getRicoType(index);
-        let has = !((typeof data === 'undefined') || (data == null));
-        
-        return has;
-    }
-    
     let isConnectedTo = function asroad_isConnectedTo(from, d)
     {
-        if (!(hasRoad(from) || hasBuilding(from)))
+        if (!(hasRoad(from) || ASRICO.hasBuilding(from)))
         {
             return -1;
         }
@@ -1126,7 +1119,7 @@ let ASROAD = (function ()
         let x = xy[0];
         let y = xy[1];
         let to = getIndexTo(x, y, d);
-        if (!(hasRoad(to) || hasBuilding(to)))
+        if (!(hasRoad(to) || ASRICO.hasBuilding(to)))
         {
             return -1;
         }
@@ -1401,7 +1394,7 @@ let ASROAD = (function ()
         setTraversalStart(from);
         setTraversalCurrentIndex(-1);
         setTraversalEdgeCount(0);
-        if (hasBuilding(from))
+        if (ASRICO.hasBuilding(from))
         {
             let nodeIndex = getTraversalEdgeCount();
             incrementTraversalEdgeCount();
@@ -1601,7 +1594,7 @@ let ASROAD = (function ()
         else
         {
             let reversePathNode = [];
-            while (!hasBuilding(lastNode))
+            while (!ASRICO.hasBuilding(lastNode))
             {
                 reversePathNode.push(lastNode);
                 lastNode = getTraversalParent(lastNode);
@@ -1787,6 +1780,10 @@ let ASRICO = (function ()
         if (!ASSTATE.isValidIndex(index))
         {
             return C.NONE;
+        }
+        if (ASROAD.hasRoad(index))
+        {
+            return C.ROAD;
         }
         if (!hasBuilding(index))
         {
@@ -2241,6 +2238,11 @@ let ASRICO = (function ()
         }
     }
     
+    public.hasBuilding = function asrico_hasBuilding(index)
+    {
+        //let index = ASSTATE.getIndex(x, y);
+        return hasBuilding(index);
+    }
     let hasBuilding = function asrico_hasBuilding(index)
     {
         if (!ASSTATE.isValidIndex(index))

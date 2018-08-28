@@ -1668,9 +1668,18 @@ r demand service (from c), offer jobs (to c)
 Hence there are the categories:
 jobs
 goods
-services
+services (to distinguish from public service)
 
+c: 1 job, 1 good, produce 2 service
+r: 1 service, produce 1 job
+i: 1 job, produce 1 good
 
+Using this assymetrical dependency chain,
+buildings grow, correctly even with surcapacity
+although industrial requires less space for 
+the time being. It will be a matter of raising 
+the capacity. This is a matter of the ideal
+proportion one wants.
 
 * Strategy 6.7: building level up and down
 Sim city 3/4 had a wave effect of buildings

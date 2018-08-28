@@ -6,6 +6,16 @@ let ASTILE = (function ()
     {
         return (r | 0) * 2**16 + (g | 0) * 2**8 + (b | 0);
     }
+    let getColor = public.getColor;
+    
+    public.C_COLOR = {
+        RESLOW : getColor(76*1.0, 175*1.0, 80*1.0),
+        RESHIG : getColor(76*0.6, 175*0.6, 80*0.6),
+        INDLOW : getColor(255*1.0, 235*1.0, 59*1.0),
+        INDHIG : getColor(255*0.6, 235*0.6, 59*0.6),
+        COMLOW : getColor(33*1.0, 150*1.0, 243*1.0),
+        COMHIG : getColor(33*0.6, 150*0.6, 243*0.6),
+    }
     
     // each zone is a function
     public.C_TILE_ZONE = {
@@ -16,8 +26,11 @@ let ASTILE = (function ()
         ROAD: 4,
         HIGHWAY: 5,
         RESLOW: 10,
-        COMLOW: 20,
-        INDLOW: 30,
+        INDLOW: 20,
+        COMLOW: 30,
+        RESHIG: 12,
+        INDHIG: 22,
+        COMHIG: 32
     };
     
     public.C_TILE_ROAD_CONGESTION = {
@@ -162,6 +175,7 @@ let ASZONE_TILE = (function ()
 {
     let public = {};
     let getColor = ASTILE.getColor;
+    let C_COLOR = ASTILE.C_COLOR;
     
     public.C_TILEENUM = ASTILE.C_TILE_ZONE;
     const C = public.C_TILEENUM;
@@ -170,9 +184,12 @@ let ASZONE_TILE = (function ()
         [C.NONE] : getColor(255, 0, 0),
         [C.DIRT] : getColor(121, 85, 72),
         [C.ROAD] : getColor(158, 158, 158),
-        [C.RESLOW] : getColor(76, 175, 80),
-        [C.COMLOW] : getColor(33, 150, 243),
-        [C.INDLOW] : getColor(255, 235, 59)
+        [C.RESLOW] : C_COLOR.RESLOW,
+        [C.INDLOW] : C_COLOR.INDLOW,
+        [C.COMLOW] : C_COLOR.COMLOW,
+        [C.RESHIG] : C_COLOR.RESHIG,
+        [C.INDHIG] : C_COLOR.INDHIG,
+        [C.COMHIG] : C_COLOR.COMHIG
     }
     
     const C_CITYHEIGHT = {
@@ -181,7 +198,10 @@ let ASZONE_TILE = (function ()
         [C.ROAD] : 6,
         [C.RESLOW] : 6,
         [C.COMLOW] : 6,
-        [C.INDLOW] : 6
+        [C.INDLOW] : 6,
+        [C.RESHIG] : 6,
+        [C.COMHIG] : 6,
+        [C.INDHIG] : 6,
     }
     
     let getCityTextureMargin = function aszone_getCityTextureMargin(id)
@@ -244,55 +264,49 @@ let ASRICO_TILE = (function ()
     
     public.C_TILEENUM = ASTILE.C_TILE_RICO;
     const C = public.C_TILEENUM;
+    const C_COLOR = ASTILE.C_COLOR;
     
     let getColor = ASTILE.getColor;
-    
-    const C_RESLOW_COLOR = getColor(76*1.0, 175*1.0, 80*1.0);
-    const C_RESHIG_COLOR = getColor(76*0.6, 175*0.6, 80*0.6);
-    const C_INDLOW_COLOR = getColor(255*1.0, 235*1.0, 59*1.0);
-    const C_INDHIG_COLOR = getColor(255*0.6, 235*0.6, 59*0.6);
-    const C_COMLOW_COLOR = getColor(33*1.0, 150*1.0, 243*1.0);
-    const C_COMHIG_COLOR = getColor(33*0.6, 150*0.6, 243*0.6);
     
     const C_TILETEXTURE = {
         [C.NONE] : [getColor(255, 255, 255), 3],
         [C.ROAD] : [getColor(158, 158, 158), 3],
-        [C.RESLOW_0] : [C_RESLOW_COLOR, 3],
-        [C.RESLOW_1] : [C_RESLOW_COLOR, 6],
-        [C.RESLOW_2] : [C_RESLOW_COLOR, 9],
-        [C.RESLOW_3] : [C_RESLOW_COLOR, 12],
-        [C.RESLOW_4] : [C_RESLOW_COLOR, 15],
-        [C.RESLOW_5] : [C_RESLOW_COLOR, 18],
-        [C.RESHIG_0] : [C_RESHIG_COLOR, 3],
-        [C.RESHIG_1] : [C_RESHIG_COLOR, 24],
-        [C.RESHIG_2] : [C_RESHIG_COLOR, 27],
-        [C.RESHIG_3] : [C_RESHIG_COLOR, 30],
-        [C.RESHIG_4] : [C_RESHIG_COLOR, 33],
-        [C.RESHIG_5] : [C_RESHIG_COLOR, 36],
-        [C.INDLOW_0] : [C_INDLOW_COLOR, 3],
-        [C.INDLOW_1] : [C_INDLOW_COLOR, 6],
-        [C.INDLOW_2] : [C_INDLOW_COLOR, 9],
-        [C.INDLOW_3] : [C_INDLOW_COLOR, 12],
-        [C.INDLOW_4] : [C_INDLOW_COLOR, 15],
-        [C.INDLOW_5] : [C_INDLOW_COLOR, 18],
-        [C.INDHIG_0] : [C_INDHIG_COLOR, 3],
-        [C.INDHIG_1] : [C_INDHIG_COLOR, 24],
-        [C.INDHIG_2] : [C_INDHIG_COLOR, 27],
-        [C.INDHIG_3] : [C_INDHIG_COLOR, 30],
-        [C.INDHIG_4] : [C_INDHIG_COLOR, 33],
-        [C.INDHIG_5] : [C_INDHIG_COLOR, 36],
-        [C.COMLOW_0] : [C_COMLOW_COLOR, 3],
-        [C.COMLOW_1] : [C_COMLOW_COLOR, 6],
-        [C.COMLOW_2] : [C_COMLOW_COLOR, 9],
-        [C.COMLOW_3] : [C_COMLOW_COLOR, 12],
-        [C.COMLOW_4] : [C_COMLOW_COLOR, 15],
-        [C.COMLOW_5] : [C_COMLOW_COLOR, 18],
-        [C.COMHIG_0] : [C_COMHIG_COLOR, 3],
-        [C.COMHIG_1] : [C_COMHIG_COLOR, 24],
-        [C.COMHIG_2] : [C_COMHIG_COLOR, 27],
-        [C.COMHIG_3] : [C_COMHIG_COLOR, 30],
-        [C.COMHIG_4] : [C_COMHIG_COLOR, 33],
-        [C.COMHIG_5] : [C_COMHIG_COLOR, 36],
+        [C.RESLOW_0] : [C_COLOR.RESLOW, 3],
+        [C.RESLOW_1] : [C_COLOR.RESLOW, 6],
+        [C.RESLOW_2] : [C_COLOR.RESLOW, 9],
+        [C.RESLOW_3] : [C_COLOR.RESLOW, 12],
+        [C.RESLOW_4] : [C_COLOR.RESLOW, 15],
+        [C.RESLOW_5] : [C_COLOR.RESLOW, 18],
+        [C.RESHIG_0] : [C_COLOR.RESHIG, 3],
+        [C.RESHIG_1] : [C_COLOR.RESHIG, 24],
+        [C.RESHIG_2] : [C_COLOR.RESHIG, 27],
+        [C.RESHIG_3] : [C_COLOR.RESHIG, 30],
+        [C.RESHIG_4] : [C_COLOR.RESHIG, 33],
+        [C.RESHIG_5] : [C_COLOR.RESHIG, 36],
+        [C.INDLOW_0] : [C_COLOR.INDLOW, 3],
+        [C.INDLOW_1] : [C_COLOR.INDLOW, 6],
+        [C.INDLOW_2] : [C_COLOR.INDLOW, 9],
+        [C.INDLOW_3] : [C_COLOR.INDLOW, 12],
+        [C.INDLOW_4] : [C_COLOR.INDLOW, 15],
+        [C.INDLOW_5] : [C_COLOR.INDLOW, 18],
+        [C.INDHIG_0] : [C_COLOR.INDHIG, 3],
+        [C.INDHIG_1] : [C_COLOR.INDHIG, 24],
+        [C.INDHIG_2] : [C_COLOR.INDHIG, 27],
+        [C.INDHIG_3] : [C_COLOR.INDHIG, 30],
+        [C.INDHIG_4] : [C_COLOR.INDHIG, 33],
+        [C.INDHIG_5] : [C_COLOR.INDHIG, 36],
+        [C.COMLOW_0] : [C_COLOR.COMLOW, 3],
+        [C.COMLOW_1] : [C_COLOR.COMLOW, 6],
+        [C.COMLOW_2] : [C_COLOR.COMLOW, 9],
+        [C.COMLOW_3] : [C_COLOR.COMLOW, 12],
+        [C.COMLOW_4] : [C_COLOR.COMLOW, 15],
+        [C.COMLOW_5] : [C_COLOR.COMLOW, 18],
+        [C.COMHIG_0] : [C_COLOR.COMHIG, 3],
+        [C.COMHIG_1] : [C_COLOR.COMHIG, 24],
+        [C.COMHIG_2] : [C_COLOR.COMHIG, 27],
+        [C.COMHIG_3] : [C_COLOR.COMHIG, 30],
+        [C.COMHIG_4] : [C_COLOR.COMHIG, 33],
+        [C.COMHIG_5] : [C_COLOR.COMHIG, 36],
     };
     
     let getTileTextureMargin = function asrico_getTileTextureMargin(id)

@@ -484,8 +484,11 @@ let ASMAPUI = (function ()
         C.DIRT,
         C.ROAD, 
         C.RESLOW,
+        C.INDLOW,
         C.COMLOW,
-        C.INDLOW
+        C.RESHIG,
+        C.INDHIG,
+        C.COMHIG
     ];
     
     const C_VIEW = [

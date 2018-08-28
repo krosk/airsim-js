@@ -707,11 +707,23 @@ let ASZONE = (function ()
             {
                 ASRICO.removeRico(x, y);
             }
+            else if (oldZone == C.RESHIG)
+            {
+                ASRICO.removeRico(x, y);
+            }
             else if (oldZone == C.COMLOW)
             {
                 ASRICO.removeRico(x, y);
             }
+            else if (oldZone == C.COMHIG)
+            {
+                ASRICO.removeRico(x, y);
+            }
             else if (oldZone == C.INDLOW)
+            {
+                ASRICO.removeRico(x, y);
+            }
+            else if (oldZone == C.INDHIG)
             {
                 ASRICO.removeRico(x, y);
             }
@@ -734,13 +746,25 @@ let ASZONE = (function ()
         {
             ASRICO.addResLow(x, y);
         }
+        else if (zone == C.RESHIG)
+        {
+            ASRICO.addResHig(x, y);
+        }
         else if (zone == C.COMLOW)
         {
             ASRICO.addComLow(x, y);
         }
+        else if (zone == C.COMHIG)
+        {
+            ASRICO.addComHig(x, y);
+        }
         else if (zone == C.INDLOW)
         {
             ASRICO.addIndLow(x, y);
+        }
+        else if (zone == C.INDHIG)
+        {
+            ASRICO.addIndHig(x, y);
         }
     }
     
@@ -1681,8 +1705,11 @@ let ASRICO = (function ()
     
     const C_ZONE_RICO = {
         [C_ZONE.RESLOW] : 1,
+        [C_ZONE.RESHIG] : 3,
         [C_ZONE.INDLOW] : 4,
-        [C_ZONE.COMLOW] : 7
+        [C_ZONE.INDHIG] : 6,
+        [C_ZONE.COMLOW] : 7,
+        [C_ZONE.COMHIG] : 9
     }
     
     // [level, type, offer ric, demand ric]
@@ -1868,15 +1895,30 @@ let ASRICO = (function ()
     {
         addRico(C.RESLOW_0, x, y);
     }
+    
+    public.addResHig = function asrico_addReaHig(x, y)
+    {
+        addRico(C.RESHIG_0, x, y);
+    }
    
     public.addComLow = function asrico_addComLow(x, y)
     {
         addRico(C.COMLOW_0, x, y);
     }
     
+    public.addComHig = function asrico_addComHig(x, y)
+    {
+        addRico(C.COMHIG_0, x, y);
+    }
+    
     public.addIndLow = function asrico_addIndLow(x, y)
     {
         addRico(C.INDLOW_0, x, y);
+    }
+    
+    public.addIndHig = function asrico_addIndHig(x, y)
+    {
+        addRico(C.INDHIG_0, x, y);
     }
     
     public.removeRico = function asrico_removeRico(x, y)

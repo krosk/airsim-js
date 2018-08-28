@@ -1649,6 +1649,29 @@ Hence, there can be just a concept of density
 level within the confine of a zone, but we can
 increase the levels.
 
+Current implementation of having ric offer and
+demand exhibits some flaws under specific
+configurations. For example, 6 res and 1 ind,
+with 1 com at the other side. None will level
+up because the ind offer, needed for both com
+and res level up, is distributed towards a res,
+so the com cannot level up. In other words
+there is a competition between ressource, which
+will make growth uneven or impossible.
+The way to fix that is for one resource to be
+provided to one zone. That is:
+c demand jobs (from r), goods (from i), offer
+services (to r)
+i demand jobs (from r), offer goods (to c)
+r demand service (from c), offer jobs (to c)
+
+Hence there are the categories:
+jobs
+goods
+services
+
+
+
 * Strategy 6.7: building level up and down
 Sim city 3/4 had a wave effect of buildings
 getting abandonned then refilled cyclically.
@@ -1693,21 +1716,43 @@ For example, if demand is bigger than offer,
 then a building is not authorized to downgrade.
 This could eventually block the moving of
 people.
-Maybe the reason is the cyclical nature of
-the dependency between ricos.
+
 A building growing spontaneously is problematic
 in it grows and capture demand that makes other
 building not growing in places that are more
 relevant. A building growing because it captures
 the offer of nearer buildings could be fine
 as it expresses people moving to better or
-nearer locations.
+nearer locations. The question is can a level
+zero be requesting demand, for it to spur
+growth? It is seemingly a good idea. However,
+it results in all buildings needing a demand.
+For a residential to grow, there needs to be
+a com offer and ind offer reaching the tile.
+Otherwise it cannot work. The demand must
+come from somewhere.
+Commercial and industrial may require only
+residential so as to start, at level 0, to avoid
+growth.
+Residential level zero maybe don't need
+any demand, but not sure about realism.
+
+High density will need to capture, but what
+about low density? It could be allowed to
+grow spontaneously, so as to start a new
+neighboorhood.
+
 Since traffic is resetting every tick, there
-is also the problem of priorityin roads,
+is also the problem of priority in roads,
 where some buildings will always have priority
 over the others in taking the available space
 in roads which may lead to starving buildings,
-just maybe.
+just maybe. The actual effect is uncertain.
+Because there is no reduction in speed as
+traffic gets higher, only the last building
+to cross the road is impacted. The others don't
+have a particular advantage over the order
+the buildings have 
 
 
 ** Mechanism 6: Road traversal

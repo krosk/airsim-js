@@ -527,6 +527,13 @@ let ASMAPUI = (function ()
         3 : C_PLAY,
         4 : C_SAVE
     }
+    const C_TABLE_ID = {
+        [C_MAIN] : 0,
+        [C_VIEW] : 1,
+        [C_ZONE] : 2,
+        [C_PLAY] : 3,
+        [C_SAVE] : 4
+    }
     
     let C_LEVEL = {
         [C_MAIN] : 0,
@@ -570,17 +577,17 @@ let ASMAPUI = (function ()
             {
                 throw public.C_NAME + " C_TABLE[" + i + "] undefined";
             }
-            setSingleId(tileEnum, tileEnum[0]);
+            setSingleId(i, tileEnum[0]);
         }
         
         public.resize();
     }
     
-    let buildMenu = function asmapui_buildMenu(tileEnums, callback)
+    let buildMenu = function asmapui_buildMenu(tileEnumId, callback)
     {
-        m_uiSpriteTable[tileEnums] = {};
-        let level = C_LEVEL[tileEnums];
-        let tileTable = m_uiSpriteTable[tileEnums];
+        m_uiSpriteTable[tileEnumId] = {};
+        let level = C_LEVEL[C_TABLE[tileEnumId]];
+        let tileTable = m_uiSpriteTable[tileEnumId];
         let landscape = MMAPRENDER.isOrientationLandscape();
         let c = 0;
         let backgroundWidth = 0;
@@ -589,13 +596,14 @@ let ASMAPUI = (function ()
         let maxHeight = 0;
         let genericCallback = function (e, id)
         {
-            setSingleId(tileEnums, id);
+            setSingleId(tileEnumId, id);
             if (typeof callback != 'undefined')
             {
                 callback(id);
             }
             focusAllSprite();
         }
+        const tileEnums = C_TABLE[tileEnumId];
         for (let i in tileEnums)
         {
             let tileId = tileEnums[i];
@@ -639,7 +647,7 @@ let ASMAPUI = (function ()
             c++;
         }
         
-        let background = createMenuBackground(backgroundWidth, backgroundHeight, tileEnums);
+        let background = createMenuBackground(backgroundWidth, backgroundHeight, tileEnumId);
         m_uiLayer.addChildAt(background, 0);
         if (landscape)
         {
@@ -670,7 +678,7 @@ let ASMAPUI = (function ()
         for (let i in C_TABLE)
         {
             let module = C_TABLE[i];
-            buildMenu(module, C_SPRITE_TOUCH[module]);
+            buildMenu(i, C_SPRITE_TOUCH[module]);
         }
         
         focusAllSprite();
@@ -680,23 +688,23 @@ let ASMAPUI = (function ()
     {
         for (let i in C_TABLE)
         {
-            focusSprite(C_TABLE[i]);
+            focusSprite(i);
         }
     }
     
-    let setSingleId = function asmapui_setSingleId(tileEnum, tileId)
+    let setSingleId = function asmapui_setSingleId(tileEnumId, tileId)
     {
-        m_uiActiveId[tileEnum] = tileId;
+        m_uiActiveId[tileEnumId] = tileId;
     }
     
-    let getSingleId = function asmapui_getSingleId(tileEnum)
+    let getSingleId = function asmapui_getSingleId(tileEnumId)
     {
-        return m_uiActiveId[tileEnum];
+        return m_uiActiveId[tileEnumId];
     }
     
-    let getVisibleState = function asmapui_getVisibleState(tileEnum)
+    let getVisibleState = function asmapui_getVisibleState(tileEnumId)
     {
-        let visibleBind = C_VISIBLE_BIND[tileEnum];
+        let visibleBind = C_VISIBLE_BIND[C_TABLE[tileEnumId]];
         let visible;
         if (visibleBind[0] == -1)
         {
@@ -704,20 +712,21 @@ let ASMAPUI = (function ()
         }
         else
         {
-            let parentEnum = C_TABLE[visibleBind[0]];
+            let parentEnumId = visibleBind[0];
+            const parentEnum = C_TABLE[parentEnumId];
             let parentId = parentEnum[visibleBind[1]];
-            visible = getSingleId(parentEnum) == parentId;
+            visible = getSingleId(parentEnumId) == parentId;
         }
         return visible;
     }
     
-    let focusSprite = function asmapui_focusSprite(tileEnum)
+    let focusSprite = function asmapui_focusSprite(tileEnumId)
     {
-        let spriteTable = m_uiSpriteTable[tileEnum];
-        let currentId = getSingleId(tileEnum);
-        let stateful = C_STATEFUL[tileEnum];
-        let visibleBind = C_VISIBLE_BIND[tileEnum];
-        let visible = getVisibleState(tileEnum);
+        let spriteTable = m_uiSpriteTable[tileEnumId];
+        let currentId = getSingleId(tileEnumId);
+        let stateful = C_STATEFUL[C_TABLE[tileEnumId]];
+        let visibleBind = C_VISIBLE_BIND[C_TABLE[tileEnumId]];
+        let visible = getVisibleState(tileEnumId);
         let keys = Object.keys(spriteTable);
         for (let i in keys)
         {
@@ -748,7 +757,7 @@ let ASMAPUI = (function ()
         return sprite;
     }
     
-    let createMenuBackground = function asmapui_createMenuBackground(width, height, tileEnums)
+    let createMenuBackground = function asmapui_createMenuBackground(width, height, tileEnumId)
     {
         let graphics = new PIXI.Graphics();
 
@@ -772,55 +781,55 @@ let ASMAPUI = (function ()
         let sprite = new PIXI.Sprite(texture);
         sprite.interactive = true;
         sprite.on('pointerdown',
-            function(e){onMenuBackgroundDown(e, tileEnums);});
+            function(e){onMenuBackgroundDown(e, tileEnumId);});
         sprite.on('pointerup',
-            function(e){onMenuBackgroundUp(e, tileEnums);});
+            function(e){onMenuBackgroundUp(e, tileEnumId);});
         sprite.on('pointermove', 
-            function(e){onMenuBackgroundMove(e, tileEnums);});
+            function(e){onMenuBackgroundMove(e, tileEnumId);});
         return sprite;
     }
     
-    let onMenuBackgroundDown = function asmapui_onMenuBackgroundDown(e, tileEnums)
+    let onMenuBackgroundDown = function asmapui_onMenuBackgroundDown(e, tileEnumId)
     {
         
     }
     
-    let onMenuBackgroundUp = function asmapui_onMenuBackgroundUp(e, tileEnums)
+    let onMenuBackgroundUp = function asmapui_onMenuBackgroundUp(e, tileEnumId)
     {
         
     }
     
-    let onMenuBackgroundMove = function asmapui_onMenuBackgroundMove(e, tileEnums)
+    let onMenuBackgroundMove = function asmapui_onMenuBackgroundMove(e, tileEnumId)
     {
         //let global = e.data.global;
-        //console.log(global.x + ' ' + tileEnums);
+        //console.log(global.x + ' ' + tileEnumId);
     }
     
-    let getIdEnabled = function asmapui_getIdEnabled(tileEnum, id)
+    let getIdEnabled = function asmapui_getIdEnabled(tileEnumId, id)
     {
-        return getSingleId(tileEnum) == id;
+        return getSingleId(tileEnumId) == id;
     }
     
     // dependants
     
     public.getCurrentZoneId = function asmapui_getCurrentZoneId()
     {
-        return getSingleId(C_ZONE);
+        return getSingleId(C_TABLE_ID[C_ZONE]);
     }
     
     let isViewMode = function asmapui_isViewMode(mode)
     {
-        return getSingleId(C_MAIN) == C_MAIN[0];
+        return getSingleId(C_TABLE_ID[C_MAIN]) == C_MAIN[0];
     }
     
     public.isZoneMode = function asmapui_isZoneMode()
     {
-        return getVisibleState(C_ZONE);
+        return getVisibleState(C_TABLE_ID[C_ZONE]);
     }
     
     let getCurrentViewId = function asmapui_getCurrentViewId()
     {
-        return getSingleId(C_VIEW);
+        return getSingleId(C_TABLE_ID[C_VIEW]);
     }
     
     public.isViewModeRoadLayer = function asmapui_isViewModeRoadLayer()
@@ -835,7 +844,7 @@ let ASMAPUI = (function ()
     let refreshMapDisplay = function asmapui_refreshMapDisplay()
     {
         const C = ASTILEVIEW.C_TILEVIEW;
-        let view = getSingleId(C_VIEW);
+        let view = getSingleId(C_TABLE_ID[C_VIEW]);
         if (view == C_VIEW[0])
         {
             MMAPDATA.setTileView(C.ZONE);
@@ -848,7 +857,7 @@ let ASMAPUI = (function ()
         {
             MMAPDATA.setTileView(C.ROAD_CONGESTION);
         }
-        else if (getSingleId(C_VIEW) == C_VIEW[3])
+        else if (getSingleId(C_TABLE_ID[C_VIEW]) == C_VIEW[3])
         {
             MMAPDATA.setTileView(C.RICO_DENSITY);
         }

@@ -480,7 +480,7 @@ let ASMAPUI = (function ()
     let C_ICON_WIDTH = 64;
     
     let C = ASTILE.C_TILE_ZONE;
-    const C_ZONE = [
+    const C_ZONE_DATA = [
         C.DIRT,
         C.ROAD, 
         C.RESLOW,
@@ -491,7 +491,7 @@ let ASMAPUI = (function ()
         C.COMHIG
     ];
     
-    const C_VIEW = [
+    const C_VIEW_DATA = [
         C.DIRT,
         C.ROAD,
         C.NONE,
@@ -499,14 +499,14 @@ let ASMAPUI = (function ()
     ];
     
     C = ASTILE.C_TILE_ICON;
-    const C_MAIN = [
+    const C_MAIN_DATA = [
         C.VIEW,
         C.ZONE,
         C.SPED,
         C.GAME
     ];
     
-    const C_PLAY = [
+    const C_PLAY_DATA = [
         C.PLAY, // play 1
         C.PLAY2,
         C.PLAY3,
@@ -514,26 +514,24 @@ let ASMAPUI = (function ()
         C.STEP, // frame by frame
     ];
     
-    const C_SAVE = [
+    const C_SAVE_DATA = [
         C.SAVE,
         C.LOAD,
         C.BENC
     ];
     
     const C_TABLE = {
-        0 : C_MAIN,
-        1 : C_VIEW,
-        2 : C_ZONE,
-        3 : C_PLAY,
-        4 : C_SAVE
+        0 : C_MAIN_DATA,
+        1 : C_VIEW_DATA,
+        2 : C_ZONE_DATA,
+        3 : C_PLAY_DATA,
+        4 : C_SAVE_DATA
     }
-    const C_TABLE_ID = {
-        [C_MAIN] : 0,
-        [C_VIEW] : 1,
-        [C_ZONE] : 2,
-        [C_PLAY] : 3,
-        [C_SAVE] : 4
-    }
+    const C_MAIN = 0;
+    const C_VIEW = 1;
+    const C_ZONE = 2;
+    const C_PLAY = 3;
+    const C_SAVE = 4;
     
     let C_LEVEL = {
         [C_MAIN] : 0,
@@ -586,7 +584,7 @@ let ASMAPUI = (function ()
     let buildMenu = function asmapui_buildMenu(tileEnumId, callback)
     {
         m_uiSpriteTable[tileEnumId] = {};
-        let level = C_LEVEL[C_TABLE[tileEnumId]];
+        let level = C_LEVEL[tileEnumId];
         let tileTable = m_uiSpriteTable[tileEnumId];
         let landscape = MMAPRENDER.isOrientationLandscape();
         let c = 0;
@@ -677,8 +675,7 @@ let ASMAPUI = (function ()
         
         for (let i in C_TABLE)
         {
-            let module = C_TABLE[i];
-            buildMenu(i, C_SPRITE_TOUCH[module]);
+            buildMenu(i, C_SPRITE_TOUCH[i]);
         }
         
         focusAllSprite();
@@ -704,7 +701,7 @@ let ASMAPUI = (function ()
     
     let getVisibleState = function asmapui_getVisibleState(tileEnumId)
     {
-        let visibleBind = C_VISIBLE_BIND[C_TABLE[tileEnumId]];
+        let visibleBind = C_VISIBLE_BIND[tileEnumId];
         let visible;
         if (visibleBind[0] == -1)
         {
@@ -724,8 +721,8 @@ let ASMAPUI = (function ()
     {
         let spriteTable = m_uiSpriteTable[tileEnumId];
         let currentId = getSingleId(tileEnumId);
-        let stateful = C_STATEFUL[C_TABLE[tileEnumId]];
-        let visibleBind = C_VISIBLE_BIND[C_TABLE[tileEnumId]];
+        let stateful = C_STATEFUL[tileEnumId];
+        let visibleBind = C_VISIBLE_BIND[tileEnumId];
         let visible = getVisibleState(tileEnumId);
         let keys = Object.keys(spriteTable);
         for (let i in keys)
@@ -814,50 +811,50 @@ let ASMAPUI = (function ()
     
     public.getCurrentZoneId = function asmapui_getCurrentZoneId()
     {
-        return getSingleId(C_TABLE_ID[C_ZONE]);
+        return getSingleId(C_ZONE);
     }
     
     let isViewMode = function asmapui_isViewMode(mode)
     {
-        return getSingleId(C_TABLE_ID[C_MAIN]) == C_MAIN[0];
+        return getSingleId(C_MAIN) == C_TABLE[C_MAIN][0];
     }
     
     public.isZoneMode = function asmapui_isZoneMode()
     {
-        return getVisibleState(C_TABLE_ID[C_ZONE]);
+        return getVisibleState(C_ZONE);
     }
     
     let getCurrentViewId = function asmapui_getCurrentViewId()
     {
-        return getSingleId(C_TABLE_ID[C_VIEW]);
+        return getSingleId(C_VIEW);
     }
     
     public.isViewModeRoadLayer = function asmapui_isViewModeRoadLayer()
     {
-        return isViewMode() && getCurrentViewId() == C_VIEW[2];
+        return isViewMode() && getCurrentViewId() == C_TABLE[C_VIEW][2];
     }
     public.isViewModeRicoLayer = function asmapui_isViewModeRicoLayer()
     {
-        return isViewMode() && getCurrentViewId() == C_VIEW[3];
+        return isViewMode() && getCurrentViewId() == C_TABLE[C_VIEW][3];
     }
     
     let refreshMapDisplay = function asmapui_refreshMapDisplay()
     {
         const C = ASTILEVIEW.C_TILEVIEW;
-        let view = getSingleId(C_TABLE_ID[C_VIEW]);
-        if (view == C_VIEW[0])
+        let view = getSingleId(C_VIEW);
+        if (view == C_TABLE[C_VIEW][0])
         {
             MMAPDATA.setTileView(C.ZONE);
         }
-        else if (view == C_VIEW[1])
+        else if (view == C_TABLE[C_VIEW][1])
         {
             MMAPDATA.setTileView(C.ROAD_TRAVERSAL);
         }
-        else if (view == C_VIEW[2])
+        else if (view == C_TABLE[C_VIEW][2])
         {
             MMAPDATA.setTileView(C.ROAD_CONGESTION);
         }
-        else if (getSingleId(C_TABLE_ID[C_VIEW]) == C_VIEW[3])
+        else if (getSingleId(C_VIEW) == C_TABLE[C_VIEW][3])
         {
             MMAPDATA.setTileView(C.RICO_DENSITY);
         }

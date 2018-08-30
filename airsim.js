@@ -639,7 +639,7 @@ let ASMAPUI = (function ()
             c++;
         }
         
-        let background = createMenuBackground(backgroundWidth, backgroundHeight);
+        let background = createMenuBackground(backgroundWidth, backgroundHeight, tileEnums);
         m_uiLayer.addChildAt(background, 0);
         if (landscape)
         {
@@ -748,7 +748,7 @@ let ASMAPUI = (function ()
         return sprite;
     }
     
-    let createMenuBackground = function asmapui_createMenuBackground(width, height)
+    let createMenuBackground = function asmapui_createMenuBackground(width, height, tileEnums)
     {
         let graphics = new PIXI.Graphics();
 
@@ -769,8 +769,31 @@ let ASMAPUI = (function ()
         graphics.endFill();
         
         let texture = g_app.renderer.generateTexture(graphics);
-        let sprite = new PIXI.Sprite(texture)
+        let sprite = new PIXI.Sprite(texture);
+        sprite.interactive = true;
+        sprite.on('pointerdown',
+            function(e){onMenuBackgroundDown(e, tileEnums);});
+        sprite.on('pointerup',
+            function(e){onMenuBackgroundUp(e, tileEnums);});
+        sprite.on('pointermove', 
+            function(e){onMenuBackgroundMove(e, tileEnums);});
         return sprite;
+    }
+    
+    let onMenuBackgroundDown = function asmapui_onMenuBackgroundDown(e, tileEnums)
+    {
+        
+    }
+    
+    let onMenuBackgroundUp = function asmapui_onMenuBackgroundUp(e, tileEnums)
+    {
+        
+    }
+    
+    let onMenuBackgroundMove = function asmapui_onMenuBackgroundMove(e, tileEnums)
+    {
+        //let global = e.data.global;
+        //console.log(global.x + ' ' + tileEnums);
     }
     
     let getIdEnabled = function asmapui_getIdEnabled(tileEnum, id)

@@ -495,6 +495,7 @@ let ASMAPUI = (function ()
     
     const C_VIEW_DATA = [
         C.DIRT,
+        C.COMLOW,
         C.ROAD,
         C.NONE,
         C.RESLOW
@@ -937,13 +938,17 @@ let ASMAPUI = (function ()
         }
         else if (view == C_TABLE[C_VIEW][1])
         {
-            MMAPDATA.setTileView(C.ROAD_TRAVERSAL);
+            MMAPDATA.setTileView(C.DISPLAY);
         }
         else if (view == C_TABLE[C_VIEW][2])
         {
+            MMAPDATA.setTileView(C.ROAD_TRAVERSAL);
+        }
+        else if (view == C_TABLE[C_VIEW][3])
+        {
             MMAPDATA.setTileView(C.ROAD_CONGESTION);
         }
-        else if (getSingleId(C_VIEW) == C_TABLE[C_VIEW][3])
+        else if (view == C_TABLE[C_VIEW][4])
         {
             MMAPDATA.setTileView(C.RICO_DENSITY);
         }

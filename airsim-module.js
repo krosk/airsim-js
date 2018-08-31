@@ -14,20 +14,24 @@ let ASSTATE = (function()
         CHANGE : 1,
         ZONE_REQUEST : 2,
         ROAD_CONNECT : 3,
-        ROAD_CAR_FLOW : 4,
-        ROAD_CAR_LAST_FLOW : 5,
-        ROAD_TRAVERSAL_PROCESSED : 6,
-        ROAD_TRAVERSAL_COST : 7,
-        ROAD_TRAVERSAL_PARENT : 8,
-        ROAD_DEBUG : 9,
-        RICO_DENSITY_LEVEL : 4,
-        RICO_OFFER_R: 5,
-        RICO_OFFER_I: 6,
-        RICO_OFFER_C: 7,
-        RICO_DEMAND_R : 8,
-        RICO_DEMAND_I : 9,
-        RICO_DEMAND_C : 10,
-        END : 11
+        DISPLAY_ID : 4,
+        
+        ROAD_CAR_FLOW : 5,
+        ROAD_CAR_LAST_FLOW : 6,
+        ROAD_TRAVERSAL_PROCESSED : 7,
+        ROAD_TRAVERSAL_COST : 8,
+        ROAD_TRAVERSAL_PARENT : 9,
+        ROAD_DEBUG : 10,
+        
+        RICO_DENSITY_LEVEL : 5,
+        RICO_OFFER_R: 6,
+        RICO_OFFER_I: 7,
+        RICO_OFFER_C: 8,
+        RICO_DEMAND_R : 9,
+        RICO_DEMAND_I : 10,
+        RICO_DEMAND_C : 11,
+        
+        END : 12
     }
     public.C_DATA = C;
     
@@ -199,6 +203,16 @@ let ASSTATE = (function()
         let mask = ~(1 << d);
         let data = r(index, C.ROAD_CONNECT) & mask;
         w(index, C.ROAD_CONNECT, data);
+    }
+    
+    public.getDisplayId = function asstate_getDisplayId(index)
+    {
+        return r(index, C.DISPLAY_ID);
+    }
+    
+    public.setDisplayId = function asstate_setDisplayId(index, data)
+    {
+        w(index, C.DISPLAY_ID, data);
     }
     
     public.getRoadLastCarFlow = function asstate_getRoadLastCarFlow(index)
@@ -692,6 +706,16 @@ let ASZONE = (function ()
         }
         const index = ASSTATE.getIndex(x, y);
         return ASSTATE.getZoneId(index);
+    }
+    
+    public.getDataIdByDisplay = function aszone_getDataIdByDisplay(x, y)
+    {
+        if (!ASSTATE.isValidCoordinates(x, y))
+        {
+            return C.NONE;
+        }
+        const index = ASSTATE.getIndex(x, y);
+        return ASSTATE.getDisplayId(index);
     }
     
     let clearZone = function aszone_clearZone(x, y, zone)
@@ -2362,14 +2386,16 @@ let ASTILEVIEW = (function ()
     
     public.C_TILEVIEW = {
         ZONE : 0,
-        ROAD_TRAVERSAL : 1,
-        ROAD_CONGESTION : 2,
-        RICO_DENSITY : 3
+        DISPLAY : 1,
+        ROAD_TRAVERSAL : 2,
+        ROAD_CONGESTION : 3,
+        RICO_DENSITY : 4
     };
     const C = public.C_TILEVIEW;
     
     const C_MAP = {
         [C.ZONE] : ASZONE.getDataIdByZone,
+        [C.DISPLAY] : ASZONE.getDataIdByDisplay,
         [C.ROAD_TRAVERSAL] : ASROAD.getDataIdByTraversalState,
         [C.ROAD_CONGESTION] : ASROAD.getDataIdByCongestion,
         [C.RICO_DENSITY] : ASRICO.getDataIdByDensityLevel

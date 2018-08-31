@@ -476,6 +476,8 @@ let ASMAPUI = (function ()
     
     public.C_NAME = 'ASMAPUI';
     
+    let C_DELAY_TAP = 100; // ms
+    
     let C_ICON_HEIGHT = 48;
     let C_ICON_WIDTH = 64;
     
@@ -610,6 +612,10 @@ let ASMAPUI = (function ()
         m_uiSpriteOffsetY[tileEnumId] = 0;
         let genericCallback = function (e, id)
         {
+            if (Date.now() - m_pressedTileTimeLast >= C_DELAY_TAP)
+            {
+                return;
+            }
             setSingleId(tileEnumId, id);
             if (typeof callback != 'undefined')
             {
@@ -782,11 +788,11 @@ let ASMAPUI = (function ()
         sprite.on('pointerdown',
             function(e){
                 onMenuDown(e, tileEnumId);
-                callback(e, id);
             });
         sprite.on('pointerup',
             function(e){
                 onMenuUp(e, tileEnumId);
+                callback(e, id);
             });
         sprite.on('pointerupoutside',
             function(e){
@@ -836,12 +842,14 @@ let ASMAPUI = (function ()
     let m_pressedTileEnumId = -1;
     let m_pressedTileEnumLastX = null;
     let m_pressedTileEnumLastY = null;
+    let m_pressedTileTimeLast = null;
     
     let onMenuDown = function asmapui_onMenuDown(e, tileEnumId)
     {
         if (m_pressedTileEnumId < 0)
         {
             m_pressedTileEnumId = tileEnumId;
+            m_pressedTileTimeLast = Date.now();
         }
         m_pressedTileEnumLastX = e.data.global.x;
         m_pressedTileEnumLastY = e.data.global.y;

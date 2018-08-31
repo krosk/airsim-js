@@ -3042,5 +3042,12 @@ menu level x is moving.
 Upon capture of any ui element moving, 
 regardless of row, the shift is applied.
 
-
 Should they be circular menus?
+
+Probably, the way to design the ui is to 
+process correctly the intent. If someone wants
+to drag the menu, then it is very likely that
+one does not want to trigger the button.
+One could believe a trigger is about the
+shortness of a tap. Hence timing between
+up and down is the criteria.

@@ -3051,3 +3051,17 @@ one does not want to trigger the button.
 One could believe a trigger is about the
 shortness of a tap. Hence timing between
 up and down is the criteria.
+
+
+Note that the drag map has a bug where one
+should touch in this order, using pointer
+down and up.
+touch finger 1
+touch finger 2
+untouch 2
+untouch 1
+touch 1
+upon touch 2, the touch is interpreted as 
+touch 1 again
+printing identifier will exhibit the issue.
+Probably a bug in pixi.

@@ -581,17 +581,29 @@ let ASMAPUI = (function ()
         public.resize();
     }
     
+    let getBackgroundSize = function asmapui_getBackgroundSize()
+    {
+        let landscape = MMAPRENDER.isOrientationLandscape();
+        let backgroundWidth = 0;
+        let backgroundHeight = 0;
+        if (landscape)
+        {
+            backgroundWidth = C_ICON_WIDTH;
+            backgroundHeight = getLayerHeight();
+        }
+        else
+        {
+            backgroundWidth = getLayerWidth();
+            backgroundHeight = C_ICON_HEIGHT;
+        }
+        return [backgroundWidth, backgroundHeight];
+    }
+    
     let buildMenu = function asmapui_buildMenu(tileEnumId, callback)
     {
         m_uiSpriteTable[tileEnumId] = {};
         let level = C_LEVEL[tileEnumId];
         let tileTable = m_uiSpriteTable[tileEnumId];
-        let landscape = MMAPRENDER.isOrientationLandscape();
-        let c = 0;
-        let backgroundWidth = 0;
-        let backgroundHeight = 0;
-        let maxWidth = 0;
-        let maxHeight = 0;
         let genericCallback = function (e, id)
         {
             setSingleId(tileEnumId, id);
@@ -605,9 +617,40 @@ let ASMAPUI = (function ()
         for (let i in tileEnums)
         {
             let tileId = tileEnums[i];
-            let sprite = createSprite(tileId, genericCallback);
+            let sprite = createSprite(tileId, tileEnumId, genericCallback);
             m_uiLayer.addChild(sprite);
             tileTable[tileId] = sprite;
+            sprite.visible = false;
+        }
+        
+        let landscape = MMAPRENDER.isOrientationLandscape();
+        let backgroundSize = getBackgroundSize();
+        let backgroundWidth = backgroundSize[0];
+        let backgroundHeight = backgroundSize[1];
+        let background = createMenuBackground(backgroundWidth, backgroundHeight, tileEnumId);
+        m_uiLayer.addChildAt(background, 0);
+        if (landscape)
+        {
+            background.x = getLayerWidth() - background.width * (1+level);
+        }
+        else
+        {
+            background.y = getLayerHeight() - background.height * (1+level);
+        }
+    }
+    
+    let placeMenu = function asmapui_placeMenu(tileEnumId)
+    {
+        let level = C_LEVEL[tileEnumId];
+        let tileEnums = C_TABLE[tileEnumId];
+        let tileTable = m_uiSpriteTable[tileEnumId];
+        let c = 0;
+        let maxWidth = 0;
+        let maxHeight = 0;
+        for (let i in tileEnums)
+        {
+            let tileId = tileEnums[i];
+            let sprite = tileTable[tileId];
             if (maxWidth < sprite.width)
             {
                 maxWidth = sprite.width;
@@ -616,18 +659,11 @@ let ASMAPUI = (function ()
             {
                 maxHeight = sprite.height;
             }
-            sprite.visible = false;
         }
-        if (landscape)
-        {
-            backgroundWidth = C_ICON_WIDTH;
-            backgroundHeight = getLayerHeight();
-        }
-        else
-        {
-            backgroundWidth = getLayerWidth();
-            backgroundHeight = C_ICON_HEIGHT;
-        }
+        let landscape = MMAPRENDER.isOrientationLandscape();
+        let backgroundSize = getBackgroundSize();
+        let backgroundWidth = backgroundSize[0];
+        let backgroundHeight = backgroundSize[1];
         for (let i in tileEnums)
         {
             let tileId = tileEnums[i];
@@ -645,16 +681,6 @@ let ASMAPUI = (function ()
             c++;
         }
         
-        let background = createMenuBackground(backgroundWidth, backgroundHeight, tileEnumId);
-        m_uiLayer.addChildAt(background, 0);
-        if (landscape)
-        {
-            background.x = getLayerWidth() - background.width * (1+level);
-        }
-        else
-        {
-            background.y = getLayerHeight() - background.height * (1+level);
-        }
     }
     
     public.resize = function asmapui_resize()
@@ -676,6 +702,7 @@ let ASMAPUI = (function ()
         for (let i in C_TABLE)
         {
             buildMenu(i, C_SPRITE_TOUCH[i]);
+            placeMenu(i);
         }
         
         focusAllSprite();
@@ -743,14 +770,29 @@ let ASMAPUI = (function ()
         return g_app.renderer.height;
     }
     
-    let createSprite = function asmapui_createSprite(id, callback)
+    let createSprite = function asmapui_createSprite(id, tileEnumId, callback)
     {
         let textureName = ASTILE.getTileTextureName(id);
         let textureCache = PIXI.utils.TextureCache[textureName];
         let sprite = new PIXI.Sprite(textureCache);
         sprite.interactive = true;
         sprite.on('pointerdown',
-            function(e){callback(e, id);});
+            function(e){
+                onMenuDown(e, tileEnumId);
+                callback(e, id);
+            });
+        sprite.on('pointerup',
+            function(e){
+                onMenuUp(e, tileEnumId);
+            });
+        sprite.on('pointerupoutside',
+            function(e){
+                onMenuUp(e, tileEnumId);
+            });
+        sprite.on('pointermove',
+            function(e){
+                onMenuMove(e, tileEnumId);
+            });
         return sprite;
     }
     
@@ -778,28 +820,47 @@ let ASMAPUI = (function ()
         let sprite = new PIXI.Sprite(texture);
         sprite.interactive = true;
         sprite.on('pointerdown',
-            function(e){onMenuBackgroundDown(e, tileEnumId);});
+            function(e){onMenuDown(e, tileEnumId);});
         sprite.on('pointerup',
-            function(e){onMenuBackgroundUp(e, tileEnumId);});
+            function(e){onMenuUp(e, tileEnumId);});
+        sprite.on('pointerupoutside',
+            function(e){onMenuUp(e, tileEnumId);});
         sprite.on('pointermove', 
-            function(e){onMenuBackgroundMove(e, tileEnumId);});
+            function(e){onMenuMove(e, tileEnumId);});
         return sprite;
     }
     
-    let onMenuBackgroundDown = function asmapui_onMenuBackgroundDown(e, tileEnumId)
+    let m_pressedTileEnumId = -1;
+    let m_pressedTileEnumLastX = null;
+    
+    let onMenuDown = function asmapui_onMenuDown(e, tileEnumId)
     {
-        
+        m_pressedTileEnumId = tileEnumId;
+        m_pressedTileEnumLastX = e.data.global.x;
+        //console.log('I' + tileEnumId);
     }
     
-    let onMenuBackgroundUp = function asmapui_onMenuBackgroundUp(e, tileEnumId)
+    let onMenuUp = function asmapui_onMenuUp(e, tileEnumId)
     {
-        
+        if (m_pressedTileEnumId < 0)
+        {
+            return;
+        }
+        //console.log('O' + m_pressedTileEnumId + 'I' + tileEnumId);
+        m_pressedTileEnumId = -1;
+        m_pressedTileEnumLastX = null;
     }
     
-    let onMenuBackgroundMove = function asmapui_onMenuBackgroundMove(e, tileEnumId)
+    let onMenuMove = function asmapui_onMenuMove(e, tileEnumId)
     {
-        //let global = e.data.global;
-        //console.log(global.x + ' ' + tileEnumId);
+        if (m_pressedTileEnumId < 0)
+        {
+            return;
+        }
+        let nowPressed = e.data.global;
+        let dx = nowPressed.x - m_pressedTileEnumLastX;
+        //console.log((dx * 100 | 0) / 100);
+        m_pressedTileEnumLastX = nowPressed.x;
     }
     
     let getIdEnabled = function asmapui_getIdEnabled(tileEnumId, id)

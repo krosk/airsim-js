@@ -559,6 +559,8 @@ let ASMAPUI = (function ()
     
     let m_uiLayer;
     let m_uiSpriteTable = {};
+    let m_uiSpriteOffsetX = {};
+    let m_uiSpriteOffsetY = {};
     
     let m_uiActiveId = {};
     
@@ -604,6 +606,8 @@ let ASMAPUI = (function ()
         m_uiSpriteTable[tileEnumId] = {};
         let level = C_LEVEL[tileEnumId];
         let tileTable = m_uiSpriteTable[tileEnumId];
+        m_uiSpriteOffsetX[tileEnumId] = 0;
+        m_uiSpriteOffsetY[tileEnumId] = 0;
         let genericCallback = function (e, id)
         {
             setSingleId(tileEnumId, id);
@@ -671,16 +675,15 @@ let ASMAPUI = (function ()
             if (landscape)
             {
                 sprite.x = getLayerWidth() - backgroundWidth*(1+level);
-                sprite.y = c*maxHeight;
+                sprite.y = c*maxHeight + m_uiSpriteOffsetY[tileEnumId];
             }
             else
             {
-                sprite.x = c*maxWidth;
+                sprite.x = c*maxWidth + m_uiSpriteOffsetX[tileEnumId];
                 sprite.y = getLayerHeight() - backgroundHeight*(1+level);
             }
             c++;
         }
-        
     }
     
     public.resize = function asmapui_resize()
@@ -835,7 +838,10 @@ let ASMAPUI = (function ()
     
     let onMenuDown = function asmapui_onMenuDown(e, tileEnumId)
     {
-        m_pressedTileEnumId = tileEnumId;
+        if (m_pressedTileEnumId < 0)
+        {
+            m_pressedTileEnumId = tileEnumId;
+        }
         m_pressedTileEnumLastX = e.data.global.x;
         //console.log('I' + tileEnumId);
     }
@@ -859,8 +865,9 @@ let ASMAPUI = (function ()
         }
         let nowPressed = e.data.global;
         let dx = nowPressed.x - m_pressedTileEnumLastX;
-        //console.log((dx * 100 | 0) / 100);
+        m_uiSpriteOffsetX[tileEnumId] += dx;
         m_pressedTileEnumLastX = nowPressed.x;
+        placeMenu(tileEnumId);
     }
     
     let getIdEnabled = function asmapui_getIdEnabled(tileEnumId, id)

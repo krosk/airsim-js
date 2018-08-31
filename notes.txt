@@ -3006,3 +3006,41 @@ the master could be
     children : [{}, {}, {}]
 }
 It is very verbose, so do not do this.
+
+To support scrolling menu, sprites should have
+more than pointerdown interaction.
+
+Case 1: 
+Press: button
+Move: No
+Release: same button
+Result: button is focused
+
+Case 2:
+Press: button
+Move: yes
+Result: menu should move, so the button stays
+below pointer
+Release: same button
+Result: button is focused
+
+Case 3:
+Press: button
+Move: yes
+Result: menu should move, so the button stays
+below pointer
+Release: mouse moved out of current button
+somehow
+Result: button is focused
+
+The data required should be:
+upon press, the button is activated anyway.
+This simplifies the ui, but need to make sure
+there is no undesired actions as a result.
+A flag is still trigerred, saying that the
+menu level x is moving.
+Upon capture of any ui element moving, 
+regardless of row, the shift is applied.
+
+
+Should they be circular menus?

@@ -835,6 +835,7 @@ let ASMAPUI = (function ()
     
     let m_pressedTileEnumId = -1;
     let m_pressedTileEnumLastX = null;
+    let m_pressedTileEnumLastY = null;
     
     let onMenuDown = function asmapui_onMenuDown(e, tileEnumId)
     {
@@ -843,6 +844,7 @@ let ASMAPUI = (function ()
             m_pressedTileEnumId = tileEnumId;
         }
         m_pressedTileEnumLastX = e.data.global.x;
+        m_pressedTileEnumLastY = e.data.global.y;
         //console.log('I' + tileEnumId);
     }
     
@@ -855,6 +857,7 @@ let ASMAPUI = (function ()
         //console.log('O' + m_pressedTileEnumId + 'I' + tileEnumId);
         m_pressedTileEnumId = -1;
         m_pressedTileEnumLastX = null;
+        m_pressedTileEnumLastY = null;
     }
     
     let onMenuMove = function asmapui_onMenuMove(e, tileEnumId)
@@ -865,8 +868,18 @@ let ASMAPUI = (function ()
         }
         let nowPressed = e.data.global;
         let dx = nowPressed.x - m_pressedTileEnumLastX;
-        m_uiSpriteOffsetX[tileEnumId] += dx;
+        let dy = nowPressed.y - m_pressedTileEnumLastY;
+        let landscape = MMAPRENDER.isOrientationLandscape();
+        if (landscape)
+        {
+            m_uiSpriteOffsetY[tileEnumId] += dy;
+        }
+        else
+        {
+            m_uiSpriteOffsetX[tileEnumId] += dx;
+        }
         m_pressedTileEnumLastX = nowPressed.x;
+        m_pressedTileEnumLastY = nowPressed.y;
         placeMenu(tileEnumId);
     }
     

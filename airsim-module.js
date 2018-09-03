@@ -715,7 +715,8 @@ let ASZONE = (function ()
             return C.NONE;
         }
         const index = ASSTATE.getIndex(x, y);
-        return ASSTATE.getDisplayId(index);
+        let displayId = ASSTATE.getDisplayId(index);
+        return displayId;
     }
     
     let clearZone = function aszone_clearZone(x, y, zone)
@@ -951,9 +952,8 @@ let ASROAD = (function ()
         WW: 7
     };
     const C_FROM = [2, 3, 0, 1, 6, 7, 4, 5];
-    
-    public.C_TILEENUM = ASTILE.C_TILE_ROAD_CONGESTION;
-    const C = public.C_TILEENUM;
+    const C_DISPLAY = ASTILE.C_TILE_ROAD_DISPLAY;
+    const C_CONGESTION = ASTILE.C_TILE_ROAD_CONGESTION;
     const C_ZONE = ASTILE.C_TILE_ZONE;
     
     const C_ZONE_ROAD = {
@@ -1014,33 +1014,33 @@ let ASROAD = (function ()
     {
         if (!ASSTATE.isValidCoordinates(x, y))
         {
-            return C.NONE;
+            return C_CONGESTION.NONE;
         }
         let index = ASSTATE.getIndex(x, y);
         if (!hasRoad(index))
         {
-            return C.NONE;
+            return C_CONGESTION.NONE;
         }
         let ratio = getRoadLastCarFlowRatio(index);
         if (ratio < 0.5)
         {
-            return C.LOW;
+            return C_CONGESTION.LOW;
         }
         else if (ratio < 0.75)
         {
-            return C.MID;
+            return C_CONGESTION.MID;
         }
         else if (ratio < 1)
         {
-            return C.HIG;
+            return C_CONGESTION.HIG;
         }
         else if (ratio >= 1)
         {
-        	return C.VHI;
+        	return C_CONGESTION.VHI;
         }
         else
         {
-        	return C.NONE;
+        	return C_CONGESTION.NONE;
         }
     }
     
@@ -1048,29 +1048,29 @@ let ASROAD = (function ()
     {
         if (!ASSTATE.isValidCoordinates(x, y))
         {
-            return C.NONE;
+            return C_CONGESTION.NONE;
         }
         let index = ASSTATE.getIndex(x, y);
         let value = hasRoad(index) ? ASSTATE.getRoadDebug(index) : 0;
         if (value >= 104)
         {
-            return C.VHI;
+            return C_CONGESTION.VHI;
         }
         else if (value >= 103)
         {
-            return C.HIG; // in queue and processed
+            return C_CONGESTION.HIG; // in queue and processed
         }
         else if (value >= 102)
         {
-            return C.MID; // current
+            return C_CONGESTION.MID; // current
         }
         else if (value >= 101)
         {
-        	return C.LOW; // in queue
+        	return C_CONGESTION.LOW; // in queue
         }
         else if (value >= 0)
         {
-        	return C.NONE; // unexplored
+        	return C_CONGESTION.NONE; // unexplored
         }
         else
         {
@@ -1210,11 +1210,12 @@ let ASROAD = (function ()
             return;
         }
         let index = ASSTATE.getIndex(x, y);
-        if (!hasRoad(index))
+        //if (!hasRoad(index))
         {
             ASSTATE.setRoadLastCarFlow(index, 0);
             ASSTATE.setRoadCarFlow(index, 0);
-            ASSTATE.setRoadDebug(index, C.LOW)
+            ASSTATE.setRoadDebug(index, C_CONGESTION.LOW);
+            ASSTATE.setDisplayId(index, C_DISPLAY.____);
             m_cacheNodeRefresh = true;
             // traversal v2 related
             ASSTATE.setRoadTraversalCost(index, 0);
@@ -1494,7 +1495,7 @@ let ASROAD = (function ()
             setTraversalCost(node, currentCost);
             setTraversalParent(node, parent);
             setTraversalAdded(node);
-            ASSTATE.setRoadDebug(node, C.MID);
+            ASSTATE.setRoadDebug(node, C_CONGESTION.MID);
             changeTraversalIndex(node);
             if (G_CACHE_NODE)
             {
@@ -1603,7 +1604,7 @@ let ASROAD = (function ()
                 }
             }
         }
-        ASSTATE.setRoadDebug(node, C.HIG);
+        ASSTATE.setRoadDebug(node, C_CONGESTION.HIG);
         expandIfNotTraversed(node, C_TO.N);
         expandIfNotTraversed(node, C_TO.E);
         expandIfNotTraversed(node, C_TO.S);
@@ -1670,7 +1671,7 @@ let ASROAD = (function ()
             let node = nodeList[i];
             if (hasRoad(node))
             {
-                ASSTATE.setRoadDebug(node, C.LOW);
+                ASSTATE.setRoadDebug(node, C_CONGESTION.LOW);
                 changeTraversalIndex(node);
             }
             clearTraversal(node, i);

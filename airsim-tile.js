@@ -20,17 +20,17 @@ let ASTILE = (function ()
     // each zone is a function
     public.C_TILE_ZONE = {
         NONE: 0,
-        DEFAULT: 1,
-        DIRT: 1,
-        PATH: 3,
-        ROAD: 4,
-        HIGHWAY: 5,
-        RESLOW: 10,
-        INDLOW: 20,
-        COMLOW: 30,
-        RESHIG: 12,
-        INDHIG: 22,
-        COMHIG: 32
+        DEFAULT: 10,
+        DIRT: 10,
+        PATH: 12,
+        ROAD: 14,
+        HIGHWAY: 16,
+        RESLOW: 20,
+        INDLOW: 30,
+        COMLOW: 40,
+        RESHIG: 22,
+        INDHIG: 32,
+        COMHIG: 42
     };
     
     public.C_TILE_ROAD_CONGESTION = {
@@ -98,6 +98,25 @@ let ASTILE = (function ()
         BENC: 943
     };
     
+    public.C_TILE_ROAD_DISPLAY = {
+        ____ : 1400,
+        N___ : 1401,
+        _E__ : 1402,
+        __S_ : 1404,
+        ___W : 1408,
+        NE__ : 1403,
+        N_S_ : 1405,
+        N__W : 1409,
+        _ES_ : 1406,
+        _E_W : 1410,
+        __SW : 1412,
+        NES_ : 1407,
+        NE_W : 1411,
+        N_SW : 1413,
+        _ESW : 1414,
+        NESW : 1415
+    };
+    
     let m_textureNameCache = {};
     
     let getTileTextureNameUnprotected = function astile_getTileTextureNameUnprotected(tileId)
@@ -150,7 +169,8 @@ let ASTILE = (function ()
     {
         initializeTextureFor(ASICON_TILE);
         initializeTextureFor(ASZONE_TILE);
-        initializeTextureFor(ASROAD_TILE);
+        initializeTextureFor(ASROAD_CONGESTION_TILE);
+        initializeTextureFor(ASROAD_DISPLAY_TILE);
         initializeTextureFor(ASRICO_TILE);
     }
     
@@ -220,7 +240,7 @@ let ASZONE_TILE = (function ()
     return public;
 })();
 
-let ASROAD_TILE = (function ()
+let ASROAD_CONGESTION_TILE = (function ()
 {
     let public = {};
     
@@ -229,7 +249,7 @@ let ASROAD_TILE = (function ()
     public.C_TILEENUM = ASTILE.C_TILE_ROAD_CONGESTION;
     const C = public.C_TILEENUM;
     
-    const C_TRAFFICCOLOR = {
+    const C_CONGESTION_COLOR = {
         [C.NONE] : getColor(255, 255, 255),
         [C.LOW] : getColor(76, 175, 80),
         [C.MID] : getColor(255, 235, 59),
@@ -237,22 +257,61 @@ let ASROAD_TILE = (function ()
         [C.VHI] : getColor(180, 50, 50)
     };
     
-    let getTrafficTextureMargin = function asroad_getTrafficTextureMargin(id)
+    let getCongestionTextureMargin = function asroad_getCongestionTextureMargin(id)
     {
         return 0;
     }
     
-    let getTrafficTextureHeight = function asroad_getTrafficTextureHeight(id)
+    let getCongestionTextureHeight = function asroad_getCongestionTextureHeight(id)
     {
         return 3;
     }
     
     public.createTexture = function asroad_createTexture(id)
     {
-        let color = C_TRAFFICCOLOR[id];
-        let margin = getTrafficTextureMargin(id);
-        let height = getTrafficTextureHeight(id);
+        let color = C_CONGESTION_COLOR[id];
+        let margin = getCongestionTextureMargin(id);
+        let height = getCongestionTextureHeight(id);
         return ASTILE.createTexture(color, margin, height);
+    }
+    
+    return public;
+})();
+
+let ASROAD_DISPLAY_TILE = (function ()
+{
+    let public = {};
+    
+    public.C_TILEENUM = ASTILE.C_TILE_ROAD_DISPLAY;
+    const C = public.C_TILEENUM;
+    
+    let getColor = ASTILE.getColor;
+    
+    let addTileBase = function asroad_display_tile_addTileBase(color)
+    {
+        let margin = getTextureMargin();
+        let height = getTextureHeight();
+        let graphics = ASTILE.createTexture(0xFFFFFF, margin, height);
+        let black = 0x000000;
+        graphics.beginFill(color);
+        graphics.lineStyle(1, black);
+        return graphics;
+    }
+    
+    let getTextureMargin = function ()
+    {
+        return 0;
+    }
+    
+    let getTextureHeight = function ()
+    {
+        return 3;
+    }
+    
+    public.createTexture = function asroad_display_tile_createTexture(id)
+    {
+        let color = getColor(158, 158, 158);
+        return addTileBase(color);
     }
     
     return public;

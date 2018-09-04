@@ -1088,6 +1088,14 @@ let ASROAD = (function ()
         return to;
     }
     
+    let connectDisplayId = function asroad_connectDisplayId(index, d)
+    {
+        let displayId = ASSTATE.getDisplayId(index);
+        displayId += 1 << d;
+        ASSTATE.setDisplayId(index, displayId);
+        ASSTATE.notifyChange(index);
+    }
+    
     let connectRoadToRoad = function asroad_connectRoadToRoad(x, y, d)
     {
         let from = ASSTATE.getIndex(x, y);
@@ -1097,6 +1105,8 @@ let ASROAD = (function ()
         {
             ASSTATE.setRoadConnectTo(from, d);
             ASSTATE.setRoadConnectTo(to, C_FROM[d]);
+            connectDisplayId(from, d);
+            connectDisplayId(to, C_FROM[d]);
         }
     }
     

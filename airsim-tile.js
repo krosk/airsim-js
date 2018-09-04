@@ -146,7 +146,7 @@ let ASTILE = (function ()
         graphics.beginFill(color);
         graphics.lineStyle(1, black);
     
-        let M = margin; // margin
+        let M = margin;
         let H = height;
     
         // draw a rectangle
@@ -291,10 +291,10 @@ let ASROAD_DISPLAY_TILE = (function ()
     {
         let margin = getTextureMargin();
         let height = getTextureHeight();
-        let graphics = ASTILE.createTexture(0xFFFFFF, margin, height);
-        let black = 0x000000;
+        let graphics = ASTILE.createTexture(color, margin, height);
+        let yellow = 0xFFFF00;
         graphics.beginFill(color);
-        graphics.lineStyle(1, black);
+        graphics.lineStyle(1, yellow);
         return graphics;
     }
     
@@ -308,10 +308,52 @@ let ASROAD_DISPLAY_TILE = (function ()
         return 3;
     }
     
+    let drawDirection = function asroad_display_tile_dtawDirection(id, graphics)
+    {
+        let C_TEXTURE_BASE_SIZE_X = MMAPRENDER.getTextureBaseSizeX();
+        let C_TEXTURE_BASE_SIZE_Y = MMAPRENDER.getTextureBaseSizeY();
+        
+        let M = getTextureMargin();
+        let H = getTextureHeight();
+        
+        let flags = id % 100;
+        let N = flags & (1 << 0);
+        let E = flags & (1 << 1);
+        let S = flags & (1 << 2);
+        let W = flags & (1 << 3);
+        
+        // tl
+        if (N)
+        {
+            graphics.moveTo(C_TEXTURE_BASE_SIZE_X / 2, C_TEXTURE_BASE_SIZE_Y / 2);
+            graphics.lineTo(C_TEXTURE_BASE_SIZE_X / 4 + M / 2, C_TEXTURE_BASE_SIZE_Y / 4 + M / 2);
+        }
+        // tr
+        if (E)
+        {
+            graphics.moveTo(C_TEXTURE_BASE_SIZE_X / 2, C_TEXTURE_BASE_SIZE_Y / 2);
+            graphics.lineTo(3 * C_TEXTURE_BASE_SIZE_X / 4 - M / 2, C_TEXTURE_BASE_SIZE_Y / 4 + M / 2);
+        }
+        // br
+        if (S)
+        {
+            graphics.moveTo(C_TEXTURE_BASE_SIZE_X / 2, C_TEXTURE_BASE_SIZE_Y / 2);
+            graphics.lineTo(3 * C_TEXTURE_BASE_SIZE_X / 4 - M / 2, 3 * C_TEXTURE_BASE_SIZE_Y / 4 - M / 2);
+        }
+        // bl
+        if (W)
+        {
+            graphics.moveTo(C_TEXTURE_BASE_SIZE_X / 2, C_TEXTURE_BASE_SIZE_Y / 2);
+            graphics.lineTo(C_TEXTURE_BASE_SIZE_X / 4 + M / 2, 3 * C_TEXTURE_BASE_SIZE_Y / 4 - M / 2);
+        }
+    }
+    
     public.createTexture = function asroad_display_tile_createTexture(id)
     {
         let color = getColor(158, 158, 158);
-        return addTileBase(color);
+        let graphics = addTileBase(color);
+        drawDirection(id, graphics);
+        return graphics;
     }
     
     return public;

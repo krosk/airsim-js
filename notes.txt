@@ -2665,7 +2665,7 @@ The architecture can be using a state machine:
     them at its pace
 - After there is response, compute
 
-UI and data view
+** Visual : UI and data view
 As of current implementation, each module has
 one view only. This is limiting the potential
 as one module could in fact provide many views.
@@ -2775,6 +2775,38 @@ this limits saving during a tick.
 Impacted modules are for example road
 distribution and checking.
 
+
+** Visual : display id
+The main display of buildings, the one that
+distinguish same zones.
+The scope is:
+
+Roads
+each type of roads need at least 16 variations.
+single plot  0
+n  1
+e  2
+s  4
+w  8
+ne  3
+ns  5
+nw  9
+ew  10
+es  6
+ws  12
+nes  7
+new  11
+nsw  13
+esw  14
+nesw  15
+if it is based on 4 flags
+n: 1
+e: 2
+s: 4
+w: 8
+
+
+Buildings:
 
   
 

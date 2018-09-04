@@ -1091,8 +1091,26 @@ let ASROAD = (function ()
     let connectDisplayId = function asroad_connectDisplayId(index, d)
     {
         let displayId = ASSTATE.getDisplayId(index);
-        displayId += 1 << d;
-        ASSTATE.setDisplayId(index, displayId);
+        let roadFlag = displayId % 100; // astile
+        let roadDisplayIdBase = displayId - roadFlag;
+        roadFlag |= (1 << d);
+        ASSTATE.setDisplayId(index, roadDisplayIdBase + roadFlag);
+        ASSTATE.notifyChange(index);
+    }
+    
+    let disconnectDisplayId = function asroad_disconnectDisplayId(index, d)
+    {
+        if (d >= 4)
+        {
+            return;
+        }
+        let displayId = ASSTATE.getDisplayId(index);
+        let roadFlag = displayId % 100; // astile
+        let newRoadFlag = roadFlag;
+        let roadDisplayIdBase = displayId - roadFlag;
+        newRoadFlag &= ~(1 << d);
+        let newDisplayId = roadDisplayIdBase + newRoadFlag;
+        ASSTATE.setDisplayId(index, newDisplayId);
         ASSTATE.notifyChange(index);
     }
     
@@ -1138,10 +1156,12 @@ let ASROAD = (function ()
         if (hasRoad(from) || ASRICO.hasBuilding(from))
         {
             ASSTATE.setRoadDisconnectTo(from, d);
+            disconnectDisplayId(from, d);
         }
         if (hasRoad(to) || ASRICO.hasBuilding(from))
         {
             ASSTATE.setRoadDisconnectTo(to, C_FROM[d]);
+            disconnectDisplayId(to, C_FROM[d]);
         }
     }
     

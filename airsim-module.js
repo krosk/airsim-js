@@ -693,6 +693,7 @@ let ASZONE = (function ()
     }
     
     public.C_TILEENUM = ASTILE.C_TILE_ZONE;
+    const C_TERRAIN_DISPLAY = ASTILE.C_TILE_TERRAIN_DISPLAY;
     const C = public.C_TILEENUM;
     
     let isValidZone = function aszone_isValidZone(id)
@@ -811,7 +812,7 @@ let ASZONE = (function ()
         }
         else if (zone == C.DIRT)
         {
-            ASSTATE.setDisplayId(index, C.DIRT);
+            ASSTATE.setDisplayId(index, C_TERRAIN_DISPLAY.DIRT_0);
         }
     }
     
@@ -1127,7 +1128,7 @@ let ASROAD = (function ()
             return;
         }
         let displayId = ASSTATE.getDisplayId(index);
-        let roadFlag = displayId % 100; // astile
+        let roadFlag = displayId % ASTILE.C_TILE_DISPLAY_BASE_MODULO;
         let newRoadFlag = roadFlag;
         let roadDisplayIdBase = displayId - roadFlag;
         newRoadFlag &= ~(1 << d);

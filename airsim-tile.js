@@ -25,12 +25,12 @@ let ASTILE = (function ()
         PATH: 12,
         ROAD: 14,
         HIGHWAY: 16,
-        RESLOW: 20,
-        INDLOW: 30,
-        COMLOW: 40,
-        RESHIG: 22,
-        INDHIG: 32,
-        COMHIG: 42
+        RESLOW: 21,
+        INDLOW: 24,
+        COMLOW: 27,
+        RESHIG: 23,
+        INDHIG: 26,
+        COMHIG: 29
     };
     
     public.C_TILE_ROAD_CONGESTION = {
@@ -98,6 +98,15 @@ let ASTILE = (function ()
         BENC: 943
     };
     
+    // hard rule: display id must be bigger
+    // than 100
+    
+    public.C_TILE_DISPLAY_BASE_MODULO = 100;
+    
+    public.C_TILE_TERRAIN_DISPLAY = {
+        DIRT_0 : 1000
+    }
+    
     public.C_TILE_ROAD_DISPLAY = {
         ____ : 1400,
         N___ : 1401,
@@ -115,6 +124,17 @@ let ASTILE = (function ()
         N_SW : 1413,
         _ESW : 1414,
         NESW : 1415
+    };
+    
+    // rule xxab
+    // xx is zone id
+    // a is level
+    // b is variant
+    public.C_TILE_RICO_DISPLAY = {
+        RESLOW_1_0 : 2110,
+        RESLOW_1_1 : 2111,
+        RESLOW_1_2 : 2112,
+        RESLOW_1_3 : 2113
     };
     
     let m_textureNameCache = {};
@@ -169,6 +189,7 @@ let ASTILE = (function ()
     {
         initializeTextureFor(ASICON_TILE);
         initializeTextureFor(ASZONE_TILE);
+        initializeTextureFor(ASZONE_TERRAIN_TILE);
         initializeTextureFor(ASROAD_CONGESTION_TILE);
         initializeTextureFor(ASROAD_DISPLAY_TILE);
         initializeTextureFor(ASRICO_TILE);
@@ -235,6 +256,20 @@ let ASZONE_TILE = (function ()
         let margin = getCityTextureMargin(id);
         let height = C_CITYHEIGHT[id];
         return ASTILE.createTexture(color, margin, height);
+    }
+    
+    return public;
+})();
+
+let ASZONE_TERRAIN_TILE = (function ()
+{
+    let public = {};
+    
+    public.C_TILEENUM = ASTILE.C_TILE_TERRAIN_DISPLAY;
+    
+    public.createTexture = function aszone_terrain_tile_createTexture(id)
+    {
+        return ASZONE_TILE.createTexture(ASTILE.C_TILE_ZONE.DIRT);
     }
     
     return public;

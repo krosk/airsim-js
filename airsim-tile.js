@@ -177,10 +177,12 @@ let ASTILE = (function ()
         graphics.lineTo(C_TEXTURE_BASE_SIZE_X - M, C_TEXTURE_BASE_SIZE_Y / 2 + H);
         graphics.lineTo(C_TEXTURE_BASE_SIZE_X - M, C_TEXTURE_BASE_SIZE_Y / 2);
         graphics.lineTo(C_TEXTURE_BASE_SIZE_X / 2, M);
-        graphics.moveTo(C_TEXTURE_BASE_SIZE_X / 2, C_TEXTURE_BASE_SIZE_Y - 2 * M + M);
+        graphics.moveTo(C_TEXTURE_BASE_SIZE_X / 2, C_TEXTURE_BASE_SIZE_Y - M);
         graphics.lineTo(M, C_TEXTURE_BASE_SIZE_Y / 2);
-        graphics.moveTo(C_TEXTURE_BASE_SIZE_X / 2, C_TEXTURE_BASE_SIZE_Y - 2 * M + M);
+        graphics.moveTo(C_TEXTURE_BASE_SIZE_X / 2, C_TEXTURE_BASE_SIZE_Y - M);
         graphics.lineTo(C_TEXTURE_BASE_SIZE_X - M, C_TEXTURE_BASE_SIZE_Y / 2);
+        graphics.moveTo(C_TEXTURE_BASE_SIZE_X / 2, C_TEXTURE_BASE_SIZE_Y - M);
+        graphics.lineTo(C_TEXTURE_BASE_SIZE_X / 2, C_TEXTURE_BASE_SIZE_Y - M + H);
     
         return graphics;
     }
@@ -401,9 +403,47 @@ let ASRICO_DISPLAY_TILE = (function ()
     
     public.C_TILEENUM = ASTILE.C_TILE_RICO_DISPLAY;
     
+    let getColor = ASTILE.getColor;
+    
+    let getBaseMargin = function ()
+    {
+        return 0;
+    }
+    
+    let getBaseHeight = function ()
+    {
+        return 3;
+    }
+    
+    let addBuilding = function _addBuilding(graphics, SX, SY, M, H)
+    {
+        graphics.moveTo(SX / 2, M);
+        graphics.lineTo(M, SY / 2);
+        graphics.lineTo(M, SY / 2 + H);
+        graphics.lineTo(SX / 2, SY - M + H);
+        graphics.lineTo(SX - M, SY / 2 + H);
+        graphics.lineTo(SX - M, SY / 2);
+        graphics.lineTo(SX / 2, M);
+        graphics.moveTo(SX / 2, SY - 2 * M + M);
+        graphics.lineTo(M, SY / 2);
+        graphics.moveTo(SX / 2, SY - 2 * M + M);
+        graphics.lineTo(SX - M, SY / 2);
+    }
+    
+    let addTileBase = function ()
+    {
+        let color = getColor(158, 158, 158);
+        let margin = getBaseMargin();
+        let height = getBaseHeight();
+        let graphic = ASTILE.createTexture(color, margin, height);
+        return graphic;
+    }
+    
     public.createTexture = function (id)
     {
-        return ASZONE_TILE.createTexture(0);
+        let graphic = addTileBase();
+        
+        return graphic;
     }
     
     return public;

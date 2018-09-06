@@ -1154,7 +1154,6 @@ let ASROAD = (function ()
     {
         let from = ASSTATE.getIndex(x, y);
         let to = getIndexTo(x, y, d);
-        //console.log('connectnode x'+x+'y'+y+'xd'+xd+'yd'+yd);
         if (hasRoad(from) && ASRICO.hasBuilding(to))
         {
             ASSTATE.setRoadConnectTo(to, C_FROM[d]);
@@ -1180,7 +1179,7 @@ let ASROAD = (function ()
             ASSTATE.setRoadDisconnectTo(from, d);
             disconnectDisplayId(from, d);
         }
-        if (hasRoad(to) || ASRICO.hasBuilding(from))
+        if (hasRoad(to) || ASRICO.hasBuilding(to))
         {
             ASSTATE.setRoadDisconnectTo(to, C_FROM[d]);
             disconnectDisplayId(to, C_FROM[d]);

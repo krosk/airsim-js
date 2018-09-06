@@ -192,7 +192,7 @@ let ASTILE = (function ()
         initializeTextureFor(ASZONE_TERRAIN_TILE);
         initializeTextureFor(ASROAD_CONGESTION_TILE);
         initializeTextureFor(ASROAD_DISPLAY_TILE);
-        initializeTextureFor(ASRICO_TILE);
+        initializeTextureFor(ASRICO_DENSITY_TILE);
     }
     
     let initializeTextureFor = function astile_initializeTextureFor(library)
@@ -394,7 +394,7 @@ let ASROAD_DISPLAY_TILE = (function ()
     return public;
 })();
 
-let ASRICO_TILE = (function ()
+let ASRICO_DENSITY_TILE = (function ()
 {
     let public = {};
     
@@ -454,7 +454,7 @@ let ASRICO_TILE = (function ()
     {
         if (G_CHECK && typeof C_TILETEXTURE[id] == 'undefined')
         {
-            throw "ASRICO Tile " + id + " has no texture";
+            throw "ASRICO density Tile " + id + " has no texture";
         }
         let color = C_TILETEXTURE[id][0];
         let margin = getTileTextureMargin(id);

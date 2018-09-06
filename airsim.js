@@ -1968,6 +1968,10 @@ let MMAPRENDER = (function ()
 
     let C_TEXTURE_BASE_SIZE_X = 64;
     let C_TEXTURE_BASE_SIZE_Y = 32;
+    
+    //let C_TEXTURE_BASE_SIZE_X = 32;
+    //let C_TEXTURE_BASE_SIZE_Y = 16;
+    
     public.getTextureBaseSizeX = function mmaprender_getTextureBaseSizeX()
     {
         return C_TEXTURE_BASE_SIZE_X;

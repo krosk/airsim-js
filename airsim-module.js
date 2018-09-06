@@ -16,6 +16,8 @@ let ASSTATE = (function()
         ROAD_CONNECT : 3,
         DISPLAY_ID : 4,
         
+        PROPERTY_START : 5,
+        
         ROAD_CAR_FLOW : 5,
         ROAD_CAR_LAST_FLOW : 6,
         ROAD_TRAVERSAL_PROCESSED : 7,
@@ -133,6 +135,18 @@ let ASSTATE = (function()
         {
             let targetBase = (index - 1)*C.END + G.END;
             for (let i = 0; i < C.END; i++)
+            {
+                m_dataStateView[targetBase + i] = 0;
+            }
+        }
+    }
+    
+    public.clearProperties = function asstate_clearProperties(index)
+    {
+        if (index > 0)
+        {
+            let targetBase = (index - 1)*C.END + G.END;
+            for (let i = C.PROPERTY_START; i < C.END; i++)
             {
                 m_dataStateView[targetBase + i] = 0;
             }
@@ -629,6 +643,10 @@ let ASSTATE = (function()
         {
             let nextIndex = public.getChangeFlag(firstIndex);
             public.setChangeFirst(nextIndex);
+            if (G_CHECK && nextIndex == 0)
+            {
+                throw 'nextIndex 0';
+            }
             public.setChangeFlag(firstIndex, 0);
         }
         return firstIndex;
@@ -760,7 +778,7 @@ let ASZONE = (function ()
     let paintZone = function aszone_paintZone(x, y, zone)
     {
         const index = ASSTATE.getIndex(x, y);
-        ASSTATE.clear(index);
+        ASSTATE.clearProperties(index);
         ASSTATE.setZoneId(index, zone);
         // update other systems
         if (zone == C.ROAD)
@@ -790,6 +808,10 @@ let ASZONE = (function ()
         else if (zone == C.INDHIG)
         {
             ASRICO.addIndHig(x, y);
+        }
+        else if (zone == C.DIRT)
+        {
+            ASSTATE.setDisplayId(index, C.DIRT);
         }
     }
     

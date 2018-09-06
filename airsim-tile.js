@@ -193,6 +193,7 @@ let ASTILE = (function ()
         initializeTextureFor(ASROAD_CONGESTION_TILE);
         initializeTextureFor(ASROAD_DISPLAY_TILE);
         initializeTextureFor(ASRICO_DENSITY_TILE);
+        initializeTextureFor(ASRICO_DISPLAY_TILE);
     }
     
     let initializeTextureFor = function astile_initializeTextureFor(library)
@@ -389,6 +390,20 @@ let ASROAD_DISPLAY_TILE = (function ()
         let graphics = addTileBase(color);
         drawDirection(id, graphics);
         return graphics;
+    }
+    
+    return public;
+})();
+
+let ASRICO_DISPLAY_TILE = (function ()
+{
+    let public = {};
+    
+    public.C_TILEENUM = ASTILE.C_TILE_RICO_DISPLAY;
+    
+    public.createTexture = function (id)
+    {
+        return ASZONE_TILE.createTexture(0);
     }
     
     return public;

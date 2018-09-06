@@ -942,11 +942,11 @@ let ASMAPUI = (function ()
         }
         else if (view == C_TABLE[C_VIEW][2])
         {
-            MMAPDATA.setTileView(C.ROAD_TRAVERSAL);
+            MMAPDATA.setTileView(C.ROAD_CONGESTION);
         }
         else if (view == C_TABLE[C_VIEW][3])
         {
-            MMAPDATA.setTileView(C.ROAD_CONGESTION);
+            MMAPDATA.setTileView(C.ROAD_TRAVERSAL);
         }
         else if (view == C_TABLE[C_VIEW][4])
         {

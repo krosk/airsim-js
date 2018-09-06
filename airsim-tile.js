@@ -41,7 +41,7 @@ let ASTILE = (function ()
         VHI: 104
     };
     
-    public.C_TILE_RICO = {
+    public.C_TILE_RICO_DENSITY = {
         NONE: 200,
         ROAD: 201,
         RESLOW_0: 210,
@@ -413,7 +413,7 @@ let ASRICO_DENSITY_TILE = (function ()
 {
     let public = {};
     
-    public.C_TILEENUM = ASTILE.C_TILE_RICO;
+    public.C_TILEENUM = ASTILE.C_TILE_RICO_DENSITY;
     const C = public.C_TILEENUM;
     const C_COLOR = ASTILE.C_COLOR;
     

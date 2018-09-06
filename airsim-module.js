@@ -1776,8 +1776,7 @@ let ASRICO = (function ()
     
     public.C_NAME = 'ASRICO';
     
-    public.C_TILEENUM = ASTILE.C_TILE_RICO;
-    const C = public.C_TILEENUM;
+    const C = ASTILE.C_TILE_RICO_DENSITY;
     const C_ZONE = ASTILE.C_TILE_ZONE;
     
     const C_ZONE_RICO = {

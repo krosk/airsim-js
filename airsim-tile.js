@@ -169,11 +169,10 @@ let ASTILE = (function ()
         let M = margin;
         let H = height;
         
-        
         let x1 = C_TEXTURE_BASE_SIZE_X / 2;
         let y1 = M;
         
-        let x2 = M * 3;
+        let x2 = M * 2;
         let y2 = C_TEXTURE_BASE_SIZE_Y / 2;
         
         let x3 = x2;
@@ -182,7 +181,7 @@ let ASTILE = (function ()
         let x4 = x1;
         let y4 = C_TEXTURE_BASE_SIZE_Y - M + H;
         
-        let x6 = C_TEXTURE_BASE_SIZE_X - M * 3;
+        let x6 = C_TEXTURE_BASE_SIZE_X - M * 2;
         let y6 = C_TEXTURE_BASE_SIZE_Y / 2;
         
         let x5 = x6;
@@ -206,6 +205,7 @@ let ASTILE = (function ()
         graphics.lineTo(x1, y1);
         
         // center
+        //graphics.lineStyle(1, black);
         graphics.moveTo(x7, y7);
         // left
         graphics.lineTo(x2, y2);

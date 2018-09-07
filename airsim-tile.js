@@ -131,11 +131,24 @@ let ASTILE = (function ()
     // a is level
     // b is variant
     public.C_TILE_RICO_DISPLAY = {
-        RESLOW_1_0 : 2110,
-        RESLOW_1_1 : 2111,
-        RESLOW_1_2 : 2112,
-        RESLOW_1_3 : 2113
+        
     };
+    // meta generation
+    let ricoZone = [21, 23, 24, 26, 27, 29];
+    for (let i = 0; i < 6; i++)
+    {
+        let codeBase = ricoZone[i];
+        for (let j = 1; j <= 5; j++)
+        {
+            for (let k = 0; k <= 3; k++)
+            {
+                let n = codeBase*100 + j * 10 + k;
+                public.C_TILE_RICO_DISPLAY[n] = n;
+            }
+        }
+        public.C_TILE_RICO_DISPLAY[codeBase*100] = codeBase*100;
+    }
+    console.log(Object.keys(public.C_TILE_RICO_DISPLAY));
     
     let m_textureNameCache = {};
     

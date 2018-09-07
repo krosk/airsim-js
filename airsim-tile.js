@@ -155,29 +155,8 @@ let ASTILE = (function ()
         return name;
     }
     
-    public.createTexture = function astile_createTexture(color, margin, height)
+    public.drawBlock = function astile_drawBlock(graphics, BWo, BHo, BW, BH, H)
     {
-        let graphics = new PIXI.Graphics();
-        
-        let C_TEXTURE_BASE_SIZE_X = MMAPRENDER.getTextureBaseSizeX();
-        let C_TEXTURE_BASE_SIZE_Y = MMAPRENDER.getTextureBaseSizeY();
-    
-        let black = 0x000000;
-        graphics.beginFill(color);
-        graphics.lineStyle(1, black);
-        
-        // defining a rectangle
-        // is defining its base and height
-        // and top left offset
-    
-        let M = margin;
-        let H = height;
-        
-        let BW = C_TEXTURE_BASE_SIZE_X - M * 4;
-        let BWo = M * 2;
-        let BH = C_TEXTURE_BASE_SIZE_Y - M * 2;
-        let BHo = M;
-        
         let x1 = BW / 2 + BWo;
         let y1 = BHo;
         
@@ -198,7 +177,7 @@ let ASTILE = (function ()
         
         let x5 = x6;
         let y5 = y6 + H;
-    
+            
         // draw a rectangle
         // top
         graphics.moveTo(x1, y1);
@@ -228,6 +207,32 @@ let ASTILE = (function ()
         graphics.moveTo(x7, y7);
         // bottom
         graphics.lineTo(x4, y4);
+    }
+    
+    public.createTexture = function astile_createTexture(color, margin, height)
+    {
+        let graphics = new PIXI.Graphics();
+        
+        let C_TEXTURE_BASE_SIZE_X = MMAPRENDER.getTextureBaseSizeX();
+        let C_TEXTURE_BASE_SIZE_Y = MMAPRENDER.getTextureBaseSizeY();
+    
+        let black = 0x000000;
+        graphics.beginFill(color);
+        graphics.lineStyle(1, black);
+        
+        // defining a rectangle
+        // is defining its base and height
+        // and top left offset
+    
+        let M = margin;
+        let H = height;
+        
+        let BW = C_TEXTURE_BASE_SIZE_X - M * 4;
+        let BWo = M * 2;
+        let BH = C_TEXTURE_BASE_SIZE_Y - M * 2;
+        let BHo = M;
+        
+        public.drawBlock(graphics, BWo, BHo, BW, BH, H);
     
         return graphics;
     }

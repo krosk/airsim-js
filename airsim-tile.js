@@ -165,30 +165,39 @@ let ASTILE = (function ()
         let black = 0x000000;
         graphics.beginFill(color);
         graphics.lineStyle(1, black);
+        
+        // defining a rectangle
+        // is defining its base and height
+        // and top left offset
     
         let M = margin;
         let H = height;
         
-        let x1 = C_TEXTURE_BASE_SIZE_X / 2;
-        let y1 = M;
+        let BW = C_TEXTURE_BASE_SIZE_X - M * 4;
+        let BWo = M * 2;
+        let BH = C_TEXTURE_BASE_SIZE_Y - M * 2;
+        let BHo = M;
         
-        let x2 = M * 2;
-        let y2 = C_TEXTURE_BASE_SIZE_Y / 2;
+        let x1 = BW / 2 + BWo;
+        let y1 = BHo;
+        
+        let x2 = BWo;
+        let y2 = BH / 2 + BHo;
         
         let x3 = x2;
         let y3 = y2 + H;
         
-        let x4 = x1;
-        let y4 = C_TEXTURE_BASE_SIZE_Y - M + H;
+        let x7 = x1;
+        let y7 = BH + BHo;
         
-        let x6 = C_TEXTURE_BASE_SIZE_X - M * 2;
-        let y6 = C_TEXTURE_BASE_SIZE_Y / 2;
+        let x4 = x1;
+        let y4 = y7 + H;
+        
+        let x6 = BWo + BW;
+        let y6 = y2;
         
         let x5 = x6;
         let y5 = y6 + H;
-        
-        let x7 = x1;
-        let y7 = C_TEXTURE_BASE_SIZE_Y - M;
     
         // draw a rectangle
         // top

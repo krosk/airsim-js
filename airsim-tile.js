@@ -465,21 +465,6 @@ let ASRICO_DISPLAY_TILE = (function ()
         return 3;
     }
     
-    let addBuilding = function _addBuilding(graphics, SX, SY, M, H)
-    {
-        graphics.moveTo(SX / 2, M);
-        graphics.lineTo(M, SY / 2);
-        graphics.lineTo(M, SY / 2 + H);
-        graphics.lineTo(SX / 2, SY - M + H);
-        graphics.lineTo(SX - M, SY / 2 + H);
-        graphics.lineTo(SX - M, SY / 2);
-        graphics.lineTo(SX / 2, M);
-        graphics.moveTo(SX / 2, SY - 2 * M + M);
-        graphics.lineTo(M, SY / 2);
-        graphics.moveTo(SX / 2, SY - 2 * M + M);
-        graphics.lineTo(SX - M, SY / 2);
-    }
-    
     let addTileBase = function ()
     {
         let color = getColor(158, 158, 158);
@@ -491,9 +476,12 @@ let ASRICO_DISPLAY_TILE = (function ()
     
     public.createTexture = function (id)
     {
-        let graphic = addTileBase();
-        
-        return graphic;
+        let graphics = addTileBase();
+        let black = 0x000000;
+        graphics.beginFill(getColor(158, 158, 158));
+        graphics.lineStyle(1, black);
+        ASTILE.drawBlock(graphics, 3, 3, 8, 8, 5);
+        return graphics;
     }
     
     return public;

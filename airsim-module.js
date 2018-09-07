@@ -1949,6 +1949,21 @@ let ASRICO = (function ()
         ASROAD.connectAll(x, y);
     }
     
+    let updateDisplayId = function asrico_updateDisplayId(index, code)
+    {
+        // change occurs only if the display is
+        // not the same
+        let currentDisplayId = ASSTATE.getDisplayId(index) / 10;
+        if (code == currentDisplayId)
+        {
+            return;
+        }
+        let displayId = code * 10;
+        // depend on astile and asrico convention
+        displayId += Date.now() % 4;
+        ASSTATE.setDisplayId(index, displayId);
+    }
+    
     let setInitial = function asrico_setInitial(code, index)
     {
         if (!ASSTATE.isValidIndex(index))
@@ -1965,6 +1980,7 @@ let ASRICO = (function ()
         let demandRico = getInitialDemand(code);
         ASSTATE.setRicoDemand(index, demandRico);
         changeDataIndex(index);
+        updateDisplayId(index, code);
     }
     
     public.addResLow = function asrico_addResLow(x, y)

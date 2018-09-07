@@ -168,21 +168,57 @@ let ASTILE = (function ()
     
         let M = margin;
         let H = height;
+        
+        
+        let x1 = C_TEXTURE_BASE_SIZE_X / 2;
+        let y1 = M;
+        
+        let x2 = M * 3;
+        let y2 = C_TEXTURE_BASE_SIZE_Y / 2;
+        
+        let x3 = x2;
+        let y3 = y2 + H;
+        
+        let x4 = x1;
+        let y4 = C_TEXTURE_BASE_SIZE_Y - M + H;
+        
+        let x6 = C_TEXTURE_BASE_SIZE_X - M * 3;
+        let y6 = C_TEXTURE_BASE_SIZE_Y / 2;
+        
+        let x5 = x6;
+        let y5 = y6 + H;
+        
+        let x7 = x1;
+        let y7 = C_TEXTURE_BASE_SIZE_Y - M;
     
         // draw a rectangle
-        graphics.moveTo(C_TEXTURE_BASE_SIZE_X / 2, M);
-        graphics.lineTo(M, C_TEXTURE_BASE_SIZE_Y / 2);
-        graphics.lineTo(M, C_TEXTURE_BASE_SIZE_Y / 2 + H);
-        graphics.lineTo(C_TEXTURE_BASE_SIZE_X / 2, C_TEXTURE_BASE_SIZE_Y - M + H);
-        graphics.lineTo(C_TEXTURE_BASE_SIZE_X - M, C_TEXTURE_BASE_SIZE_Y / 2 + H);
-        graphics.lineTo(C_TEXTURE_BASE_SIZE_X - M, C_TEXTURE_BASE_SIZE_Y / 2);
-        graphics.lineTo(C_TEXTURE_BASE_SIZE_X / 2, M);
-        graphics.moveTo(C_TEXTURE_BASE_SIZE_X / 2, C_TEXTURE_BASE_SIZE_Y - M);
-        graphics.lineTo(M, C_TEXTURE_BASE_SIZE_Y / 2);
-        graphics.moveTo(C_TEXTURE_BASE_SIZE_X / 2, C_TEXTURE_BASE_SIZE_Y - M);
-        graphics.lineTo(C_TEXTURE_BASE_SIZE_X - M, C_TEXTURE_BASE_SIZE_Y / 2);
-        graphics.moveTo(C_TEXTURE_BASE_SIZE_X / 2, C_TEXTURE_BASE_SIZE_Y - M);
-        graphics.lineTo(C_TEXTURE_BASE_SIZE_X / 2, C_TEXTURE_BASE_SIZE_Y - M + H);
+        // top
+        graphics.moveTo(x1, y1);
+        // left
+        graphics.lineTo(x2, y2);
+        graphics.lineTo(x3, y3);
+        // bottom
+        graphics.lineTo(x4, y4);
+        // right
+        graphics.lineTo(x5, y5);
+        graphics.lineTo(x6, y6);
+        // top
+        graphics.lineTo(x1, y1);
+        
+        // center
+        graphics.moveTo(x7, y7);
+        // left
+        graphics.lineTo(x2, y2);
+        
+        // center
+        graphics.moveTo(x7, y7);
+        // right
+        graphics.lineTo(x6, y6);
+        
+        // center
+        graphics.moveTo(x7, y7);
+        // bottom
+        graphics.lineTo(x4, y4);
     
         return graphics;
     }

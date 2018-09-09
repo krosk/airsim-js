@@ -130,6 +130,9 @@ let ASTILE = (function ()
     // xx is zone id
     // a is level
     // b is variant
+    public.C_RICO_DISPLAY_ID_ZONE_DIGIT = 100;
+    public.C_RICO_DISPLAY_ID_LEVEL_DIGIT = 10;
+    public.C_RICO_DISPLAY_ID_VARIANT_DIGIT = 1;
     let metaGenerateRicoDisplayId = function astile_metaGen(table, codeBase)
     {
         const RICO_RANDOM = 4;
@@ -139,11 +142,14 @@ let ASTILE = (function ()
         {
             for (let k = 0; k < RICO_RANDOM; k++)
             {
-                let n = codeBase*100 + j * 10 + k;
+                let n = codeBase*public.C_RICO_DISPLAY_ID_ZONE_DIGIT + 
+                    j * public.C_RICO_DISPLAY_ID_LEVEL_DIGIT + 
+                    k * public.C_RICO_DISPLAY_ID_VARIANT_DIGIT;
                 table[n] = n;
             }
         }
-        table[codeBase*100] = codeBase*100;
+        let zeroDensityDisplayId = codeBase*public.C_RICO_DISPLAY_ID_ZONE_DIGIT;
+        table[zeroDensityDisplayId] = zeroDensityDisplayId;
     }
     
     public.C_TILE_RICO_DISPLAY = {
@@ -507,7 +513,7 @@ let ASRICO_DISPLAY_TILE = (function ()
         let black = 0x000000;
         graphics.beginFill(getColor(158, 158, 158));
         graphics.lineStyle(1, black);
-        ASTILE.drawBlock(graphics, 3, 3, 8, 8, 5);
+        ASTILE.drawBlock(graphics, 8, 8, 16, 8, 5);
         return graphics;
     }
     
@@ -522,13 +528,25 @@ let ASRICO_RESLOW_DISPLAY_TILE = (function ()
     
     let getColor = ASTILE.getColor;
     
+    let getDisplayIdLevel = function (id)
+    {
+        return (id % (10 * ASTILE.C_RICO_DISPLAY_ID_LEVEL_DIGIT)) / ASTILE.C_RICO_DISPLAY_ID_LEVEL_DIGIT;
+    }
+    
+    let getDisplayIdVariant = function (id)
+    {
+        return (id % (10 * ASTILE.C_RICO_DISPLAY_ID_VARIANT_DIGIT)) / ASTILE.C_RICO_DISPLAY_ID_VARIANT_DIGIT;
+    }
+    
     public.createTexture = function (id)
     {
         let graphics = ASRICO_DISPLAY_TILE.addTileBase();
         let black = 0x000000;
         graphics.beginFill(getColor(158, 255, 158));
         graphics.lineStyle(1, black);
-        ASTILE.drawBlock(graphics, 3, 3, 8, 8, 5);
+        let level = getDisplayIdLevel(id);
+        let variant = getDisplayIdVariant(id);
+        ASTILE.drawBlock(graphics, 8, 8, 16, 8, 5 * level);
         return graphics;
     }
     

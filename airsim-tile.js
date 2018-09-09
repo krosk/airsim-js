@@ -130,6 +130,22 @@ let ASTILE = (function ()
     // xx is zone id
     // a is level
     // b is variant
+    let metaGenerateRicoDisplayId = function astile_metaGen(table, codeBase)
+    {
+        const RICO_RANDOM = 4;
+        const RICO_DENSITY_MIN = 1;
+        const RICO_DENSITY_MAX = 5;
+        for (let j = RICO_DENSITY_MIN; j <= RICO_DENSITY_MAX; j++)
+        {
+            for (let k = 0; k < RICO_RANDOM; k++)
+            {
+                let n = codeBase*100 + j * 10 + k;
+                table[n] = n;
+            }
+        }
+        table[codeBase*100] = codeBase*100;
+    }
+    
     public.C_TILE_RICO_DISPLAY = {
         
     };
@@ -138,17 +154,8 @@ let ASTILE = (function ()
     for (let i = 0; i < 6; i++)
     {
         let codeBase = ricoZone[i];
-        for (let j = 1; j <= 5; j++)
-        {
-            for (let k = 0; k <= 3; k++)
-            {
-                let n = codeBase*100 + j * 10 + k;
-                public.C_TILE_RICO_DISPLAY[n] = n;
-            }
-        }
-        public.C_TILE_RICO_DISPLAY[codeBase*100] = codeBase*100;
+        metaGenerateRicoDisplayId(public.C_TILE_RICO_DISPLAY, codeBase);
     }
-    console.log(Object.keys(public.C_TILE_RICO_DISPLAY));
     
     let m_textureNameCache = {};
     

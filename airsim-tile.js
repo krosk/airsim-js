@@ -150,12 +150,18 @@ let ASTILE = (function ()
         
     };
     // meta generation
-    let ricoZone = [21, 23, 24, 26, 27, 29];
-    for (let i = 0; i < 6; i++)
+    let ricoZone = [23, 24, 26, 27, 29];
+    for (let i = 0; i < ricoZone.length; i++)
     {
         let codeBase = ricoZone[i];
         metaGenerateRicoDisplayId(public.C_TILE_RICO_DISPLAY, codeBase);
     }
+    
+    public.C_TILE_RICO_RESLOW_DISPLAY = {
+        
+    }
+    const RICO_RESLOW_BASE = 21;
+    metaGenerateRicoDisplayId(public.C_TILE_RICO_RESLOW_DISPLAY, RICO_RESLOW_BASE);
     
     let m_textureNameCache = {};
     
@@ -266,6 +272,7 @@ let ASTILE = (function ()
         initializeTextureFor(ASROAD_DISPLAY_TILE);
         initializeTextureFor(ASRICO_DENSITY_TILE);
         initializeTextureFor(ASRICO_DISPLAY_TILE);
+        initializeTextureFor(ASRICO_RESLOW_DISPLAY_TILE);
     }
     
     let initializeTextureFor = function astile_initializeTextureFor(library)
@@ -485,7 +492,7 @@ let ASRICO_DISPLAY_TILE = (function ()
         return 3;
     }
     
-    let addTileBase = function ()
+    public.addTileBase = function ()
     {
         let color = getColor(158, 158, 158);
         let margin = getBaseMargin();
@@ -496,9 +503,30 @@ let ASRICO_DISPLAY_TILE = (function ()
     
     public.createTexture = function (id)
     {
-        let graphics = addTileBase();
+        let graphics = public.addTileBase();
         let black = 0x000000;
         graphics.beginFill(getColor(158, 158, 158));
+        graphics.lineStyle(1, black);
+        ASTILE.drawBlock(graphics, 3, 3, 8, 8, 5);
+        return graphics;
+    }
+    
+    return public;
+})();
+
+let ASRICO_RESLOW_DISPLAY_TILE = (function ()
+{
+    let public = {};
+    
+    public.C_TILEENUM = ASTILE.C_TILE_RICO_RESLOW_DISPLAY;
+    
+    let getColor = ASTILE.getColor;
+    
+    public.createTexture = function (id)
+    {
+        let graphics = ASRICO_DISPLAY_TILE.addTileBase();
+        let black = 0x000000;
+        graphics.beginFill(getColor(158, 255, 158));
         graphics.lineStyle(1, black);
         ASTILE.drawBlock(graphics, 3, 3, 8, 8, 5);
         return graphics;

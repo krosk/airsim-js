@@ -1953,7 +1953,7 @@ let ASRICO = (function ()
     {
         // change occurs only if the display is
         // not the same
-        let currentDisplayId = ASSTATE.getDisplayId(index) / 10;
+        let currentDisplayId = (ASSTATE.getDisplayId(index) / 10) | 0;
         if (code == currentDisplayId)
         {
             return;

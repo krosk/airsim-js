@@ -544,7 +544,9 @@ let ASRICO_RESLOW_DISPLAY_TILE = (function ()
         let color = ASTILE.C_COLOR.RESLOW;
         let height = 3 + 6*level;
         let width = C_TEXTURE_BASE_SIZE_X / 8 * (2 + level);
-        ASTILE.drawBlock(graphics, color, 0, -baseHeight, width, width / 2, height);
+        let offsetX = Math.cos(variant * Math.PI / 2) * (C_TEXTURE_BASE_SIZE_X - width) / 2;
+        let offsetY = Math.sin(variant * Math.PI / 2) * (C_TEXTURE_BASE_SIZE_Y - width / 2) / 2;
+        ASTILE.drawBlock(graphics, color, offsetX, offsetY - baseHeight, width, width / 2, height);
         return graphics;
     }
     

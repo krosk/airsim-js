@@ -2805,8 +2805,9 @@ e: 2
 s: 4
 w: 8
 
-
-Buildings:
+Bug found
+Clearing a zone will erase key data such as
+change flag
 
   
 
@@ -3097,3 +3098,14 @@ upon touch 2, the touch is interpreted as
 touch 1 again
 printing identifier will exhibit the issue.
 Probably a bug in pixi.
+
+
+Webgl issue
+Drawing successive multiple shapes of almost
+same size (hexagonal) will induce a strange 
+growth in texture height of about 0.3 pixels. 
+One point is the line thickness makes the 
+texture size not an integer, which is 
+troublesome.
+By drawing instead 3 quads instead of an hexagon
+the problem seems mitigated.

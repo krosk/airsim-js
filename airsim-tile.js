@@ -187,7 +187,7 @@ let ASTILE = (function ()
         return name;
     }
     
-    public.drawBlock = function astile_drawBlock(graphics, BWo, BHo, BW, BH, H)
+    public.drawBlock = function astile_drawBlock(graphics, color, BWo, BHo, BW, BH, H)
     {
         let x1 = BW / 2 + BWo;
         let y1 = BHo;
@@ -209,36 +209,34 @@ let ASTILE = (function ()
         
         let x5 = x6;
         let y5 = y6 + H;
+        
+        graphics.lineStyle(1, 0x000000);
             
         // draw a rectangle
         // top
-        graphics.moveTo(x1, y1);
-        // left
-        graphics.lineTo(x2, y2);
-        graphics.lineTo(x3, y3);
-        // bottom
-        graphics.lineTo(x4, y4);
-        // right
-        graphics.lineTo(x5, y5);
-        graphics.lineTo(x6, y6);
-        // top
-        graphics.lineTo(x1, y1);
+        graphics.beginFill(color);
+        graphics.moveTo(x1, y1); // top
+        graphics.lineTo(x2, y2); // left
+        graphics.lineTo(x7, y7); // center
+        graphics.lineTo(x6, y6); // right
+        graphics.lineTo(x1, y1); // top
+        graphics.endFill();
         
-        // center
-        //graphics.lineStyle(1, black);
-        graphics.moveTo(x7, y7);
-        // left
-        graphics.lineTo(x2, y2);
+        graphics.beginFill(color);
+        graphics.moveTo(x7, y7); // center
+        graphics.lineTo(x2, y2); // left
+        graphics.lineTo(x3, y3); // left
+        graphics.lineTo(x4, y4); // bottom
+        graphics.lineTo(x7, y7); // center
+        graphics.endFill();
         
-        // center
-        graphics.moveTo(x7, y7);
-        // right
-        graphics.lineTo(x6, y6);
-        
-        // center
-        graphics.moveTo(x7, y7);
-        // bottom
-        graphics.lineTo(x4, y4);
+        graphics.beginFill(color);
+        graphics.moveTo(x7, y7); // center
+        graphics.lineTo(x6, y6); // right
+        graphics.lineTo(x5, y5); // right
+        graphics.lineTo(x4, y4); // bottom
+        graphics.lineTo(x7, y7); // center
+        graphics.endFill();
     }
     
     public.createTexture = function astile_createTexture(color, margin, height)
@@ -247,10 +245,6 @@ let ASTILE = (function ()
         
         let C_TEXTURE_BASE_SIZE_X = MMAPRENDER.getTextureBaseSizeX();
         let C_TEXTURE_BASE_SIZE_Y = MMAPRENDER.getTextureBaseSizeY();
-    
-        let black = 0x000000;
-        graphics.beginFill(color);
-        graphics.lineStyle(1, black);
         
         // defining a rectangle
         // is defining its base and height
@@ -264,8 +258,8 @@ let ASTILE = (function ()
         let BH = C_TEXTURE_BASE_SIZE_Y - M * 2;
         let BHo = M;
         
-        public.drawBlock(graphics, BWo, BHo, BW, BH, H);
-    
+        public.drawBlock(graphics, color, BWo, BHo, BW, BH, H);
+        
         return graphics;
     }
     
@@ -498,7 +492,7 @@ let ASRICO_DISPLAY_TILE = (function ()
         return 3;
     }
     
-    public.addTileBase = function ()
+    public.addTileBase = function asrico_display_tile_addtilebase()
     {
         let color = getColor(158, 158, 158);
         let margin = getBaseMargin();
@@ -510,10 +504,8 @@ let ASRICO_DISPLAY_TILE = (function ()
     public.createTexture = function (id)
     {
         let graphics = public.addTileBase();
-        let black = 0x000000;
-        graphics.beginFill(getColor(158, 158, 158));
-        graphics.lineStyle(1, black);
-        ASTILE.drawBlock(graphics, 8, 8, 16, 8, 5);
+        let gray = getColor(158, 158, 158);
+        ASTILE.drawBlock(graphics, gray, 8, 8, 16, 8, 5);
         return graphics;
     }
     
@@ -530,23 +522,23 @@ let ASRICO_RESLOW_DISPLAY_TILE = (function ()
     
     let getDisplayIdLevel = function (id)
     {
-        return (id % (10 * ASTILE.C_RICO_DISPLAY_ID_LEVEL_DIGIT)) / ASTILE.C_RICO_DISPLAY_ID_LEVEL_DIGIT;
+        return ((id % (10 * ASTILE.C_RICO_DISPLAY_ID_LEVEL_DIGIT)) / ASTILE.C_RICO_DISPLAY_ID_LEVEL_DIGIT) | 0;
     }
     
     let getDisplayIdVariant = function (id)
     {
-        return (id % (10 * ASTILE.C_RICO_DISPLAY_ID_VARIANT_DIGIT)) / ASTILE.C_RICO_DISPLAY_ID_VARIANT_DIGIT;
+        return ((id % (10 * ASTILE.C_RICO_DISPLAY_ID_VARIANT_DIGIT)) / ASTILE.C_RICO_DISPLAY_ID_VARIANT_DIGIT) | 0;
     }
     
     public.createTexture = function (id)
     {
-        let graphics = ASRICO_DISPLAY_TILE.addTileBase();
-        let black = 0x000000;
-        graphics.beginFill(getColor(158, 255, 158));
-        graphics.lineStyle(1, black);
         let level = getDisplayIdLevel(id);
         let variant = getDisplayIdVariant(id);
-        ASTILE.drawBlock(graphics, 8, 8, 16, 8, 5 * level);
+        let graphics = ASRICO_DISPLAY_TILE.addTileBase();
+        let color = getColor(158, 255, 158);
+        //console.log(graphics.height + ' ' + id);
+        ASTILE.drawBlock(graphics, color, 0, 0, 64, 32, 3 * level);
+        //console.log(graphics.height + ' ' + id);
         return graphics;
     }
     

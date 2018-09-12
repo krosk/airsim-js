@@ -9,6 +9,7 @@ let ASTILE = (function ()
     let getColor = public.getColor;
     
     public.C_COLOR = {
+        ROAD : getColor(158, 158, 158),
         RESLOW : getColor(76*1.0, 175*1.0, 80*1.0),
         RESHIG : getColor(76*0.6, 175*0.6, 80*0.6),
         INDLOW : getColor(255*1.0, 235*1.0, 59*1.0),
@@ -304,7 +305,7 @@ let ASZONE_TILE = (function ()
     const C_CITYCOLOR = {
         [C.NONE] : getColor(255, 0, 0),
         [C.DIRT] : getColor(121, 85, 72),
-        [C.ROAD] : getColor(158, 158, 158),
+        [C.ROAD] : C_COLOR.ROAD,
         [C.RESLOW] : C_COLOR.RESLOW,
         [C.INDLOW] : C_COLOR.INDLOW,
         [C.COMLOW] : C_COLOR.COMLOW,
@@ -465,7 +466,7 @@ let ASROAD_DISPLAY_TILE = (function ()
     
     public.createTexture = function asroad_display_tile_createTexture(id)
     {
-        let color = getColor(158, 158, 158);
+        let color = ASTILE.C_COLOR.ROAD;
         let graphics = addTileBase(color);
         drawDirection(id, graphics);
         return graphics;
@@ -494,7 +495,7 @@ let ASRICO_DISPLAY_TILE = (function ()
     
     public.addTileBase = function asrico_display_tile_addtilebase()
     {
-        let color = getColor(158, 158, 158);
+        let color = ASTILE.C_COLOR.ROAD;
         let margin = getBaseMargin();
         let height = getBaseHeight();
         let graphic = ASTILE.createTexture(color, margin, height);
@@ -504,7 +505,7 @@ let ASRICO_DISPLAY_TILE = (function ()
     public.createTexture = function (id)
     {
         let graphics = public.addTileBase();
-        let gray = getColor(158, 158, 158);
+        let gray = ASTILE.C_COLOR.ROAD;
         ASTILE.drawBlock(graphics, gray, 8, 8, 16, 8, 5);
         return graphics;
     }
@@ -557,7 +558,7 @@ let ASRICO_DENSITY_TILE = (function ()
     
     const C_TILETEXTURE = {
         [C.NONE] : [getColor(255, 255, 255), 3],
-        [C.ROAD] : [getColor(158, 158, 158), 3],
+        [C.ROAD] : [C_COLOR.ROAD, 3],
         [C.RESLOW_0] : [C_COLOR.RESLOW, 3],
         [C.RESLOW_1] : [C_COLOR.RESLOW, 6],
         [C.RESLOW_2] : [C_COLOR.RESLOW, 9],

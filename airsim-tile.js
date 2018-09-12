@@ -190,22 +190,23 @@ let ASTILE = (function ()
     
     public.drawBlock = function astile_drawBlock(graphics, color, BWo, BHo, BW, BH, H)
     {
-        let x1 = BW / 2 + BWo;
-        let y1 = BHo;
+        // 0, 0 is the center of the base
+        let x1 = BWo;
+        let y1 = BHo - BH / 2 - H;
         
-        let x2 = BWo;
-        let y2 = BH / 2 + BHo;
+        let x2 = BWo - BW / 2;
+        let y2 = BHo - H;
         
         let x3 = x2;
         let y3 = y2 + H;
         
         let x7 = x1;
-        let y7 = BH + BHo;
+        let y7 = BHo + BH / 2 - H;
         
         let x4 = x1;
         let y4 = y7 + H;
         
-        let x6 = BWo + BW;
+        let x6 = BWo + BW / 2;
         let y6 = y2;
         
         let x5 = x6;
@@ -217,9 +218,9 @@ let ASTILE = (function ()
         // top
         graphics.beginFill(color);
         graphics.moveTo(x1, y1); // top
-        graphics.lineTo(x2, y2); // left
+        graphics.lineTo(x2 + 0.1, y2); // left
         graphics.lineTo(x7, y7); // center
-        graphics.lineTo(x6, y6); // right
+        graphics.lineTo(x6 - 0.1, y6); // right // graphical glitch
         graphics.lineTo(x1, y1); // top
         graphics.endFill();
         
@@ -255,9 +256,9 @@ let ASTILE = (function ()
         let H = height;
         
         let BW = C_TEXTURE_BASE_SIZE_X - M * 4;
-        let BWo = M * 2;
+        let BWo = 0;
         let BH = C_TEXTURE_BASE_SIZE_Y - M * 2;
-        let BHo = M;
+        let BHo = 0;
         
         public.drawBlock(graphics, color, BWo, BHo, BW, BH, H);
         
@@ -441,26 +442,26 @@ let ASROAD_DISPLAY_TILE = (function ()
         // tl
         if (N)
         {
-            graphics.moveTo(C_TEXTURE_BASE_SIZE_X / 2, C_TEXTURE_BASE_SIZE_Y / 2);
-            graphics.lineTo(C_TEXTURE_BASE_SIZE_X / 4 + M / 2, C_TEXTURE_BASE_SIZE_Y / 4 + M / 2);
+            graphics.moveTo(0, -H);
+            graphics.lineTo(- C_TEXTURE_BASE_SIZE_X / 4 + M / 2, - C_TEXTURE_BASE_SIZE_Y / 4 + M / 2 - H);
         }
         // tr
         if (E)
         {
-            graphics.moveTo(C_TEXTURE_BASE_SIZE_X / 2, C_TEXTURE_BASE_SIZE_Y / 2);
-            graphics.lineTo(3 * C_TEXTURE_BASE_SIZE_X / 4 - M / 2, C_TEXTURE_BASE_SIZE_Y / 4 + M / 2);
+            graphics.moveTo(0, -H);
+            graphics.lineTo(C_TEXTURE_BASE_SIZE_X / 4 - M / 2, - C_TEXTURE_BASE_SIZE_Y / 4 + M / 2 - H);
         }
         // br
         if (S)
         {
-            graphics.moveTo(C_TEXTURE_BASE_SIZE_X / 2, C_TEXTURE_BASE_SIZE_Y / 2);
-            graphics.lineTo(3 * C_TEXTURE_BASE_SIZE_X / 4 - M / 2, 3 * C_TEXTURE_BASE_SIZE_Y / 4 - M / 2);
+            graphics.moveTo(0, -H);
+            graphics.lineTo(C_TEXTURE_BASE_SIZE_X / 4 - M / 2, C_TEXTURE_BASE_SIZE_Y / 4 - M / 2 - H);
         }
         // bl
         if (W)
         {
-            graphics.moveTo(C_TEXTURE_BASE_SIZE_X / 2, C_TEXTURE_BASE_SIZE_Y / 2);
-            graphics.lineTo(C_TEXTURE_BASE_SIZE_X / 4 + M / 2, 3 * C_TEXTURE_BASE_SIZE_Y / 4 - M / 2);
+            graphics.moveTo(0, -H);
+            graphics.lineTo(- C_TEXTURE_BASE_SIZE_X / 4 + M / 2, C_TEXTURE_BASE_SIZE_Y / 4 - M / 2 - H);
         }
     }
     
@@ -502,11 +503,11 @@ let ASRICO_DISPLAY_TILE = (function ()
         return graphic;
     }
     
-    public.createTexture = function (id)
+    public.createTexture = function asrico_createTexture(id)
     {
         let graphics = public.addTileBase();
         let gray = ASTILE.C_COLOR.ROAD;
-        ASTILE.drawBlock(graphics, gray, 8, 8, 16, 8, 5);
+        ASTILE.drawBlock(graphics, gray, 0, 0, 16, 8, 5);
         return graphics;
     }
     
@@ -533,13 +534,15 @@ let ASRICO_RESLOW_DISPLAY_TILE = (function ()
     
     public.createTexture = function (id)
     {
+        let C_TEXTURE_BASE_SIZE_X = MMAPRENDER.getTextureBaseSizeX();
+        let C_TEXTURE_BASE_SIZE_Y = MMAPRENDER.getTextureBaseSizeY();
         let level = getDisplayIdLevel(id);
         let variant = getDisplayIdVariant(id);
         let graphics = ASRICO_DISPLAY_TILE.addTileBase();
-        let color = getColor(158, 255, 158);
-        //console.log(graphics.height + ' ' + id);
-        ASTILE.drawBlock(graphics, color, 0, 0, 64, 32, 3 * level);
-        //console.log(graphics.height + ' ' + id);
+        let color = ASTILE.C_COLOR.RESLOW;
+        let height = 3 + 6*level;
+        let width = C_TEXTURE_BASE_SIZE_X / 8 * (2 + level);
+        ASTILE.drawBlock(graphics, color, 0, 0, width, width / 2, height);
         return graphics;
     }
     

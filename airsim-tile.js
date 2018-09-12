@@ -489,7 +489,7 @@ let ASRICO_DISPLAY_TILE = (function ()
         return 0;
     }
     
-    let getBaseHeight = function ()
+    public.getBaseHeight = function asrico_display_tile_getbaseheight()
     {
         return 3;
     }
@@ -498,7 +498,7 @@ let ASRICO_DISPLAY_TILE = (function ()
     {
         let color = ASTILE.C_COLOR.ROAD;
         let margin = getBaseMargin();
-        let height = getBaseHeight();
+        let height = public.getBaseHeight();
         let graphic = ASTILE.createTexture(color, margin, height);
         return graphic;
     }
@@ -507,7 +507,8 @@ let ASRICO_DISPLAY_TILE = (function ()
     {
         let graphics = public.addTileBase();
         let gray = ASTILE.C_COLOR.ROAD;
-        ASTILE.drawBlock(graphics, gray, 0, 0, 16, 8, 5);
+        let baseHeight = public.getBaseHeight();
+        ASTILE.drawBlock(graphics, gray, 0, -baseHeight, 16, 8, 5);
         return graphics;
     }
     
@@ -539,10 +540,11 @@ let ASRICO_RESLOW_DISPLAY_TILE = (function ()
         let level = getDisplayIdLevel(id);
         let variant = getDisplayIdVariant(id);
         let graphics = ASRICO_DISPLAY_TILE.addTileBase();
+        let baseHeight = ASRICO_DISPLAY_TILE.getBaseHeight();
         let color = ASTILE.C_COLOR.RESLOW;
         let height = 3 + 6*level;
         let width = C_TEXTURE_BASE_SIZE_X / 8 * (2 + level);
-        ASTILE.drawBlock(graphics, color, 0, 0, width, width / 2, height);
+        ASTILE.drawBlock(graphics, color, 0, -baseHeight, width, width / 2, height);
         return graphics;
     }
     

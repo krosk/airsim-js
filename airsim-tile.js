@@ -503,6 +503,21 @@ let ASRICO_DISPLAY_TILE = (function ()
         return graphic;
     }
     
+    public.getDisplayIdZone = function asrico_display_tile_getdisplayidzone(id)
+    {
+        return (id % ASTILE.C_RICO_DISPLAY_ID_ZONE_DIGIT);
+    }
+    
+    public.getDisplayIdLevel = function asrico_display_tile_getdisplayidlevel(id)
+    {
+        return ((id % (10 * ASTILE.C_RICO_DISPLAY_ID_LEVEL_DIGIT)) / ASTILE.C_RICO_DISPLAY_ID_LEVEL_DIGIT) | 0;
+    }
+    
+    public.getDisplayIdVariant = function asrico_display_tile_getdisplayidvariant(id)
+    {
+        return ((id % (10 * ASTILE.C_RICO_DISPLAY_ID_VARIANT_DIGIT)) / ASTILE.C_RICO_DISPLAY_ID_VARIANT_DIGIT) | 0;
+    }
+    
     public.createTexture = function asrico_createTexture(id)
     {
         let graphics = public.addTileBase();
@@ -521,24 +536,13 @@ let ASRICO_RESLOW_DISPLAY_TILE = (function ()
     
     public.C_TILEENUM = ASTILE.C_TILE_RICO_RESLOW_DISPLAY;
     
-    let getColor = ASTILE.getColor;
-    
-    let getDisplayIdLevel = function (id)
-    {
-        return ((id % (10 * ASTILE.C_RICO_DISPLAY_ID_LEVEL_DIGIT)) / ASTILE.C_RICO_DISPLAY_ID_LEVEL_DIGIT) | 0;
-    }
-    
-    let getDisplayIdVariant = function (id)
-    {
-        return ((id % (10 * ASTILE.C_RICO_DISPLAY_ID_VARIANT_DIGIT)) / ASTILE.C_RICO_DISPLAY_ID_VARIANT_DIGIT) | 0;
-    }
-    
     public.createTexture = function (id)
     {
         let C_TEXTURE_BASE_SIZE_X = MMAPRENDER.getTextureBaseSizeX();
         let C_TEXTURE_BASE_SIZE_Y = MMAPRENDER.getTextureBaseSizeY();
-        let level = getDisplayIdLevel(id);
-        let variant = getDisplayIdVariant(id);
+        let zone = ASRICO_DISPLAY_TILE.getDisplayIdZone(id);
+        let level = ASRICO_DISPLAY_TILE.getDisplayIdLevel(id);
+        let variant = ASRICO_DISPLAY_TILE.getDisplayIdVariant(id);
         let graphics = ASRICO_DISPLAY_TILE.addTileBase();
         let baseHeight = ASRICO_DISPLAY_TILE.getBaseHeight();
         let color = ASTILE.C_COLOR.RESLOW;

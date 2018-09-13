@@ -738,42 +738,39 @@ let ASZONE = (function ()
         return displayId;
     }
     
-    let clearZone = function aszone_clearZone(x, y, zone)
+    let clearZone = function aszone_clearZone(x, y)
     {
         const oldZone = public.getDataIdByZone(x, y);
-        if (oldZone != zone)
+        if (oldZone == C.ROAD)
         {
-            if (oldZone == C.ROAD)
-            {
-                ASROAD.removeRoad(x, y);
-            }
-            else if (oldZone == C.RESLOW)
-            {
-                ASRICO.removeRico(x, y);
-            }
-            else if (oldZone == C.RESHIG)
-            {
-                ASRICO.removeRico(x, y);
-            }
-            else if (oldZone == C.COMLOW)
-            {
-                ASRICO.removeRico(x, y);
-            }
-            else if (oldZone == C.COMHIG)
-            {
-                ASRICO.removeRico(x, y);
-            }
-            else if (oldZone == C.INDLOW)
-            {
-                ASRICO.removeRico(x, y);
-            }
-            else if (oldZone == C.INDHIG)
-            {
-                ASRICO.removeRico(x, y);
-            }
-            let index = ASSTATE.getIndex(x, y);
-            ASSTATE.notifyChange(index);
+            ASROAD.removeRoad(x, y);
         }
+        else if (oldZone == C.RESLOW)
+        {
+            ASRICO.removeRico(x, y);
+        }
+        else if (oldZone == C.RESHIG)
+        {
+            ASRICO.removeRico(x, y);
+        }
+        else if (oldZone == C.COMLOW)
+        {
+            ASRICO.removeRico(x, y);
+        }
+        else if (oldZone == C.COMHIG)
+        {
+            ASRICO.removeRico(x, y);
+        }
+        else if (oldZone == C.INDLOW)
+        {
+            ASRICO.removeRico(x, y);
+        }
+        else if (oldZone == C.INDHIG)
+        {
+            ASRICO.removeRico(x, y);
+        }
+        let index = ASSTATE.getIndex(x, y);
+        ASSTATE.notifyChange(index);
     }
     
     let paintZone = function aszone_paintZone(x, y, zone)
@@ -827,8 +824,13 @@ let ASZONE = (function ()
         let xy = ASSTATE.getXYFromIndex(index);
         let x = xy[0];
         let y = xy[1];
-        clearZone(x, y, zone);
-        paintZone(x, y, zone);
+        const oldZone = public.getDataIdByZone(x, y);
+        let differentZone = (oldZone != zone);
+        if (differentZone)
+        {
+            clearZone(x, y);
+            paintZone(x, y, zone);
+        }
     }
     
     public.setZone = function aszone_setZone(x, y, zone)

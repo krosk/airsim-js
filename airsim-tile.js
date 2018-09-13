@@ -157,18 +157,22 @@ let ASTILE = (function ()
         
     };
     // meta generation
-    let ricoZone = [23, 24, 26, 27, 29];
+    let ricoZone = [23, 26, 29];
     for (let i = 0; i < ricoZone.length; i++)
     {
         let codeBase = ricoZone[i];
         metaGenerateRicoDisplayId(public.C_TILE_RICO_DISPLAY, codeBase);
     }
     
-    public.C_TILE_RICO_RESLOW_DISPLAY = {
-        
-    }
+    public.C_TILE_RICO_RESLOW_DISPLAY = {}
+    public.C_TILE_RICO_INDLOW_DISPLAY = {}
+    public.C_TILE_RICO_COMLOW_DISPLAY = {}
     const RICO_RESLOW_BASE = 21;
+    const RICO_INDLOW_BASE = 24;
+    const RICO_COMLOW_BASE = 27;
     metaGenerateRicoDisplayId(public.C_TILE_RICO_RESLOW_DISPLAY, RICO_RESLOW_BASE);
+    metaGenerateRicoDisplayId(public.C_TILE_RICO_INDLOW_DISPLAY, RICO_INDLOW_BASE);
+    metaGenerateRicoDisplayId(public.C_TILE_RICO_COMLOW_DISPLAY, RICO_COMLOW_BASE);
     
     let m_textureNameCache = {};
     
@@ -275,6 +279,8 @@ let ASTILE = (function ()
         initializeTextureFor(ASRICO_DENSITY_TILE);
         initializeTextureFor(ASRICO_DISPLAY_TILE);
         initializeTextureFor(ASRICO_RESLOW_DISPLAY_TILE);
+        initializeTextureFor(ASRICO_INDLOW_DISPLAY_TILE);
+        initializeTextureFor(ASRICO_COMLOW_DISPLAY_TILE);
     }
     
     let initializeTextureFor = function astile_initializeTextureFor(library)
@@ -518,6 +524,23 @@ let ASRICO_DISPLAY_TILE = (function ()
         return ((id % (10 * ASTILE.C_RICO_DISPLAY_ID_VARIANT_DIGIT)) / ASTILE.C_RICO_DISPLAY_ID_VARIANT_DIGIT) | 0;
     }
     
+    public.createTextureVariant = function (id, color, heightMethod, widthMethod)
+    {
+        let C_TEXTURE_BASE_SIZE_X = MMAPRENDER.getTextureBaseSizeX();
+        let C_TEXTURE_BASE_SIZE_Y = MMAPRENDER.getTextureBaseSizeY();
+        let zone = public.getDisplayIdZone(id);
+        let level = public.getDisplayIdLevel(id);
+        let variant = public.getDisplayIdVariant(id);
+        let graphics = public.addTileBase();
+        let baseHeight = public.getBaseHeight();
+        let height = heightMethod(level); //3 + 6*level;
+        let width = widthMethod(level); //C_TEXTURE_BASE_SIZE_X / 8 * (2 + level);
+        let offsetX = Math.cos(variant * Math.PI / 2) * (C_TEXTURE_BASE_SIZE_X - width) / 2;
+        let offsetY = Math.sin(variant * Math.PI / 2) * (C_TEXTURE_BASE_SIZE_Y - width / 2) / 2;
+        ASTILE.drawBlock(graphics, color, offsetX, offsetY - baseHeight, width, width / 2, height);
+        return graphics;
+    }
+    
     public.createTexture = function asrico_createTexture(id)
     {
         let graphics = public.addTileBase();
@@ -536,22 +559,82 @@ let ASRICO_RESLOW_DISPLAY_TILE = (function ()
     
     public.C_TILEENUM = ASTILE.C_TILE_RICO_RESLOW_DISPLAY;
     
-    public.createTexture = function (id)
+    let heightMethod = function (level)
+    {
+        return 3 + 6 * level;
+    }
+    
+    let widthMethod = function (level)
     {
         let C_TEXTURE_BASE_SIZE_X = MMAPRENDER.getTextureBaseSizeX();
-        let C_TEXTURE_BASE_SIZE_Y = MMAPRENDER.getTextureBaseSizeY();
-        let zone = ASRICO_DISPLAY_TILE.getDisplayIdZone(id);
-        let level = ASRICO_DISPLAY_TILE.getDisplayIdLevel(id);
-        let variant = ASRICO_DISPLAY_TILE.getDisplayIdVariant(id);
-        let graphics = ASRICO_DISPLAY_TILE.addTileBase();
-        let baseHeight = ASRICO_DISPLAY_TILE.getBaseHeight();
-        let color = ASTILE.C_COLOR.RESLOW;
-        let height = 3 + 6*level;
-        let width = C_TEXTURE_BASE_SIZE_X / 8 * (2 + level);
-        let offsetX = Math.cos(variant * Math.PI / 2) * (C_TEXTURE_BASE_SIZE_X - width) / 2;
-        let offsetY = Math.sin(variant * Math.PI / 2) * (C_TEXTURE_BASE_SIZE_Y - width / 2) / 2;
-        ASTILE.drawBlock(graphics, color, offsetX, offsetY - baseHeight, width, width / 2, height);
-        return graphics;
+        return C_TEXTURE_BASE_SIZE_X / 8 * (2 + level);
+    }
+    
+    public.createTexture = function (id)
+    {
+        return ASRICO_DISPLAY_TILE.createTextureVariant(
+            id,
+            ASTILE.C_COLOR.RESLOW,
+            heightMethod,
+            widthMethod);
+    }
+    
+    return public;
+})();
+
+let ASRICO_INDLOW_DISPLAY_TILE = (function ()
+{
+    let public = {};
+    
+    public.C_TILEENUM = ASTILE.C_TILE_RICO_INDLOW_DISPLAY;
+    
+    let heightMethod = function (level)
+    {
+        return 3 + 6 * level;
+    }
+    
+    let widthMethod = function (level)
+    {
+        let C_TEXTURE_BASE_SIZE_X = MMAPRENDER.getTextureBaseSizeX();
+        return C_TEXTURE_BASE_SIZE_X / 8 * (2 + level);
+    }
+    
+    public.createTexture = function (id)
+    {
+        return ASRICO_DISPLAY_TILE.createTextureVariant(
+            id,
+            ASTILE.C_COLOR.INDLOW,
+            heightMethod,
+            widthMethod);
+    }
+    
+    return public;
+})();
+
+let ASRICO_COMLOW_DISPLAY_TILE = (function ()
+{
+    let public = {};
+    
+    public.C_TILEENUM = ASTILE.C_TILE_RICO_COMLOW_DISPLAY;
+    
+    let heightMethod = function (level)
+    {
+        return 3 + 6 * level;
+    }
+    
+    let widthMethod = function (level)
+    {
+        let C_TEXTURE_BASE_SIZE_X = MMAPRENDER.getTextureBaseSizeX();
+        return C_TEXTURE_BASE_SIZE_X / 8 * (2 + level);
+    }
+    
+    public.createTexture = function (id)
+    {
+        return ASRICO_DISPLAY_TILE.createTextureVariant(
+            id,
+            ASTILE.C_COLOR.COMLOW,
+            heightMethod,
+            widthMethod);
     }
     
     return public;

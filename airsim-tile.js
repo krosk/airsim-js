@@ -490,6 +490,28 @@ let ASRICO_DISPLAY_TILE = (function ()
     
     let getColor = ASTILE.getColor;
     
+    const C = ASTILE.C_TILE_ZONE;
+    let C_TILE_HEIGHT_BASE = {
+        [C.RESLOW] : 3,
+        [C.INDLOW] : 6,
+        [C.COMLOW] : 3
+    };
+    let C_TILE_HEIGHT_FACTOR = {
+        [C.RESLOW] : 1,
+        [C.INDLOW] : 1,
+        [C.COMLOW] : 2
+    };
+    let C_TILE_WIDTH_DIVIDER = {
+        [C.RESLOW] : 16,
+        [C.INDLOW] : 16,
+        [C.COMLOW] : 16
+    };
+    let C_TILE_WIDTH_FACTOR = {
+        [C.RESLOW] : 4,
+        [C.INDLOW] : 8,
+        [C.COMLOW] : 6
+    };
+    
     let getBaseMargin = function ()
     {
         return 0;
@@ -511,7 +533,7 @@ let ASRICO_DISPLAY_TILE = (function ()
     
     public.getDisplayIdZone = function asrico_display_tile_getdisplayidzone(id)
     {
-        return (id % ASTILE.C_RICO_DISPLAY_ID_ZONE_DIGIT);
+        return (id / ASTILE.C_RICO_DISPLAY_ID_ZONE_DIGIT) | 0;
     }
     
     public.getDisplayIdLevel = function asrico_display_tile_getdisplayidlevel(id)
@@ -524,7 +546,7 @@ let ASRICO_DISPLAY_TILE = (function ()
         return ((id % (10 * ASTILE.C_RICO_DISPLAY_ID_VARIANT_DIGIT)) / ASTILE.C_RICO_DISPLAY_ID_VARIANT_DIGIT) | 0;
     }
     
-    public.createTextureVariant = function (id, color, heightMethod, widthMethod)
+    public.createTextureVariant = function (id, color)
     {
         let C_TEXTURE_BASE_SIZE_X = MMAPRENDER.getTextureBaseSizeX();
         let C_TEXTURE_BASE_SIZE_Y = MMAPRENDER.getTextureBaseSizeY();
@@ -533,8 +555,8 @@ let ASRICO_DISPLAY_TILE = (function ()
         let variant = public.getDisplayIdVariant(id);
         let graphics = public.addTileBase();
         let baseHeight = public.getBaseHeight();
-        let height = heightMethod(level); //3 + 6*level;
-        let width = widthMethod(level); //C_TEXTURE_BASE_SIZE_X / 8 * (2 + level);
+        let height = C_TILE_HEIGHT_BASE[zone] + C_TILE_HEIGHT_FACTOR[zone] * level;
+        let width = C_TEXTURE_BASE_SIZE_X / C_TILE_WIDTH_DIVIDER[zone] * (C_TILE_WIDTH_FACTOR[zone] + level);
         let offsetX = Math.cos(variant * Math.PI / 2) * (C_TEXTURE_BASE_SIZE_X - width) / 2;
         let offsetY = Math.sin(variant * Math.PI / 2) * (C_TEXTURE_BASE_SIZE_Y - width / 2) / 2;
         ASTILE.drawBlock(graphics, color, offsetX, offsetY - baseHeight, width, width / 2, height);
@@ -559,24 +581,11 @@ let ASRICO_RESLOW_DISPLAY_TILE = (function ()
     
     public.C_TILEENUM = ASTILE.C_TILE_RICO_RESLOW_DISPLAY;
     
-    let heightMethod = function (level)
-    {
-        return 3 + 6 * level;
-    }
-    
-    let widthMethod = function (level)
-    {
-        let C_TEXTURE_BASE_SIZE_X = MMAPRENDER.getTextureBaseSizeX();
-        return C_TEXTURE_BASE_SIZE_X / 8 * (2 + level);
-    }
-    
     public.createTexture = function (id)
     {
         return ASRICO_DISPLAY_TILE.createTextureVariant(
             id,
-            ASTILE.C_COLOR.RESLOW,
-            heightMethod,
-            widthMethod);
+            ASTILE.C_COLOR.RESLOW);
     }
     
     return public;
@@ -588,24 +597,11 @@ let ASRICO_INDLOW_DISPLAY_TILE = (function ()
     
     public.C_TILEENUM = ASTILE.C_TILE_RICO_INDLOW_DISPLAY;
     
-    let heightMethod = function (level)
-    {
-        return 3 + 6 * level;
-    }
-    
-    let widthMethod = function (level)
-    {
-        let C_TEXTURE_BASE_SIZE_X = MMAPRENDER.getTextureBaseSizeX();
-        return C_TEXTURE_BASE_SIZE_X / 8 * (2 + level);
-    }
-    
     public.createTexture = function (id)
     {
         return ASRICO_DISPLAY_TILE.createTextureVariant(
             id,
-            ASTILE.C_COLOR.INDLOW,
-            heightMethod,
-            widthMethod);
+            ASTILE.C_COLOR.INDLOW);
     }
     
     return public;
@@ -617,24 +613,11 @@ let ASRICO_COMLOW_DISPLAY_TILE = (function ()
     
     public.C_TILEENUM = ASTILE.C_TILE_RICO_COMLOW_DISPLAY;
     
-    let heightMethod = function (level)
-    {
-        return 3 + 6 * level;
-    }
-    
-    let widthMethod = function (level)
-    {
-        let C_TEXTURE_BASE_SIZE_X = MMAPRENDER.getTextureBaseSizeX();
-        return C_TEXTURE_BASE_SIZE_X / 8 * (2 + level);
-    }
-    
     public.createTexture = function (id)
     {
         return ASRICO_DISPLAY_TILE.createTextureVariant(
             id,
-            ASTILE.C_COLOR.COMLOW,
-            heightMethod,
-            widthMethod);
+            ASTILE.C_COLOR.COMLOW);
     }
     
     return public;

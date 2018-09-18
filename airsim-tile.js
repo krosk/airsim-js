@@ -157,7 +157,7 @@ let ASTILE = (function ()
         
     };
     // meta generation
-    let ricoZone = [23, 26, 29];
+    let ricoZone = [21, 23, 24, 26, 27, 29];
     for (let i = 0; i < ricoZone.length; i++)
     {
         let codeBase = ricoZone[i];
@@ -278,9 +278,9 @@ let ASTILE = (function ()
         initializeTextureFor(ASROAD_DISPLAY_TILE);
         initializeTextureFor(ASRICO_DENSITY_TILE);
         initializeTextureFor(ASRICO_DISPLAY_TILE);
-        initializeTextureFor(ASRICO_RESLOW_DISPLAY_TILE);
-        initializeTextureFor(ASRICO_INDLOW_DISPLAY_TILE);
-        initializeTextureFor(ASRICO_COMLOW_DISPLAY_TILE);
+        //initializeTextureFor(ASRICO_RESLOW_DISPLAY_TILE);
+        //initializeTextureFor(ASRICO_INDLOW_DISPLAY_TILE);
+        //initializeTextureFor(ASRICO_COMLOW_DISPLAY_TILE);
     }
     
     let initializeTextureFor = function astile_initializeTextureFor(library)
@@ -494,22 +494,42 @@ let ASRICO_DISPLAY_TILE = (function ()
     let C_TILE_HEIGHT_BASE = {
         [C.RESLOW] : 3,
         [C.INDLOW] : 6,
-        [C.COMLOW] : 3
+        [C.COMLOW] : 3,
+        [C.RESHIG] : 9,
+        [C.INDHIG] : 9,
+        [C.COMHIG] : 6
     };
     let C_TILE_HEIGHT_FACTOR = {
         [C.RESLOW] : 1,
         [C.INDLOW] : 1,
-        [C.COMLOW] : 2
+        [C.COMLOW] : 2,
+        [C.RESHIG] : 3,
+        [C.INDHIG] : 1,
+        [C.COMHIG] : 3
     };
     let C_TILE_WIDTH_DIVIDER = {
         [C.RESLOW] : 16,
         [C.INDLOW] : 16,
-        [C.COMLOW] : 16
+        [C.COMLOW] : 16,
+        [C.RESHIG] : 16,
+        [C.INDHIG] : 16,
+        [C.COMHIG] : 16,
     };
     let C_TILE_WIDTH_FACTOR = {
         [C.RESLOW] : 4,
         [C.INDLOW] : 8,
-        [C.COMLOW] : 6
+        [C.COMLOW] : 6,
+        [C.RESHIG] : 4,
+        [C.INDHIG] : 8,
+        [C.COMHIG] : 6,
+    };
+    let C_TILE_COLOR = {
+        [C.RESLOW] : ASTILE.C_COLOR.RESLOW,
+        [C.INDLOW] : ASTILE.C_COLOR.INDLOW,
+        [C.COMLOW] : ASTILE.C_COLOR.COMLOW,
+        [C.RESHIG] : ASTILE.C_COLOR.RESHIG,
+        [C.INDHIG] : ASTILE.C_COLOR.INDHIG,
+        [C.COMHIG] : ASTILE.C_COLOR.COMHIG,
     };
     
     let getBaseMargin = function ()
@@ -546,7 +566,7 @@ let ASRICO_DISPLAY_TILE = (function ()
         return ((id % (10 * ASTILE.C_RICO_DISPLAY_ID_VARIANT_DIGIT)) / ASTILE.C_RICO_DISPLAY_ID_VARIANT_DIGIT) | 0;
     }
     
-    public.createTextureVariant = function (id, color)
+    public.createTexture = function (id)
     {
         let C_TEXTURE_BASE_SIZE_X = MMAPRENDER.getTextureBaseSizeX();
         let C_TEXTURE_BASE_SIZE_Y = MMAPRENDER.getTextureBaseSizeY();
@@ -555,6 +575,7 @@ let ASRICO_DISPLAY_TILE = (function ()
         let variant = public.getDisplayIdVariant(id);
         let graphics = public.addTileBase();
         let baseHeight = public.getBaseHeight();
+        let color = C_TILE_COLOR[zone];
         let height = C_TILE_HEIGHT_BASE[zone] + C_TILE_HEIGHT_FACTOR[zone] * level;
         let width = C_TEXTURE_BASE_SIZE_X / C_TILE_WIDTH_DIVIDER[zone] * (C_TILE_WIDTH_FACTOR[zone] + level);
         let offsetX = Math.cos(variant * Math.PI / 2) * (C_TEXTURE_BASE_SIZE_X - width) / 2;
@@ -563,7 +584,7 @@ let ASRICO_DISPLAY_TILE = (function ()
         return graphics;
     }
     
-    public.createTexture = function asrico_createTexture(id)
+    public.createTextureOld = function asrico_createTexture(id)
     {
         let graphics = public.addTileBase();
         let gray = ASTILE.C_COLOR.ROAD;
@@ -583,9 +604,7 @@ let ASRICO_RESLOW_DISPLAY_TILE = (function ()
     
     public.createTexture = function (id)
     {
-        return ASRICO_DISPLAY_TILE.createTextureVariant(
-            id,
-            ASTILE.C_COLOR.RESLOW);
+        return ASRICO_DISPLAY_TILE.createTextureVariant(id);
     }
     
     return public;
@@ -599,9 +618,7 @@ let ASRICO_INDLOW_DISPLAY_TILE = (function ()
     
     public.createTexture = function (id)
     {
-        return ASRICO_DISPLAY_TILE.createTextureVariant(
-            id,
-            ASTILE.C_COLOR.INDLOW);
+        return ASRICO_DISPLAY_TILE.createTextureVariant(id);
     }
     
     return public;
@@ -615,9 +632,7 @@ let ASRICO_COMLOW_DISPLAY_TILE = (function ()
     
     public.createTexture = function (id)
     {
-        return ASRICO_DISPLAY_TILE.createTextureVariant(
-            id,
-            ASTILE.C_COLOR.COMLOW);
+        return ASRICO_DISPLAY_TILE.createTextureVariant(id);
     }
     
     return public;

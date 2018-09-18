@@ -497,9 +497,9 @@ let ASRICO_DISPLAY_TILE = (function ()
         [C.RESLOW] : 1,
         [C.INDLOW] : 1,
         [C.COMLOW] : 2,
-        [C.RESHIG] : 3,
-        [C.INDHIG] : 1,
-        [C.COMHIG] : 3
+        [C.RESHIG] : 6,
+        [C.INDHIG] : 2,
+        [C.COMHIG] : 9
     };
     let C_TILE_WIDTH_DIVIDER = {
         [C.RESLOW] : 16,
@@ -513,9 +513,9 @@ let ASRICO_DISPLAY_TILE = (function ()
         [C.RESLOW] : 4,
         [C.INDLOW] : 8,
         [C.COMLOW] : 6,
-        [C.RESHIG] : 4,
-        [C.INDHIG] : 8,
-        [C.COMHIG] : 6,
+        [C.RESHIG] : 6,
+        [C.INDHIG] : 10,
+        [C.COMHIG] : 8,
     };
     let C_TILE_COLOR = {
         [C.RESLOW] : ASTILE.C_COLOR.RESLOW,

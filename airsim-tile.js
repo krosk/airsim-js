@@ -157,22 +157,19 @@ let ASTILE = (function ()
         
     };
     // meta generation
-    let ricoZone = [21, 23, 24, 26, 27, 29];
+    let ricoZone = [
+        public.C_TILE_ZONE.RESLOW,
+        public.C_TILE_ZONE.RESHIG,
+        public.C_TILE_ZONE.INDLOW,
+        public.C_TILE_ZONE.INDHIG,
+        public.C_TILE_ZONE.COMLOW,
+        public.C_TILE_ZONE.COMHIG
+    ];
     for (let i = 0; i < ricoZone.length; i++)
     {
         let codeBase = ricoZone[i];
         metaGenerateRicoDisplayId(public.C_TILE_RICO_DISPLAY, codeBase);
     }
-    
-    public.C_TILE_RICO_RESLOW_DISPLAY = {}
-    public.C_TILE_RICO_INDLOW_DISPLAY = {}
-    public.C_TILE_RICO_COMLOW_DISPLAY = {}
-    const RICO_RESLOW_BASE = 21;
-    const RICO_INDLOW_BASE = 24;
-    const RICO_COMLOW_BASE = 27;
-    metaGenerateRicoDisplayId(public.C_TILE_RICO_RESLOW_DISPLAY, RICO_RESLOW_BASE);
-    metaGenerateRicoDisplayId(public.C_TILE_RICO_INDLOW_DISPLAY, RICO_INDLOW_BASE);
-    metaGenerateRicoDisplayId(public.C_TILE_RICO_COMLOW_DISPLAY, RICO_COMLOW_BASE);
     
     let m_textureNameCache = {};
     
@@ -278,9 +275,6 @@ let ASTILE = (function ()
         initializeTextureFor(ASROAD_DISPLAY_TILE);
         initializeTextureFor(ASRICO_DENSITY_TILE);
         initializeTextureFor(ASRICO_DISPLAY_TILE);
-        //initializeTextureFor(ASRICO_RESLOW_DISPLAY_TILE);
-        //initializeTextureFor(ASRICO_INDLOW_DISPLAY_TILE);
-        //initializeTextureFor(ASRICO_COMLOW_DISPLAY_TILE);
     }
     
     let initializeTextureFor = function astile_initializeTextureFor(library)
@@ -591,48 +585,6 @@ let ASRICO_DISPLAY_TILE = (function ()
         let baseHeight = public.getBaseHeight();
         ASTILE.drawBlock(graphics, gray, 0, -baseHeight, 16, 8, 5);
         return graphics;
-    }
-    
-    return public;
-})();
-
-let ASRICO_RESLOW_DISPLAY_TILE = (function ()
-{
-    let public = {};
-    
-    public.C_TILEENUM = ASTILE.C_TILE_RICO_RESLOW_DISPLAY;
-    
-    public.createTexture = function (id)
-    {
-        return ASRICO_DISPLAY_TILE.createTextureVariant(id);
-    }
-    
-    return public;
-})();
-
-let ASRICO_INDLOW_DISPLAY_TILE = (function ()
-{
-    let public = {};
-    
-    public.C_TILEENUM = ASTILE.C_TILE_RICO_INDLOW_DISPLAY;
-    
-    public.createTexture = function (id)
-    {
-        return ASRICO_DISPLAY_TILE.createTextureVariant(id);
-    }
-    
-    return public;
-})();
-
-let ASRICO_COMLOW_DISPLAY_TILE = (function ()
-{
-    let public = {};
-    
-    public.C_TILEENUM = ASTILE.C_TILE_RICO_COMLOW_DISPLAY;
-    
-    public.createTexture = function (id)
-    {
-        return ASRICO_DISPLAY_TILE.createTextureVariant(id);
     }
     
     return public;

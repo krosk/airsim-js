@@ -1790,57 +1790,64 @@ let ASRICO = (function ()
         [C_ZONE.COMHIG] : 9
     }
     
-    // [level, type, offer ric, demand ric]
+    // [level, type, ric]
     const C_RICOPROPERTY_MAP = {
         LEVEL : 0,
         TYPE : 1,
-        OFFER_R : 2,
-        DEMAND_R : 3,
-        OFFER_I : 4,
-        DEMAND_I : 5
-        OFFER_C : 6,
-        DEMAND_C : 7
+        DEMAND_R : 2,
+        DEMAND_I : 3,
+        DEMAND_C : 4,
     };
     const C_RM = C_RICOPROPERTY_MAP;
     const C_RICOPROPERTY = {
-        [C.RESLOW_0] : [0, 1,   0,   0,   0,   0,   0,   0],
-        [C.RESLOW_1] : [1, 1,   2,   0,   0,   0,   0,   2],
-        [C.RESLOW_2] : [2, 1,   4,   0,   0,   0,   0,   4],
-        [C.RESLOW_3] : [3, 1,   6,   0,   0,   0,   0,   6],
-        [C.RESLOW_4] : [4, 1,   8,   0,   0,   0,   0,   8],
-        [C.RESLOW_5] : [5, 1,  10,   0,   0,   0,   0,  10],
-        [C.RESHIG_0] : [0, 3,   0,   0,   0,   0,   0,   0],
-        [C.RESHIG_1] : [1, 3,  10,   0,   0,   0,   0,  10],
-        [C.RESHIG_2] : [2, 3,  16,   0,   0,   0,   0,  16],
-        [C.RESHIG_3] : [3, 3,  24,   0,   0,   0,   0,  24],
-        [C.RESHIG_4] : [4, 3,  34,   0,   0,   0,   0,  34],
-        [C.RESHIG_5] : [5, 3,  50,   0,   0,   0,   0,  50],
-        [C.INDLOW_0] : [0, 4,   0,   0,   0,   0,   0,   0],
-        [C.INDLOW_1] : [1, 4,   0,   2,   2,   0,   0,   0],
-        [C.INDLOW_2] : [2, 4,   0,   4,   4,   0,   0,   0],
-        [C.INDLOW_3] : [3, 4,   0,   6,   6,   0,   0,   0],
-        [C.INDLOW_4] : [4, 4,   0,   8,   8,   0,   0,   0],
-        [C.INDLOW_5] : [5, 4,   0,  10,  10,   0,   0,   0],
-        [C.INDHIG_0] : [0, 6,   0,   0,   0,   0,   0,   0],
-        [C.INDHIG_1] : [1, 6,   0,  10,  10,   0,   0,   0],
-        [C.INDHIG_2] : [2, 6,   0,  16,  16,   0,   0,   0],
-        [C.INDHIG_3] : [3, 6,   0,  24,  24,   0,   0,   0],
-        [C.INDHIG_4] : [4, 6,   0,  34,  34,   0,   0,   0],
-        [C.INDHIG_5] : [5, 6,   0,  50,  50,   0,   0,   0],
-        [C.COMLOW_0] : [0, 7,   0,   0,   0,   0,   0,   0],
-        [C.COMLOW_1] : [1, 7,   0,   1,   0,   1,   2,   0],
-        [C.COMLOW_2] : [2, 7,   0,   2,   0,   2,   4,   0],
-        [C.COMLOW_3] : [3, 7,   0,   3,   0,   3,   6,   0],
-        [C.COMLOW_4] : [4, 7,   0,   4,   0,   4,   6,   0],
-        [C.COMLOW_5] : [5, 7,   0,   5,   0,   5,  10,   0],
-        [C.COMHIG_0] : [0, 9,   0,   0,   0,   0,   0,   0],
-        [C.COMHIG_1] : [1, 9,   0,   5,   0,   5,  10,   0],
-        [C.COMHIG_2] : [2, 9,   0,   8,   0,   8,  16,   0],
-        [C.COMHIG_3] : [3, 9,   0,  12,   0,  12,  24,   0],
-        [C.COMHIG_4] : [4, 9,   0,  17,   0,  17,  34,   0],
-        [C.COMHIG_5] : [5, 9,   0,  25,   0,  25,  50,   0],
+        [C.RESLOW_0] : [0, 1,   0,   0,   0],
+        [C.RESLOW_1] : [1, 1,  -2,   0,   2],
+        [C.RESLOW_2] : [2, 1,  -4,   0,   4],
+        [C.RESLOW_3] : [3, 1,  -6,   0,   6],
+        [C.RESLOW_4] : [4, 1,  -8,   0,   8],
+        [C.RESLOW_5] : [5, 1, -10,   0,  10],
+        [C.RESHIG_0] : [0, 3,   0,   0,   0],
+        [C.RESHIG_1] : [1, 3, -10,   0,  10],
+        [C.RESHIG_2] : [2, 3, -16,   0,  16],
+        [C.RESHIG_3] : [3, 3, -24,   0,  24],
+        [C.RESHIG_4] : [4, 3, -34,   0,  34],
+        [C.RESHIG_5] : [5, 3, -50,   0,  50],
+        [C.INDLOW_0] : [0, 4,   0,   0,   0],
+        [C.INDLOW_1] : [1, 4,   2,  -2,   0],
+        [C.INDLOW_2] : [2, 4,   4,  -4,   0],
+        [C.INDLOW_3] : [3, 4,   6,  -6,   0],
+        [C.INDLOW_4] : [4, 4,   8,  -8,   0],
+        [C.INDLOW_5] : [5, 4,  10, -10,   0],
+        [C.INDHIG_0] : [0, 6,   0,   0,   0],
+        [C.INDHIG_1] : [1, 6,  10, -10,   0],
+        [C.INDHIG_2] : [2, 6,  16, -16,   0],
+        [C.INDHIG_3] : [3, 6,  24, -24,   0],
+        [C.INDHIG_4] : [4, 6,  34, -34,   0],
+        [C.INDHIG_5] : [5, 6,  50, -50,   0],
+        [C.COMLOW_0] : [0, 7,   0,   0,   0],
+        [C.COMLOW_1] : [1, 7,   1,   1,  -2],
+        [C.COMLOW_2] : [2, 7,   2,   2,  -4],
+        [C.COMLOW_3] : [3, 7,   3,   3,  -6],
+        [C.COMLOW_4] : [4, 7,   4,   4,  -8],
+        [C.COMLOW_5] : [5, 7,   5,   5, -10],
+        [C.COMHIG_0] : [0, 9,   0,   0,   0],
+        [C.COMHIG_1] : [1, 9,   5,   5, -10],
+        [C.COMHIG_2] : [2, 9,   8,   8, -16],
+        [C.COMHIG_3] : [3, 9,  12,  12, -24],
+        [C.COMHIG_4] : [4, 9,  17,  17, -34],
+        [C.COMHIG_5] : [5, 9,  25,  25, -50],
     };
     const C_R = C_RICOPROPERTY;
+    
+    let convertOffer = function asrico_convertOffer(v)
+    {
+        return v < 0 ? -v : 0;
+    }
+    
+    let convertDemand = function asrico_convertDemand(v)
+    {
+        return v > 0 ? v : 0;
+    }
     
     let getInitialOffer = function asrico_getInitialOffer(code)
     {
@@ -1849,9 +1856,9 @@ let ASRICO = (function ()
         {
             return [-1, -1, -1];
         }
-        let or = C_R[code][C_RM.OFFER_R];
-        let oi = C_R[code][C_RM.OFFER_I];
-        let oc = C_R[code][C_RM.OFFER_C];
+        let or = convertOffer(C_R[code][C_RM.DEMAND_R]);
+        let oi = convertOffer(C_R[code][C_RM.DEMAND_I]);
+        let oc = convertOffer(C_R[code][C_RM.DEMAND_C]);
         return [or, oi, oc];
     }
     
@@ -1862,9 +1869,9 @@ let ASRICO = (function ()
         {
             return [-1, -1, -1];
         }
-        let dr = C_R[code][C_RM.DEMAND_R];
-        let di = C_R[code][C_RM.DEMAND_I];
-        let dc = C_R[code][C_RM.DEMAND_C];
+        let dr = convertDemand(C_R[code][C_RM.DEMAND_R]);
+        let di = convertDemand(C_R[code][C_RM.DEMAND_I]);
+        let dc = convertDemand(C_R[code][C_RM.DEMAND_C]);
         return [dr, di, dc];
     }
     

@@ -1797,45 +1797,46 @@ let ASRICO = (function ()
         DEMAND_R : 2,
         DEMAND_I : 3,
         DEMAND_C : 4,
+        DEMAND_P : 5,
     };
     const C_RM = C_RICOPROPERTY_MAP;
     const C_RICOPROPERTY = {
-        [C.RESLOW_0] : [0, 1,   0,   0,   0],
-        [C.RESLOW_1] : [1, 1,  -2,   0,   2],
-        [C.RESLOW_2] : [2, 1,  -4,   0,   4],
-        [C.RESLOW_3] : [3, 1,  -6,   0,   6],
-        [C.RESLOW_4] : [4, 1,  -8,   0,   8],
-        [C.RESLOW_5] : [5, 1, -10,   0,  10],
-        [C.RESHIG_0] : [0, 3,   0,   0,   0],
-        [C.RESHIG_1] : [1, 3, -10,   0,  10],
-        [C.RESHIG_2] : [2, 3, -16,   0,  16],
-        [C.RESHIG_3] : [3, 3, -24,   0,  24],
-        [C.RESHIG_4] : [4, 3, -34,   0,  34],
-        [C.RESHIG_5] : [5, 3, -50,   0,  50],
-        [C.INDLOW_0] : [0, 4,   0,   0,   0],
-        [C.INDLOW_1] : [1, 4,   2,  -2,   0],
-        [C.INDLOW_2] : [2, 4,   4,  -4,   0],
-        [C.INDLOW_3] : [3, 4,   6,  -6,   0],
-        [C.INDLOW_4] : [4, 4,   8,  -8,   0],
-        [C.INDLOW_5] : [5, 4,  10, -10,   0],
-        [C.INDHIG_0] : [0, 6,   0,   0,   0],
-        [C.INDHIG_1] : [1, 6,  10, -10,   0],
-        [C.INDHIG_2] : [2, 6,  16, -16,   0],
-        [C.INDHIG_3] : [3, 6,  24, -24,   0],
-        [C.INDHIG_4] : [4, 6,  34, -34,   0],
-        [C.INDHIG_5] : [5, 6,  50, -50,   0],
-        [C.COMLOW_0] : [0, 7,   0,   0,   0],
-        [C.COMLOW_1] : [1, 7,   1,   1,  -2],
-        [C.COMLOW_2] : [2, 7,   2,   2,  -4],
-        [C.COMLOW_3] : [3, 7,   3,   3,  -6],
-        [C.COMLOW_4] : [4, 7,   4,   4,  -8],
-        [C.COMLOW_5] : [5, 7,   5,   5, -10],
-        [C.COMHIG_0] : [0, 9,   0,   0,   0],
-        [C.COMHIG_1] : [1, 9,   5,   5, -10],
-        [C.COMHIG_2] : [2, 9,   8,   8, -16],
-        [C.COMHIG_3] : [3, 9,  12,  12, -24],
-        [C.COMHIG_4] : [4, 9,  17,  17, -34],
-        [C.COMHIG_5] : [5, 9,  25,  25, -50],
+        [C.RESLOW_0] : [0, 1,   0,   0,   0,   0],
+        [C.RESLOW_1] : [1, 1,  -2,   0,   2,   1],
+        [C.RESLOW_2] : [2, 1,  -4,   0,   4,   1],
+        [C.RESLOW_3] : [3, 1,  -6,   0,   6,   1],
+        [C.RESLOW_4] : [4, 1,  -8,   0,   8,   1],
+        [C.RESLOW_5] : [5, 1, -10,   0,  10,   2],
+        [C.RESHIG_0] : [0, 3,   0,   0,   0,   0],
+        [C.RESHIG_1] : [1, 3, -10,   0,  10,   2],
+        [C.RESHIG_2] : [2, 3, -16,   0,  16,   2],
+        [C.RESHIG_3] : [3, 3, -24,   0,  24,   3],
+        [C.RESHIG_4] : [4, 3, -34,   0,  34,   4],
+        [C.RESHIG_5] : [5, 3, -50,   0,  50,   5],
+        [C.INDLOW_0] : [0, 4,   0,   0,   0,   0],
+        [C.INDLOW_1] : [1, 4,   2,  -2,   0,   2],
+        [C.INDLOW_2] : [2, 4,   4,  -4,   0,   2],
+        [C.INDLOW_3] : [3, 4,   6,  -6,   0,   3],
+        [C.INDLOW_4] : [4, 4,   8,  -8,   0,   3],
+        [C.INDLOW_5] : [5, 4,  10, -10,   0,   4],
+        [C.INDHIG_0] : [0, 6,   0,   0,   0,   0],
+        [C.INDHIG_1] : [1, 6,  10, -10,   0,   5],
+        [C.INDHIG_2] : [2, 6,  16, -16,   0,   8],
+        [C.INDHIG_3] : [3, 6,  24, -24,   0,  12],
+        [C.INDHIG_4] : [4, 6,  34, -34,   0,  17],
+        [C.INDHIG_5] : [5, 6,  50, -50,   0,  25],
+        [C.COMLOW_0] : [0, 7,   0,   0,   0,   0],
+        [C.COMLOW_1] : [1, 7,   1,   1,  -2,   2],
+        [C.COMLOW_2] : [2, 7,   2,   2,  -4,   2],
+        [C.COMLOW_3] : [3, 7,   3,   3,  -6,   3],
+        [C.COMLOW_4] : [4, 7,   4,   4,  -8,   3],
+        [C.COMLOW_5] : [5, 7,   5,   5, -10,   4],
+        [C.COMHIG_0] : [0, 9,   0,   0,   0,   0],
+        [C.COMHIG_1] : [1, 9,   5,   5, -10,   5],
+        [C.COMHIG_2] : [2, 9,   8,   8, -16,   7],
+        [C.COMHIG_3] : [3, 9,  12,  12, -24,   9],
+        [C.COMHIG_4] : [4, 9,  17,  17, -34,  11],
+        [C.COMHIG_5] : [5, 9,  25,  25, -50,  13],
     };
     const C_R = C_RICOPROPERTY;
     
@@ -1854,12 +1855,13 @@ let ASRICO = (function ()
         let values = C_R[code];
         if (typeof values == 'undefined' || values == null)
         {
-            return [-1, -1, -1];
+            return [-1, -1, -1, -1];
         }
         let or = convertOffer(C_R[code][C_RM.DEMAND_R]);
         let oi = convertOffer(C_R[code][C_RM.DEMAND_I]);
         let oc = convertOffer(C_R[code][C_RM.DEMAND_C]);
-        return [or, oi, oc];
+        let op = convertOffer(C_R[code][C_RM.DEMAND_P]);
+        return [or, oi, oc, op];
     }
     
     let getInitialDemand = function asrico_getInitialDemand(code)
@@ -1867,12 +1869,13 @@ let ASRICO = (function ()
         let values = C_R[code];
         if (typeof values == 'undefined' || values == null)
         {
-            return [-1, -1, -1];
+            return [-1, -1, -1, -1];
         }
         let dr = convertDemand(C_R[code][C_RM.DEMAND_R]);
         let di = convertDemand(C_R[code][C_RM.DEMAND_I]);
         let dc = convertDemand(C_R[code][C_RM.DEMAND_C]);
-        return [dr, di, dc];
+        let dp = convertDemand(C_R[code][C_RM.DEMAND_P]);
+        return [dr, di, dc, dp];
     }
     
     public.getRicoType = function asrico_getRicoType(index)

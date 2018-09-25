@@ -1842,7 +1842,7 @@ let ASRICO = (function ()
     
     let convertOffer = function asrico_convertOffer(v)
     {
-        return v < 0 ? -v : 0;
+        return v < 0 ? v : 0;
     }
     
     let convertDemand = function asrico_convertDemand(v)
@@ -2158,7 +2158,7 @@ let ASRICO = (function ()
     
     let isOfferRicoFilled = function asrico_isOfferRicoFilled(offer)
     {
-        return offer[0] <= 0 && offer[1] <= 0 && offer[2] <= 0;
+        return offer[0] >= 0 && offer[1] >= 0 && offer[2] >= 0;
     }
     
     let levelDensityUp = function asrico_levelDensityUp(index)
@@ -2219,8 +2219,14 @@ let ASRICO = (function ()
         
         for (let i in parentDemandInitial)
         {
-            notEnough |= (parentDemandInitial[i] + demand[i] - demandInitial[i] > 0);
-            notEnough |= (parentOfferInitial[i] + offer[i] - offerInitial[i] > 0);
+            if (demand[i] >= 0)
+            {
+                notEnough |= (parentDemandInitial[i] + demand[i] - demandInitial[i] > 0);
+            }
+            if (offer[i] <= 0)
+            {
+                notEnough |= (parentOfferInitial[i] + offer[i] - offerInitial[i] < 0);
+            }
         }
         
         return notEnough;
@@ -2282,7 +2288,7 @@ let ASRICO = (function ()
             // process offer
             // run traversal
             let offerSum = getOfferRicoSum(index);
-            if (offerSum <= 0)
+            if (offerSum >= 0)
             {
                 ASSTATE.setRicoStep(3);
                 return false;
@@ -2349,16 +2355,20 @@ let ASRICO = (function ()
             let demand = ASSTATE.getRicoDemand(demandIndex);
             for (let j in demand)
             {
-                if (demand[j] >= offer[j])
+                if (demand[j] < 0 || offer[j] > 0)
                 {
-                    filledOffer += offer[j];
-                    demand[j] -= offer[j];
+                    continue;
+                }
+                if (demand[j] + offer[j] >= 0)
+                {
+                    filledOffer -= offer[j];
+                    demand[j] += offer[j];
                     offer[j] = 0;
                 }
                 else
                 {
                     filledOffer += demand[j];
-                    offer[j] -= demand[j];
+                    offer[j] += demand[j];
                     demand[j] = 0;
                 }
             }

@@ -26,14 +26,11 @@ let ASSTATE = (function()
         ROAD_DEBUG : 10,
         
         RICO_DENSITY_LEVEL : 5,
-        RICO_OFFER_R: 6,
-        RICO_OFFER_I: 7,
-        RICO_OFFER_C: 8,
-        RICO_DEMAND_R : 9,
-        RICO_DEMAND_I : 10,
-        RICO_DEMAND_C : 11,
+        RICO_DEMAND_OFFER_R : 6,
+        RICO_DEMAND_OFFER_I : 7,
+        RICO_DEMAND_OFFER_C : 8,
         
-        END : 12
+        END : 11
     }
     public.C_DATA = C;
     
@@ -292,47 +289,17 @@ let ASSTATE = (function()
     
     public.getRicoDemandOffer = function asstate_getRicoDemandOffer(index)
     {
-        let dr = r(index, C.RICO_DEMAND_R);
-        let di = r(index, C.RICO_DEMAND_I);
-        let dc = r(index, C.RICO_DEMAND_C);
+        let dr = r(index, C.RICO_DEMAND_OFFER_R);
+        let di = r(index, C.RICO_DEMAND_OFFER_I);
+        let dc = r(index, C.RICO_DEMAND_OFFER_C);
         return [dr, di, dc];
     }
     
     public.setRicoDemandOffer = function asstate_setRicoDemandOffer(index, demandOffer)
     {
-        w(index, C.RICO_DEMAND_R, demandOffer[0]);
-        w(index, C.RICO_DEMAND_I, demandOffer[1]);
-        w(index, C.RICO_DEMAND_C, demandOffer[2]);
-    }
-    
-    public.getRicoDemand = function asstate_getRicoDemand(index)
-    {
-        let dr = r(index, C.RICO_DEMAND_R);
-        let di = r(index, C.RICO_DEMAND_I);
-        let dc = r(index, C.RICO_DEMAND_C);
-        return [dr, di, dc];
-    }
-    
-    public.setRicoDemand = function asstate_setRicoDemand(index, demand)
-    {
-        w(index, C.RICO_DEMAND_R, demand[0]);
-        w(index, C.RICO_DEMAND_I, demand[1]);
-        w(index, C.RICO_DEMAND_C, demand[2]);
-    }
-    
-    public.getRicoOffer = function asstate_getRicoOffer(index)
-    {
-        let or = r(index, C.RICO_OFFER_R);
-        let oi = r(index, C.RICO_OFFER_I);
-        let oc = r(index, C.RICO_OFFER_C);
-        return [or, oi, oc];
-    }
-    
-    public.setRicoOffer = function asstate_setRicoOffer(index, offer)
-    {
-        w(index, C.RICO_OFFER_R, offer[0]);
-        w(index, C.RICO_OFFER_I, offer[1]);
-        w(index, C.RICO_OFFER_C, offer[2]);
+        w(index, C.RICO_DEMAND_OFFER_R, demandOffer[0]);
+        w(index, C.RICO_DEMAND_OFFER_I, demandOffer[1]);
+        w(index, C.RICO_DEMAND_OFFER_C, demandOffer[2]);
     }
     
     public.getRicoDensity = function asstate_getRicoDensity(index)

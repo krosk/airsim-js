@@ -2423,7 +2423,7 @@ high speed reach the same, hence even computer
 can not process the full cycle.
 
 One optimisation performed is moving
-addRoNodeList to its own function, it saved
+addToNodeList to its own function, it saved
 quite a lot of time and possible reduced from
 700 mspt to 300 mspt on mobile (to confirm).
 
@@ -3108,4 +3108,159 @@ One point is the line thickness makes the
 texture size not an integer, which is 
 troublesome.
 By drawing instead 3 quads instead of an hexagon
-the problem seems mitigated.
+the problem seems mitigated, assuming one
+of the quads is smaller.
+
+Nexts:
+multi tile buildings?
+ui square zoning?
+power/water category?
+
+Road is looking okay.
+Assuming aa small size city is 40k people
+like NLG, that means at least 10k families,
+which means 10k / 50 = 200 residential tiles
+full. Assuming industrial and commercial,
+that puts a 600 tile. Road density can be,
+in a grid, 9 / 25 = 36%, so in total there
+needs to be 600 + 216 tiles assuming full
+density.
+A 32x32 = 1024 tiles can host that much.
+
+On a city that size, the sim turn is 10 seconds.
+
+But it is very high density, that means
+a 512m x 512m square zone holding 40k people.
+The density is of the roof because this means
+4*40k = 160k people per km.sq.
+That assumes families of 4. Otherwise, a
+couple person per family is density of
+80k per km.sq. Is that realistic?
+
+** Mechanism: Realistic proportions
+Highest density is barely 40k per km.sq.
+
+On one hectare (that is assume 6x6 for accurate
+or 8x8 for division, with a tile being 16m,
+which counting roads is 5x5 and 7x7 resp)
+there should be, taking 5x5 as basis:
+- low density: up to 25 dwellings (50)
+    reslow l1 1 people / tile = 25
+    reslow l2 2 people / tile = 50
+- mid density: from 25 to 80 dwellings (50-160)
+    reslow l3 3 people / tile = 75* typical md
+    reslow l4 4 people / tile = 100
+    reslow l5 5 people / tile = 125
+    reshig l1 6 people / tile = 150
+- hig density: from 80 to 
+    reshig l2 
+
+Next, there is the natural unbalance between
+rico. In fact, a city reserves almost only
+5% to 8% typically to commercial zones, same
+for industrial. Roads take up to 15%, and 
+residential easily go from 25% to 40%. So there
+is a strong unbalance in american cities.
+Typical land use can be:
+Res 40%
+Com/Ind 15%
+Roads 15%
+Parks/Vacant 15%
+Institutions/Utilities 15%, which encompass
+power, water, police, firefight, hospital,
+schools, government offices
+which in effect are equally demanding
+in term of people, if not more.
+The ratio com/ind against res can make sense
+as a few commercial business cam serve many
+residentials. The ratio can be about 1 com for
+6 residentials.
+
+So, on a 6x6, distribution can be:
+H 14
+CI 5
+R 7
+P 5
+U 5
+
+HHHHHH
+HHHHHH
+RRRRHH
+CCCRCC
+PPPRPP
+UUURUU
+
+Or on a road reach friendly way 8*5, realistic
+hectare
+H 16
+CI 6
+R 8
+P 5
+U 5
+
+HHHHHHHH
+HHHHHHHH
+RRRRRRRR
+CCCUUUUU
+CCCPPPPP
+
+Looks good, compact. Ratio makes sense.
+Assuming institutional count for employment
+then there is 11 employment tile for 16 res
+tiles, or to simplify 2 employ for 3 res.
+
+So there may be a need to change how the sim
+work in term of demand and offer.
+Instead of being rico based d/o, it could be
+Jobs: r to ciu
+Services: c to r
+Goods: i to c
+Crime safety: u to RiC
+Fire safety: u to rIc
+Health: u to r
+Education: u to r
+Power: u to ric
+Water: u to ric
+
+Having such a distribution is actually very
+nice because we can enable views of unfulfilled
+offer and demand, making it easy to show
+where things are missing out!
+
+Therefore the rico module would also encompass
+everything here, not just rico, as the unit
+exchange is the same principle?
+Current state is engine takes a building
+and distribute to reachable units their offers.
+
+The future table is something like
+P power
+W water
+J jobs
+S services
+G goods
+C crime safety
+F firefighter
+H health
+E education
+
+Storage of data can become bloated. Some code
+could be written to handle a more compact
+data representation.
+Knowing that a building that offers will not
+demand, we can infer a offer as negative demand.
+The problem comes from distinguishing whether
+a field is negative or positive, upon writing.
+Upon writing, we cannot identify whether the
+slot is for demand or for offer.
+A solution might be to not distinguish and 
+write the two at the same time.
+Value analysis will provide the necessary
+distinction between the two.
+But really, distinguishing seems the most easy
+to work with.
+
+Should no level buildings such as utilities
+be clamped together with regular, levelable
+buildings?
+For simplicity of code, maybe

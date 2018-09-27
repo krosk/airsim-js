@@ -490,7 +490,8 @@ let ASMAPUI = (function ()
         C.COMLOW,
         C.RESHIG,
         C.INDHIG,
-        C.COMHIG
+        C.COMHIG,
+        C.POWLOW,
     ];
     
     const C_VIEW_DATA = [

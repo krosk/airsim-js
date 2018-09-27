@@ -770,6 +770,10 @@ let ASZONE = (function ()
         {
             ASRICO.removeRico(x, y);
         }
+        else if (oldZone == C.POWLOW)
+        {
+            ASSRICO.removeRico(x, y);
+        }
         let index = ASSTATE.getIndex(x, y);
         ASSTATE.notifyChange(index);
     }
@@ -807,6 +811,10 @@ let ASZONE = (function ()
         else if (zone == C.INDHIG)
         {
             ASRICO.addIndHig(x, y);
+        }
+        else if (zone == C.POWLOW)
+        {
+            ASRICO.addPowLow(x, y);
         }
         else if (zone == C.DIRT)
         {
@@ -1782,19 +1790,22 @@ let ASRICO = (function ()
     const C = ASTILE.C_TILE_RICO_DENSITY;
     const C_ZONE = ASTILE.C_TILE_ZONE;
     
+    // note: type must be (density id - C.NONE) / 10
+    // could use C_ZONE instead
     const C_ZONE_RICO = {
         [C_ZONE.RESLOW] : 1,
         [C_ZONE.RESHIG] : 3,
         [C_ZONE.INDLOW] : 4,
         [C_ZONE.INDHIG] : 6,
         [C_ZONE.COMLOW] : 7,
-        [C_ZONE.COMHIG] : 9
+        [C_ZONE.COMHIG] : 9,
+        [C_ZONE.POWLOW] : 11
     }
     
     // [level, type, ric]
     const C_RICOPROPERTY_MAP = {
         LEVEL : 0,
-        TYPE : 1,
+        TYPE : 1, // not used
         DEMAND_R : 2,
         DEMAND_I : 3,
         DEMAND_C : 4,
@@ -1838,6 +1849,7 @@ let ASRICO = (function ()
         [C.COMHIG_3] : [3, 9,  12,  12, -24,   9],
         [C.COMHIG_4] : [4, 9,  17,  17, -34,  11],
         [C.COMHIG_5] : [5, 9,  25,  25, -50,  13],
+        [C.POWLOW_0] : [0,11,   0,   0,   0,-200]
     };
     const C_R = C_RICOPROPERTY;
     
@@ -1970,6 +1982,10 @@ let ASRICO = (function ()
     
     let addRico = function asrico_addRico(code, x, y)
     {
+        if (G_CHECK && typeof code === 'undefined')
+        {
+            throw 'addRico code undefined';
+        }
         let index = ASSTATE.getIndex(x, y);
         setInitial(code, index);
         ASROAD.disconnectAll(x, y);
@@ -1999,7 +2015,7 @@ let ASRICO = (function ()
         }
         if (G_CHECK && typeof C_R[code] == 'undefined')
         {
-            throw 'Undefined building code ' + code;
+            throw 'Building code ' + code + ' has no property';
         }
         ASSTATE.setRicoDensity(index, C_R[code][C_RM.LEVEL]);
         let demandOffer = getInitialDemandOffer(code);
@@ -2036,6 +2052,11 @@ let ASRICO = (function ()
     public.addIndHig = function asrico_addIndHig(x, y)
     {
         addRico(C.INDHIG_0, x, y);
+    }
+    
+    public.addPowLow = function asrico_addPowLow(x, y)
+    {
+        addRico(C.POWLOW_0, x, y);
     }
     
     public.removeRico = function asrico_removeRico(x, y)

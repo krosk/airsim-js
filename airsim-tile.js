@@ -83,6 +83,7 @@ let ASTILE = (function ()
         COMHIG_3: 293,
         COMHIG_4: 294,
         COMHIG_5: 295,
+        POWLOW_0: 310,
     };
     
     public.C_TILE_ICON = {
@@ -172,7 +173,7 @@ let ASTILE = (function ()
         let codeBase = ricoZone[i];
         metaGenerateRicoDisplayId(public.C_TILE_RICO_DISPLAY, codeBase, RICO_VARIANT, RICO_DENSITY_MIN, RICO_DENSITY_MAX);
     }
-    //metaGenerationRicoDisplay(public.C_TILE_RICO_DISPLAY, public.C_TILE_ZONE.POWLOW, 0, 0, 0);
+    metaGenerateRicoDisplayId(public.C_TILE_RICO_DISPLAY, public.C_TILE_ZONE.POWLOW, 0, 0, 0);
     
     let m_textureNameCache = {};
     
@@ -644,6 +645,7 @@ let ASRICO_DENSITY_TILE = (function ()
         [C.COMHIG_3] : [C_COLOR.COMHIG, 30],
         [C.COMHIG_4] : [C_COLOR.COMHIG, 33],
         [C.COMHIG_5] : [C_COLOR.COMHIG, 36],
+        [C.POWLOW_0] : [C_COLOR.POWLOW, 3],
     };
     
     let getTileTextureMargin = function asrico_getTileTextureMargin(id)

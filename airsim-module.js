@@ -2189,10 +2189,6 @@ let ASRICO = (function ()
     let levelDensityUp = function asrico_levelDensityUp(index)
     {
         let density = ASSTATE.getRicoDensity(index);
-        if (density >= 5)
-        {
-            return;
-        }
         ASSTATE.setRicoDensity(index, density + 1);
     }
     
@@ -2222,7 +2218,7 @@ let ASRICO = (function ()
     
     let canLevelUp = function asrico_canLevelUp(index)
     {
-        let flag = true;
+        let flag = getDataIdByDensityLevel(index, 1) != C.NONE;
         let demandOffer = ASSTATE.getRicoDemandOffer(index);
         flag &= isDemandRicoFilled(demandOffer);
         flag &= isOfferRicoFilled(demandOffer);
@@ -2237,6 +2233,10 @@ let ASRICO = (function ()
         let offerInitial = getInitialOffer(code);
         
         let parentCode = getDataIdByDensityLevel(index, -1);
+        if (parentCode == C.NONE)
+        {
+            return false;
+        }
         let parentDemandInitial = getInitialDemand(parentCode);
         let parentOfferInitial = getInitialOffer(parentCode);
         

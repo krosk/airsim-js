@@ -29,6 +29,7 @@ let ASSTATE = (function()
         RICO_DEMAND_OFFER_R : 6,
         RICO_DEMAND_OFFER_I : 7,
         RICO_DEMAND_OFFER_C : 8,
+        RICO_DEMAND_OFFER_P : 9,
         
         END : 11
     }
@@ -50,18 +51,26 @@ let ASSTATE = (function()
         CHANGE_FIRST : 12,
         CHANGE_LAST : 13,
         STAT_OFFER_R_TOTAL : 14,
-        STAT_OFFER_I_TOTAL : 15,
-        STAT_OFFER_C_TOTAL : 16,
-        STAT_OFFER_R_TOTAL_LAST : 17,
-        STAT_OFFER_I_TOTAL_LAST : 18,
-        STAT_OFFER_C_TOTAL_LAST : 19,
-        STAT_DEMAND_R_TOTAL : 20,
-        STAT_DEMAND_I_TOTAL : 21,
-        STAT_DEMAND_C_TOTAL : 22,
-        STAT_DEMAND_R_TOTAL_LAST : 23,
-        STAT_DEMAND_I_TOTAL_LAST : 24,
+        STAT_OFFER_R_TOTAL_LAST : 15,
+        STAT_DEMAND_R_TOTAL : 16,
+        STAT_DEMAND_R_TOTAL_LAST : 17,
+        
+        STAT_OFFER_I_TOTAL : 18,
+        STAT_OFFER_I_TOTAL_LAST : 19,
+        STAT_DEMAND_I_TOTAL : 20,
+        STAT_DEMAND_I_TOTAL_LAST : 21,
+        
+        STAT_OFFER_C_TOTAL : 22,
+        STAT_OFFER_C_TOTAL_LAST : 23,
+        STAT_DEMAND_C_TOTAL : 24,
         STAT_DEMAND_C_TOTAL_LAST : 25,
-        END : 26
+        
+        STAT_OFFER_P_TOTAL : 26,
+        STAT_OFFER_P_TOTAL_LAST : 27,
+        STAT_DEMAND_P_TOTAL : 28,
+        STAT_DEMAND_P_TOTAL_LAST : 29,
+        
+        END : 30
     }
     
     public.getIndex = function asstate_getIndex(x, y)
@@ -289,10 +298,11 @@ let ASSTATE = (function()
     
     public.getRicoDemandOffer = function asstate_getRicoDemandOffer(index)
     {
-        let dr = r(index, C.RICO_DEMAND_OFFER_R);
-        let di = r(index, C.RICO_DEMAND_OFFER_I);
-        let dc = r(index, C.RICO_DEMAND_OFFER_C);
-        return [dr, di, dc];
+        let dor = r(index, C.RICO_DEMAND_OFFER_R);
+        let doi = r(index, C.RICO_DEMAND_OFFER_I);
+        let doc = r(index, C.RICO_DEMAND_OFFER_C);
+        let dop = r(index, C.RICO_DEMAND_OFFER_P);
+        return [dor, doi, doc, dop];
     }
     
     public.setRicoDemandOffer = function asstate_setRicoDemandOffer(index, demandOffer)
@@ -300,6 +310,7 @@ let ASSTATE = (function()
         w(index, C.RICO_DEMAND_OFFER_R, demandOffer[0]);
         w(index, C.RICO_DEMAND_OFFER_I, demandOffer[1]);
         w(index, C.RICO_DEMAND_OFFER_C, demandOffer[2]);
+        w(index, C.RICO_DEMAND_OFFER_P, demandOffer[3]);
     }
     
     public.getRicoDensity = function asstate_getRicoDensity(index)
@@ -447,7 +458,8 @@ let ASSTATE = (function()
         let ro = r(0, G.STAT_OFFER_R_TOTAL);
         let io = r(0, G.STAT_OFFER_I_TOTAL);
         let co = r(0, G.STAT_OFFER_C_TOTAL);
-        return [ro, io, co];
+        let po = r(0, G.STAT_OFFER_P_TOTAL);
+        return [ro, io, co, po];
     }
     
     public.setRicoOfferTotal = function asstate_setRicoOfferTotal(data)
@@ -455,6 +467,7 @@ let ASSTATE = (function()
         w(0, G.STAT_OFFER_R_TOTAL, data[0]);
         w(0, G.STAT_OFFER_I_TOTAL, data[1]);
         w(0, G.STAT_OFFER_C_TOTAL, data[2]);
+        w(0, G.STAT_OFFER_P_TOTAL, data[3]);
     }
     
     public.getRicoOfferTotalLast = function asstate_getRicoOfferTotalLast()
@@ -462,7 +475,8 @@ let ASSTATE = (function()
         let ro = r(0, G.STAT_OFFER_R_TOTAL_LAST);
         let io = r(0, G.STAT_OFFER_I_TOTAL_LAST);
         let co = r(0, G.STAT_OFFER_C_TOTAL_LAST);
-        return [ro, io, co];
+        let po = r(0, G.STAT_OFFER_P_TOTAL_LAST);
+        return [ro, io, co, po];
     }
     
     public.setRicoOfferTotalLast = function asstate_setRicoOfferTotalLast(data)
@@ -470,6 +484,7 @@ let ASSTATE = (function()
         w(0, G.STAT_OFFER_R_TOTAL_LAST, data[0]);
         w(0, G.STAT_OFFER_I_TOTAL_LAST, data[1]);
         w(0, G.STAT_OFFER_C_TOTAL_LAST, data[2]);
+        w(0, G.STAT_OFFER_P_TOTAL_LAST, data[3]);
     }
     
     public.getRicoDemandTotal = function asstate_getRicoDemandTotal()
@@ -477,7 +492,8 @@ let ASSTATE = (function()
         let ro = r(0, G.STAT_DEMAND_R_TOTAL);
         let io = r(0, G.STAT_DEMAND_I_TOTAL);
         let co = r(0, G.STAT_DEMAND_C_TOTAL);
-        return [ro, io, co];
+        let po = r(0, G.STAT_DEMAND_P_TOTAL);
+        return [ro, io, co, po];
     }
     
     public.setRicoDemandTotal = function asstate_setRicoDemandTotal(data)
@@ -485,6 +501,7 @@ let ASSTATE = (function()
         w(0, G.STAT_DEMAND_R_TOTAL, data[0]);
         w(0, G.STAT_DEMAND_I_TOTAL, data[1]);
         w(0, G.STAT_DEMAND_C_TOTAL, data[2]);
+        w(0, G.STAT_DEMAND_P_TOTAL, data[3]);
     }
     
     public.getRicoDemandTotalLast = function asstate_getRicoDemandTotalLast()
@@ -492,7 +509,8 @@ let ASSTATE = (function()
         let ro = r(0, G.STAT_DEMAND_R_TOTAL_LAST);
         let io = r(0, G.STAT_DEMAND_I_TOTAL_LAST);
         let co = r(0, G.STAT_DEMAND_C_TOTAL_LAST);
-        return [ro, io, co];
+        let po = r(0, G.STAT_DEMAND_P_TOTAL_LAST);
+        return [ro, io, co, po];
     }
     
     public.setRicoDemandTotalLast = function asstate_setRicoDemandTotalLast(data)
@@ -500,6 +518,7 @@ let ASSTATE = (function()
         w(0, G.STAT_DEMAND_R_TOTAL_LAST, data[0]);
         w(0, G.STAT_DEMAND_I_TOTAL_LAST, data[1]);
         w(0, G.STAT_DEMAND_C_TOTAL_LAST, data[2]);
+        w(0, G.STAT_DEMAND_P_TOTAL_LAST, data[3]);
     }
     
     public.initialize = function asstate_initialize(tableSizeX, tableSizeY)
@@ -865,10 +884,10 @@ let ASZONE = (function ()
     {
         let offerData = ASSTATE.getRicoOfferTotal();
         ASSTATE.setRicoOfferTotalLast(offerData);
-        ASSTATE.setRicoOfferTotal([0, 0, 0]);
+        ASSTATE.setRicoOfferTotal([0, 0, 0, 0]);
         let demandData = ASSTATE.getRicoDemandTotal();
         ASSTATE.setRicoDemandTotalLast(demandData);
-        ASSTATE.setRicoDemandTotal([0, 0, 0]);
+        ASSTATE.setRicoDemandTotal([0, 0, 0, 0]);
     }
     
     public.updateZone = function aszone_updateZone(tick, timeLimit)
@@ -2147,12 +2166,22 @@ let ASRICO = (function ()
     
     let isDemandRicoFilled = function asrico_isDemandRicoFilled(demand)
     {
-        return demand[0] <= 0 && demand[1] <= 0 && demand[2] <= 0;
+        let flag = true;
+        for (let i in demand)
+        {
+            flag &= demand[i] <= 0;
+        }
+        return flag;
     }
     
     let isOfferRicoFilled = function asrico_isOfferRicoFilled(offer)
     {
-        return offer[0] >= 0 && offer[1] >= 0 && offer[2] >= 0;
+        let flag = true;
+        for (let i in offer)
+        {
+            flag &= offer[i] >= 0;
+        }
+        return flag;
     }
     
     let levelDensityUp = function asrico_levelDensityUp(index)

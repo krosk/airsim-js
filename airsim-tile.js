@@ -16,6 +16,7 @@ let ASTILE = (function ()
         INDHIG : getColor(255*0.6, 235*0.6, 59*0.6),
         COMLOW : getColor(33*1.0, 150*1.0, 243*1.0),
         COMHIG : getColor(33*0.6, 150*0.6, 243*0.6),
+        POWLOW : getColor(255, 200, 0),
     }
     
     // each zone is a function
@@ -31,7 +32,8 @@ let ASTILE = (function ()
         COMLOW: 27,
         RESHIG: 23,
         INDHIG: 26,
-        COMHIG: 29
+        COMHIG: 29,
+        POWLOW: 31,
     };
     
     public.C_TILE_ROAD_CONGESTION = {
@@ -134,14 +136,11 @@ let ASTILE = (function ()
     public.C_RICO_DISPLAY_ID_ZONE_DIGIT = 100;
     public.C_RICO_DISPLAY_ID_LEVEL_DIGIT = 10;
     public.C_RICO_DISPLAY_ID_VARIANT_DIGIT = 1;
-    let metaGenerateRicoDisplayId = function astile_metaGen(table, codeBase)
+    let metaGenerateRicoDisplayId = function astile_metaGen(table, codeBase, variant, densityMin, densityMax)
     {
-        const RICO_RANDOM = 4;
-        const RICO_DENSITY_MIN = 1;
-        const RICO_DENSITY_MAX = 5;
-        for (let j = RICO_DENSITY_MIN; j <= RICO_DENSITY_MAX; j++)
+        for (let j = densityMin; j <= densityMax; j++)
         {
-            for (let k = 0; k < RICO_RANDOM; k++)
+            for (let k = 0; k < variant; k++)
             {
                 let n = codeBase*public.C_RICO_DISPLAY_ID_ZONE_DIGIT + 
                     j * public.C_RICO_DISPLAY_ID_LEVEL_DIGIT + 
@@ -165,11 +164,15 @@ let ASTILE = (function ()
         public.C_TILE_ZONE.COMLOW,
         public.C_TILE_ZONE.COMHIG
     ];
+    const RICO_VARIANT = 4;
+    const RICO_DENSITY_MIN = 1;
+    const RICO_DENSITY_MAX = 5;
     for (let i = 0; i < ricoZone.length; i++)
     {
         let codeBase = ricoZone[i];
-        metaGenerateRicoDisplayId(public.C_TILE_RICO_DISPLAY, codeBase);
+        metaGenerateRicoDisplayId(public.C_TILE_RICO_DISPLAY, codeBase, RICO_VARIANT, RICO_DENSITY_MIN, RICO_DENSITY_MAX);
     }
+    //metaGenerationRicoDisplay(public.C_TILE_RICO_DISPLAY, public.C_TILE_ZONE.POWLOW, 0, 0, 0);
     
     let m_textureNameCache = {};
     
@@ -312,7 +315,8 @@ let ASZONE_TILE = (function ()
         [C.COMLOW] : C_COLOR.COMLOW,
         [C.RESHIG] : C_COLOR.RESHIG,
         [C.INDHIG] : C_COLOR.INDHIG,
-        [C.COMHIG] : C_COLOR.COMHIG
+        [C.COMHIG] : C_COLOR.COMHIG,
+        [C.POWLOW] : C_COLOR.POWLOW,
     }
     
     const C_CITYHEIGHT = {
@@ -325,6 +329,7 @@ let ASZONE_TILE = (function ()
         [C.RESHIG] : 6,
         [C.COMHIG] : 6,
         [C.INDHIG] : 6,
+        [C.POWLOW] : 6,
     }
     
     let getCityTextureMargin = function aszone_getCityTextureMargin(id)

@@ -2169,6 +2169,7 @@ let ASRICO = (function ()
         let flag = true;
         for (let i in demand)
         {
+            if (i == 3) continue;
             flag &= demand[i] <= 0;
         }
         return flag;
@@ -2179,6 +2180,7 @@ let ASRICO = (function ()
         let flag = true;
         for (let i in offer)
         {
+            if (i == 3) continue;
             flag &= offer[i] >= 0;
         }
         return flag;
@@ -2242,6 +2244,7 @@ let ASRICO = (function ()
         
         for (let i in parentDemandInitial)
         {
+            if (i == 3) continue; // temp
             if (demandOffer[i] >= 0)
             {
                 notEnough |= (parentDemandInitial[i] + demandOffer[i] - demandInitial[i] > 0);

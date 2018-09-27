@@ -1,4 +1,4 @@
-const G_WORKER = false && window.Worker;
+const G_WORKER = true && window.Worker;
 
 let ASENGINE = (function ()
 {

@@ -1840,6 +1840,11 @@ let ASRICO = (function ()
     };
     const C_R = C_RICOPROPERTY;
     
+    let isCodeValid = function asrico_isCodeValid(code)
+    {
+        return (typeof C_R[code] != 'undefined');
+    }
+    
     let convertOffer = function asrico_convertOffer(v)
     {
         return v < 0 ? v : 0;
@@ -1852,8 +1857,7 @@ let ASRICO = (function ()
     
     let getInitialOffer = function asrico_getInitialOffer(code)
     {
-        let values = C_R[code];
-        if (typeof values == 'undefined' || values == null)
+        if (!isCodeValid(code))
         {
             return [-1, -1, -1, -1];
         }
@@ -1866,8 +1870,7 @@ let ASRICO = (function ()
     
     let getInitialDemand = function asrico_getInitialDemand(code)
     {
-        let values = C_R[code];
-        if (typeof values == 'undefined' || values == null)
+        if (!isCodeValid(code))
         {
             return [-1, -1, -1, -1];
         }
@@ -1969,10 +1972,6 @@ let ASRICO = (function ()
     
     let addRico = function asrico_addRico(code, x, y)
     {
-        if (G_CHECK && typeof code === 'undefined')
-        {
-            throw 'addRico code undefined';
-        }
         let index = ASSTATE.getIndex(x, y);
         setInitial(code, index);
         ASROAD.disconnectAll(x, y);
@@ -2000,7 +1999,7 @@ let ASRICO = (function ()
         {
             return;
         }
-        if (G_CHECK && typeof C_R[code] == 'undefined')
+        if (G_CHECK && !isCodeValid(code))
         {
             throw 'Building code ' + code + ' has no property';
         }
@@ -2014,6 +2013,10 @@ let ASRICO = (function ()
     public.addRicoInitial = function asrico_addRicoInitial(zone, x, y)
     {
         let code = getCode(zone, 0);
+        if (!isCodeValid(code))
+        {
+            throw 'Building code ' + code + ' has no property';
+        }
         addRico(code, x, y);
     }
     
@@ -2197,7 +2200,10 @@ let ASRICO = (function ()
     
     let canLevelUp = function asrico_canLevelUp(index)
     {
-        let flag = getDataIdByDensityLevel(index, 1) != C.NONE;
+        let zone = ASSTATE.getZoneId(index);
+        let level = ASSTATE.getRicoDensity(index);
+        let code = getCode(zone, level + 1);
+        let flag = isCodeValid(code);
         let demandOffer = ASSTATE.getRicoDemandOffer(index);
         flag &= isDemandRicoFilled(demandOffer);
         flag &= isOfferRicoFilled(demandOffer);
@@ -2206,13 +2212,16 @@ let ASRICO = (function ()
     
     let canLevelDown = function asrico_canLevelDown(index)
     {
+        let zone = ASSTATE.getZoneId(index);
+        let level = ASSTATE.getRicoDensity(index);
         let notEnough = false;
-        let code = getDataIdByDensityLevel(index);
+        let code = getCode(zone, level);
+        
         let demandInitial = getInitialDemand(code);
         let offerInitial = getInitialOffer(code);
         
-        let parentCode = getDataIdByDensityLevel(index, -1);
-        if (parentCode == C.NONE)
+        let parentCode = getCode(zone, level - 1);
+        if (!isCodeValid(parentCode))
         {
             return false;
         }

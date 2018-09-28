@@ -788,33 +788,15 @@ let ASZONE = (function ()
         {
             ASROAD.addRoad(x, y);
         }
-        else if (zone == C.RESLOW)
+        else if (zone == C.RESLOW ||
+            zone == C.RESHIG ||
+            zone == C.COMLOW ||
+            zone == C.COMHIG ||
+            zone == C.INDLOW ||
+            zone == C.INDHIG ||
+            zone == C.POWLOW)
         {
-            ASRICO.addResLow(x, y);
-        }
-        else if (zone == C.RESHIG)
-        {
-            ASRICO.addResHig(x, y);
-        }
-        else if (zone == C.COMLOW)
-        {
-            ASRICO.addComLow(x, y);
-        }
-        else if (zone == C.COMHIG)
-        {
-            ASRICO.addComHig(x, y);
-        }
-        else if (zone == C.INDLOW)
-        {
-            ASRICO.addIndLow(x, y);
-        }
-        else if (zone == C.INDHIG)
-        {
-            ASRICO.addIndHig(x, y);
-        }
-        else if (zone == C.POWLOW)
-        {
-            ASRICO.addPowLow(x, y);
+            ASRICO.addRicoInitial(zone, x, y);
         }
         else if (zone == C.DIRT)
         {
@@ -1788,18 +1770,23 @@ let ASRICO = (function ()
     public.C_NAME = 'ASRICO';
     
     const C = ASTILE.C_TILE_RICO_DENSITY;
-    const C_ZONE = ASTILE.C_TILE_ZONE;
+    const C_Z = ASTILE.C_TILE_ZONE;
     
     // note: type must be (density id - C.NONE) / 10
     // could use C_ZONE instead
     const C_ZONE_RICO = {
-        [C_ZONE.RESLOW] : 1,
-        [C_ZONE.RESHIG] : 3,
-        [C_ZONE.INDLOW] : 4,
-        [C_ZONE.INDHIG] : 6,
-        [C_ZONE.COMLOW] : 7,
-        [C_ZONE.COMHIG] : 9,
-        [C_ZONE.POWLOW] : 11
+        [C_Z.RESLOW] : 1,
+        [C_Z.RESHIG] : 3,
+        [C_Z.INDLOW] : 4,
+        [C_Z.INDHIG] : 6,
+        [C_Z.COMLOW] : 7,
+        [C_Z.COMHIG] : 9,
+        [C_Z.POWLOW] : 11
+    }
+    
+    let getCode = function asrico_getCode(zone, level)
+    {
+        return zone*10 + level;
     }
     
     // [level, type, ric]
@@ -1813,43 +1800,43 @@ let ASRICO = (function ()
     };
     const C_RM = C_RICOPROPERTY_MAP;
     const C_RICOPROPERTY = {
-        [C.RESLOW_0] : [0, 1,   0,   0,   0,   0],
-        [C.RESLOW_1] : [1, 1,  -2,   0,   2,   1],
-        [C.RESLOW_2] : [2, 1,  -4,   0,   4,   1],
-        [C.RESLOW_3] : [3, 1,  -6,   0,   6,   1],
-        [C.RESLOW_4] : [4, 1,  -8,   0,   8,   1],
-        [C.RESLOW_5] : [5, 1, -10,   0,  10,   2],
-        [C.RESHIG_0] : [0, 3,   0,   0,   0,   0],
-        [C.RESHIG_1] : [1, 3, -10,   0,  10,   2],
-        [C.RESHIG_2] : [2, 3, -16,   0,  16,   2],
-        [C.RESHIG_3] : [3, 3, -24,   0,  24,   3],
-        [C.RESHIG_4] : [4, 3, -34,   0,  34,   4],
-        [C.RESHIG_5] : [5, 3, -50,   0,  50,   5],
-        [C.INDLOW_0] : [0, 4,   0,   0,   0,   0],
-        [C.INDLOW_1] : [1, 4,   2,  -2,   0,   2],
-        [C.INDLOW_2] : [2, 4,   4,  -4,   0,   2],
-        [C.INDLOW_3] : [3, 4,   6,  -6,   0,   3],
-        [C.INDLOW_4] : [4, 4,   8,  -8,   0,   3],
-        [C.INDLOW_5] : [5, 4,  10, -10,   0,   4],
-        [C.INDHIG_0] : [0, 6,   0,   0,   0,   0],
-        [C.INDHIG_1] : [1, 6,  10, -10,   0,   5],
-        [C.INDHIG_2] : [2, 6,  16, -16,   0,   8],
-        [C.INDHIG_3] : [3, 6,  24, -24,   0,  12],
-        [C.INDHIG_4] : [4, 6,  34, -34,   0,  17],
-        [C.INDHIG_5] : [5, 6,  50, -50,   0,  25],
-        [C.COMLOW_0] : [0, 7,   0,   0,   0,   0],
-        [C.COMLOW_1] : [1, 7,   1,   1,  -2,   2],
-        [C.COMLOW_2] : [2, 7,   2,   2,  -4,   2],
-        [C.COMLOW_3] : [3, 7,   3,   3,  -6,   3],
-        [C.COMLOW_4] : [4, 7,   4,   4,  -8,   3],
-        [C.COMLOW_5] : [5, 7,   5,   5, -10,   4],
-        [C.COMHIG_0] : [0, 9,   0,   0,   0,   0],
-        [C.COMHIG_1] : [1, 9,   5,   5, -10,   5],
-        [C.COMHIG_2] : [2, 9,   8,   8, -16,   7],
-        [C.COMHIG_3] : [3, 9,  12,  12, -24,   9],
-        [C.COMHIG_4] : [4, 9,  17,  17, -34,  11],
-        [C.COMHIG_5] : [5, 9,  25,  25, -50,  13],
-        [C.POWLOW_0] : [0,11,   0,   0,   0,-200]
+        [getCode(C_Z.RESLOW, 0)] : [0, 1,   0,   0,   0,   0],
+        [getCode(C_Z.RESLOW, 1)] : [1, 1,  -2,   0,   2,   1],
+        [getCode(C_Z.RESLOW, 2)] : [2, 1,  -4,   0,   4,   1],
+        [getCode(C_Z.RESLOW, 3)] : [3, 1,  -6,   0,   6,   1],
+        [getCode(C_Z.RESLOW, 4)] : [4, 1,  -8,   0,   8,   1],
+        [getCode(C_Z.RESLOW, 5)] : [5, 1, -10,   0,  10,   2],
+        [getCode(C_Z.RESHIG, 0)] : [0, 3,   0,   0,   0,   0],
+        [getCode(C_Z.RESHIG, 1)] : [1, 3, -10,   0,  10,   2],
+        [getCode(C_Z.RESHIG, 2)] : [2, 3, -16,   0,  16,   2],
+        [getCode(C_Z.RESHIG, 3)] : [3, 3, -24,   0,  24,   3],
+        [getCode(C_Z.RESHIG, 4)] : [4, 3, -34,   0,  34,   4],
+        [getCode(C_Z.RESHIG, 5)] : [5, 3, -50,   0,  50,   5],
+        [getCode(C_Z.INDLOW, 0)] : [0, 4,   0,   0,   0,   0],
+        [getCode(C_Z.INDLOW, 1)] : [1, 4,   2,  -2,   0,   2],
+        [getCode(C_Z.INDLOW, 2)] : [2, 4,   4,  -4,   0,   2],
+        [getCode(C_Z.INDLOW, 3)] : [3, 4,   6,  -6,   0,   3],
+        [getCode(C_Z.INDLOW, 4)] : [4, 4,   8,  -8,   0,   3],
+        [getCode(C_Z.INDLOW, 5)] : [5, 4,  10, -10,   0,   4],
+        [getCode(C_Z.INDHIG, 0)] : [0, 6,   0,   0,   0,   0],
+        [getCode(C_Z.INDHIG, 1)] : [1, 6,  10, -10,   0,   5],
+        [getCode(C_Z.INDHIG, 2)] : [2, 6,  16, -16,   0,   8],
+        [getCode(C_Z.INDHIG, 3)] : [3, 6,  24, -24,   0,  12],
+        [getCode(C_Z.INDHIG, 4)] : [4, 6,  34, -34,   0,  17],
+        [getCode(C_Z.INDHIG, 5)] : [5, 6,  50, -50,   0,  25],
+        [getCode(C_Z.COMLOW, 0)] : [0, 7,   0,   0,   0,   0],
+        [getCode(C_Z.COMLOW, 1)] : [1, 7,   1,   1,  -2,   2],
+        [getCode(C_Z.COMLOW, 2)] : [2, 7,   2,   2,  -4,   2],
+        [getCode(C_Z.COMLOW, 3)] : [3, 7,   3,   3,  -6,   3],
+        [getCode(C_Z.COMLOW, 4)] : [4, 7,   4,   4,  -8,   3],
+        [getCode(C_Z.COMLOW, 5)] : [5, 7,   5,   5, -10,   4],
+        [getCode(C_Z.COMHIG, 0)] : [0, 9,   0,   0,   0,   0],
+        [getCode(C_Z.COMHIG, 1)] : [1, 9,   5,   5, -10,   5],
+        [getCode(C_Z.COMHIG, 2)] : [2, 9,   8,   8, -16,   7],
+        [getCode(C_Z.COMHIG, 3)] : [3, 9,  12,  12, -24,   9],
+        [getCode(C_Z.COMHIG, 4)] : [4, 9,  17,  17, -34,  11],
+        [getCode(C_Z.COMHIG, 5)] : [5, 9,  25,  25, -50,  13],
+        [getCode(C_Z.POWLOW, 0)] : [0,11,   0,   0,   0,-200]
     };
     const C_R = C_RICOPROPERTY;
     
@@ -2024,39 +2011,10 @@ let ASRICO = (function ()
         updateDisplayId(index, code);
     }
     
-    public.addResLow = function asrico_addResLow(x, y)
+    public.addRicoInitial = function asrico_addRicoInitial(zone, x, y)
     {
-        addRico(C.RESLOW_0, x, y);
-    }
-    
-    public.addResHig = function asrico_addReaHig(x, y)
-    {
-        addRico(C.RESHIG_0, x, y);
-    }
-   
-    public.addComLow = function asrico_addComLow(x, y)
-    {
-        addRico(C.COMLOW_0, x, y);
-    }
-    
-    public.addComHig = function asrico_addComHig(x, y)
-    {
-        addRico(C.COMHIG_0, x, y);
-    }
-    
-    public.addIndLow = function asrico_addIndLow(x, y)
-    {
-        addRico(C.INDLOW_0, x, y);
-    }
-    
-    public.addIndHig = function asrico_addIndHig(x, y)
-    {
-        addRico(C.INDHIG_0, x, y);
-    }
-    
-    public.addPowLow = function asrico_addPowLow(x, y)
-    {
-        addRico(C.POWLOW_0, x, y);
+        let code = getCode(zone, 0);
+        addRico(code, x, y);
     }
     
     public.removeRico = function asrico_removeRico(x, y)

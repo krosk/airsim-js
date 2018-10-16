@@ -772,7 +772,7 @@ let ASZONE = (function ()
         }
         else if (oldZone == C.POWLOW)
         {
-            ASSRICO.removeRico(x, y);
+            ASRICO.removeRico(x, y);
         }
         let index = ASSTATE.getIndex(x, y);
         ASSTATE.notifyChange(index);
@@ -1799,19 +1799,19 @@ let ASRICO = (function ()
     };
     const C_RM = C_RICOPROPERTY_MAP;
     const C_RICOPROPERTY = {
-        [getCode(C_Z.RESLOW, 0)] : [0,   0,   0,   0,   0],
+        [getCode(C_Z.RESLOW, 0)] : [0,   0,   0,   0,   1],
         [getCode(C_Z.RESLOW, 1)] : [1,  -2,   0,   2,   1],
         [getCode(C_Z.RESLOW, 2)] : [2,  -4,   0,   4,   1],
         [getCode(C_Z.RESLOW, 3)] : [3,  -6,   0,   6,   1],
         [getCode(C_Z.RESLOW, 4)] : [4,  -8,   0,   8,   1],
         [getCode(C_Z.RESLOW, 5)] : [5, -10,   0,  10,   2],
-        [getCode(C_Z.RESHIG, 0)] : [0,   0,   0,   0,   0],
+        [getCode(C_Z.RESHIG, 0)] : [0,   0,   0,   0,   1],
         [getCode(C_Z.RESHIG, 1)] : [1, -10,   0,  10,   2],
         [getCode(C_Z.RESHIG, 2)] : [2, -16,   0,  16,   2],
         [getCode(C_Z.RESHIG, 3)] : [3, -24,   0,  24,   3],
         [getCode(C_Z.RESHIG, 4)] : [4, -34,   0,  34,   4],
         [getCode(C_Z.RESHIG, 5)] : [5, -50,   0,  50,   5],
-        [getCode(C_Z.INDLOW, 0)] : [0,   0,   0,   0,   0],
+        [getCode(C_Z.INDLOW, 0)] : [0,   0,   0,   0,   1],
         [getCode(C_Z.INDLOW, 1)] : [1,   2,  -2,   0,   2],
         [getCode(C_Z.INDLOW, 2)] : [2,   4,  -4,   0,   2],
         [getCode(C_Z.INDLOW, 3)] : [3,   6,  -6,   0,   3],
@@ -1823,13 +1823,13 @@ let ASRICO = (function ()
         [getCode(C_Z.INDHIG, 3)] : [3,  24, -24,   0,  12],
         [getCode(C_Z.INDHIG, 4)] : [4,  34, -34,   0,  17],
         [getCode(C_Z.INDHIG, 5)] : [5,  50, -50,   0,  25],
-        [getCode(C_Z.COMLOW, 0)] : [0,   0,   0,   0,   0],
+        [getCode(C_Z.COMLOW, 0)] : [0,   0,   0,   0,   1],
         [getCode(C_Z.COMLOW, 1)] : [1,   1,   1,  -2,   2],
         [getCode(C_Z.COMLOW, 2)] : [2,   2,   2,  -4,   2],
         [getCode(C_Z.COMLOW, 3)] : [3,   3,   3,  -6,   3],
         [getCode(C_Z.COMLOW, 4)] : [4,   4,   4,  -8,   3],
         [getCode(C_Z.COMLOW, 5)] : [5,   5,   5, -10,   4],
-        [getCode(C_Z.COMHIG, 0)] : [0,   0,   0,   0,   0],
+        [getCode(C_Z.COMHIG, 0)] : [0,   0,   0,   0,   1],
         [getCode(C_Z.COMHIG, 1)] : [1,   5,   5, -10,   5],
         [getCode(C_Z.COMHIG, 2)] : [2,   8,   8, -16,   7],
         [getCode(C_Z.COMHIG, 3)] : [3,  12,  12, -24,   9],
@@ -2150,7 +2150,7 @@ let ASRICO = (function ()
         let flag = true;
         for (let i in demand)
         {
-            if (i == 3) continue;
+            //if (i == 3) continue;
             flag &= demand[i] <= 0;
         }
         return flag;
@@ -2161,7 +2161,7 @@ let ASRICO = (function ()
         let flag = true;
         for (let i in offer)
         {
-            if (i == 3) continue;
+            //if (i == 3) continue;
             flag &= offer[i] >= 0;
         }
         return flag;
@@ -2231,7 +2231,7 @@ let ASRICO = (function ()
         
         for (let i in parentDemandInitial)
         {
-            if (i == 3) continue; // temp
+            //if (i == 3) continue; // temp
             if (demandOffer[i] >= 0)
             {
                 notEnough |= (parentDemandInitial[i] + demandOffer[i] - demandInitial[i] > 0);

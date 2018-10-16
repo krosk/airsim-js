@@ -166,7 +166,7 @@ let ASTILE = (function ()
         public.C_TILE_ZONE.COMHIG
     ];
     const RICO_VARIANT = 4;
-    const RICO_DENSITY_MIN = 1;
+    const RICO_DENSITY_MIN = 0;
     const RICO_DENSITY_MAX = 5;
     for (let i = 0; i < ricoZone.length; i++)
     {

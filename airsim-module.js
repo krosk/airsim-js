@@ -1792,50 +1792,51 @@ let ASRICO = (function ()
     // [level, type, ric]
     const C_RICOPROPERTY_MAP = {
         LEVEL : 0,
-        DEMAND_R : 1,
-        DEMAND_I : 2,
-        DEMAND_C : 3,
-        DEMAND_P : 4,
+        TRAFFIC : 1,
+        DEMAND_R : 2,
+        DEMAND_I : 3,
+        DEMAND_C : 4,
+        DEMAND_P : 5,
     };
     const C_RM = C_RICOPROPERTY_MAP;
     const C_RICOPROPERTY = {
-        [getCode(C_Z.RESLOW, 0)] : [0,   0,   0,   0,   1],
-        [getCode(C_Z.RESLOW, 1)] : [1,  -2,   0,   2,   1],
-        [getCode(C_Z.RESLOW, 2)] : [2,  -4,   0,   4,   1],
-        [getCode(C_Z.RESLOW, 3)] : [3,  -6,   0,   6,   1],
-        [getCode(C_Z.RESLOW, 4)] : [4,  -8,   0,   8,   1],
-        [getCode(C_Z.RESLOW, 5)] : [5, -10,   0,  10,   2],
-        [getCode(C_Z.RESHIG, 0)] : [0,   0,   0,   0,   1],
-        [getCode(C_Z.RESHIG, 1)] : [1, -10,   0,  10,   2],
-        [getCode(C_Z.RESHIG, 2)] : [2, -16,   0,  16,   2],
-        [getCode(C_Z.RESHIG, 3)] : [3, -24,   0,  24,   3],
-        [getCode(C_Z.RESHIG, 4)] : [4, -34,   0,  34,   4],
-        [getCode(C_Z.RESHIG, 5)] : [5, -50,   0,  50,   5],
-        [getCode(C_Z.INDLOW, 0)] : [0,   0,   0,   0,   1],
-        [getCode(C_Z.INDLOW, 1)] : [1,   2,  -2,   0,   2],
-        [getCode(C_Z.INDLOW, 2)] : [2,   4,  -4,   0,   2],
-        [getCode(C_Z.INDLOW, 3)] : [3,   6,  -6,   0,   3],
-        [getCode(C_Z.INDLOW, 4)] : [4,   8,  -8,   0,   3],
-        [getCode(C_Z.INDLOW, 5)] : [5,  10, -10,   0,   4],
-        [getCode(C_Z.INDHIG, 0)] : [0,   0,   0,   0,   0],
-        [getCode(C_Z.INDHIG, 1)] : [1,  10, -10,   0,   5],
-        [getCode(C_Z.INDHIG, 2)] : [2,  16, -16,   0,   8],
-        [getCode(C_Z.INDHIG, 3)] : [3,  24, -24,   0,  12],
-        [getCode(C_Z.INDHIG, 4)] : [4,  34, -34,   0,  17],
-        [getCode(C_Z.INDHIG, 5)] : [5,  50, -50,   0,  25],
-        [getCode(C_Z.COMLOW, 0)] : [0,   0,   0,   0,   1],
-        [getCode(C_Z.COMLOW, 1)] : [1,   1,   1,  -2,   2],
-        [getCode(C_Z.COMLOW, 2)] : [2,   2,   2,  -4,   2],
-        [getCode(C_Z.COMLOW, 3)] : [3,   3,   3,  -6,   3],
-        [getCode(C_Z.COMLOW, 4)] : [4,   4,   4,  -8,   3],
-        [getCode(C_Z.COMLOW, 5)] : [5,   5,   5, -10,   4],
-        [getCode(C_Z.COMHIG, 0)] : [0,   0,   0,   0,   1],
-        [getCode(C_Z.COMHIG, 1)] : [1,   5,   5, -10,   5],
-        [getCode(C_Z.COMHIG, 2)] : [2,   8,   8, -16,   7],
-        [getCode(C_Z.COMHIG, 3)] : [3,  12,  12, -24,   9],
-        [getCode(C_Z.COMHIG, 4)] : [4,  17,  17, -34,  11],
-        [getCode(C_Z.COMHIG, 5)] : [5,  25,  25, -50,  13],
-        [getCode(C_Z.POWLOW, 0)] : [0,   0,   0,   0,-200]
+        [getCode(C_Z.RESLOW, 0)] : [0,  1,   0,   0,   0,   1],
+        [getCode(C_Z.RESLOW, 1)] : [1,  1,  -2,   0,   2,   1],
+        [getCode(C_Z.RESLOW, 2)] : [2,  1,  -4,   0,   4,   1],
+        [getCode(C_Z.RESLOW, 3)] : [3,  1,  -6,   0,   6,   1],
+        [getCode(C_Z.RESLOW, 4)] : [4,  1,  -8,   0,   8,   1],
+        [getCode(C_Z.RESLOW, 5)] : [5,  1, -10,   0,  10,   2],
+        [getCode(C_Z.RESHIG, 0)] : [0,  2,   0,   0,   0,   1],
+        [getCode(C_Z.RESHIG, 1)] : [1,  2, -10,   0,  10,   2],
+        [getCode(C_Z.RESHIG, 2)] : [2,  2, -16,   0,  16,   2],
+        [getCode(C_Z.RESHIG, 3)] : [3,  2, -24,   0,  24,   3],
+        [getCode(C_Z.RESHIG, 4)] : [4,  2, -34,   0,  34,   4],
+        [getCode(C_Z.RESHIG, 5)] : [5,  2, -50,   0,  50,   5],
+        [getCode(C_Z.INDLOW, 0)] : [0,  3,   0,   0,   0,   1],
+        [getCode(C_Z.INDLOW, 1)] : [1,  3,   2,  -2,   0,   2],
+        [getCode(C_Z.INDLOW, 2)] : [2,  3,   4,  -4,   0,   2],
+        [getCode(C_Z.INDLOW, 3)] : [3,  3,   6,  -6,   0,   3],
+        [getCode(C_Z.INDLOW, 4)] : [4,  3,   8,  -8,   0,   3],
+        [getCode(C_Z.INDLOW, 5)] : [5,  3,  10, -10,   0,   4],
+        [getCode(C_Z.INDHIG, 0)] : [0,  5,   0,   0,   0,   0],
+        [getCode(C_Z.INDHIG, 1)] : [1,  5,  10, -10,   0,   5],
+        [getCode(C_Z.INDHIG, 2)] : [2,  5,  16, -16,   0,   8],
+        [getCode(C_Z.INDHIG, 3)] : [3,  5,  24, -24,   0,  12],
+        [getCode(C_Z.INDHIG, 4)] : [4,  5,  34, -34,   0,  17],
+        [getCode(C_Z.INDHIG, 5)] : [5,  5,  50, -50,   0,  25],
+        [getCode(C_Z.COMLOW, 0)] : [0,  2,   0,   0,   0,   1],
+        [getCode(C_Z.COMLOW, 1)] : [1,  2,   1,   1,  -2,   2],
+        [getCode(C_Z.COMLOW, 2)] : [2,  2,   2,   2,  -4,   2],
+        [getCode(C_Z.COMLOW, 3)] : [3,  2,   3,   3,  -6,   3],
+        [getCode(C_Z.COMLOW, 4)] : [4,  2,   4,   4,  -8,   3],
+        [getCode(C_Z.COMLOW, 5)] : [5,  2,   5,   5, -10,   4],
+        [getCode(C_Z.COMHIG, 0)] : [0,  3,   0,   0,   0,   1],
+        [getCode(C_Z.COMHIG, 1)] : [1,  3,   5,   5, -10,   5],
+        [getCode(C_Z.COMHIG, 2)] : [2,  3,   8,   8, -16,   7],
+        [getCode(C_Z.COMHIG, 3)] : [3,  3,  12,  12, -24,   9],
+        [getCode(C_Z.COMHIG, 4)] : [4,  3,  17,  17, -34,  11],
+        [getCode(C_Z.COMHIG, 5)] : [5,  3,  25,  25, -50,  13],
+        [getCode(C_Z.POWLOW, 0)] : [0,  0,   0,   0,   0,-200]
     };
     const C_R = C_RICOPROPERTY;
     
@@ -2317,7 +2318,8 @@ let ASRICO = (function ()
                 return false;
             }
             let filledOffer = dispatchOffer(index, nx, ny);
-            increaseCongestion(filledOffer);
+            let additionalCongestion = convertFlowTypeToCongestion(index, filledOffer);
+            increaseCongestion(additionalCongestion);
             return false;
         }
         else
@@ -2328,9 +2330,19 @@ let ASRICO = (function ()
         }
     }
     
+    let convertFlowTypeToCongestion = function asrico_convertFlowTypeToCongestion(index, filledOffer)
+    {
+        let zone = ASSTATE.getZoneId(index);
+        let level = ASSTATE.getRicoDensity(index);
+        let code = getCode(zone, level);
+        return C_R[code][C_RM.TRAFFIC] * filledOffer;
+    }
+    
     let incrementStatOfferTotal = function asrico_incrementStatOfferTotal(index)
     {
-        let code = getDataIdByDensityLevel(index);
+        let zone = ASSTATE.getZoneId(index);
+        let level = ASSTATE.getRicoDensity(index);
+        let code = getCode(zone, level);
         let data = getInitialOffer(code);
         let total = ASSTATE.getRicoOfferTotal();
         for (let i = 0; i < total.length; i++)
@@ -2342,7 +2354,9 @@ let ASRICO = (function ()
     
     let incrementStatDemandTotal = function asrico_incrementStatDemandTotal(index)
     {
-        let code = getDataIdByDensityLevel(index);
+        let zone = ASSTATE.getZoneId(index);
+        let level = ASSTATE.getRicoDensity(index);
+        let code = getCode(zone, level);
         let data = getInitialDemand(code);
         let total = ASSTATE.getRicoDemandTotal();
         for (let i = 0; i < total.length; i++)

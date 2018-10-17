@@ -739,6 +739,17 @@ let ASZONE = (function ()
         return displayId;
     }
     
+    let isRicoZone = function aszone_isRicoZone(zone)
+    {
+        return (zone == C.RESLOW ||
+            zone == C.RESHIG ||
+            zone == C.COMLOW ||
+            zone == C.COMHIG ||
+            zone == C.INDLOW ||
+            zone == C.INDHIG ||
+            zone == C.POWLOW);
+    }
+    
     let clearZone = function aszone_clearZone(x, y)
     {
         const oldZone = public.getDataIdByZone(x, y);
@@ -746,31 +757,7 @@ let ASZONE = (function ()
         {
             ASROAD.removeRoad(x, y);
         }
-        else if (oldZone == C.RESLOW)
-        {
-            ASRICO.removeRico(x, y);
-        }
-        else if (oldZone == C.RESHIG)
-        {
-            ASRICO.removeRico(x, y);
-        }
-        else if (oldZone == C.COMLOW)
-        {
-            ASRICO.removeRico(x, y);
-        }
-        else if (oldZone == C.COMHIG)
-        {
-            ASRICO.removeRico(x, y);
-        }
-        else if (oldZone == C.INDLOW)
-        {
-            ASRICO.removeRico(x, y);
-        }
-        else if (oldZone == C.INDHIG)
-        {
-            ASRICO.removeRico(x, y);
-        }
-        else if (oldZone == C.POWLOW)
+        else if (isRicoZone(oldZone))
         {
             ASRICO.removeRico(x, y);
         }
@@ -788,13 +775,7 @@ let ASZONE = (function ()
         {
             ASROAD.addRoad(x, y);
         }
-        else if (zone == C.RESLOW ||
-            zone == C.RESHIG ||
-            zone == C.COMLOW ||
-            zone == C.COMHIG ||
-            zone == C.INDLOW ||
-            zone == C.INDHIG ||
-            zone == C.POWLOW)
+        else if (isRicoZone(zone))
         {
             ASRICO.addRicoInitial(zone, x, y);
         }

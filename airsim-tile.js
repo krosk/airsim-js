@@ -584,15 +584,6 @@ let ASRICO_DISPLAY_TILE = (function ()
         return graphics;
     }
     
-    public.createTextureOld = function asrico_createTexture(id)
-    {
-        let graphics = public.addTileBase();
-        let gray = ASTILE.C_COLOR.ROAD;
-        let baseHeight = public.getBaseHeight();
-        ASTILE.drawBlock(graphics, gray, 0, -baseHeight, 16, 8, 5);
-        return graphics;
-    }
-    
     return public;
 })();
 

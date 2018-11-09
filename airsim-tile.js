@@ -130,6 +130,10 @@ let ASTILE = (function ()
         NESW : 1415
     };
     
+    let C_TILE_ID_TO_TEXTURE = {
+        1415 : "cityTiles_003.png",
+    };
+    
     // rule xxab
     // xx is zone id
     // a is level
@@ -184,7 +188,11 @@ let ASTILE = (function ()
     
     public.getTileTextureName = function astile_getTileTextureName(tileId)
     {
-        let name = getTileTextureNameUnprotected(tileId);
+        let name = C_TILE_ID_TO_TEXTURE[tileId];
+        if (typeof name == 'undefined')
+        {
+            name = getTileTextureNameUnprotected(tileId);
+        }
         if (typeof m_textureNameCache[name] == 'undefined')
         {
             console.log('texture not loaded for ' + tileId);
@@ -287,11 +295,19 @@ let ASTILE = (function ()
         for (let i in values)
         {
             let id = values[i] | 0;
-            let textureName = getTileTextureNameUnprotected(id);
-            let graphics = library.createTexture(id);
-            let texture = g_app.renderer.generateTexture(graphics);
-            PIXI.utils.TextureCache[textureName] = texture;
-            m_textureNameCache[textureName] = true;
+            if (typeof C_TILE_ID_TO_TEXTURE[id] === 'undefined')
+            {
+                let textureName = getTileTextureNameUnprotected(id);
+                let graphics = library.createTexture(id);
+                let texture = g_app.renderer.generateTexture(graphics);
+                PIXI.utils.TextureCache[textureName] = texture;
+                m_textureNameCache[textureName] = true;
+            }
+            else
+            {
+                let textureName = C_TILE_ID_TO_TEXTURE[id];
+                m_textureNameCache[textureName] = true;
+            }
         }
     }
     

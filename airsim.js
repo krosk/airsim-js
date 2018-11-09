@@ -84,16 +84,9 @@ function adaptativeFetch(url)
 // no change: get
 
 let g_state = WaitingState;
-let g_engineLoaded = false;
 
 function OnReady()
 {
-    adaptativeFetch("program.wasm")
-    .then(response => {
-        response;
-        g_engineLoaded = true;
-    });
-    
     g_stats = new Stats();
 
     g_updateTimestamp = Date.now();
@@ -121,20 +114,20 @@ function OnReady()
 
     document.body.appendChild(g_stats.domElement);
 
-    /*
+    window.onresize = Resize;
+    Resize();
+    
+    g_app.ticker.add(Update);
+
     PIXI.loader.add("img/cityTiles_sheet.json")
         .on("progress", LoaderProgressHandler)
         .load(LoaderSetup);
-    */
     
+    /*
     g_state = StartState;
 
-    window.onresize = Resize;
-    Resize();
-
-    g_app.ticker.add(Update);
-
     console.log("Ready");
+    */
 }
 
 function InitializeDebugOverlay()
@@ -176,7 +169,10 @@ function LoaderProgressHandler(loader, resource)
 function LoaderSetup()
 {
     console.log("image loaded");
+    
     g_state = StartState;
+    
+    console.log("Ready");
 }
 
 function Resize()

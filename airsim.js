@@ -782,6 +782,7 @@ let ASMAPUI = (function ()
         let textureName = ASTILE.getTileTextureName(id);
         let textureCache = PIXI.utils.TextureCache[textureName];
         let sprite = new PIXI.Sprite(textureCache);
+        
         sprite.interactive = true;
         sprite.on('pointerdown',
             function(e){
@@ -1268,8 +1269,6 @@ let MMAPBATCH = (function ()
                     let sprite = new PIXI.Sprite(textureCache);
 
                     sprite.visible = true;
-
-                    //setSpriteInteraction(sprite);
                     
                     batch.addChild(sprite);
                 }
@@ -1438,6 +1437,15 @@ let MMAPBATCH = (function ()
             let textureCache = PIXI.utils.TextureCache[textureName];
             let sprite = getSpriteFromBatch(batch, tileX - cTileX, tileY - cTileY);
             sprite.setTexture(textureCache);
+            
+            let expectedSpriteWidth = MMAPRENDER.getTextureBaseSizeX() + 1;
+            if (sprite.width != expectedSpriteWidth)
+            {
+                let originalRatio = sprite.height / sprite.width;
+                sprite.width = expectedSpriteWidth;
+                sprite.height = (expectedSpriteWidth * originalRatio) | 0;
+            }
+            
             sprite.x = x - sprite.width / 2;
             sprite.y = y - sprite.height;
             m_mapSpriteId[spriteMapIndex] = id;

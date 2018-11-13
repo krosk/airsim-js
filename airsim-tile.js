@@ -130,8 +130,11 @@ let ASTILE = (function ()
         NESW : 1415
     };
     
+    // 36: \ tree
+    // 43: fountain
+    // 44: / tree
     let C_TILE_ID_TO_TEXTURE = {
-        1415 : "cityTiles_003.png",
+        //1000 : "cityTiles_049.png",
     };
     
     // rule xxab
@@ -203,6 +206,7 @@ let ASTILE = (function ()
     
     public.drawBlock = function astile_drawBlock(graphics, color, BWo, BHo, BW, BH, H)
     {
+        //console.log(BW);
         // 0, 0 is the center of the base
         let x1 = BWo;
         let y1 = BHo - BH / 2 - H;
@@ -225,17 +229,39 @@ let ASTILE = (function ()
         let x5 = x6;
         let y5 = y6 + H;
         
-        graphics.lineStyle(1, 0x000000);
+        let baseBlockLineColor = 0x000000;
+        let bisBlockLineColor = 0x000000;
+        let terBlockLineColor = 0x000000;
             
         // draw a rectangle
         // top
+        // fill
+        let drawTop = function ()
+        {
+        graphics.lineStyle(0, baseBlockLineColor);
         graphics.beginFill(color);
-        graphics.moveTo(x1, y1); // top
-        graphics.lineTo(x2 + 0.1, y2); // left
-        graphics.lineTo(x7, y7); // center
-        graphics.lineTo(x6 - 0.1, y6); // right // graphical glitch
-        graphics.lineTo(x1, y1); // top
+        graphics.moveTo(x1, y1);
+        graphics.lineTo(x2, y2);
+        graphics.lineTo(x7, y7);
+        graphics.lineTo(x6, y6);
+        graphics.lineTo(x1, y1);
         graphics.endFill();
+        
+        // contour
+        graphics.lineStyle(1, baseBlockLineColor);
+        graphics.moveTo(x1, y1);
+        graphics.lineTo(x2, y2);
+        graphics.moveTo(x2 + 2, y2);
+        graphics.lineTo(x7 + 2, y7);
+        graphics.moveTo(x7 - 1, y7);
+        graphics.lineTo(x6 - 1, y6);
+        graphics.moveTo(x6 + 1, y6);
+        graphics.lineTo(x1 + 1, y1);
+        };
+        
+        // left
+        let drawLeft = function () {
+        graphics.lineStyle(1, bisBlockLineColor);
         
         graphics.beginFill(color);
         graphics.moveTo(x7, y7); // center
@@ -244,6 +270,11 @@ let ASTILE = (function ()
         graphics.lineTo(x4, y4); // bottom
         graphics.lineTo(x7, y7); // center
         graphics.endFill();
+        }
+        
+        // right
+        let drawRight = function () {
+        graphics.lineStyle(1, bisBlockLineColor);
         
         graphics.beginFill(color);
         graphics.moveTo(x7, y7); // center
@@ -252,6 +283,11 @@ let ASTILE = (function ()
         graphics.lineTo(x4, y4); // bottom
         graphics.lineTo(x7, y7); // center
         graphics.endFill();
+        }
+        
+        drawLeft();
+        drawRight();
+        drawTop();
     }
     
     public.createTexture = function astile_createTexture(color, margin, height)

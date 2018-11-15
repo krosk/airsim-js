@@ -204,8 +204,32 @@ let ASTILE = (function ()
         return name;
     }
     
+    let nuanceColor = function astile_nuanceColor(color, level)
+    {
+        const R = 0xff0000;
+        const G = 0x00ff00;
+        const B = 0x0000ff;
+        let cR = color & R;
+        let cG = color & G;
+        let cB = color & B;
+        let nR = cR + (0x010000 * level);
+        nR = Math.min(nR, R);
+        nR = Math.max(nR, G);
+        nR = nR & R;
+        let nG = cG + (0x000100 * level);
+        nG = Math.min(nG, G);
+        nG = Math.max(nG, B);
+        nG = nG & G;
+        let nB = cB + (0x000001 * level);
+        nB = Math.min(nB, B);
+        nB = Math.max(nB, 0);
+        nB = nB & B;
+        return nR + nG + nB;
+    }
+    
     public.drawBlock = function astile_drawBlock(graphics, color, BWo, BHo, BW, BH, H)
     {
+        //console.log(color + ' ' + nuanceColor(color, 1));
         //console.log(BW + ' ' + BH + ' ' + BWo + ' ' + BHo);
         // 0, 0 is the center of the base
         let x1 = BWo;
@@ -270,7 +294,7 @@ let ASTILE = (function ()
         let fillLeft = function ()
         {
             graphics.lineStyle(0, baseBlockLineColor);
-            graphics.beginFill(color);
+            graphics.beginFill(nuanceColor(color, -32));
             graphics.moveTo(x7, y7 - 1);
             graphics.lineTo(x2, y2 - 1);
             graphics.lineTo(x3, y3);
@@ -294,7 +318,7 @@ let ASTILE = (function ()
         {
             graphics.lineStyle(0, bisBlockLineColor);
         
-            graphics.beginFill(color);
+            graphics.beginFill(nuanceColor(color, -64));
             graphics.moveTo(x7, y7 - 1); // center
             graphics.lineTo(x6, y6 - 1); // right
             graphics.lineTo(x5, y5); // right

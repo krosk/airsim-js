@@ -295,24 +295,36 @@ let ASTILE = (function ()
         }
         
         // right
-        let drawRight = function () {
-        graphics.lineStyle(1, bisBlockLineColor);
+        let fillRight = function () 
+        {
+        graphics.lineStyle(0, bisBlockLineColor);
         
         graphics.beginFill(color);
-        graphics.moveTo(x7, y7); // center
-        graphics.lineTo(x6, y6); // right
+        graphics.moveTo(x7, y7 - 1); // center
+        graphics.lineTo(x6, y6 - 1); // right
         graphics.lineTo(x5, y5); // right
         graphics.lineTo(x4, y4); // bottom
         graphics.lineTo(x7, y7); // center
         graphics.endFill();
         }
         
+        let contourRight = function ()
+        {
+        graphics.lineStyle(1, terBlockLineColor);
+        graphics.moveTo(x6 - 1, y6);
+        graphics.lineTo(x5 - 1, y5);
+        graphics.moveTo(x5, y5);
+        graphics.lineTo(x4, y4);
+        graphics.moveTo(x4, y4);
+        graphics.lineTo(x7, y7);
+        }
+        
         fillTop();
         fillLeft();
+        fillRight();
         contourTop();
         contourLeft();
-        //drawTop();
-        //drawRight();
+        contourRight();
     }
     
     public.createTexture = function astile_createTexture(color, margin, height)

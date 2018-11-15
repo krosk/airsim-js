@@ -783,6 +783,19 @@ let ASMAPUI = (function ()
         let textureCache = PIXI.utils.TextureCache[textureName];
         let sprite = new PIXI.Sprite(textureCache);
         
+        // fit to icon size
+        let ratio = sprite.width / sprite.height;
+        if (sprite.height > C_ICON_HEIGHT)
+        {
+            sprite.height = C_ICON_HEIGHT;
+            sprite.width = (C_ICON_HEIGHT * ratio) | 0;
+        }
+        else
+        {
+            sprite.height = textureCache.height;
+            sprite.width = textureCache.width;
+        }
+        
         sprite.interactive = true;
         sprite.on('pointerdown',
             function(e){
@@ -1438,13 +1451,19 @@ let MMAPBATCH = (function ()
             let sprite = getSpriteFromBatch(batch, tileX - cTileX, tileY - cTileY);
             sprite.setTexture(textureCache);
             
-            let expectedSpriteWidth = MMAPRENDER.getTextureBaseSizeX() + 1;
-            if (sprite.width != expectedSpriteWidth)
+            let expectedSpriteWidth = MMAPRENDER.getTextureBaseSizeX();
+            if (textureCache.width != expectedSpriteWidth)
             {
-                let originalRatio = sprite.height / sprite.width;
+                let originalRatio = textureCache.height / textureCache.width;
                 sprite.width = expectedSpriteWidth;
                 sprite.height = (expectedSpriteWidth * originalRatio) | 0;
             }
+            else
+            {
+                sprite.width = textureCache.width;
+                sprite.height = textureCache.height;
+            }
+            
             
             sprite.x = x - sprite.width / 2;
             sprite.y = y - sprite.height;

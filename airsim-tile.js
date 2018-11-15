@@ -238,85 +238,80 @@ let ASTILE = (function ()
         // fill
         let fillTop = function ()
         {
-        
-        graphics.lineStyle(0, baseBlockLineColor);
-        graphics.beginFill(color);
-        graphics.moveTo(x1, y1);
-        graphics.lineTo(x2, y2);
-        graphics.lineTo(x2, y2 - 1);
-        graphics.lineTo(x7, y7 - 1);
-        graphics.lineTo(x6, y6 - 1);
-        graphics.lineTo(x6, y6);
-        graphics.lineTo(x1, y1);
-        graphics.endFill();
-        
-        }
+            graphics.lineStyle(0, baseBlockLineColor);
+            graphics.beginFill(color);
+            graphics.moveTo(x1, y1);
+            graphics.lineTo(x2, y2);
+            graphics.lineTo(x2, y2 - 1);
+            graphics.lineTo(x7, y7 - 1);
+            graphics.lineTo(x6, y6 - 1);
+            graphics.lineTo(x6, y6);
+            graphics.lineTo(x1, y1);
+            graphics.endFill();
+        };
         
         let contourTop = function ()
         {
-        // contour
-        graphics.lineStyle(1, baseBlockLineColor);
-        graphics.moveTo(x1, y1);
-        graphics.lineTo(x2, y2);
-        
-        graphics.lineStyle(1, terBlockLineColor);
-        graphics.moveTo(x2, y2 - 1);
-        graphics.lineTo(x7, y7 - 1);
-        
-        graphics.lineStyle(1, bisBlockLineColor);
-        graphics.moveTo(x7, y7 - 1);
-        graphics.lineTo(x6, y6 - 1);
-        
-        graphics.moveTo(x6, y6);
-        graphics.lineTo(x1, y1);
+            // contour
+            graphics.lineStyle(1, baseBlockLineColor);
+            graphics.moveTo(x1, y1);
+            graphics.lineTo(x2, y2);
+            graphics.lineStyle(1, terBlockLineColor);
+            graphics.moveTo(x2, y2 - 1);
+            graphics.lineTo(x7, y7 - 1);
+            graphics.lineStyle(1, bisBlockLineColor);
+            graphics.moveTo(x7, y7 - 1);
+            graphics.lineTo(x6, y6 - 1);
+            graphics.moveTo(x6, y6);
+            graphics.lineTo(x1, y1);
         };
         
         // left
         let fillLeft = function ()
         {
-        graphics.lineStyle(0, baseBlockLineColor);
-        graphics.beginFill(color);
-        graphics.moveTo(x7, y7 - 1);
-        graphics.lineTo(x2, y2 - 1);
-        graphics.lineTo(x3, y3);
-        graphics.lineTo(x4, y4);
-        graphics.endFill();
+            graphics.lineStyle(0, baseBlockLineColor);
+            graphics.beginFill(color);
+            graphics.moveTo(x7, y7 - 1);
+            graphics.lineTo(x2, y2 - 1);
+            graphics.lineTo(x3, y3);
+            graphics.lineTo(x4, y4);
+            graphics.endFill();
         }
         
         let contourLeft = function ()
         {
-        graphics.lineStyle(1, bisBlockLineColor);
-        graphics.moveTo(x2 + 0.5, y2);
-        graphics.lineTo(x3 + 0.5, y3);
-        graphics.moveTo(x3, y3);
-        graphics.lineTo(x4, y4);
-        graphics.moveTo(x4 - 1, y4);
-        graphics.lineTo(x7 - 1, y7);
+            graphics.lineStyle(1, bisBlockLineColor);
+            graphics.moveTo(x2 + 0.5, y2);
+            graphics.lineTo(x3 + 0.5, y3);
+            graphics.moveTo(x3, y3);
+            graphics.lineTo(x4, y4);
+            graphics.moveTo(x4 - 1, y4);
+            graphics.lineTo(x7 - 1, y7);
         }
         
         // right
         let fillRight = function () 
         {
-        graphics.lineStyle(0, bisBlockLineColor);
+            graphics.lineStyle(0, bisBlockLineColor);
         
-        graphics.beginFill(color);
-        graphics.moveTo(x7, y7 - 1); // center
-        graphics.lineTo(x6, y6 - 1); // right
-        graphics.lineTo(x5, y5); // right
-        graphics.lineTo(x4, y4); // bottom
-        graphics.lineTo(x7, y7); // center
-        graphics.endFill();
+            graphics.beginFill(color);
+            graphics.moveTo(x7, y7 - 1); // center
+            graphics.lineTo(x6, y6 - 1); // right
+            graphics.lineTo(x5, y5); // right
+            graphics.lineTo(x4, y4); // bottom
+            graphics.lineTo(x7, y7); // center
+            graphics.endFill();
         }
         
         let contourRight = function ()
         {
-        graphics.lineStyle(1, terBlockLineColor);
-        graphics.moveTo(x6 - 1, y6);
-        graphics.lineTo(x5 - 1, y5);
-        graphics.moveTo(x5, y5);
-        graphics.lineTo(x4, y4);
-        graphics.moveTo(x4, y4);
-        graphics.lineTo(x7, y7);
+            graphics.lineStyle(1, terBlockLineColor);
+            graphics.moveTo(x6 - 1, y6);
+            graphics.lineTo(x5 - 1, y5);
+            graphics.moveTo(x5, y5);
+            graphics.lineTo(x4, y4);
+            graphics.moveTo(x4, y4);
+            graphics.lineTo(x7, y7);
         }
         
         fillTop();

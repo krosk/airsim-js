@@ -206,7 +206,7 @@ let ASTILE = (function ()
     
     public.drawBlock = function astile_drawBlock(graphics, color, BWo, BHo, BW, BH, H)
     {
-        //console.log(BW);
+        //console.log(BW + ' ' + BH + ' ' + BWo + ' ' + BHo);
         // 0, 0 is the center of the base
         let x1 = BWo;
         let y1 = BHo - BH / 2 - H;
@@ -236,40 +236,62 @@ let ASTILE = (function ()
         // draw a rectangle
         // top
         // fill
-        let drawTop = function ()
+        let fillTop = function ()
         {
+        
         graphics.lineStyle(0, baseBlockLineColor);
         graphics.beginFill(color);
         graphics.moveTo(x1, y1);
         graphics.lineTo(x2, y2);
-        graphics.lineTo(x7, y7);
+        graphics.lineTo(x2, y2 - 1);
+        graphics.lineTo(x7, y7 - 1);
+        graphics.lineTo(x6, y6 - 1);
         graphics.lineTo(x6, y6);
         graphics.lineTo(x1, y1);
         graphics.endFill();
         
+        }
+        
+        let contourTop = function ()
+        {
         // contour
         graphics.lineStyle(1, baseBlockLineColor);
         graphics.moveTo(x1, y1);
         graphics.lineTo(x2, y2);
-        graphics.moveTo(x2 + 2, y2);
-        graphics.lineTo(x7 + 2, y7);
-        graphics.moveTo(x7 - 1, y7);
-        graphics.lineTo(x6 - 1, y6);
-        graphics.moveTo(x6 + 1, y6);
-        graphics.lineTo(x1 + 1, y1);
+        
+        graphics.lineStyle(1, terBlockLineColor);
+        graphics.moveTo(x2, y2 - 1);
+        graphics.lineTo(x7, y7 - 1);
+        
+        graphics.lineStyle(1, bisBlockLineColor);
+        graphics.moveTo(x7, y7 - 1);
+        graphics.lineTo(x6, y6 - 1);
+        
+        graphics.moveTo(x6, y6);
+        graphics.lineTo(x1, y1);
         };
         
         // left
-        let drawLeft = function () {
-        graphics.lineStyle(1, bisBlockLineColor);
-        
+        let fillLeft = function ()
+        {
+        graphics.lineStyle(0, baseBlockLineColor);
         graphics.beginFill(color);
-        graphics.moveTo(x7, y7); // center
-        graphics.lineTo(x2, y2); // left
-        graphics.lineTo(x3, y3); // left
-        graphics.lineTo(x4, y4); // bottom
-        graphics.lineTo(x7, y7); // center
+        graphics.moveTo(x7, y7 - 1);
+        graphics.lineTo(x2, y2 - 1);
+        graphics.lineTo(x3, y3);
+        graphics.lineTo(x4, y4);
         graphics.endFill();
+        }
+        
+        let contourLeft = function ()
+        {
+        graphics.lineStyle(1, bisBlockLineColor);
+        graphics.moveTo(x2 + 0.5, y2);
+        graphics.lineTo(x3 + 0.5, y3);
+        graphics.moveTo(x3, y3);
+        graphics.lineTo(x4, y4);
+        graphics.moveTo(x4 - 1, y4);
+        graphics.lineTo(x7 - 1, y7);
         }
         
         // right
@@ -285,14 +307,17 @@ let ASTILE = (function ()
         graphics.endFill();
         }
         
-        drawLeft();
-        drawRight();
-        drawTop();
+        fillTop();
+        fillLeft();
+        contourTop();
+        contourLeft();
+        //drawTop();
+        //drawRight();
     }
     
     public.createTexture = function astile_createTexture(color, margin, height)
     {
-        let graphics = new PIXI.Graphics();
+        let graphics = new PIXI.Graphics(false);
         
         let C_TEXTURE_BASE_SIZE_X = MMAPRENDER.getTextureBaseSizeX();
         let C_TEXTURE_BASE_SIZE_Y = MMAPRENDER.getTextureBaseSizeY();
@@ -630,8 +655,10 @@ let ASRICO_DISPLAY_TILE = (function ()
         let color = C_TILE_COLOR[zone];
         let height = C_TILE_HEIGHT_BASE[zone] + C_TILE_HEIGHT_FACTOR[zone] * level;
         let width = C_TEXTURE_BASE_SIZE_X / C_TILE_WIDTH_DIVIDER[zone] * (C_TILE_WIDTH_FACTOR[zone] + level);
-        let offsetX = Math.cos(variant * Math.PI / 2) * (C_TEXTURE_BASE_SIZE_X - width) / 2;
-        let offsetY = Math.sin(variant * Math.PI / 2) * (C_TEXTURE_BASE_SIZE_Y - width / 2) / 2;
+        let cosTable = [1, 0, -1, 0];
+        let sinTable = [0, 1, 0, -1];
+        let offsetX = cosTable[variant] * (C_TEXTURE_BASE_SIZE_X - width) / 2;
+        let offsetY = sinTable[variant] * (C_TEXTURE_BASE_SIZE_Y - width / 2) / 2;
         ASTILE.drawBlock(graphics, color, offsetX, offsetY - baseHeight, width, width / 2, height);
         return graphics;
     }

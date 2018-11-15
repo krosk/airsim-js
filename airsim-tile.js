@@ -264,13 +264,11 @@ let ASTILE = (function ()
         {
             graphics.lineStyle(0, baseBlockLineColor);
             graphics.beginFill(color);
-            graphics.moveTo(x1, y1);
-            graphics.lineTo(x2, y2);
+            graphics.moveTo(x1, y1 - 1);
             graphics.lineTo(x2, y2 - 1);
             graphics.lineTo(x7, y7 - 1);
             graphics.lineTo(x6, y6 - 1);
-            graphics.lineTo(x6, y6);
-            graphics.lineTo(x1, y1);
+            graphics.lineTo(x1, y1 - 1);
             graphics.endFill();
         };
         
@@ -278,16 +276,16 @@ let ASTILE = (function ()
         {
             // contour
             graphics.lineStyle(1, baseBlockLineColor);
-            graphics.moveTo(x1, y1);
-            graphics.lineTo(x2, y2);
+            graphics.moveTo(x1, y1 - 1);
+            graphics.lineTo(x2, y2 - 1);
             graphics.lineStyle(1, terBlockLineColor);
             graphics.moveTo(x2, y2 - 1);
             graphics.lineTo(x7, y7 - 1);
             graphics.lineStyle(1, bisBlockLineColor);
             graphics.moveTo(x7, y7 - 1);
             graphics.lineTo(x6, y6 - 1);
-            graphics.moveTo(x6, y6);
-            graphics.lineTo(x1, y1);
+            graphics.moveTo(x6, y6 - 1);
+            graphics.lineTo(x1, y1 - 1);
         };
         
         // left
@@ -689,7 +687,7 @@ let ASRICO_DISPLAY_TILE = (function ()
         let cosTable = [1, 0, -1, 0];
         let sinTable = [0, 1, 0, -1];
         let offsetX = cosTable[variant] * (C_TEXTURE_BASE_SIZE_X - width) / 2;
-        let offsetY = sinTable[variant] * (C_TEXTURE_BASE_SIZE_Y - width / 2) / 2;
+        let offsetY = sinTable[variant] * (C_TEXTURE_BASE_SIZE_Y - width / 2) / 2 - 1;
         ASTILE.drawBlock(graphics, color, offsetX, offsetY - baseHeight, width, width / 2, height);
         return graphics;
     }

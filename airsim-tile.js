@@ -130,9 +130,6 @@ let ASTILE = (function ()
         NESW : 1415
     };
     
-    // 36: \ tree
-    // 43: fountain
-    // 44: / tree
     let C_TILE_ID_TO_TEXTURE = {
         1000 : "cityTiles_066.png",
         1400 : "cityTiles_082.png",
@@ -160,6 +157,7 @@ let ASTILE = (function ()
     public.C_RICO_DISPLAY_ID_ZONE_DIGIT = 100;
     public.C_RICO_DISPLAY_ID_LEVEL_DIGIT = 10;
     public.C_RICO_DISPLAY_ID_VARIANT_DIGIT = 1;
+    public.C_RICO_DISPLAY_ID_VARIANT_MAX = 1;
     let metaGenerateRicoDisplayId = function astile_metaGen(table, codeBase, variant, densityMin, densityMax)
     {
         for (let j = densityMin; j <= densityMax; j++)
@@ -188,7 +186,7 @@ let ASTILE = (function ()
         public.C_TILE_ZONE.COMLOW,
         public.C_TILE_ZONE.COMHIG
     ];
-    const RICO_VARIANT = 4;
+    const RICO_VARIANT = public.C_RICO_DISPLAY_ID_VARIANT_MAX;
     const RICO_DENSITY_MIN = 0;
     const RICO_DENSITY_MAX = 5;
     for (let i = 0; i < ricoZone.length; i++)

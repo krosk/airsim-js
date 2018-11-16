@@ -1970,7 +1970,7 @@ let ASRICO = (function ()
         }
         let displayId = code * 10;
         // depend on astile and asrico convention
-        displayId += Date.now() % 4;
+        displayId += Date.now() % ASTILE.C_RICO_DISPLAY_ID_VARIANT_MAX;
         ASSTATE.setDisplayId(index, displayId);
     }
     

@@ -134,7 +134,10 @@ let ASTILE = (function ()
     // 43: fountain
     // 44: / tree
     let C_TILE_ID_TO_TEXTURE = {
-        //1000 : "cityTiles_049.png",
+        //1000 : "cityTiles_066.png",
+        1401 : "cityTiles_111.png",
+        1404 : "cityTiles_104.png",
+        1405 : "cityTiles_073.png",
     };
     
     // rule xxab

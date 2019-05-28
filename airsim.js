@@ -307,6 +307,8 @@ let SLBG = (function ()
         m_layer = new PIXI.Container();
         g_app.stage.addChild(m_layer);
         m_layer.interactive = false;
+        
+        createPlaceholder(8, 8, "4-mark");
     }
     
     let m_redrawFrame = -1;
@@ -617,7 +619,7 @@ let SLBG = (function ()
                 let data = e.data.global;
                 let mouseX = (data.x - sprite.x) / sprite.width;
                 let mouseY = (data.y - sprite.y) / sprite.height;
-                console.log('x:' + mouseX + ' y:' + mouseY);
+                //console.log('x:' + mouseX + ' y:' + mouseY);
                 m_dipX.push(mouseX);
                 m_dipY.push(mouseY);
             });
@@ -712,7 +714,7 @@ let SLBG = (function ()
                     let baseBlockLineColor = 0x00FF00;
                     graphics.lineStyle(4, baseBlockLineColor);
                     graphics.moveTo(0, 0);
-                    let rez = 16;
+                    let rez = 64;
                     for (let j = 0; j <= rez; j++)
                     {
                         let r = j / rez;
@@ -730,6 +732,14 @@ let SLBG = (function ()
             line_sprite.y = sprite.y;
             line_sprite.visible = true;
             l_dipContainer.addChild(line_sprite);
+        }
+        
+        for (let i = 0; i < m_dipX.length; i++)
+        {
+            let markSprite = createSprite("4-mark", 0, 0, -1, -1);
+            markSprite.x = m_dipX[i] * sprite.width + sprite.x;
+            markSprite.y = m_dipY[i] * sprite.height + sprite.y;
+            l_dipContainer.addChild(markSprite);
         }
         
         m_layer.addChild(l_dipContainer);

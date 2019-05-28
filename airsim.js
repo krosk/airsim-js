@@ -382,7 +382,7 @@ let SLBG = (function ()
         PIXI.utils.TextureCache[textureName] = texture;
     }
     
-    let createSprite = function slbg_createSprite(textureName, xp, yp, wp, hp, nextSceneId)
+    let createSprite = function slbg_createSprite(textureName, xp, yp, wp, hp)
     {
         //console.log('createSprite ' + textureName);
         
@@ -414,6 +414,18 @@ let SLBG = (function ()
         sprite.x = xp * getLayerWidth();
         sprite.y = yp * getLayerHeight();
         
+        return sprite;
+    }
+    
+    let drawImage = function slbg_drawImage(textureName, xp, yp, wp, hp)
+    {
+        let sprite = createSprite(textureName, xp, yp, wp, hp);
+        m_layer.addChild(sprite);
+    }
+    
+    let drawButton = function slbg_drawButton(textureName, xp, yp, wp, hp, nextSceneId)
+    {
+        let sprite = createSprite(textureName, xp, yp, wp, hp);
         sprite.interactive = true;
         if (typeof nextSceneId === 'undefined')
         {
@@ -426,13 +438,6 @@ let SLBG = (function ()
                     drawScene(nextSceneId);
                 });
         }
-        return sprite;
-    }
-    
-    let drawImage = function slbg_drawImage(textureName, xp, yp, wp, hp, nextSceneId)
-    {
-        //console.log('drawImage ' + textureName);
-        let sprite = createSprite(textureName, xp, yp, wp, hp, nextSceneId);
         m_layer.addChild(sprite);
     }
     
@@ -453,15 +458,16 @@ let SLBG = (function ()
         if (id == 0)
         {
             drawImage("0-background", 0.0, 0.0, 1.0, 1.0);
-            drawImage("0-button1", 0.2, 0.2, 0.6, 0.1, 1);
-            drawImage("0-button2", 0.2, 0.4, 0.6, 0.1, 2);
-            drawImage("0-button3", 0.2, 0.6, 0.6, 0.1, 3);
+            drawButton("0-button1", 0.2, 0.2, 0.6, 0.1, 1);
+            drawButton("0-button2", 0.2, 0.4, 0.6, 0.1, 2);
+            drawButton("0-button3", 0.2, 0.6, 0.6, 0.1, 3);
         }
         if (id == 1)
         {
             drawImage("1-background", 0.0, 0.0, 1.0, 1.0);
         }
-        drawImage("ui-home", 0.0, 0.9, -1, 0.1, 0);
+        drawButton("ui-home", 0.0, 0.9, -1, 0.1, 0);
+        m_sceneId = id;
     }
     
     let updateDebug = function slbg_updateDebug()

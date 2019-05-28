@@ -606,7 +606,7 @@ let SLBG = (function ()
         }
     }
     
-    // survives redraw
+    // survives redraw, not reset
     let m_dipX = []
     let m_dipY = []
     
@@ -745,6 +745,13 @@ let SLBG = (function ()
         m_layer.addChild(l_dipContainer);
     }
     
+    let resetData = function slbg_resetData()
+    {
+        m_dipX = [];
+        m_dipY = [];
+        
+    }
+    
     public.redraw = function slbg_redraw()
     {
         console.log('redraw');
@@ -767,6 +774,7 @@ let SLBG = (function ()
             drawButton("0-button3", 0.2, 0.5, 0.6, 0.1, 3);
             drawButton("0-button4", 0.2, 0.65, 0.6, 0.1, 4);
             drawButton("0-button5", 0.2, 0.8, 0.6, 0.1, 4);
+            resetData();
         }
         if (id == 1)
         {

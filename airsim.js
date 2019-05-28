@@ -690,17 +690,25 @@ let SLBG = (function ()
                 aziList.push(m_dipX[i*3 + 0] * 2 * Math.PI);
                 aziList.push(m_dipX[i*3 + 1] * 2 * Math.PI);
                 aziList.push(m_dipX[i*3 + 2] * 2 * Math.PI);
+                //aziList.push(1*Math.PI/4);
+                //aziList.push(3*Math.PI/4);
+                //aziList.push(5*Math.PI/4);
+                console.log(aziList);
                 let depthList = []
                 depthList.push(m_dipY[i*3 + 0]);
                 depthList.push(m_dipY[i*3 + 1]);
                 depthList.push(m_dipY[i*3 + 2]);
-                let parameters = fitSinewave(aziList, depthList, 1);
+                //depthList.push(0);
+                //depthList.push(1);
+                //depthList.push(0);
+                console.log(depthList);
+                let parameters = fitSinewave(aziList, depthList, 0.5);
                 console.log(parameters);
                 if (parameters.length > 0)
                 {
-                    let A = parameters[0];
-                    let P = parameters[1];
-                    let B = parameters[2];
+                    let P = parameters[0];
+                    let B = parameters[1];
+                    let A = parameters[2];
                     let baseBlockLineColor = 0x00FF00;
                     graphics.lineStyle(4, baseBlockLineColor);
                     graphics.moveTo(0, 0);
@@ -708,7 +716,9 @@ let SLBG = (function ()
                     for (let j = 0; j < rez; j++)
                     {
                         let r = j / rez;
-                        let y = -A*Math.cos(r * 2 * Math.PI + P) + B;
+                        let y = A*Math.cos(r * 2 * Math.PI - P) + B;
+                        y = Math.min(y, 1);
+                        y = Math.max(y, 0);
                         graphics.lineTo(r * sprite.width, y * sprite.height);
                     }
                 }
@@ -838,7 +848,7 @@ let SLBG = (function ()
         }
         if (id == 4)
         {
-            drawDipContainer("4-dipimage", 0.1, 0.3, -1, -1);
+            drawDipContainer("4-dipimage", 0, 0.5, 1, 0.5);
         }
         drawButton("ui-home", 0.0, 0.9, -1, 0.1, 0);
         m_sceneId = id;

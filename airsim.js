@@ -93,7 +93,7 @@ function OnReady()
 
     g_app = new PIXI.Application(window.innerWidth, window.innerHeight);
 
-    PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
+    //PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
 
     let amount = (g_app.renderer instanceof PIXI.WebGLRenderer) ? 100 : 5;
     if (amount == 5)
@@ -120,6 +120,7 @@ function OnReady()
     g_app.ticker.add(Update);
 
     PIXI.loader.add("img/cityTiles_sheet.json")
+        .add("img/buildingTiles_sheet.json")
         .on("progress", LoaderProgressHandler)
         .load(LoaderSetup);
     
@@ -175,9 +176,11 @@ function LoaderSetup()
     console.log("Ready");
 }
 
+let g_redrawFrame = 0;
+
 function Resize()
 {
-    console.log('resizing');
+    console.log('Resizing');
     let width = window.innerWidth - 8;
     let height = window.innerHeight - 8;
 
@@ -185,7 +188,7 @@ function Resize()
     g_app.renderer.view.style.top = 0;
     g_app.renderer.resize(width, height);
     
-    ASMAPUI.resize();
+    g_redrawFrame = g_frameCounter;
 }
 
 function WaitingState()
@@ -196,15 +199,19 @@ function WaitingState()
 function StartState()
 {
     console.log("Start");
-    ASMAP.initialize(32, 32);
-    g_state = EngineState;
+    //ASMAP.initialize(32, 32);
+    SLBG.initialize();
+    g_state = PlayState;
 }
 
 function EngineState()
 {
     ASMAP.update(g_updateDelta, g_updateTimestamp);
-    //ASRENDER.update(g_updateDelta, g_updateTimestamp);
-    //ASRANDOMMOVE.update(g_updateDelta, g_updateTimestamp);
+}
+
+function PlayState()
+{
+    SLBG.update(g_updateDelta, g_updateTimestamp);
 }
 
 let g_frameCounter = 0;
@@ -239,6 +246,238 @@ let MUTIL = (function ()
         pair[0] = x;
         pair[1] = y;
         return pair;
+    }
+    
+    return public;
+})();
+
+let SLBG = (function ()
+{
+    let public = {};
+    
+    public.C_NAME = 'SLBG';
+    
+    let m_computeTimeBudget = 1;
+    let m_sceneId;
+    let m_layer;
+    
+    public.initialize = function slbg_initialize()
+    {
+        m_sceneId = 0;
+        m_layer = new PIXI.Container();
+        g_app.stage.addChild(m_layer);
+        m_layer.interactive = false;
+        
+        createPlaceholder(32, 32, "ui-home");
+        createPlaceholder(100, 100, "0-background");
+        createPlaceholder(128, 32, "0-button1");
+        createPlaceholder(64, 32, "0-button2");
+        createPlaceholder(96, 32, "0-button3");
+        createPlaceholder(100, 100, "1-background");
+    }
+    
+    let m_redrawFrame = -1;
+    public.update = function slbg_update(dt, time)
+    {
+        const fpsdt = 17*2;
+        let frameskipped = dt > fpsdt; //1000 / 60;
+        const noBudget = m_computeTimeBudget <= 1;
+        const maxBudget = m_computeTimeBudget >= fpsdt - 1;
+        const fullyProcessed = true;
+        if (!fullyProcessed && frameskipped && !noBudget)
+        {
+            m_computeTimeBudget--;
+        }
+        else if (fullyProcessed && !frameskipped && !maxBudget)
+        {
+            m_computeTimeBudget++;
+        }
+        else if (fullyProcessed && frameskipped && !noBudget)
+        {
+            m_computeTimeBudget--;
+        }
+        let computeTimeLimit = time + m_computeTimeBudget;
+        
+        updateDebug();
+        
+        if (m_redrawFrame < g_redrawFrame)
+        {
+            m_redrawFrame = g_redrawFrame;
+            public.redraw();
+        }
+    }
+    
+    let getLayerWidth = function slbg_getLayerWidth()
+    {
+        return g_app.renderer.width;
+    }
+    let getLayerHeight = function slbg_getLayerHeight()
+    {
+        return g_app.renderer.height;
+    }
+    
+    let getRainbowProfile = function slbg_getrainbowProfile(n)
+    {
+        var total = 0xFF * 6;
+        n = n % total;
+        if (n < 0xFF)
+        {
+            return n;
+        }
+        else if (n < 0xFF * 3)
+        {
+            return 0xFF;
+        }
+        else if (n < 0xFF * 4)
+        {
+            return 0xFF * 4 - n;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+    
+    let getRainbowColor = function slbg_getrainbowColor(n)
+    {
+        var r = getRainbowProfile(n + 0xFF * 2) << 16;
+        var g = getRainbowProfile(n) << 8;
+        var b = getRainbowProfile(n + 0xFF * 4);
+        return r + g + b
+    }
+    
+    let nameToColor = function slbg_nameToColor(textureName)
+    {
+        let i = textureName.length;
+        let n = 0;
+        while (i--)
+        {
+            n += textureName.charCodeAt(i) * 64;
+        }
+        return getRainbowColor(n);
+    }
+    
+    let createPlaceholder = function slbg_createPlaceholder(width, height, textureName)
+    {
+        console.log('create ' + textureName);
+        let graphics = new PIXI.Graphics();
+    
+        let black = 0x000000;
+        let color = nameToColor(textureName);
+        graphics.beginFill(color);
+        graphics.lineStyle(1, black);
+        
+        let H = height;
+        let W = width;
+    
+        // draw a rectangle
+        graphics.moveTo(0, 0);
+        graphics.lineTo(W, 0);
+        graphics.lineTo(W, H);
+        graphics.lineTo(0, H);
+        
+        graphics.endFill();
+        
+        let texture = g_app.renderer.generateTexture(graphics);
+        PIXI.utils.TextureCache[textureName] = texture;
+    }
+    
+    let createSprite = function slbg_createSprite(textureName, xp, yp, wp, hp, nextSceneId)
+    {
+        //console.log('createSprite ' + textureName);
+        
+        let textureCache = PIXI.utils.TextureCache[textureName];
+        let sprite = new PIXI.Sprite(textureCache);
+        
+        let ratio = textureCache.width / textureCache.height;
+        if (wp <= 0 && hp <= 0)
+        {
+            sprite.height = textureCache.height;
+            sprite.width = textureCache.width;
+        }
+        else if (wp <= 0)
+        {
+            sprite.height = hp * getLayerHeight();
+            sprite.width = sprite.height * ratio;
+        }
+        else if (hp <= 0)
+        {
+            sprite.width = wp * getLayerWidth();
+            sprite.height = sprite.width / ratio;
+        }
+        else
+        {
+            sprite.height = hp * getLayerHeight();
+            sprite.width = wp * getLayerWidth();
+        }
+        
+        sprite.x = xp * getLayerWidth();
+        sprite.y = yp * getLayerHeight();
+        
+        sprite.interactive = true;
+        if (typeof nextSceneId === 'undefined')
+        {
+        
+        }
+        else
+        {
+            sprite.on('pointerup',
+                function(e){
+                    drawScene(nextSceneId);
+                });
+        }
+        return sprite;
+    }
+    
+    let drawImage = function slbg_drawImage(textureName, xp, yp, wp, hp, nextSceneId)
+    {
+        //console.log('drawImage ' + textureName);
+        let sprite = createSprite(textureName, xp, yp, wp, hp, nextSceneId);
+        m_layer.addChild(sprite);
+    }
+    
+    public.redraw = function slbg_redraw()
+    {
+        console.log('redraw');
+        drawScene(m_sceneId);
+    }
+    
+    let drawScene = function slbg_drawScene(id)
+    {
+        console.log("drawScene " + id);
+        if (typeof id === "undefined" || id == null)
+        {
+            return;
+        }
+        m_layer.removeChildren();
+        if (id == 0)
+        {
+            drawImage("0-background", 0.0, 0.0, 1.0, 1.0);
+            drawImage("0-button1", 0.2, 0.2, 0.6, 0.1, 1);
+            drawImage("0-button2", 0.2, 0.4, 0.6, 0.1, 2);
+            drawImage("0-button3", 0.2, 0.6, 0.6, 0.1, 3);
+        }
+        if (id == 1)
+        {
+            drawImage("1-background", 0.0, 0.0, 1.0, 1.0);
+        }
+        drawImage("ui-home", 0.0, 0.9, -1, 0.1, 0);
+    }
+    
+    let updateDebug = function slbg_updateDebug()
+    {
+        //let interactState = 'i(' + (MMAPTOUCH.isStatePan() ? 'P' : '-') + (MMAPTOUCH.isStateZoom() ? 'Z' : '-') + (MMAPTOUCH.getTouchCount()) + (MMAPTOUCH.getClickCount()) + ') ';
+        //let frameElapsed = 'f(' + (b ? ASSTATE.getFrame() : 0) + ') ';
+        //let firstChange = 'h(' + (b ? ASSTATE.getChangeFirst() : 0) + ') ';
+        //let lastChange = 'H(' + (b ? ASSTATE.getChangeLast() : 0) + ') ';
+        //let changeLog = 'l(' + MMAPDATA.getChangeLogCalls() + ') ';
+        //let cache = 'c(' + Object.keys(PIXI.utils.TextureCache).length + ') ';
+        //let memUsage = 'o(' + performance.memory.usedJSHeapSize / 1000 + ') ';
+        //let render = MMAPRENDER.getDebugState();
+        let frame = 'f(' + g_frameCounter + ') ';
+        let simulation = 'c(' + m_computeTimeBudget + ') ';
+        
+        g_counter.innerHTML = simulation + frame;
     }
     
     return public;

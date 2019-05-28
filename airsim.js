@@ -130,6 +130,7 @@ function OnReady()
         .add("3-context", "img/game2Photos/game2_1_goal.png")
         .add("3-start", "img/game2Photos/start.png")
         .add("3-next", "img/game2Photos/next.png")
+        .add("3-main", "img/game2Photos/main.png")
         .add("31-left1", "img/game2Photos/game2_2_GR_left1.png")
         .add("31-left2", "img/game2Photos/game2_2_GR_left2.png")
         .add("31-left3", "img/game2Photos/game2_2_GR_left3.png")
@@ -153,6 +154,8 @@ function OnReady()
         .add("36-right2", "img/game2Photos/game2_2_KAI_drillUp_right2.png")
         .add("38-right1", "img/game2Photos/game2_2_KAI_drillDown_right1.png")
         .add("38-right2", "img/game2Photos/game2_2_KAI_drillDown_right2.png")
+        .add("4-dipimage", "img/game3Photos/game3_dip_image.png")
+        .add("4-aim", "img/game3Photos/aim.png")
         .on("progress", LoaderProgressHandler)
         .load(LoaderSetup);
     
@@ -401,6 +404,116 @@ let SLBG = (function ()
         return getRainbowColor(n);
     }
     
+    let fitSinewave = function slbg_fitSinewave(aziList, depthList, radius)
+    {
+        let n0 = 0;
+        let x0 = 0;
+        let y0 = 0;
+        let z0 = 0;
+        let sxx = 0;
+        let syy = 0;
+        let szz = 0;
+        let sxy = 0;
+        let syz = 0;
+        let szx = 0;
+        
+        for (let i in aziList)
+        {
+            let z = depthList[i];
+            let theta = aziList[i];
+            let x = radius * Math.cos(theta);
+            let y = radius * Math.sin(theta);
+            
+            x0 += x;
+            y0 += y;
+            z0 += z;
+            sxx += x * x;
+            syy += y * y;
+            szz += z * z;
+            sxy += x * y;
+            syz += y * z;
+            szx += z * x;
+            
+            n0++;
+        }
+        
+        if (n0 < 3)
+        {
+            return [];
+        }
+        
+        x0 /= n0;
+        y0 /= n0;
+        z0 /= n0;
+
+        sxx -= x0 * x0 * n0;
+        syy -= y0 * y0 * n0;
+        szz -= z0 * z0 * n0;
+
+        sxy -= x0 * y0 * n0;
+        syz -= y0 * z0 * n0;
+        szx -= z0 * x0 * n0;
+        
+        let t1 = -(sxx + syy + szz);
+        let t2 = sxx*syy - sxy*sxy + syy*szz - syz*syz + szz*sxx - szx*szx;
+        let t3 = -sxx*syy*szz + sxx*syz*syz + syy*szx*szx + szz*sxy*sxy - 2 * sxy*syz*szx;
+        
+        let q = Math.sqrt(t1 * t1 - 3. * t2) / 3.;
+        let r = (t1 * (2. * t1 * t1 - 9. * t2) + 27. * t3) / 54.;
+        
+        let real = r / (q * q * q);
+        
+        if (real < -1.0)
+        {
+            real = -1.0;
+        }
+        if (real >  1.0)
+        {
+            real = 1.0;
+        }
+        
+        let theta = Math.acos(real) / 3.;
+
+        let e1 = -2. * q * Math.cos(theta) - t1 / 3.;
+        let e2 = -2. * q * Math.cos(theta + Math.PI * 2. / 3.) - t1 / 3.;
+        let e3 = -2. * q * Math.cos(theta + Math.PI * 4. / 3.) - t1 / 3.;
+        
+        if (e1 > e2)
+        {
+            r = e1;
+            e1 = e2;
+            e2 = r;
+        }
+        if (e1 > e3)
+        {
+            r = e1;
+            e1 = e3;
+            e3 = r;
+        }
+        
+        let a = (syy - e1) * (szz - e1) + syz * (sxy + szx - syz) - sxy * (szz - e1) - szx * (syy - e1);
+        let b = (szz - e1) * (sxx - e1) + szx * (syz + sxy - szx) - syz * (sxx - e1) - sxy * (szz - e1);
+        let c = (sxx - e1) * (syy - e1) + sxy * (szx + syz - sxy) - szx * (syy - e1) - syz * (sxx - e1);
+        if (c > 0)
+        {
+            a = -a;
+            b = -b;
+            c = -c;
+        }
+        let xp, yp, amp;
+        if ((c * c) > (a * a + b * b) * 1.0e-12)
+        {
+            xp = Math.atan2(b, a);
+            yp = (z0 + (x0 * a + y0 * b) / c);
+            amp = (-radius * (Math.hypot(a, b) / c));
+            return [xp, yp, amp];
+        }
+        else
+        {
+            return [];
+        }
+    }
+    
     let createPlaceholder = function slbg_createPlaceholder(width, height, textureName)
     {
         if (typeof PIXI.utils.TextureCache[textureName] === 'undefined')
@@ -467,8 +580,10 @@ let SLBG = (function ()
             sprite.width = wp * getLayerWidth();
         }
         
-        sprite.x = xp * getLayerWidth();
-        sprite.y = yp * getLayerHeight();
+        sprite.height = Math.round(sprite.height);
+        sprite.width = Math.round(sprite.width);
+        sprite.x = Math.round(xp * getLayerWidth());
+        sprite.y = Math.round(yp * getLayerHeight());
         
         return sprite;
     }
@@ -487,6 +602,25 @@ let SLBG = (function ()
                     drawScene(nextSceneId);
                 });
         }
+    }
+    
+    // survives redraw
+    let m_dipX = []
+    let m_dipY = []
+    
+    let setSpriteDipPicker = function slbg_setSpriteDipPicker(sprite)
+    {
+        sprite.interactive = true;
+        //console.log('sx:' + sprite.x + ' sy:' + sprite.y);
+        sprite.on('pointerup',
+            function(e){
+                let data = e.data.global;
+                let mouseX = (data.x - sprite.x) / sprite.width;
+                let mouseY = (data.y - sprite.y) / sprite.height;
+                console.log('x:' + mouseX + ' y:' + mouseY);
+                m_dipX.push(mouseX);
+                m_dipY.push(mouseY);
+            });
     }
     
     let setSpriteTimedDisplay = function slbg_setSpriteTimedDisplay(sprite, time)
@@ -522,6 +656,73 @@ let SLBG = (function ()
         let sprite = createSprite(textureName, xp, yp, wp, hp);
         setSpriteButton(sprite, nextSceneId);
         m_layer.addChild(sprite);
+    }
+    
+    let drawDipContainer = function slbg_drawDipContainter(textureName, xp, yp, wp, hp)
+    {
+        let l_dipContainer = new PIXI.Container();
+        
+        let sprite = createSprite(textureName, xp, yp, wp, hp);
+        setSpriteDipPicker(sprite);
+        setSpriteButton(sprite, 4);
+        l_dipContainer.addChild(sprite);
+        
+        let aim_sprite = createSprite("4-aim", 0, 0, -1, -1);
+        aim_sprite.visible = false;
+        aim_sprite.pivot.x = aim_sprite.width / 2;
+        aim_sprite.pivot.y = aim_sprite.height / 2;
+        if (m_dipX.length > 0 && m_dipY.length > 0)
+        {
+            //console.log('x:' + m_dipX[m_dipX.length - 1] + ' y:' + m_dipY[m_dipY.length - 1]);
+            aim_sprite.x = m_dipX[m_dipX.length - 1] * sprite.width + sprite.x;
+            aim_sprite.y = m_dipY[m_dipY.length - 1] * sprite.height + sprite.y;
+            aim_sprite.visible = true;
+        }
+        l_dipContainer.addChild(aim_sprite);
+        
+        let dipCount = Math.floor(m_dipX.length / 3);
+        if (dipCount > 0)
+        {
+            let graphics = new PIXI.Graphics();
+            for (let i = 0; i < dipCount; i++)
+            {
+                let aziList = [];
+                aziList.push(m_dipX[i*3 + 0] * 2 * Math.PI);
+                aziList.push(m_dipX[i*3 + 1] * 2 * Math.PI);
+                aziList.push(m_dipX[i*3 + 2] * 2 * Math.PI);
+                let depthList = []
+                depthList.push(m_dipY[i*3 + 0]);
+                depthList.push(m_dipY[i*3 + 1]);
+                depthList.push(m_dipY[i*3 + 2]);
+                let parameters = fitSinewave(aziList, depthList, 1);
+                console.log(parameters);
+                if (parameters.length > 0)
+                {
+                    let A = parameters[0];
+                    let P = parameters[1];
+                    let B = parameters[2];
+                    let baseBlockLineColor = 0x00FF00;
+                    graphics.lineStyle(4, baseBlockLineColor);
+                    graphics.moveTo(0, 0);
+                    let rez = 32;
+                    for (let j = 0; j < rez; j++)
+                    {
+                        let r = j / rez;
+                        let y = -A*Math.cos(r * 2 * Math.PI + P) + B;
+                        graphics.lineTo(r * sprite.width, y * sprite.height);
+                    }
+                }
+            }
+            
+            let texture = g_app.renderer.generateTexture(graphics);
+            let line_sprite = new PIXI.Sprite(texture);
+            line_sprite.x = sprite.x;
+            line_sprite.y = sprite.y;
+            line_sprite.visible = true;
+            l_dipContainer.addChild(line_sprite);
+        }
+        
+        m_layer.addChild(l_dipContainer);
     }
     
     public.redraw = function slbg_redraw()
@@ -616,12 +817,14 @@ let SLBG = (function ()
             drawTimed("36-right1", 0.5, 0.2, 0.1, 0.2, 1000);
             drawTimed("36-right2", 0.6, 0.2, 0.1, 0.2, 2000);
             drawTimed("32-summary", 0.0, 0.5, 0.7, 0.3, 3000);
+            drawTimedButton("3-main", 0.9, 0.7, -1, -1, 4000, 0);
         }
         if (id == 37)
         {
             drawImage("35-left1", 0.0, 0.2, 0.2, 0.2);
             drawImage("35-left2", 0.2, 0.2, 0.2, 0.2);
             drawImage("35-left3", 0.4, 0.2, 0.1, 0.2);
+            drawTimedButton("3-main", 0.9, 0.7, -1, -1, 4000, 0);
         }
         if (id == 38)
         {
@@ -631,6 +834,11 @@ let SLBG = (function ()
             drawTimed("38-right1", 0.5, 0.2, 0.1, 0.2, 1000);
             drawTimed("38-right2", 0.6, 0.2, 0.1, 0.2, 2000);
             drawTimed("34-summary", 0.0, 0.5, 0.7, 0.3, 3000);
+            drawTimedButton("3-main", 0.9, 0.7, -1, -1, 4000, 0);
+        }
+        if (id == 4)
+        {
+            drawDipContainer("4-dipimage", 0.1, 0.3, -1, -1);
         }
         drawButton("ui-home", 0.0, 0.9, -1, 0.1, 0);
         m_sceneId = id;

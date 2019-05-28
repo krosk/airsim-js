@@ -121,6 +121,13 @@ function OnReady()
 
     PIXI.loader
         .add("0-background", "img/backgroundLayer.jpg")
+        .add("0-button1", "img/button_SRPCImageHistory.png")
+        .add("0-button2", "img/button_ToolImages.png")
+        .add("0-button3", "img/button_Game2_WellPlacement.png")
+        .add("0-button4", "img/button_Game3_DipPicking.png")
+        .add("0-button5", "img/button_BonusGeology.png")
+        .add("1-background", "img/imageHistory.png")
+        .add("3-background", "img/game2Photos/game2_1_goal.png")
         .on("progress", LoaderProgressHandler)
         .load(LoaderSetup);
     
@@ -274,11 +281,13 @@ let SLBG = (function ()
         m_layer.interactive = false;
         
         createPlaceholder(32, 32, "ui-home");
-        createPlaceholder(100, 100, "0-background");
-        createPlaceholder(128, 32, "0-button1");
+        createPlaceholder(32, 32, "0-background");
+        createPlaceholder(64, 32, "0-button1");
         createPlaceholder(64, 32, "0-button2");
-        createPlaceholder(96, 32, "0-button3");
-        createPlaceholder(100, 100, "1-background");
+        createPlaceholder(64, 32, "0-button3");
+        createPlaceholder(64, 32, "0-button4");
+        createPlaceholder(64, 32, "0-button5");
+        createPlaceholder(32, 32, "1-background");
     }
     
     let m_redrawFrame = -1;
@@ -499,12 +508,18 @@ let SLBG = (function ()
         {
             drawImage("0-background", 0.0, 0.0, 1.0, 1.0);
             drawButton("0-button1", 0.2, 0.2, 0.6, 0.1, 1);
-            drawButton("0-button2", 0.2, 0.4, 0.6, 0.1, 2);
-            drawButton("0-button3", 0.2, 0.6, 0.6, 0.1, 3);
+            drawButton("0-button2", 0.2, 0.35, 0.6, 0.1, 2);
+            drawButton("0-button3", 0.2, 0.5, 0.6, 0.1, 3);
+            drawButton("0-button4", 0.2, 0.65, 0.6, 0.1, 4);
+            drawButton("0-button5", 0.2, 0.8, 0.6, 0.1, 4);
         }
         if (id == 1)
         {
-            drawImage("1-background", 0.0, 0.0, 1.0, 1.0);
+            drawImage("1-background", 0.0, 0.0, 1.0, -1);
+        }
+        if (id == 3)
+        {
+            drawImage("3-background", 0.0, 0.0, 1.0, 1.0);
         }
         drawButton("ui-home", 0.0, 0.9, -1, 0.1, 0);
         m_sceneId = id;

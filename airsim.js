@@ -119,8 +119,8 @@ function OnReady()
     
     g_app.ticker.add(Update);
 
-    PIXI.loader.add("img/cityTiles_sheet.json")
-        .add("img/buildingTiles_sheet.json")
+    PIXI.loader
+        .add("0-background", "img/backgroundLayer.jpg")
         .on("progress", LoaderProgressHandler)
         .load(LoaderSetup);
     
@@ -374,7 +374,15 @@ let SLBG = (function ()
     
     let createPlaceholder = function slbg_createPlaceholder(width, height, textureName)
     {
-        console.log('create ' + textureName);
+        if (typeof PIXI.utils.TextureCache[textureName] === 'undefined')
+        {
+            console.log('create placeholder ' + textureName);
+        }
+        else
+        {
+            console.log('texture exists ' + textureName);
+            return;
+        }
         let graphics = new PIXI.Graphics();
     
         let black = 0x000000;
@@ -400,7 +408,11 @@ let SLBG = (function ()
     let createSprite = function slbg_createSprite(textureName, xp, yp, wp, hp)
     {
         //console.log('createSprite ' + textureName);
-        
+        if (typeof PIXI.utils.TextureCache[textureName] === 'undefined')
+        {
+            console.log('missing texture for ' + textureName);
+            createPlaceholder(64, 64, textureName);
+        }
         let textureCache = PIXI.utils.TextureCache[textureName];
         let sprite = new PIXI.Sprite(textureCache);
         

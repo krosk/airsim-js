@@ -693,7 +693,7 @@ let SLBG = (function ()
                 //aziList.push(1*Math.PI/4);
                 //aziList.push(3*Math.PI/4);
                 //aziList.push(5*Math.PI/4);
-                console.log(aziList);
+                //console.log(aziList);
                 let depthList = []
                 depthList.push(m_dipY[i*3 + 0]);
                 depthList.push(m_dipY[i*3 + 1]);
@@ -701,9 +701,9 @@ let SLBG = (function ()
                 //depthList.push(0);
                 //depthList.push(1);
                 //depthList.push(0);
-                console.log(depthList);
+                //console.log(depthList);
                 let parameters = fitSinewave(aziList, depthList, 0.5);
-                console.log(parameters);
+                //console.log(parameters);
                 if (parameters.length > 0)
                 {
                     let P = parameters[0];
@@ -712,8 +712,8 @@ let SLBG = (function ()
                     let baseBlockLineColor = 0x00FF00;
                     graphics.lineStyle(4, baseBlockLineColor);
                     graphics.moveTo(0, 0);
-                    let rez = 32;
-                    for (let j = 0; j < rez; j++)
+                    let rez = 16;
+                    for (let j = 0; j <= rez; j++)
                     {
                         let r = j / rez;
                         let y = A*Math.cos(r * 2 * Math.PI - P) + B;

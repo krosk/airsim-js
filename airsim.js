@@ -260,6 +260,7 @@ let SLBG = (function ()
     let m_computeTimeBudget = 1;
     let m_sceneId;
     let m_layer;
+    let m_spriteTable = [];
     
     public.initialize = function slbg_initialize()
     {
@@ -304,6 +305,20 @@ let SLBG = (function ()
         {
             m_redrawFrame = g_redrawFrame;
             public.redraw();
+        }
+        
+        updateTimedSprite(dt);
+    }
+    
+    let updateTimedSprite = function slbg_updateTimedSprite(dt)
+    {
+        for (let i in m_spriteTable)
+        {
+            m_spriteTable[i].timeout -= dt;
+            if (m_spriteTable[i].timeout < 0)
+            {
+                m_spriteTable[i].visible = true;
+            }
         }
     }
     
@@ -420,6 +435,15 @@ let SLBG = (function ()
     let drawImage = function slbg_drawImage(textureName, xp, yp, wp, hp)
     {
         let sprite = createSprite(textureName, xp, yp, wp, hp);
+        m_layer.addChild(sprite);
+    }
+    
+    let drawTimed = function slbg_drawTimed(textureName, xp, yp, wp, hp, time)
+    {
+        let sprite = createSprite(textureName, xp, yp, wp, hp);
+        sprite.visible = false;
+        sprite.timeout = time;
+        m_spriteTable.push(sprite);
         m_layer.addChild(sprite);
     }
     

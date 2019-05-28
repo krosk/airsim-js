@@ -124,6 +124,10 @@ function OnReady()
         .on("progress", LoaderProgressHandler)
         .load(LoaderSetup);
     
+    PIXI.loader.onError.add((err, loader, resource) => {
+        console.log('Failed to load ' + resource.name);
+        delete PIXI.utils.TextureCache[resource.name];
+    });
     /*
     g_state = StartState;
 

@@ -344,7 +344,7 @@ let SUTILS = (function ()
         let prev = (current - 1 + length) % length;
         while (forbidList.indexOf(prev) >= 0 && prev != current)
         {
-            prev = (prev - 1) % length;
+            prev = (prev - 1 + length) % length;
         }
         return prev;
     }
@@ -691,12 +691,22 @@ let SLBG = (function ()
         }
     }
     
+    let switchTool = function slbg_setNextTool(call)
+    {
+        m_toolDisplayedId = call(m_toolCount, m_toolDisplayedId, m_toolMatched);
+    }
+    
+    let switchImage = function slbg_switchImage(call)
+    {
+        m_toolImageDisplayedId = call(m_toolCount, m_toolImageDisplayedId, m_toolImageMatched);
+    }
+    
     let setSpriteSwitchTool = function slbg_setSpriteSwitchTool(sprite, call)
     {
         sprite.interactive = true;
         sprite.on('pointerup',
             function(e){
-                m_toolDisplayedId = call(m_toolCount, m_toolDisplayedId, m_toolMatched);
+                switchTool(call);
                 public.redraw();
             });
     }
@@ -706,7 +716,7 @@ let SLBG = (function ()
         sprite.interactive = true;
         sprite.on('pointerup',
             function(e){
-                m_toolImageDisplayedId = call(m_toolCount, m_toolImageDisplayedId, m_toolImageMatched);
+                switchImage(call);
                 public.redraw();
             });
     }
@@ -723,6 +733,23 @@ let SLBG = (function ()
                 //console.log('x:' + mouseX + ' y:' + mouseY);
                 m_dipX.push(mouseX);
                 m_dipY.push(mouseY);
+            });
+    }
+    
+    let setSpriteMatch = function slbg_setSpriteMatch(sprite)
+    {
+        sprite.interactive = true;
+        sprite.on('pointerup',
+            function(e){
+                if (m_toolDisplayedId == m_toolImageRandomMap[m_toolImageDisplayedId])
+                {
+                    console.log("match");
+                    m_toolMatched.push(m_toolDisplayedId);
+                    m_toolImageMatched.push(m_toolImageDisplayedId);
+                    switchTool(SUTILS.getNextIndex);
+                    switchImage(SUTILS.getNextIndex);
+                    public.redraw();
+                }
             });
     }
     
@@ -785,6 +812,7 @@ let SLBG = (function ()
         drawImage("2-image" + m_toolImageRandomMap[m_toolImageDisplayedId], 0.6, 0.1, 0.3, 0.6);
         
         let match_sprite = createSprite("2-match", 0.45, 0.8, 0.1, 0.1);
+        setSpriteMatch(match_sprite);
         m_layer.addChild(match_sprite);
     }
     

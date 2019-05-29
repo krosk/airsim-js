@@ -313,6 +313,26 @@ let SUTILS = (function ()
         return array;
     }
     
+    public.getNextIndex = function sutils_getNextIndex(length, current, forbidList)
+    {
+        let next = (current + 1) % length;
+        while (forbidList.indexOf(next) >= 0 && next != current)
+        {
+            next = (next + 1) % length;
+        }
+        return next;
+    }
+    
+    public.getPrevIndex = function sutils_getPrevIndex(length, current, forbidList)
+    {
+        let prev = (current - 1 + length) % length;
+        while (forbidList.indexOf(prev) >= 0 && prev != current)
+        {
+            prev = (prev - 1) % length;
+        }
+        return prev;
+    }
+    
     public.fitSinewave = function sutils_fitSinewave(aziList, depthList, radius)
     {
         let n0 = 0;
@@ -653,6 +673,16 @@ let SLBG = (function ()
         }
     }
     
+    let setSpriteSwitchTool = function slbg_setSpriteSwitchTool(sprite, call)
+    {
+        sprite.interactive = true;
+        sprite.on('pointerup',
+            function(e){
+                m_toolDisplayedId = call(m_toolCount, m_toolDisplayedId, m_toolMatched);
+                public.redraw();
+            });
+    }
+    
     let setSpriteDipPicker = function slbg_setSpriteDipPicker(sprite)
     {
         sprite.interactive = true;
@@ -701,6 +731,19 @@ let SLBG = (function ()
         let sprite = createSprite(textureName, xp, yp, wp, hp);
         setSpriteButton(sprite, nextSceneId);
         m_layer.addChild(sprite);
+    }
+    
+    let drawGame1 = function slbg_drawGame1()
+    {
+        console.log('t: ' + m_toolDisplayedId);
+        
+        let toolnext_sprite = createSprite("2-toolnext", 0.3, 0.8, 0.1, 0.1);
+        setSpriteSwitchTool(toolnext_sprite, SUTILS.getNextIndex);
+        m_layer.addChild(toolnext_sprite);
+        
+        let toolprev_sprite = createSprite("2-toolprev", 0.2, 0.8, 0.1, 0.1);
+        setSpriteSwitchTool(toolprev_sprite, SUTILS.getPrevIndex);
+        m_layer.addChild(toolprev_sprite);
     }
     
     let drawDipContainer = function slbg_drawDipContainter(textureName, xp, yp, wp, hp)
@@ -819,7 +862,7 @@ let SLBG = (function ()
         if (id == 2)
         {
             drawImage("2-background", 0.0, 0.0, 1.0, 1.0);
-            
+            drawGame1();
         }
         if (id == 3)
         {

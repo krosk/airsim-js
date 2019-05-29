@@ -150,6 +150,7 @@ function OnReady()
         .add("2-right", "img/game1Photos/right.png")
         .add("2-wrong", "img/game1Photos/wrong.png")
         .add("2-finish", "img/game1Photos/finish.png")
+        .add("2-point", "img/game1Photos/point.png")
         .add("3-context", "img/game2Photos/game2_1_goal.png")
         .add("3-start", "img/game2Photos/start.png")
         .add("3-next", "img/game2Photos/next.png")
@@ -807,9 +808,9 @@ let SLBG = (function ()
         m_spriteTimeoutTable.push(sprite);
     }
     
-    let drawImage = function slbg_drawImage(textureName, xp, yp, wp, hp)
+    let drawImage = function slbg_drawImage(textureName, xp, yp, wp, hp, keepratio)
     {
-        let sprite = createSprite(textureName, xp, yp, wp, hp);
+        let sprite = createSprite(textureName, xp, yp, wp, hp, keepratio);
         m_layer.addChild(sprite);
     }
     
@@ -865,9 +866,22 @@ let SLBG = (function ()
         drawImage("2-tool" + m_toolDisplayedId, 0.0, 0.3, 0.5, 0.5);
         drawImage("2-image" + m_toolImageRandomMap[m_toolImageDisplayedId], 0.6, 0.1, 0.3, 0.6);
         
+        for (let i = 0; i < m_toolScore; i++)
+        {
+            drawImage("2-point", 0.3 + 0.03 * i, 0.05, 0.03, 0.03, true);
+        }
+        
         let match_sprite = createSprite("2-match", 0.45, 0.8, 0.1, 0.1, true);
         setSpriteMatch(match_sprite);
         m_layer.addChild(match_sprite);
+    }
+    
+    let drawGame1Score = function slbg_drawGame1Score()
+    {
+        for (let i = 0; i < m_toolScore; i++)
+        {
+            drawImage("2-point", 0.5 + 0.03 * (i - m_toolScore + m_toolScore / 2), 0.7, 0.03, 0.03, true);
+        }
     }
     
     let drawDipContainer = function slbg_drawDipContainter(textureName, xp, yp, wp, hp)
@@ -1004,6 +1018,7 @@ let SLBG = (function ()
         {
             drawImage("2-background", 0.0, 0.0, 1.0, 1.0);
             drawImage("2-finish", 0.2, 0.4, 0.6, 0.2);
+            drawGame1Score();
         }
         if (id == 3)
         {

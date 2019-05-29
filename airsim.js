@@ -120,6 +120,7 @@ function OnReady()
     g_app.ticker.add(Update);
 
     PIXI.loader
+        .add("ui-home", "img/ui-home.png")
         .add("0-background", "img/backgroundLayer.jpg")
         .add("0-button1", "img/button_SRPCImageHistory.png")
         .add("0-button2", "img/button_ToolImages.png")
@@ -127,6 +128,8 @@ function OnReady()
         .add("0-button4", "img/button_Game3_DipPicking.png")
         .add("0-button5", "img/button_BonusGeology.png")
         .add("1-background", "img/imageHistory.png")
+        .add("2-toolnext", "img/game1Photos/next.png")
+        .add("2-toolprev", "img/game1Photos/prev.png")
         .add("2-tool0", "img/game1Photos/0_Tool.png")
         .add("2-image0", "img/game1Photos/0_Image.png")
         .add("2-tool1", "img/game1Photos/1_Tool.png")
@@ -143,6 +146,9 @@ function OnReady()
         .add("2-image6", "img/game1Photos/6_Image.png")
         .add("2-tool7", "img/game1Photos/7_Tool.png")
         .add("2-image7", "img/game1Photos/7_Image.png")
+        .add("2-right", "img/game1Photos/right.png")
+        .add("2-wrong", "img/game1Photos/wrong.png")
+        .add("2-finish", "img/game1Photos/finish.png")
         .add("3-context", "img/game2Photos/game2_1_goal.png")
         .add("3-start", "img/game2Photos/start.png")
         .add("3-next", "img/game2Photos/next.png")
@@ -513,6 +519,7 @@ let SLBG = (function ()
     let m_sceneId;
     let m_layer;
     let m_spriteTable = [];
+    let m_spriteTimeoutTable = [];
     // survives redraw, not reset
     let m_dipX = [];
     let m_dipY = [];
@@ -590,6 +597,14 @@ let SLBG = (function ()
                 m_spriteTable[i].visible = true;
             }
         }
+        for (let i in m_spriteTimeoutTable)
+        {
+            m_spriteTimeoutTable[i].timeout -= dt;
+            if (m_spriteTimeoutTable[i].timeout < 0)
+            {
+                m_spriteTimeoutTable[i].visible = false;
+            }
+        }
     }
     
     let getLayerWidth = function slbg_getLayerWidth()
@@ -634,7 +649,7 @@ let SLBG = (function ()
         PIXI.utils.TextureCache[textureName] = texture;
     }
     
-    let createSprite = function slbg_createSprite(textureName, xp, yp, wp, hp)
+    let createSprite = function slbg_createSprite(textureName, xp, yp, wp, hp, keepratio)
     {
         //console.log('createSprite ' + textureName);
         if (typeof PIXI.utils.TextureCache[textureName] === 'undefined')
@@ -642,6 +657,11 @@ let SLBG = (function ()
             console.log('missing texture for ' + textureName);
             createPlaceholder(64, 64, textureName);
         }
+        if (typeof keepratio === 'undefined')
+        {
+            keepratio = false;
+        }
+        
         let textureCache = PIXI.utils.TextureCache[textureName];
         let sprite = new PIXI.Sprite(textureCache);
         
@@ -654,12 +674,17 @@ let SLBG = (function ()
         else if (wp <= 0)
         {
             sprite.height = hp * getLayerHeight();
-            sprite.width = sprite.height * ratio;
+            sprite.width = hp * getLayerHeight() * ratio;
         }
         else if (hp <= 0)
         {
             sprite.width = wp * getLayerWidth();
-            sprite.height = sprite.width / ratio;
+            sprite.height = wp * getLayerWidth() / ratio;
+        }
+        else if (keepratio)
+        {
+            sprite.height = Math.min(hp * getLayerHeight(), wp * getLayerWidth() / ratio);
+            sprite.width = Math.min(wp * getLayerWidth(), hp * getLayerHeight() * ratio);
         }
         else
         {
@@ -707,7 +732,7 @@ let SLBG = (function ()
         sprite.on('pointerup',
             function(e){
                 switchTool(call);
-                public.redraw();
+                drawScene(2);
             });
     }
     
@@ -717,7 +742,7 @@ let SLBG = (function ()
         sprite.on('pointerup',
             function(e){
                 switchImage(call);
-                public.redraw();
+                drawScene(2);
             });
     }
     
@@ -743,13 +768,27 @@ let SLBG = (function ()
             function(e){
                 if (m_toolDisplayedId == m_toolImageRandomMap[m_toolImageDisplayedId])
                 {
-                    console.log("match");
+                    m_toolScore += 3;
                     m_toolMatched.push(m_toolDisplayedId);
                     m_toolImageMatched.push(m_toolImageDisplayedId);
-                    switchTool(SUTILS.getNextIndex);
-                    switchImage(SUTILS.getNextIndex);
-                    public.redraw();
+                    if (m_toolMatched.length >= m_toolCount)
+                    {
+                        m_sceneId = 22; // finish
+                    }
+                    else
+                    {
+                        switchTool(SUTILS.getNextIndex);
+                        switchImage(SUTILS.getNextIndex);
+                        m_sceneId = 20; // right
+                    }
                 }
+                else
+                {
+                    m_toolScore -= 1;
+                    m_sceneId = 21; // wrong
+                }
+                
+                public.redraw();
             });
     }
     
@@ -758,6 +797,13 @@ let SLBG = (function ()
         sprite.visible = false;
         sprite.timeout = time;
         m_spriteTable.push(sprite);
+    }
+    
+    let setSpriteTimeoutDisplay = function slbg_setSpriteTimeoutDisplay(sprite, time)
+    {
+        sprite.visible = true;
+        sprite.timeout = time;
+        m_spriteTimeoutTable.push(sprite);
     }
     
     let drawImage = function slbg_drawImage(textureName, xp, yp, wp, hp)
@@ -770,6 +816,13 @@ let SLBG = (function ()
     {
         let sprite = createSprite(textureName, xp, yp, wp, hp);
         setSpriteTimedDisplay(sprite, time);
+        m_layer.addChild(sprite);
+    }
+    
+    let drawTimeout = function slbg_drawTimeout(textureName, xp, yp, wp, hp, time)
+    {
+        let sprite = createSprite(textureName, xp, yp, wp, hp);
+        setSpriteTimeoutDisplay(sprite, time);
         m_layer.addChild(sprite);
     }
     
@@ -790,21 +843,21 @@ let SLBG = (function ()
     
     let drawGame1 = function slbg_drawGame1()
     {
-        console.log('t: ' + m_toolDisplayedId + ' i: ' + m_toolImageDisplayedId + '[' + m_toolImageRandomMap[m_toolImageDisplayedId] + ']');
+        console.log('t: ' + m_toolDisplayedId + ' i: ' + m_toolImageDisplayedId + '[' + m_toolImageRandomMap[m_toolImageDisplayedId] + ']' + ' s: ' + m_toolScore);
         
-        let toolnext_sprite = createSprite("2-toolnext", 0.2, 0.8, 0.1, 0.1);
+        let toolnext_sprite = createSprite("2-toolnext", 0.2, 0.8, 0.1, 0.1, true);
         setSpriteSwitchTool(toolnext_sprite, SUTILS.getNextIndex);
         m_layer.addChild(toolnext_sprite);
         
-        let toolprev_sprite = createSprite("2-toolprev", 0.1, 0.8, 0.1, 0.1);
+        let toolprev_sprite = createSprite("2-toolprev", 0.1, 0.8, 0.1, 0.1, true);
         setSpriteSwitchTool(toolprev_sprite, SUTILS.getPrevIndex);
         m_layer.addChild(toolprev_sprite);
         
-        let imgnext_sprite = createSprite("2-toolnext", 0.8, 0.8, 0.1, 0.1);
+        let imgnext_sprite = createSprite("2-toolnext", 0.8, 0.8, 0.1, 0.1, true);
         setSpriteSwitchImg(imgnext_sprite, SUTILS.getNextIndex);
         m_layer.addChild(imgnext_sprite);
         
-        let imgprev_sprite = createSprite("2-toolprev", 0.7, 0.8, 0.1, 0.1);
+        let imgprev_sprite = createSprite("2-toolprev", 0.7, 0.8, 0.1, 0.1, true);
         setSpriteSwitchImg(imgprev_sprite, SUTILS.getPrevIndex);
         m_layer.addChild(imgprev_sprite);
         
@@ -933,6 +986,23 @@ let SLBG = (function ()
         {
             drawImage("2-background", 0.0, 0.0, 1.0, 1.0);
             drawGame1();
+        }
+        if (id == 20)
+        {
+            drawImage("2-background", 0.0, 0.0, 1.0, 1.0);
+            drawGame1();
+            drawTimeout("2-right", 0.2, 0.4, 0.6, 0.2, 1000);
+        }
+        if (id == 21)
+        {
+            drawImage("2-background", 0.0, 0.0, 1.0, 1.0);
+            drawGame1();
+            drawTimeout("2-wrong", 0.2, 0.4, 0.6, 0.2, 1000);
+        }
+        if (id == 22)
+        {
+            drawImage("2-background", 0.0, 0.0, 1.0, 1.0);
+            drawImage("2-finish", 0.2, 0.4, 0.6, 0.2);
         }
         if (id == 3)
         {

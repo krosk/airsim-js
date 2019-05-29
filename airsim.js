@@ -503,6 +503,7 @@ let SLBG = (function ()
     let m_toolCount = 7;
     let m_toolImageRandomMap = [];
     let m_toolMatched = [];
+    let m_toolImageMatched = [];
     let m_toolDisplayedId = 0;
     let m_toolImageDisplayedId = 0;
     let m_toolScore = 0;
@@ -524,6 +525,7 @@ let SLBG = (function ()
         m_dipX = [];
         m_dipY = [];
         m_toolMatched = [];
+        m_toolImageMatched = [];
         m_toolDisplayedId = 0;
         m_toolImageDisplayedId = 0;
         m_toolScore = 0;
@@ -683,6 +685,16 @@ let SLBG = (function ()
             });
     }
     
+    let setSpriteSwitchImg = function slbg_setSpriteSwitchImg(sprite, call)
+    {
+        sprite.interactive = true;
+        sprite.on('pointerup',
+            function(e){
+                m_toolImageDisplayedId = call(m_toolCount, m_toolImageDisplayedId, m_toolImageMatched);
+                public.redraw();
+            });
+    }
+    
     let setSpriteDipPicker = function slbg_setSpriteDipPicker(sprite)
     {
         sprite.interactive = true;
@@ -735,15 +747,26 @@ let SLBG = (function ()
     
     let drawGame1 = function slbg_drawGame1()
     {
-        console.log('t: ' + m_toolDisplayedId);
+        console.log('t: ' + m_toolDisplayedId + ' i: ' + m_toolImageDisplayedId);
         
-        let toolnext_sprite = createSprite("2-toolnext", 0.3, 0.8, 0.1, 0.1);
+        let toolnext_sprite = createSprite("2-toolnext", 0.2, 0.8, 0.1, 0.1);
         setSpriteSwitchTool(toolnext_sprite, SUTILS.getNextIndex);
         m_layer.addChild(toolnext_sprite);
         
-        let toolprev_sprite = createSprite("2-toolprev", 0.2, 0.8, 0.1, 0.1);
+        let toolprev_sprite = createSprite("2-toolprev", 0.1, 0.8, 0.1, 0.1);
         setSpriteSwitchTool(toolprev_sprite, SUTILS.getPrevIndex);
         m_layer.addChild(toolprev_sprite);
+        
+        let imgnext_sprite = createSprite("2-toolnext", 0.8, 0.8, 0.1, 0.1);
+        setSpriteSwitchImg(imgnext_sprite, SUTILS.getNextIndex);
+        m_layer.addChild(imgnext_sprite);
+        
+        let imgprev_sprite = createSprite("2-toolprev", 0.7, 0.8, 0.1, 0.1);
+        setSpriteSwitchImg(imgprev_sprite, SUTILS.getPrevIndex);
+        m_layer.addChild(imgprev_sprite);
+        
+        let match_sprite = createSprite("2-match", 0.45, 0.8, 0.1, 0.1);
+        m_layer.addChild(match_sprite);
     }
     
     let drawDipContainer = function slbg_drawDipContainter(textureName, xp, yp, wp, hp)
@@ -833,7 +856,7 @@ let SLBG = (function ()
     
     public.redraw = function slbg_redraw()
     {
-        console.log('redraw');
+        //console.log('redraw');
         drawScene(m_sceneId);
     }
     

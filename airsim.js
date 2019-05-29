@@ -130,6 +130,7 @@ function OnReady()
         .add("1-background", "img/imageHistory.png")
         .add("2-toolnext", "img/game1Photos/next.png")
         .add("2-toolprev", "img/game1Photos/prev.png")
+        .add("2-match", "img/game1Photos/match.png")
         .add("2-tool0", "img/game1Photos/0_Tool.png")
         .add("2-image0", "img/game1Photos/0_Image.png")
         .add("2-tool1", "img/game1Photos/1_Tool.png")
@@ -834,9 +835,9 @@ let SLBG = (function ()
         m_layer.addChild(sprite);
     }
     
-    let drawButton = function slbg_drawButton(textureName, xp, yp, wp, hp, nextSceneId)
+    let drawButton = function slbg_drawButton(textureName, xp, yp, wp, hp, nextSceneId, keepratio)
     {
-        let sprite = createSprite(textureName, xp, yp, wp, hp);
+        let sprite = createSprite(textureName, xp, yp, wp, hp, keepratio);
         setSpriteButton(sprite, nextSceneId);
         m_layer.addChild(sprite);
     }
@@ -864,7 +865,7 @@ let SLBG = (function ()
         drawImage("2-tool" + m_toolDisplayedId, 0.0, 0.3, 0.5, 0.5);
         drawImage("2-image" + m_toolImageRandomMap[m_toolImageDisplayedId], 0.6, 0.1, 0.3, 0.6);
         
-        let match_sprite = createSprite("2-match", 0.45, 0.8, 0.1, 0.1);
+        let match_sprite = createSprite("2-match", 0.45, 0.8, 0.1, 0.1, true);
         setSpriteMatch(match_sprite);
         m_layer.addChild(match_sprite);
     }
@@ -1092,7 +1093,7 @@ let SLBG = (function ()
         {
             drawDipContainer("4-dipimage", 0, 0.5, 1, 0.5);
         }
-        drawButton("ui-home", 0.0, 0.9, -1, 0.1, 0);
+        drawButton("ui-home", 0.0, 0.9, 0.1, 0.1, 0, true);
         m_sceneId = id;
     }
     

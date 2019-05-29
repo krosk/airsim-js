@@ -290,6 +290,183 @@ let MUTIL = (function ()
     return public;
 })();
 
+let SUTILS = (function ()
+{
+    let public = {};
+    
+    public.getRandomPermutation = function sutils_getRandomPermutation(length)
+    {
+        let array = [];
+        for (let i = 0; i < length; i++)
+        {
+            array.push(i);
+        }
+        for (let i = 0; i < 50; i++)
+        {
+            let id1 = Math.floor((Math.random() * length));
+            let id2 = Math.floor((Math.random() * length));
+            let temp = array[id2];
+            array[id2] = array[id1];
+            array[id1] = temp;
+        }
+        
+        return array;
+    }
+    
+    public.fitSinewave = function sutils_fitSinewave(aziList, depthList, radius)
+    {
+        let n0 = 0;
+        let x0 = 0;
+        let y0 = 0;
+        let z0 = 0;
+        let sxx = 0;
+        let syy = 0;
+        let szz = 0;
+        let sxy = 0;
+        let syz = 0;
+        let szx = 0;
+        
+        for (let i in aziList)
+        {
+            let z = depthList[i];
+            let theta = aziList[i];
+            let x = radius * Math.cos(theta);
+            let y = radius * Math.sin(theta);
+            
+            x0 += x;
+            y0 += y;
+            z0 += z;
+            sxx += x * x;
+            syy += y * y;
+            szz += z * z;
+            sxy += x * y;
+            syz += y * z;
+            szx += z * x;
+            
+            n0++;
+        }
+        
+        if (n0 < 3)
+        {
+            return [];
+        }
+        
+        x0 /= n0;
+        y0 /= n0;
+        z0 /= n0;
+    
+        sxx -= x0 * x0 * n0;
+        syy -= y0 * y0 * n0;
+        szz -= z0 * z0 * n0;
+    
+        sxy -= x0 * y0 * n0;
+        syz -= y0 * z0 * n0;
+        szx -= z0 * x0 * n0;
+        
+        let t1 = -(sxx + syy + szz);
+        let t2 = sxx*syy - sxy*sxy + syy*szz - syz*syz + szz*sxx - szx*szx;
+        let t3 = -sxx*syy*szz + sxx*syz*syz + syy*szx*szx + szz*sxy*sxy - 2 * sxy*syz*szx;
+        
+        let q = Math.sqrt(t1 * t1 - 3. * t2) / 3.;
+        let r = (t1 * (2. * t1 * t1 - 9. * t2) + 27. * t3) / 54.;
+        
+        let real = r / (q * q * q);
+        
+        if (real < -1.0)
+        {
+            real = -1.0;
+        }
+        if (real >  1.0)
+        {
+            real = 1.0;
+        }
+        
+        let theta = Math.acos(real) / 3.;
+    
+        let e1 = -2. * q * Math.cos(theta) - t1 / 3.;
+        let e2 = -2. * q * Math.cos(theta + Math.PI * 2. / 3.) - t1 / 3.;
+        let e3 = -2. * q * Math.cos(theta + Math.PI * 4. / 3.) - t1 / 3.;
+        
+        if (e1 > e2)
+        {
+            r = e1;
+            e1 = e2;
+            e2 = r;
+        }
+        if (e1 > e3)
+        {
+            r = e1;
+            e1 = e3;
+            e3 = r;
+        }
+        
+        let a = (syy - e1) * (szz - e1) + syz * (sxy + szx - syz) - sxy * (szz - e1) - szx * (syy - e1);
+        let b = (szz - e1) * (sxx - e1) + szx * (syz + sxy - szx) - syz * (sxx - e1) - sxy * (szz - e1);
+        let c = (sxx - e1) * (syy - e1) + sxy * (szx + syz - sxy) - szx * (syy - e1) - syz * (sxx - e1);
+        if (c > 0)
+        {
+            a = -a;
+            b = -b;
+            c = -c;
+        }
+        let xp, yp, amp;
+        if ((c * c) > (a * a + b * b) * 1.0e-12)
+        {
+            xp = Math.atan2(b, a);
+            yp = (z0 + (x0 * a + y0 * b) / c);
+            amp = (-radius * (Math.hypot(a, b) / c));
+            return [xp, yp, amp];
+        }
+        else
+        {
+            return [];
+        }
+    }
+    
+    let getRainbowProfile = function sutils_getrainbowProfile(n)
+    {
+        var total = 0xFF * 6;
+        n = n % total;
+        if (n < 0xFF)
+        {
+            return n;
+        }
+        else if (n < 0xFF * 3)
+        {
+            return 0xFF;
+        }
+        else if (n < 0xFF * 4)
+        {
+            return 0xFF * 4 - n;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+    
+    let getRainbowColor = function sutils_getrainbowColor(n)
+    {
+        var r = getRainbowProfile(n + 0xFF * 2) << 16;
+        var g = getRainbowProfile(n) << 8;
+        var b = getRainbowProfile(n + 0xFF * 4);
+        return r + g + b
+    }
+    
+    public.nameToColor = function sutils_nameToColor(textureName)
+    {
+        let i = textureName.length;
+        let n = 0;
+        while (i--)
+        {
+            n += textureName.charCodeAt(i) * 64;
+        }
+        return getRainbowColor(n);
+    }
+    
+    return public;
+})();
+
 let SLBG = (function ()
 {
     let public = {};
@@ -300,6 +477,15 @@ let SLBG = (function ()
     let m_sceneId;
     let m_layer;
     let m_spriteTable = [];
+    // survives redraw, not reset
+    let m_dipX = [];
+    let m_dipY = [];
+    let m_toolCount = 7;
+    let m_toolImageRandomMap = [];
+    let m_toolMatched = [];
+    let m_toolDisplayedId = 0;
+    let m_toolImageDisplayedId = 0;
+    let m_toolScore = 0;
     
     public.initialize = function slbg_initialize()
     {
@@ -308,7 +494,19 @@ let SLBG = (function ()
         g_app.stage.addChild(m_layer);
         m_layer.interactive = false;
         
+        m_toolImageRandomMap = SUTILS.getRandomPermutation(m_toolCount);
+        
         createPlaceholder(8, 8, "4-mark");
+    }
+    
+    let resetData = function slbg_resetData()
+    {
+        m_dipX = [];
+        m_dipY = [];
+        m_toolMatched = [];
+        m_toolDisplayedId = 0;
+        m_toolImageDisplayedId = 0;
+        m_toolScore = 0;
     }
     
     let m_redrawFrame = -1;
@@ -365,157 +563,6 @@ let SLBG = (function ()
         return g_app.renderer.height;
     }
     
-    let getRainbowProfile = function slbg_getrainbowProfile(n)
-    {
-        var total = 0xFF * 6;
-        n = n % total;
-        if (n < 0xFF)
-        {
-            return n;
-        }
-        else if (n < 0xFF * 3)
-        {
-            return 0xFF;
-        }
-        else if (n < 0xFF * 4)
-        {
-            return 0xFF * 4 - n;
-        }
-        else
-        {
-            return 0;
-        }
-    }
-    
-    let getRainbowColor = function slbg_getrainbowColor(n)
-    {
-        var r = getRainbowProfile(n + 0xFF * 2) << 16;
-        var g = getRainbowProfile(n) << 8;
-        var b = getRainbowProfile(n + 0xFF * 4);
-        return r + g + b
-    }
-    
-    let nameToColor = function slbg_nameToColor(textureName)
-    {
-        let i = textureName.length;
-        let n = 0;
-        while (i--)
-        {
-            n += textureName.charCodeAt(i) * 64;
-        }
-        return getRainbowColor(n);
-    }
-    
-    let fitSinewave = function slbg_fitSinewave(aziList, depthList, radius)
-    {
-        let n0 = 0;
-        let x0 = 0;
-        let y0 = 0;
-        let z0 = 0;
-        let sxx = 0;
-        let syy = 0;
-        let szz = 0;
-        let sxy = 0;
-        let syz = 0;
-        let szx = 0;
-        
-        for (let i in aziList)
-        {
-            let z = depthList[i];
-            let theta = aziList[i];
-            let x = radius * Math.cos(theta);
-            let y = radius * Math.sin(theta);
-            
-            x0 += x;
-            y0 += y;
-            z0 += z;
-            sxx += x * x;
-            syy += y * y;
-            szz += z * z;
-            sxy += x * y;
-            syz += y * z;
-            szx += z * x;
-            
-            n0++;
-        }
-        
-        if (n0 < 3)
-        {
-            return [];
-        }
-        
-        x0 /= n0;
-        y0 /= n0;
-        z0 /= n0;
-
-        sxx -= x0 * x0 * n0;
-        syy -= y0 * y0 * n0;
-        szz -= z0 * z0 * n0;
-
-        sxy -= x0 * y0 * n0;
-        syz -= y0 * z0 * n0;
-        szx -= z0 * x0 * n0;
-        
-        let t1 = -(sxx + syy + szz);
-        let t2 = sxx*syy - sxy*sxy + syy*szz - syz*syz + szz*sxx - szx*szx;
-        let t3 = -sxx*syy*szz + sxx*syz*syz + syy*szx*szx + szz*sxy*sxy - 2 * sxy*syz*szx;
-        
-        let q = Math.sqrt(t1 * t1 - 3. * t2) / 3.;
-        let r = (t1 * (2. * t1 * t1 - 9. * t2) + 27. * t3) / 54.;
-        
-        let real = r / (q * q * q);
-        
-        if (real < -1.0)
-        {
-            real = -1.0;
-        }
-        if (real >  1.0)
-        {
-            real = 1.0;
-        }
-        
-        let theta = Math.acos(real) / 3.;
-
-        let e1 = -2. * q * Math.cos(theta) - t1 / 3.;
-        let e2 = -2. * q * Math.cos(theta + Math.PI * 2. / 3.) - t1 / 3.;
-        let e3 = -2. * q * Math.cos(theta + Math.PI * 4. / 3.) - t1 / 3.;
-        
-        if (e1 > e2)
-        {
-            r = e1;
-            e1 = e2;
-            e2 = r;
-        }
-        if (e1 > e3)
-        {
-            r = e1;
-            e1 = e3;
-            e3 = r;
-        }
-        
-        let a = (syy - e1) * (szz - e1) + syz * (sxy + szx - syz) - sxy * (szz - e1) - szx * (syy - e1);
-        let b = (szz - e1) * (sxx - e1) + szx * (syz + sxy - szx) - syz * (sxx - e1) - sxy * (szz - e1);
-        let c = (sxx - e1) * (syy - e1) + sxy * (szx + syz - sxy) - szx * (syy - e1) - syz * (sxx - e1);
-        if (c > 0)
-        {
-            a = -a;
-            b = -b;
-            c = -c;
-        }
-        let xp, yp, amp;
-        if ((c * c) > (a * a + b * b) * 1.0e-12)
-        {
-            xp = Math.atan2(b, a);
-            yp = (z0 + (x0 * a + y0 * b) / c);
-            amp = (-radius * (Math.hypot(a, b) / c));
-            return [xp, yp, amp];
-        }
-        else
-        {
-            return [];
-        }
-    }
-    
     let createPlaceholder = function slbg_createPlaceholder(width, height, textureName)
     {
         if (typeof PIXI.utils.TextureCache[textureName] === 'undefined')
@@ -530,7 +577,7 @@ let SLBG = (function ()
         let graphics = new PIXI.Graphics();
     
         let black = 0x000000;
-        let color = nameToColor(textureName);
+        let color = SUTILS.nameToColor(textureName);
         graphics.beginFill(color);
         graphics.lineStyle(1, black);
         
@@ -605,10 +652,6 @@ let SLBG = (function ()
                 });
         }
     }
-    
-    // survives redraw, not reset
-    let m_dipX = []
-    let m_dipY = []
     
     let setSpriteDipPicker = function slbg_setSpriteDipPicker(sprite)
     {
@@ -704,7 +747,7 @@ let SLBG = (function ()
                 //depthList.push(1);
                 //depthList.push(0);
                 //console.log(depthList);
-                let parameters = fitSinewave(aziList, depthList, 0.5);
+                let parameters = SUTILS.fitSinewave(aziList, depthList, 0.5);
                 //console.log(parameters);
                 if (parameters.length > 0)
                 {
@@ -745,13 +788,6 @@ let SLBG = (function ()
         m_layer.addChild(l_dipContainer);
     }
     
-    let resetData = function slbg_resetData()
-    {
-        m_dipX = [];
-        m_dipY = [];
-        
-    }
-    
     public.redraw = function slbg_redraw()
     {
         console.log('redraw');
@@ -779,6 +815,11 @@ let SLBG = (function ()
         if (id == 1)
         {
             drawImage("1-background", 0.0, 0.0, 1.0, -1);
+        }
+        if (id == 2)
+        {
+            drawImage("2-background", 0.0, 0.0, 1.0, 1.0);
+            
         }
         if (id == 3)
         {

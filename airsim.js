@@ -127,7 +127,7 @@ function OnReady()
         .add("0-button3", "img/button_Game2_WellPlacement.png")
         .add("0-button4", "img/button_Game3_DipPicking.png")
         .add("0-button5", "img/button_BonusGeology.png")
-        .add("1-background", "img/imageHistory.png")
+        .add("1-image", "img/imageHistory.png")
         .add("2-toolnext", "img/game1Photos/next.png")
         .add("2-toolprev", "img/game1Photos/prev.png")
         .add("2-match", "img/game1Photos/match.png")
@@ -153,7 +153,6 @@ function OnReady()
         .add("2-point", "img/game1Photos/point.png")
         .add("3-context", "img/game2Photos/game2_1_goal.png")
         .add("3-start", "img/game2Photos/start.png")
-        .add("3-next", "img/game2Photos/next.png")
         .add("3-main", "img/game2Photos/main.png")
         .add("31-left1", "img/game2Photos/game2_2_GR_left1.png")
         .add("31-left2", "img/game2Photos/game2_2_GR_left2.png")
@@ -180,6 +179,7 @@ function OnReady()
         .add("38-right2", "img/game2Photos/game2_2_KAI_drillDown_right2.png")
         .add("4-dipimage", "img/game3Photos/game3_dip_image.png")
         .add("4-aim", "img/game3Photos/aim.png")
+        .add("4-mark", "img/game3Photos/mark.png")
         .on("progress", LoaderProgressHandler)
         .load(LoaderSetup);
     
@@ -532,6 +532,7 @@ let SLBG = (function ()
     let m_toolDisplayedId = 0;
     let m_toolImageDisplayedId = 0;
     let m_toolScore = 0;
+    let m_dipscoretable;
     
     public.initialize = function slbg_initialize()
     {
@@ -828,9 +829,9 @@ let SLBG = (function ()
         m_layer.addChild(sprite);
     }
     
-    let drawTimedButton = function slbg_drawTimedButton(textureName, xp, yp, wp, hp, time, nextSceneId)
+    let drawTimedButton = function slbg_drawTimedButton(textureName, xp, yp, wp, hp, time, nextSceneId, keepratio)
     {
-        let sprite = createSprite(textureName, xp, yp, wp, hp);
+        let sprite = createSprite(textureName, xp, yp, wp, hp, keepratio);
         setSpriteTimedDisplay(sprite, time);
         setSpriteButton(sprite, nextSceneId);
         m_layer.addChild(sprite);
@@ -884,16 +885,16 @@ let SLBG = (function ()
         }
     }
     
-    let drawDipContainer = function slbg_drawDipContainter(textureName, xp, yp, wp, hp)
+    let drawDipContainer = function slbg_drawDipContainer(xp, yp, wp, hp)
     {
         let l_dipContainer = new PIXI.Container();
         
-        let sprite = createSprite(textureName, xp, yp, wp, hp);
+        let sprite = createSprite("4-dipimage", xp, yp, wp, hp, true);
         setSpriteDipPicker(sprite);
         setSpriteButton(sprite, 4);
         l_dipContainer.addChild(sprite);
         
-        let aim_sprite = createSprite("4-aim", 0, 0, -1, -1);
+        let aim_sprite = createSprite("4-aim", 0, 0, -1, -1, true);
         aim_sprite.visible = false;
         aim_sprite.pivot.x = aim_sprite.width / 2;
         aim_sprite.pivot.y = aim_sprite.height / 2;
@@ -910,6 +911,9 @@ let SLBG = (function ()
         if (dipCount > 0)
         {
             let graphics = new PIXI.Graphics();
+            graphics.lineStyle(1, 0x000000);
+            graphics.moveTo(0, 0);
+            graphics.lineTo(1, 1);
             for (let i = 0; i < dipCount; i++)
             {
                 let aziList = [];
@@ -937,16 +941,25 @@ let SLBG = (function ()
                     let A = parameters[2];
                     let baseBlockLineColor = 0x00FF00;
                     graphics.lineStyle(4, baseBlockLineColor);
-                    graphics.moveTo(0, 0);
                     let rez = 64;
                     for (let j = 0; j <= rez; j++)
                     {
+                        
                         let r = j / rez;
                         let y = A*Math.cos(r * 2 * Math.PI - P) + B;
                         y = Math.min(y, 1);
                         y = Math.max(y, 0);
-                        graphics.lineTo(r * sprite.width, y * sprite.height);
+                        if (j == 0)
+                        {
+                            graphics.moveTo(r * sprite.width, y * sprite.height);
+                        }
+                        else
+                        {
+                            graphics.lineTo(r * sprite.width, y * sprite.height);
+                        }
                     }
+                    
+                    m_dipscoretable.innerHTML = m_dipscoretable.innerHTML + "<br>" + JSON.stringify(parameters);
                 }
             }
             
@@ -961,6 +974,8 @@ let SLBG = (function ()
         for (let i = 0; i < m_dipX.length; i++)
         {
             let markSprite = createSprite("4-mark", 0, 0, -1, -1);
+            markSprite.pivot.x = markSprite.width / 2;
+            markSprite.pivot.y = markSprite.height / 2;
             markSprite.x = m_dipX[i] * sprite.width + sprite.x;
             markSprite.y = m_dipY[i] * sprite.height + sprite.y;
             l_dipContainer.addChild(markSprite);
@@ -995,7 +1010,8 @@ let SLBG = (function ()
         }
         if (id == 1)
         {
-            drawImage("1-background", 0.0, 0.0, 1.0, -1);
+            drawImage("1-background", 0.0, 0.0, 1.0, 1.0);
+            drawImage("1-image", 0.0, 0.0, 1.0, -1);
         }
         if (id == 2)
         {
@@ -1022,91 +1038,103 @@ let SLBG = (function ()
         }
         if (id == 3)
         {
+            drawImage("3-background", 0.0, 0.0, 1.0, 1.0);
             drawImage("3-context", 0.0, 0.3, 0.7, -1);
-            drawButton("3-start", 0.9, 0.7, -1, -1, 31);
+            drawButton("3-start", 0.8, 0.7, 0.1, 0.1, 31, true);
         }
         if (id == 31)
         {
+            drawImage("3-background", 0.0, 0.0, 1.0, 1.0);
             drawTimed("31-left1", 0.0, 0.2, 0.2, 0.2, 1000);
             drawTimed("31-left2", 0.2, 0.2, 0.1, 0.2, 2000);
             drawTimed("31-left3", 0.3, 0.2, 0.1, 0.2, 3000);
             drawTimed("31-left4", 0.4, 0.2, 0.1, 0.2, 4000);
-            drawTimedButton("31-drillup", 0.6, 0.2, 0.1, 0.05, 5000, 32);
-            drawTimedButton("31-drillahead", 0.6, 0.3, 0.1, 0.05, 5000, 33);
-            drawTimedButton("31-drilldown", 0.6, 0.4, 0.1, 0.05, 5000, 34);
+            drawTimedButton("31-drillup", 0.6, 0.2, 0.1, 0.1, 5000, 32, true);
+            drawTimedButton("31-drillahead", 0.6, 0.3, 0.1, 0.1, 5000, 33, true);
+            drawTimedButton("31-drilldown", 0.6, 0.4, 0.1, 0.1, 5000, 34, true);
         }
-        if (id == 32)
+        if (id == 32 || id == 33 || id == 34)
         {
+            drawImage("3-background", 0.0, 0.0, 1.0, 1.0);
             drawImage("31-left1", 0.0, 0.2, 0.2, 0.2);
             drawImage("31-left2", 0.2, 0.2, 0.1, 0.2);
             drawImage("31-left3", 0.3, 0.2, 0.1, 0.2);
             drawImage("31-left4", 0.4, 0.2, 0.1, 0.2);
-            drawTimed("32-right1", 0.5, 0.2, 0.1, 0.2, 1000);
-            drawTimed("32-right2", 0.6, 0.2, 0.1, 0.2, 2000);
-            drawTimed("32-summary", 0.0, 0.5, 0.7, 0.3, 3000);
-            drawTimedButton("3-next", 0.9, 0.7, -1, -1, 4000, 35);
-        }
-        if (id == 33)
-        {
-            drawImage("31-left1", 0.0, 0.2, 0.2, 0.2);
-            drawImage("31-left2", 0.2, 0.2, 0.1, 0.2);
-            drawImage("31-left3", 0.3, 0.2, 0.1, 0.2);
-            drawImage("31-left4", 0.4, 0.2, 0.1, 0.2);
-            drawTimed("33-right1", 0.5, 0.2, 0.1, 0.2, 1000);
-            drawTimed("33-right2", 0.6, 0.2, 0.1, 0.2, 2000);
-            drawTimed("33-summary", 0.0, 0.5, 0.7, 0.3, 3000);
-            drawTimedButton("3-next", 0.9, 0.7, -1, -1, 4000, 35);
-        }
-        if (id == 34)
-        {
-            drawImage("31-left1", 0.0, 0.2, 0.2, 0.2);
-            drawImage("31-left2", 0.2, 0.2, 0.1, 0.2);
-            drawImage("31-left3", 0.3, 0.2, 0.1, 0.2);
-            drawImage("31-left4", 0.4, 0.2, 0.1, 0.2);
-            drawTimed("34-right1", 0.5, 0.2, 0.1, 0.2, 1000);
-            drawTimed("34-right2", 0.6, 0.2, 0.1, 0.2, 2000);
-            drawTimed("34-summary", 0.0, 0.5, 0.7, 0.3, 3000);
-            drawTimedButton("3-next", 0.9, 0.7, -1, -1, 4000, 35);
+            if (id == 32)
+            {
+                drawTimed("32-right1", 0.5, 0.2, 0.1, 0.2, 1000);
+                drawTimed("32-right2", 0.6, 0.2, 0.1, 0.2, 2000);
+                drawTimed("32-summary", 0.0, 0.5, 0.7, 0.3, 3000);
+            }
+            if (id == 33)
+            {
+                drawTimed("33-right1", 0.5, 0.2, 0.1, 0.2, 1000);
+                drawTimed("33-right2", 0.6, 0.2, 0.1, 0.2, 2000);
+                drawTimed("33-summary", 0.0, 0.5, 0.7, 0.3, 3000);
+            }
+            if (id == 34)
+            {
+                drawTimed("34-right1", 0.5, 0.2, 0.1, 0.2, 1000);
+                drawTimed("34-right2", 0.6, 0.2, 0.1, 0.2, 2000);
+                drawTimed("34-summary", 0.0, 0.5, 0.7, 0.3, 3000);
+            }
+            drawTimedButton("3-start", 0.8, 0.7, 0.1, 0.1, 4000, 35, true);
         }
         if (id == 35)
         {
+            drawImage("3-background", 0.0, 0.0, 1.0, 1.0);
             drawTimed("35-left1", 0.0, 0.2, 0.2, 0.2, 1000);
             drawTimed("35-left2", 0.2, 0.2, 0.2, 0.2, 2000);
             drawTimed("35-left3", 0.4, 0.2, 0.1, 0.2, 3000);
-            drawTimedButton("31-drillup", 0.6, 0.2, 0.1, 0.05, 4000, 36);
-            //drawTimedButton("31-drillahead", 0.6, 0.3, 0.1, 0.05, 4000, 37);
-            drawTimedButton("31-drilldown", 0.6, 0.4, 0.1, 0.05, 4000, 38);
+            drawTimedButton("31-drillup", 0.6, 0.2, 0.1, 0.1, 4000, 36, true);
+            drawTimedButton("31-drillahead", 0.6, 0.3, 0.1, 0.1, 4000, 37, true);
+            drawTimedButton("31-drilldown", 0.6, 0.4, 0.1, 0.1, 4000, 38, true);
         }
-        if (id == 36)
+        if (id == 36 || id == 37 || id == 38)
         {
+            drawImage("3-background", 0.0, 0.0, 1.0, 1.0);
             drawImage("35-left1", 0.0, 0.2, 0.2, 0.2);
             drawImage("35-left2", 0.2, 0.2, 0.2, 0.2);
             drawImage("35-left3", 0.4, 0.2, 0.1, 0.2);
-            drawTimed("36-right1", 0.5, 0.2, 0.1, 0.2, 1000);
-            drawTimed("36-right2", 0.6, 0.2, 0.1, 0.2, 2000);
-            drawTimed("32-summary", 0.0, 0.5, 0.7, 0.3, 3000);
-            drawTimedButton("3-main", 0.9, 0.7, -1, -1, 4000, 0);
-        }
-        if (id == 37)
-        {
-            drawImage("35-left1", 0.0, 0.2, 0.2, 0.2);
-            drawImage("35-left2", 0.2, 0.2, 0.2, 0.2);
-            drawImage("35-left3", 0.4, 0.2, 0.1, 0.2);
-            drawTimedButton("3-main", 0.9, 0.7, -1, -1, 4000, 0);
-        }
-        if (id == 38)
-        {
-            drawImage("35-left1", 0.0, 0.2, 0.2, 0.2);
-            drawImage("35-left2", 0.2, 0.2, 0.2, 0.2);
-            drawImage("35-left3", 0.4, 0.2, 0.1, 0.2);
-            drawTimed("38-right1", 0.5, 0.2, 0.1, 0.2, 1000);
-            drawTimed("38-right2", 0.6, 0.2, 0.1, 0.2, 2000);
-            drawTimed("34-summary", 0.0, 0.5, 0.7, 0.3, 3000);
-            drawTimedButton("3-main", 0.9, 0.7, -1, -1, 4000, 0);
+            if (id == 36 || id == 37)
+            {
+                drawTimed("36-right1", 0.5, 0.2, 0.1, 0.2, 1000);
+                drawTimed("36-right2", 0.6, 0.2, 0.1, 0.2, 2000);
+                drawTimed("32-summary", 0.0, 0.5, 0.7, 0.3, 3000);
+            }
+            if (id == 38)
+            {
+                drawTimed("38-right1", 0.5, 0.2, 0.1, 0.2, 1000);
+                drawTimed("38-right2", 0.6, 0.2, 0.1, 0.2, 2000);
+                drawTimed("34-summary", 0.0, 0.5, 0.7, 0.3, 3000);
+            }
+            drawTimedButton("3-main", 0.8, 0.7, 0.1, 0.1, 4000, 0, true);
         }
         if (id == 4)
         {
-            drawDipContainer("4-dipimage", 0, 0.5, 1, 0.5);
+            if (document.getElementById("divscoretable"))
+            {
+                let l_element = document.getElementById("divscoretable");
+                l_element.parentNode.removeChild(l_element);
+            }
+            m_dipscoretable = document.createElement("div");
+            m_dipscoretable.setAttribute("id", "divscoretable");
+            m_dipscoretable.className = "scoretable";
+            m_dipscoretable.innerHTML = 0;
+            m_dipscoretable.style.position = "absolute";
+            m_dipscoretable.style.color = "#0ff";
+            m_dipscoretable.style.fontSize = "16px";
+            m_dipscoretable.style.userSelect = "none";
+            document.body.appendChild(m_dipscoretable);
+            
+            m_dipscoretable.style.left = 10 + "px";
+            m_dipscoretable.style.top = 300 + "px";
+            //m_dipscoretable.style.maxWidth = 180 + "px";
+            //m_dipscoretable.style.maxHeight = 180 + "px";
+            //m_dipscoretable.style.overflow = "scroll";
+            
+            drawImage("4-background", 0.0, 0.0, 1.0, 1.0);
+            drawDipContainer(0.5, 0.0, 0.5, 1);
         }
         drawButton("ui-home", 0.0, 0.9, 0.1, 0.1, 0, true);
         m_sceneId = id;

@@ -127,6 +127,22 @@ function OnReady()
         .add("0-button4", "img/button_Game3_DipPicking.png")
         .add("0-button5", "img/button_BonusGeology.png")
         .add("1-background", "img/imageHistory.png")
+        .add("2-tool0", "img/game1Photos/0_Tool.png")
+        .add("2-image0", "img/game1Photos/0_Image.png")
+        .add("2-tool1", "img/game1Photos/1_Tool.png")
+        .add("2-image1", "img/game1Photos/1_Image.png")
+        .add("2-tool2", "img/game1Photos/2_Tool.png")
+        .add("2-image2", "img/game1Photos/2_Image.png")
+        .add("2-tool3", "img/game1Photos/3_Tool.png")
+        .add("2-image3", "img/game1Photos/3_Image.png")
+        .add("2-tool4", "img/game1Photos/4_Tool.png")
+        .add("2-image4", "img/game1Photos/4_Image.png")
+        .add("2-tool5", "img/game1Photos/5_Tool.png")
+        .add("2-image5", "img/game1Photos/5_Image.png")
+        .add("2-tool6", "img/game1Photos/6_Tool.png")
+        .add("2-image6", "img/game1Photos/6_Image.png")
+        .add("2-tool7", "img/game1Photos/7_Tool.png")
+        .add("2-image7", "img/game1Photos/7_Image.png")
         .add("3-context", "img/game2Photos/game2_1_goal.png")
         .add("3-start", "img/game2Photos/start.png")
         .add("3-next", "img/game2Photos/next.png")
@@ -500,7 +516,7 @@ let SLBG = (function ()
     // survives redraw, not reset
     let m_dipX = [];
     let m_dipY = [];
-    let m_toolCount = 7;
+    let m_toolCount = 8;
     let m_toolImageRandomMap = [];
     let m_toolMatched = [];
     let m_toolImageMatched = [];
@@ -747,7 +763,7 @@ let SLBG = (function ()
     
     let drawGame1 = function slbg_drawGame1()
     {
-        console.log('t: ' + m_toolDisplayedId + ' i: ' + m_toolImageDisplayedId);
+        console.log('t: ' + m_toolDisplayedId + ' i: ' + m_toolImageDisplayedId + '[' + m_toolImageRandomMap[m_toolImageDisplayedId] + ']');
         
         let toolnext_sprite = createSprite("2-toolnext", 0.2, 0.8, 0.1, 0.1);
         setSpriteSwitchTool(toolnext_sprite, SUTILS.getNextIndex);
@@ -764,6 +780,9 @@ let SLBG = (function ()
         let imgprev_sprite = createSprite("2-toolprev", 0.7, 0.8, 0.1, 0.1);
         setSpriteSwitchImg(imgprev_sprite, SUTILS.getPrevIndex);
         m_layer.addChild(imgprev_sprite);
+        
+        drawImage("2-tool" + m_toolDisplayedId, 0.0, 0.3, 0.5, 0.5);
+        drawImage("2-image" + m_toolImageRandomMap[m_toolImageDisplayedId], 0.6, 0.1, 0.3, 0.6);
         
         let match_sprite = createSprite("2-match", 0.45, 0.8, 0.1, 0.1);
         m_layer.addChild(match_sprite);

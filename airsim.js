@@ -178,6 +178,9 @@ function OnReady()
         .add("38-right1", "img/game2Photos/game2_2_KAI_drillDown_right1.png")
         .add("38-right2", "img/game2Photos/game2_2_KAI_drillDown_right2.png")
         .add("4-dipimage", "img/game3Photos/game3_dip_image.png")
+        .add("4-dipimage_full", "img/game3Photos/game3_dip_image_full.png")
+        .add("4-dipheader", "img/game3Photos/game3_dip_header.png")
+        .add("4-dipdepth", "img/game3Photos/game3_dip_depth.png")
         .add("4-aim", "img/game3Photos/aim.png")
         .add("4-mark", "img/game3Photos/mark.png")
         .on("progress", LoaderProgressHandler)
@@ -508,6 +511,86 @@ let SUTILS = (function ()
         return getRainbowColor(n);
     }
     
+    let dip_depth_table = [2360.092000,2360.208000,2360.300000,2360.425000,2360.558000,2360.700000,2360.825000,2360.942000,2361.108000,2361.267000,2361.433000,2361.717000,2361.750000,2362.108000,2362.267000,2362.400000,2362.575000,2362.750000,2362.975000,2363.167000,2363.342000,2363.475000,2363.583000,2363.675000,2363.775000,2363.867000,2363.983000,2364.117000,2364.208000,2364.292000,2364.383000,2364.592000,2364.675000,2364.833000,2364.967000];
+    let dip_height_table = [0.283435,0.205088,0.208695,0.300243,0.301227,0.293410,0.299182,0.327653,0.325819,0.307200,0.378530,0.702550,0.730865,0.677122,0.644125,0.631517,0.467219,0.537138,0.438361,0.397693,0.229141,0.231525,0.117363,0.136657,0.125361,0.114838,0.113531,0.183960,0.153030,0.225059,0.149239,0.229046,0.208401,0.263997,0.186661];
+    let dip_azimuth_table = [81.285550,84.769740,78.347720,78.635280,96.332200,87.827410,87.169810,83.146750,79.402400,85.596690,82.582200,50.149700,48.448620,48.490910,52.198620,50.463540,48.222520,45.961640,46.407650,70.879350,87.063340,98.733040,105.076400,88.342370,99.293810,99.535710,93.774850,76.618960,69.384690,72.621620,73.538770,65.436920,69.948070,68.634110,78.814250];
+    let findDepthIndex = function sutils_findDepthIndex(candidate_depth)
+    {
+        let dipCount = dip_depth_table.length;
+        for (let i = 0; i < dipCount; i++)
+        {
+            let depth = dip_depth_table[i];
+            if (depth >= candidate_depth)
+            {
+                return i;
+            }
+            if (depth < candidate_depth)
+            {
+                if (i == dipCount - 1)
+                {
+                    return i;
+                }
+                let next_depth = dip_depth_table[i + 1];
+                if (next_depth <= candidate_depth)
+                {
+                    continue;
+                }
+                return i + (candidate_depth - depth) / (next_depth - depth);
+            }
+        }
+        return dipCount - 1;
+    }
+    
+    let findDipHeightDifference = function sutils_findDipHeightDifference(ifraction, candidate_height)
+    {
+        let maxIndex = dip_height_table.length;
+        let ratio = ifraction - Math.floor(ifraction);
+        let index = Math.floor(ifraction);
+        let nextIndex = Math.floor(ifraction) + 1;
+        let target_height;
+        if (nextIndex >= maxIndex)
+        {
+            target_height = dip_height_table[index];
+        }
+        else
+        {
+            target_height = (dip_height_table[nextIndex] - dip_height_table[index]) * ratio + dip_height_table[index];
+        }
+        return Math.abs(target_height - candidate_height);
+    }
+    
+    let findAzimuthDifference = function sutils_findAzimuthDifference(ifraction, candidate_azimuth)
+    {
+        let maxIndex = dip_azimuth_table.length;
+        let ratio = ifraction - Math.floor(ifraction);
+        let index = Math.floor(ifraction);
+        let nextIndex = Math.floor(ifraction) + 1;
+        let target_height;
+        if (nextIndex >= maxIndex)
+        {
+            target_azimuth = dip_azimuth_table[index];
+        }
+        else
+        {
+            target_azimuth = (dip_azimuth_table[nextIndex] - dip_azimuth_table[index]) * ratio + dip_azimuth_table[index];
+        }
+        if (target_azimuth < candidate_azimuth)
+        {
+            let t = target_azimuth;
+            target_azimuth = candidate_azimuth;
+            candidate_azimuth = t;
+        }
+        let diff = Math.min(target_azimuth - candidate_azimuth, Math.abs(target_azimuth - candidate_azimuth - 360));
+        return diff;
+    }
+    
+    public.getDipScore = function sutils_getDipScore(candidate_depth, candidate_height, candidate_azimuth)
+    {
+        let ifraction = findDepthIndex(candidate_depth);
+        let score = 5 - 6*findDipHeightDifference(ifraction, candidate_height) - findAzimuthDifference(ifraction, candidate_azimuth) / 30;
+        return Math.max(score, 0);
+    }
+    
     return public;
 })();
 
@@ -555,6 +638,12 @@ let SLBG = (function ()
         m_toolDisplayedId = 0;
         m_toolImageDisplayedId = 0;
         m_toolScore = 0;
+        
+        if (document.getElementById("divscoretable"))
+        {
+            let l_element = document.getElementById("divscoretable");
+            l_element.parentNode.removeChild(l_element);
+        }
     }
     
     let m_redrawFrame = -1;
@@ -907,6 +996,9 @@ let SLBG = (function ()
         }
         l_dipContainer.addChild(aim_sprite);
         
+        m_dipscoretable.innerHTML = '<table border=1 id="itable"><tbody><tr><th>#</th><th>Depth (ft)</th><th>Dip height (ft)</th><th>Azimuth (deg)</th><th>Score / 5</th></tr></tbody></table>';
+        l_table = document.getElementById("itable");
+        
         let dipCount = Math.floor(m_dipX.length / 3);
         if (dipCount > 0)
         {
@@ -939,6 +1031,10 @@ let SLBG = (function ()
                     let P = parameters[0];
                     let B = parameters[1];
                     let A = parameters[2];
+                    let tP = ((Math.floor((P / Math.PI * 180) * 100) + 36000) % 36000) / 100;
+                    let tB = Math.floor((B * (2365.1 - 2359.9) + 2359.9 ) * 100) / 100;
+                    let tA = Math.floor((A * 2 * (2365.1 - 2359.9)) * 100) / 100;
+                    
                     let baseBlockLineColor = 0x00FF00;
                     graphics.lineStyle(4, baseBlockLineColor);
                     let rez = 64;
@@ -959,7 +1055,12 @@ let SLBG = (function ()
                         }
                     }
                     
-                    m_dipscoretable.innerHTML = m_dipscoretable.innerHTML + "<br>" + JSON.stringify(parameters);
+                    let row = l_table.insertRow(i + 1);
+                    let cell1 = row.insertCell(0); cell1.innerHTML = i + 1;
+                    let cell2 = row.insertCell(1); cell2.innerHTML = tB;
+                    let cell3 = row.insertCell(2); cell3.innerHTML = tA;
+                    let cell4 = row.insertCell(3); cell4.innerHTML = tP;
+                    let cell5 = row.insertCell(4); cell5.innerHTML = SUTILS.getDipScore(tB, tA, tP);
                 }
             }
             
@@ -1120,7 +1221,7 @@ let SLBG = (function ()
             m_dipscoretable = document.createElement("div");
             m_dipscoretable.setAttribute("id", "divscoretable");
             m_dipscoretable.className = "scoretable";
-            m_dipscoretable.innerHTML = 0;
+            m_dipscoretable.innerHTML = "";
             m_dipscoretable.style.position = "absolute";
             m_dipscoretable.style.color = "#0ff";
             m_dipscoretable.style.fontSize = "16px";

@@ -1,5 +1,7 @@
 let Benchmark = require('benchmark');
 
+let SHOW_DEBUG = false;
+
 'use strict';
 
 (function ()
@@ -112,7 +114,10 @@ function OnReady()
     console.log("touch " + g_interactionManager.supportsTouchEvents);
     g_interactionManager.moveWhenInside = true;
 
-    document.body.appendChild(g_stats.domElement);
+    if (SHOW_DEBUG)
+    {
+        document.body.appendChild(g_stats.domElement);
+    }
 
     window.onresize = Resize;
     Resize();
@@ -200,7 +205,10 @@ function InitializeDebugOverlay()
     g_debugOverlay.style.color = "#0ff";
     g_debugOverlay.style.fontSize = "16px";
     g_debugOverlay.style.userSelect = "none";
-    document.body.appendChild(g_debugOverlay);
+    if (SHOW_DEBUG)
+    {
+        document.body.appendChild(g_debugOverlay);
+    }
 
     g_debugOverlay.style.left = 0 + "px";
     g_debugOverlay.style.top = 58 + "px";
@@ -215,7 +223,10 @@ function InitializeDebugOverlay()
     g_counter.style.color = "#0ff";
     g_counter.style.fontSize = "16px";
     g_counter.style.userSelect = "none";
-    document.body.appendChild(g_counter);
+    if (SHOW_DEBUG)
+    {
+        document.body.appendChild(g_counter);
+    }
 
     g_counter.style.left = 100 + "px";
     g_counter.style.top = 0 + "px";

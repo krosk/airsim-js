@@ -128,6 +128,7 @@ function OnReady()
         .add("0-button4", "img/button_Game3_DipPicking.png")
         .add("0-button5", "img/button_BonusGeology.png")
         .add("1-image", "img/imageHistory.png")
+        .add("2-background", "img/game2Photos/game2_background.png")
         .add("2-toolnext", "img/game1Photos/next.png")
         .add("2-toolprev", "img/game1Photos/prev.png")
         .add("2-match", "img/game1Photos/match.png")
@@ -154,29 +155,20 @@ function OnReady()
         .add("3-context", "img/game2Photos/game2_1_goal.png")
         .add("3-start", "img/game2Photos/start.png")
         .add("3-main", "img/game2Photos/main.png")
-        .add("31-left1", "img/game2Photos/game2_2_GR_left1.png")
-        .add("31-left2", "img/game2Photos/game2_2_GR_left2.png")
-        .add("31-left3", "img/game2Photos/game2_2_GR_left3.png")
-        .add("31-left4", "img/game2Photos/game2_2_GR_left4.png")
-        .add("31-drillup", "img/game2Photos/drillup.png")
+        .add("3-background", "img/game2Photos/game2_background.png")
+        .add("31-left1", "img/game2Photos/game2_2_left.png")
+        .add("31-left2", "img/game2Photos/game2_left1_white.png")
+        .add("31-left3", "img/game2Photos/game2_left2_white.png")
         .add("31-drillahead", "img/game2Photos/drillahead.png")
         .add("31-drilldown", "img/game2Photos/drilldown.png")
-        .add("32-right1", "img/game2Photos/game2_2_GR_drillUp_right1.png")
-        .add("32-right2", "img/game2Photos/game2_2_GR_drillUp_right2.png")
-        .add("32-summary", "img/game2Photos/game2_2_drillUpFinal.png")
-        .add("33-right1", "img/game2Photos/game2_2_GR_goAhead_right1.png")
-        .add("33-right2", "img/game2Photos/game2_2_GR_goAhead_right2.png")
-        .add("33-summary", "img/game2Photos/game2_2_drillUpFinal.png")
-        .add("34-right1", "img/game2Photos/game2_2_GR_drillDown_right1.png")
-        .add("34-right2", "img/game2Photos/game2_2_GR_drillDown_right2.png")
-        .add("34-summary", "img/game2Photos/game2_2_drillDownFinal.png")
-        .add("35-left1", "img/game2Photos/game2_2_KAI_left1.png")
-        .add("35-left2", "img/game2Photos/game2_2_KAI_left2.png")
-        .add("35-left3", "img/game2Photos/game2_2_KAI_left3.png")
-        .add("36-right1", "img/game2Photos/game2_2_KAI_drillUp_right1.png")
-        .add("36-right2", "img/game2Photos/game2_2_KAI_drillUp_right2.png")
-        .add("38-right1", "img/game2Photos/game2_2_KAI_drillDown_right1.png")
-        .add("38-right2", "img/game2Photos/game2_2_KAI_drillDown_right2.png")
+        .add("32-right1", "img/game2Photos/game2_2_Ahead_right.png")
+        .add("32-right2", "img/game2Photos/game2_right_white.png")
+        //.add("32-summary", "img/game2Photos/game2_2_drillUpFinal.png")
+        .add("33-right1", "img/game2Photos/game2_2_drillDown_right.png")
+        .add("33-right2", "img/game2Photos/game2_right_white.png")
+        //.add("33-summary", "img/game2Photos/game2_2_drillDownFinal.png")
+        .add("34-overlay", "img/game2Photos/game2_3_layout.png")
+        .add("4-background", "img/game2Photos/game2_background.png")
         .add("4-dipimage", "img/game3Photos/game3_dip_image.png")
         .add("4-dipimage_full", "img/game3Photos/game3_dip_image_full.png")
         .add("4-dipheader", "img/game3Photos/game3_dip_header.png")
@@ -1140,58 +1132,51 @@ let SLBG = (function ()
         if (id == 3)
         {
             drawImage("3-background", 0.0, 0.0, 1.0, 1.0);
-            drawImage("3-context", 0.0, 0.3, 0.7, -1);
+            drawImage("3-context", 0.0, 0.2, 0.7, -1);
             drawButton("3-start", 0.8, 0.7, 0.1, 0.1, 31, true);
         }
         if (id == 31)
         {
             drawImage("3-background", 0.0, 0.0, 1.0, 1.0);
-            drawTimed("31-left1", 0.0, 0.2, 0.2, 0.2, 1000);
-            drawTimed("31-left2", 0.2, 0.2, 0.1, 0.2, 2000);
-            drawTimed("31-left3", 0.3, 0.2, 0.1, 0.2, 3000);
-            drawTimed("31-left4", 0.4, 0.2, 0.1, 0.2, 4000);
-            drawTimedButton("31-drillup", 0.6, 0.2, 0.1, 0.1, 5000, 32, true);
-            drawTimedButton("31-drillahead", 0.6, 0.3, 0.1, 0.1, 5000, 33, true);
-            drawTimedButton("31-drilldown", 0.6, 0.4, 0.1, 0.1, 5000, 34, true);
+            drawTimed("31-left1", 0.0, 0.2, 0.6, 0.6, 1000);
+            drawTimed("31-left2", 0.3, 0.2, 0.3, 0.6, 1000);
+            drawTimed("31-left1", 0.0, 0.2, 0.6, 0.6, 2000);
+            drawTimed("31-left3", 0.5, 0.2, 0.1, 0.6, 2000);
+            drawTimed("31-left1", 0.0, 0.2, 0.6, 0.6, 3000);
+            drawTimedButton("31-drillahead", 0.6, 0.3, 0.1, 0.1, 4000, 32, true);
+            drawTimedButton("31-drilldown", 0.6, 0.4, 0.1, 0.1, 4000, 33, true);
         }
-        if (id == 32 || id == 33 || id == 34)
+        if (id == 32 || id == 33)
         {
             drawImage("3-background", 0.0, 0.0, 1.0, 1.0);
-            drawImage("31-left1", 0.0, 0.2, 0.2, 0.2);
-            drawImage("31-left2", 0.2, 0.2, 0.1, 0.2);
-            drawImage("31-left3", 0.3, 0.2, 0.1, 0.2);
-            drawImage("31-left4", 0.4, 0.2, 0.1, 0.2);
-            if (id == 32)
-            {
-                drawTimed("32-right1", 0.5, 0.2, 0.1, 0.2, 1000);
-                drawTimed("32-right2", 0.6, 0.2, 0.1, 0.2, 2000);
-                drawTimed("32-summary", 0.0, 0.5, 0.7, 0.3, 3000);
+            drawImage("31-left1", 0.0, 0.2, 0.6, 0.6);
+            if (id == 32) {
+                drawTimed("32-right1", 0.6, 0.2, 0.3, 0.616, 1000);
+                drawTimed("32-right2", 0.7, 0.2, 0.2, 0.4, 1000);
+                drawTimed("32-right1", 0.6, 0.2, 0.3, 0.616, 2000);
+                //drawTimed("32-summary", 0.0, 0.5, 0.7, 0.3, 3000);
+                drawTimedButton("3-start", 0.9, 0.7, 0.1, 0.1, 3000, 34, true);
             }
-            if (id == 33)
-            {
-                drawTimed("33-right1", 0.5, 0.2, 0.1, 0.2, 1000);
-                drawTimed("33-right2", 0.6, 0.2, 0.1, 0.2, 2000);
-                drawTimed("33-summary", 0.0, 0.5, 0.7, 0.3, 3000);
+            if (id == 33) {
+                drawTimed("33-right1", 0.6, 0.2, 0.3, 0.6, 1000);
+                drawTimed("33-right2", 0.7, 0.2, 0.2, 0.4, 1000);
+                drawTimed("33-right1", 0.6, 0.2, 0.3, 0.6, 2000);
+                //drawTimed("33-summary", 0.0, 0.5, 0.7, 0.3, 3000);
+                drawTimedButton("3-start", 0.9, 0.7, 0.1, 0.1, 3000, 34, true);
             }
-            if (id == 34)
-            {
-                drawTimed("34-right1", 0.5, 0.2, 0.1, 0.2, 1000);
-                drawTimed("34-right2", 0.6, 0.2, 0.1, 0.2, 2000);
-                drawTimed("34-summary", 0.0, 0.5, 0.7, 0.3, 3000);
-            }
-            drawTimedButton("3-start", 0.8, 0.7, 0.1, 0.1, 4000, 35, true);
         }
-        if (id == 35)
+           
+        if (id == 34)
         {
             drawImage("3-background", 0.0, 0.0, 1.0, 1.0);
-            drawTimed("35-left1", 0.0, 0.2, 0.2, 0.2, 1000);
-            drawTimed("35-left2", 0.2, 0.2, 0.2, 0.2, 2000);
-            drawTimed("35-left3", 0.4, 0.2, 0.1, 0.2, 3000);
-            drawTimedButton("31-drillup", 0.6, 0.2, 0.1, 0.1, 4000, 36, true);
-            drawTimedButton("31-drillahead", 0.6, 0.3, 0.1, 0.1, 4000, 37, true);
-            drawTimedButton("31-drilldown", 0.6, 0.4, 0.1, 0.1, 4000, 38, true);
+            drawImage("34-overlay", 0.0, 0.2, 0.8, 0.8);
+           // drawTimed("35-left2", 0.2, 0.2, 0.2, 0.2, 2000);
+            //drawTimed("35-left3", 0.4, 0.2, 0.1, 0.2, 3000);
+            //drawTimedButton("31-drillup", 0.6, 0.2, 0.1, 0.1, 4000, 36, true);
+           // drawTimedButton("31-drillahead", 0.6, 0.3, 0.1, 0.1, 4000, 37, true);
+           // drawTimedButton("31-drilldown", 0.6, 0.4, 0.1, 0.1, 4000, 38, true);
         }
-        if (id == 36 || id == 37 || id == 38)
+        /*if (id == 36 || id == 37 || id == 38)
         {
             drawImage("3-background", 0.0, 0.0, 1.0, 1.0);
             drawImage("35-left1", 0.0, 0.2, 0.2, 0.2);
@@ -1202,15 +1187,18 @@ let SLBG = (function ()
                 drawTimed("36-right1", 0.5, 0.2, 0.1, 0.2, 1000);
                 drawTimed("36-right2", 0.6, 0.2, 0.1, 0.2, 2000);
                 drawTimed("32-summary", 0.0, 0.5, 0.7, 0.3, 3000);
+
             }
             if (id == 38)
             {
                 drawTimed("38-right1", 0.5, 0.2, 0.1, 0.2, 1000);
                 drawTimed("38-right2", 0.6, 0.2, 0.1, 0.2, 2000);
                 drawTimed("34-summary", 0.0, 0.5, 0.7, 0.3, 3000);
+
             }
             drawTimedButton("3-main", 0.8, 0.7, 0.1, 0.1, 4000, 0, true);
         }
+        */
         if (id == 4)
         {
             if (document.getElementById("divscoretable"))

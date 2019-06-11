@@ -172,7 +172,7 @@ function OnReady()
         .add("4-start", "img/game2Photos/start.png")
         .add("4-instructions", "img/game3Photos/game3_instructions.png")
         .add("4-dipimage", "img/game3Photos/game3_dip_image.png")
-        .add("4-dipimage_full", "img/game3Photos/game3_dip_image_full.png")
+        .add("4-dipimage_solution", "img/game3Photos/game3_dip_image_solution.png")
         .add("4-dipheader", "img/game3Photos/game3_dip_header.png")
         .add("4-dipdepth", "img/game3Photos/game3_dip_depth.png")
         .add("4-aim", "img/game3Photos/aim.png")
@@ -872,9 +872,9 @@ let SLBG = (function ()
         m_layer.addChild(sprite);
     }
     
-    let drawTimed = function slbg_drawTimed(textureName, xp, yp, wp, hp, time)
+    let drawTimed = function slbg_drawTimed(textureName, xp, yp, wp, hp, time, keepratio)
     {
-        let sprite = createSprite(textureName, xp, yp, wp, hp);
+        let sprite = createSprite(textureName, xp, yp, wp, hp, keepratio);
         setSpriteTimedDisplay(sprite, time);
         m_layer.addChild(sprite);
     }
@@ -947,16 +947,33 @@ let SLBG = (function ()
         if (m_sceneId == 41)
         {
             m_dipstiming -= dt;
-            if (m_dipstiming < 0)
+            if (m_dipstiming > 0)
             {
-                m_dipstiming = 0
+                l_timer = document.getElementById("itimer");
+                l_timer.innerHTML = 'Remaining time: ' + Math.floor(m_dipstiming / 1000) + 's'
             }
-            
+            else
+            {
+                m_sceneId = 42
+                public.redraw();
+            }
+        }
+        else if (m_sceneId == 42)
+        {
             l_timer = document.getElementById("itimer");
-            if (l_timer !== null)
-            {
-                l_timer.innerHTML = 'Remaining time: ' + Math.floor(m_dipstiming / 1000) + 's</p>'
-            }
+            l_timer.innerHTML = 'Time is up!</p>'
+        }
+    }
+    
+    let drawGame3Score = function slbg_drawGame3Score(dipCount, dipScore)
+    {
+        if (m_dipstiming <= 0)
+        {
+            l_score = document.getElementById("iscore");
+            l_score.innerHTML = "You picked " + dipCount + " dips in 30 seconds.";
+            l_score.innerHTML += "<br>Your total score is " + Math.floor(dipScore * 10) / 10 + ".";
+            l_score.innerHTML += "<br>";
+            l_score.innerHTML += "<br>AutoDipPicking, an Interpretation Engineering Answer Product, picked 34 dips in 1 second."
         }
     }
     
@@ -964,27 +981,37 @@ let SLBG = (function ()
     {
         let l_dipContainer = new PIXI.Container();
         
-        let sprite = createSprite("4-dipimage", xp, yp, wp, hp, true);
+        let sprite = createSprite("4-dipimage", xp, yp, wp, hp);
         setSpriteDipPicker(sprite);
-        setSpriteButton(sprite, 41);
+        
+        if (m_sceneId == 41)
+        {
+            setSpriteButton(sprite, m_sceneId);
+        }
         l_dipContainer.addChild(sprite);
         
-        let aim_sprite = createSprite("4-aim", 0, 0, -1, -1, true);
-        aim_sprite.visible = false;
-        aim_sprite.pivot.x = aim_sprite.width / 2;
-        aim_sprite.pivot.y = aim_sprite.height / 2;
-        if (m_dipX.length > 0 && m_dipY.length > 0)
+        if (m_sceneId == 41)
         {
-            aim_sprite.x = m_dipX[m_dipX.length - 1] * sprite.width + sprite.x;
-            aim_sprite.y = m_dipY[m_dipY.length - 1] * sprite.height + sprite.y;
-            aim_sprite.visible = true;
+            let aim_sprite = createSprite("4-aim", 0, 0, -1, -1, true);
+            aim_sprite.visible = false;
+            aim_sprite.pivot.x = aim_sprite.width / 2;
+            aim_sprite.pivot.y = aim_sprite.height / 2;
+            if (m_dipX.length > 0 && m_dipY.length > 0)
+            {
+                aim_sprite.x = m_dipX[m_dipX.length - 1] * sprite.width + sprite.x;
+                aim_sprite.y = m_dipY[m_dipY.length - 1] * sprite.height + sprite.y;
+                aim_sprite.visible = true;
+            }
+            l_dipContainer.addChild(aim_sprite);
         }
-        l_dipContainer.addChild(aim_sprite);
         
         m_dipscoretable.innerHTML = '<p id="itimer"></p>';
         m_dipscoretable.innerHTML += '<table border=1 id="itable"><tbody><tr><th>#</th><th>Depth (ft)</th><th>Dip height (ft)</th><th>Azimuth (deg)</th><th>Score / 5</th></tr></tbody></table>';
+        m_dipscoretable.innerHTML += '<p id="iscore"></p>';
         l_table = document.getElementById("itable");
         l_table.style.color = "#003366"
+        
+        let dipScore = 0;
         
         let dipCount = Math.floor(m_dipX.length / 3);
         if (dipCount > 0)
@@ -1009,10 +1036,10 @@ let SLBG = (function ()
                     let P = parameters[0];
                     let B = parameters[1];
                     let A = parameters[2];
-                    let tP = ((Math.floor((P / Math.PI * 180) * 100) + 36000) % 36000) / 100;
-                    let tB = Math.floor((B * (2365.1 - 2359.9) + 2359.9 ) * 100) / 100;
-                    let tA = Math.floor((A * 2 * (2365.1 - 2359.9)) * 100) / 100;
-                    let tS = Math.floor(SUTILS.getDipScore(tB, tA, tP) * 100) / 100;
+                    let tP = ((Math.floor((P / Math.PI * 180) * 10) + 36000) % 36000) / 10;
+                    let tB = Math.floor((B * (2365.1 - 2359.9) + 2359.9 ) * 10) / 10;
+                    let tA = Math.floor((A * 2 * (2365.1 - 2359.9)) * 10) / 10;
+                    let tS = Math.floor(SUTILS.getDipScore(tB, tA, tP) * 10) / 10;
                     
                     let baseBlockLineColor = 0x00FF00;
                     graphics.lineStyle(4, baseBlockLineColor);
@@ -1040,6 +1067,7 @@ let SLBG = (function ()
                     let cell3 = row.insertCell(2); cell3.innerHTML = tA;
                     let cell4 = row.insertCell(3); cell4.innerHTML = tP;
                     let cell5 = row.insertCell(4); cell5.innerHTML = tS;
+                    dipScore += tS;
                 }
                 else
                 {
@@ -1060,17 +1088,27 @@ let SLBG = (function ()
             l_dipContainer.addChild(line_sprite);
         }
         
-        for (let i = 0; i < m_dipX.length; i++)
+        if (m_sceneId == 41)
         {
-            let markSprite = createSprite("4-mark", 0, 0, -1, -1);
-            markSprite.pivot.x = markSprite.width / 2;
-            markSprite.pivot.y = markSprite.height / 2;
-            markSprite.x = m_dipX[i] * sprite.width + sprite.x;
-            markSprite.y = m_dipY[i] * sprite.height + sprite.y;
-            l_dipContainer.addChild(markSprite);
+            for (let i = 0; i < m_dipX.length; i++)
+            {
+                let markSprite = createSprite("4-mark", 0, 0, -1, -1);
+                markSprite.pivot.x = markSprite.width / 2;
+                markSprite.pivot.y = markSprite.height / 2;
+                markSprite.x = m_dipX[i] * sprite.width + sprite.x;
+                markSprite.y = m_dipY[i] * sprite.height + sprite.y;
+                l_dipContainer.addChild(markSprite);
+            }
         }
         
         m_layer.addChild(l_dipContainer);
+        
+        drawGame3Score(dipCount, dipScore);
+        
+        if (m_sceneId == 42)
+        {
+            drawImage("4-dipimage_solution", 0.75, 0.0, 0.25, 1.0);
+        }
     }
     
     public.redraw = function slbg_redraw()
@@ -1086,6 +1124,7 @@ let SLBG = (function ()
         {
             return;
         }
+        m_sceneId = id;
         m_layer.removeChildren();
         if (id == 0)
         {
@@ -1201,7 +1240,7 @@ let SLBG = (function ()
             drawImage("4-instructions", 0.5, 0.1, 0.5, -1);
             drawButton("4-start", 0.8, 0.7, 0.1, 0.1, 41, true);
         }
-        if (id == 41)
+        if (id == 41 || id == 42)
         {
             if (document.getElementById("divscoretable"))
             {
@@ -1220,16 +1259,16 @@ let SLBG = (function ()
             document.body.appendChild(m_dipscoretable);
             
             m_dipscoretable.style.left = 10 + "px";
-            m_dipscoretable.style.top = 300 + "px";
-            //m_dipscoretable.style.maxWidth = 180 + "px";
-            //m_dipscoretable.style.maxHeight = 180 + "px";
-            //m_dipscoretable.style.overflow = "scroll";
+            m_dipscoretable.style.top = 20 + "%";
+            m_dipscoretable.style.width = 45 + "%";
+            m_dipscoretable.style.maxHeight = 70 + "%";
+            m_dipscoretable.style.overflow = "auto";
             
             drawImage("4-background", 0.0, 0.0, 1.0, 1.0);
-            drawDipContainer(0.5, 0.0, 0.5, 1);
+            drawDipContainer(0.5, 0.0, 0.25, 1.0);
         }
         drawButton("ui-home", 0.0, 0.9, 0.1, 0.1, 0, true);
-        m_sceneId = id;
+        
     }
     
     let updateDebug = function slbg_updateDebug()

@@ -169,6 +169,8 @@ function OnReady()
         //.add("33-summary", "img/game2Photos/game2_2_drillDownFinal.png")
         .add("34-overlay", "img/game2Photos/game2_3_layout.png")
         .add("4-background", "img/game2Photos/game2_background.png")
+        .add("4-start", "img/game2Photos/start.png")
+        .add("4-instructions", "img/game3Photos/game3_instructions.png")
         .add("4-dipimage", "img/game3Photos/game3_dip_image.png")
         .add("4-dipimage_full", "img/game3Photos/game3_dip_image_full.png")
         .add("4-dipheader", "img/game3Photos/game3_dip_header.png")
@@ -579,6 +581,7 @@ let SLBG = (function ()
     let m_toolImageDisplayedId = 0;
     let m_toolScore = 0;
     let m_dipscoretable;
+    let m_dipstiming = 0;
     
     public.initialize = function slbg_initialize()
     {
@@ -601,6 +604,7 @@ let SLBG = (function ()
         m_toolDisplayedId = 0;
         m_toolImageDisplayedId = 0;
         m_toolScore = 0;
+        m_dipstiming = 30000;
         
         if (document.getElementById("divscoretable"))
         {
@@ -632,6 +636,7 @@ let SLBG = (function ()
         let computeTimeLimit = time + m_computeTimeBudget;
         
         updateDebug();
+        updateGame3Timer(dt);
         
         if (m_redrawFrame < g_redrawFrame)
         {
@@ -937,13 +942,26 @@ let SLBG = (function ()
         }
     }
     
+    let updateGame3Timer = function slbg_updateGame3Timer(dt)
+    {
+        if (m_sceneId == 41)
+        {
+            m_dipstiming -= dt;
+            l_timer = document.getElementById("itimer");
+            if (l_timer !== null)
+            {
+                l_timer.innerHTML = 'Remaining time: ' + Math.floor(m_dipstiming / 1000) + 's</p>'
+            }
+        }
+    }
+    
     let drawDipContainer = function slbg_drawDipContainer(xp, yp, wp, hp)
     {
         let l_dipContainer = new PIXI.Container();
         
         let sprite = createSprite("4-dipimage", xp, yp, wp, hp, true);
         setSpriteDipPicker(sprite);
-        setSpriteButton(sprite, 4);
+        setSpriteButton(sprite, 41);
         l_dipContainer.addChild(sprite);
         
         let aim_sprite = createSprite("4-aim", 0, 0, -1, -1, true);
@@ -952,15 +970,16 @@ let SLBG = (function ()
         aim_sprite.pivot.y = aim_sprite.height / 2;
         if (m_dipX.length > 0 && m_dipY.length > 0)
         {
-            //console.log('x:' + m_dipX[m_dipX.length - 1] + ' y:' + m_dipY[m_dipY.length - 1]);
             aim_sprite.x = m_dipX[m_dipX.length - 1] * sprite.width + sprite.x;
             aim_sprite.y = m_dipY[m_dipY.length - 1] * sprite.height + sprite.y;
             aim_sprite.visible = true;
         }
         l_dipContainer.addChild(aim_sprite);
         
-        m_dipscoretable.innerHTML = '<table border=1 id="itable"><tbody><tr><th>#</th><th>Depth (ft)</th><th>Dip height (ft)</th><th>Azimuth (deg)</th><th>Score / 5</th></tr></tbody></table>';
+        m_dipscoretable.innerHTML = '<p id="itimer"></p>';
+        m_dipscoretable.innerHTML += '<table border=1 id="itable"><tbody><tr><th>#</th><th>Depth (ft)</th><th>Dip height (ft)</th><th>Azimuth (deg)</th><th>Score / 5</th></tr></tbody></table>';
         l_table = document.getElementById("itable");
+        l_table.style.color = "#003366"
         
         let dipCount = Math.floor(m_dipX.length / 3);
         if (dipCount > 0)
@@ -975,20 +994,11 @@ let SLBG = (function ()
                 aziList.push(m_dipX[i*3 + 0] * 2 * Math.PI);
                 aziList.push(m_dipX[i*3 + 1] * 2 * Math.PI);
                 aziList.push(m_dipX[i*3 + 2] * 2 * Math.PI);
-                //aziList.push(1*Math.PI/4);
-                //aziList.push(3*Math.PI/4);
-                //aziList.push(5*Math.PI/4);
-                //console.log(aziList);
                 let depthList = []
                 depthList.push(m_dipY[i*3 + 0]);
                 depthList.push(m_dipY[i*3 + 1]);
                 depthList.push(m_dipY[i*3 + 2]);
-                //depthList.push(0);
-                //depthList.push(1);
-                //depthList.push(0);
-                //console.log(depthList);
                 let parameters = SUTILS.fitSinewave(aziList, depthList, 0.5);
-                //console.log(parameters);
                 if (parameters.length > 0)
                 {
                     let P = parameters[0];
@@ -997,6 +1007,7 @@ let SLBG = (function ()
                     let tP = ((Math.floor((P / Math.PI * 180) * 100) + 36000) % 36000) / 100;
                     let tB = Math.floor((B * (2365.1 - 2359.9) + 2359.9 ) * 100) / 100;
                     let tA = Math.floor((A * 2 * (2365.1 - 2359.9)) * 100) / 100;
+                    let tS = Math.floor(SUTILS.getDipScore(tB, tA, tP) * 100) / 100;
                     
                     let baseBlockLineColor = 0x00FF00;
                     graphics.lineStyle(4, baseBlockLineColor);
@@ -1023,7 +1034,16 @@ let SLBG = (function ()
                     let cell2 = row.insertCell(1); cell2.innerHTML = tB;
                     let cell3 = row.insertCell(2); cell3.innerHTML = tA;
                     let cell4 = row.insertCell(3); cell4.innerHTML = tP;
-                    let cell5 = row.insertCell(4); cell5.innerHTML = SUTILS.getDipScore(tB, tA, tP);
+                    let cell5 = row.insertCell(4); cell5.innerHTML = tS;
+                }
+                else
+                {
+                    let row = l_table.insertRow(i + 1);
+                    let cell1 = row.insertCell(0); cell1.innerHTML = i + 1;
+                    let cell2 = row.insertCell(1); cell2.innerHTML = 'invalid';
+                    let cell3 = row.insertCell(2); cell3.innerHTML = 'invalid';
+                    let cell4 = row.insertCell(3); cell4.innerHTML = 'invalid';
+                    let cell5 = row.insertCell(4); cell5.innerHTML = 0;
                 }
             }
             
@@ -1172,6 +1192,12 @@ let SLBG = (function ()
         */
         if (id == 4)
         {
+            drawImage("4-background", 0.0, 0.0, 1.0, 1.0);
+            drawImage("4-instructions", 0.5, 0.1, 0.5, -1);
+            drawButton("4-start", 0.8, 0.7, 0.1, 0.1, 41, true);
+        }
+        if (id == 41)
+        {
             if (document.getElementById("divscoretable"))
             {
                 let l_element = document.getElementById("divscoretable");
@@ -1182,8 +1208,9 @@ let SLBG = (function ()
             m_dipscoretable.className = "scoretable";
             m_dipscoretable.innerHTML = "";
             m_dipscoretable.style.position = "absolute";
-            m_dipscoretable.style.color = "#0ff";
-            m_dipscoretable.style.fontSize = "16px";
+            m_dipscoretable.style.color = "#003366";
+            m_dipscoretable.style.fontSize = "30px";
+            m_dipscoretable.style.fontFamily = "arial narrow"
             m_dipscoretable.style.userSelect = "none";
             document.body.appendChild(m_dipscoretable);
             

@@ -1017,7 +1017,7 @@ let SLBG = (function ()
         }
         
         m_dipscoretable.innerHTML = '<p id="itimer"></p>';
-        m_dipscoretable.innerHTML += '<table border=1 id="itable"><tbody><tr><th>#</th><th>Depth (ft)</th><th>Dip height (ft)</th><th>Azimuth (deg)</th><th>Score / 5</th></tr></tbody></table>';
+        m_dipscoretable.innerHTML += '<table border=1 id="itable"><tbody><tr><th>#</th><th>Depth (ft)</th><th>Dip (deg)</th><th>Azimuth (deg)</th><th>Score / 5</th></tr></tbody></table>';
         m_dipscoretable.innerHTML += '<p id="iscore"></p>';
         l_table = document.getElementById("itable");
         l_table.style.color = "#003366"
@@ -1049,8 +1049,11 @@ let SLBG = (function ()
                     let A = parameters[2];
                     let tP = ((Math.floor((P / Math.PI * 180) * 10) + 36000) % 36000) / 10;
                     let tB = Math.floor((B * (2365.1 - 2359.9) + 2359.9 ) * 10) / 10;
-                    let tA = Math.floor((A * 2 * (2365.1 - 2359.9)) * 10) / 10;
-                    let tS = Math.floor(SUTILS.getDipScore(tB, tA, tP) * 10) / 10;
+                    let rA = (A * 2 * (2365.1 - 2359.9));
+                    let rC = 0.80625
+                    let rD = Math.atan2(rA, rC) / Math.PI * 180
+                    let tA = Math.floor(rD * 10) / 10;
+                    let tS = Math.floor(SUTILS.getDipScore(tB, rA, tP) * 10) / 10;
                     
                     let baseBlockLineColor = 0x00FF00;
                     graphics.lineStyle(4, baseBlockLineColor);

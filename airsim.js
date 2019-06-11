@@ -947,6 +947,11 @@ let SLBG = (function ()
         if (m_sceneId == 41)
         {
             m_dipstiming -= dt;
+            if (m_dipstiming < 0)
+            {
+                m_dipstiming = 0
+            }
+            
             l_timer = document.getElementById("itimer");
             if (l_timer !== null)
             {

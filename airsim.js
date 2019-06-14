@@ -125,7 +125,9 @@ function OnReady()
     g_app.ticker.add(Update);
 
     PIXI.loader
+        .add("ui-logo-srpc", "img/ui-logo-srpc.png")
         .add("ui-home", "img/ui-home.png")
+        .add("ui-copyright", "img/ui-copyright.png")
         .add("0-background", "img/backgroundLayer.jpg")
         .add("0-button1", "img/button_SRPCImageHistory.png")
         .add("0-button2", "img/button_ToolImages.png")
@@ -731,7 +733,12 @@ let SLBG = (function ()
     
     let createSprite = function slbg_createSprite(textureName, xp, yp, wp, hp, keepratio)
     {
+        // note: xp, yp for corner pixel; abs of wp, hp for size; sign of xp, yp for if null, then not taking it into account
         //console.log('createSprite ' + textureName);
+        let wpa = Math.abs(wp);
+        let hpa = Math.abs(hp);
+        let xpa = Math.abs(xp);
+        let ypa = Math.abs(yp);
         if (typeof PIXI.utils.TextureCache[textureName] === 'undefined')
         {
             console.log('missing texture for ' + textureName);
@@ -746,36 +753,44 @@ let SLBG = (function ()
         let sprite = new PIXI.Sprite(textureCache);
         
         let ratio = textureCache.width / textureCache.height;
-        if (wp <= 0 && hp <= 0)
+        if (wp == null && hp == null)
         {
             sprite.height = textureCache.height;
             sprite.width = textureCache.width;
         }
-        else if (wp <= 0)
+        else if (wp == null)
         {
-            sprite.height = hp * getLayerHeight();
-            sprite.width = hp * getLayerHeight() * ratio;
+            sprite.height = hpa * getLayerHeight();
+            sprite.width = hpa * getLayerHeight() * ratio;
         }
-        else if (hp <= 0)
+        else if (hp == null)
         {
-            sprite.width = wp * getLayerWidth();
-            sprite.height = wp * getLayerWidth() / ratio;
+            sprite.width = wpa * getLayerWidth();
+            sprite.height = wpa * getLayerWidth() / ratio;
         }
         else if (keepratio)
         {
-            sprite.height = Math.min(hp * getLayerHeight(), wp * getLayerWidth() / ratio);
-            sprite.width = Math.min(wp * getLayerWidth(), hp * getLayerHeight() * ratio);
+            sprite.height = Math.min(hpa * getLayerHeight(), wpa * getLayerWidth() / ratio);
+            sprite.width = Math.min(wpa * getLayerWidth(), hpa * getLayerHeight() * ratio);
         }
         else
         {
-            sprite.height = hp * getLayerHeight();
-            sprite.width = wp * getLayerWidth();
+            sprite.height = hpa * getLayerHeight();
+            sprite.width = wpa * getLayerWidth();
         }
         
         sprite.height = Math.round(sprite.height);
         sprite.width = Math.round(sprite.width);
-        sprite.x = Math.round(xp * getLayerWidth());
-        sprite.y = Math.round(yp * getLayerHeight());
+        sprite.x = Math.round(xpa * getLayerWidth());
+        sprite.y = Math.round(ypa * getLayerHeight());
+        if (xp < 0)
+        {
+            sprite.x = sprite.x - sprite.width;
+        }
+        if (yp < 0)
+        {
+            sprite.y = sprite.y - sprite.height;
+        }
         
         return sprite;
     }
@@ -1038,7 +1053,7 @@ let SLBG = (function ()
         
         if (m_sceneId == 41)
         {
-            let aim_sprite = createSprite("4-aim", 0, 0, -1, -1, true);
+            let aim_sprite = createSprite("4-aim", 0, 0, null, null, true);
             aim_sprite.visible = false;
             aim_sprite.pivot.x = aim_sprite.width / 2;
             aim_sprite.pivot.y = aim_sprite.height / 2;
@@ -1141,7 +1156,7 @@ let SLBG = (function ()
         {
             for (let i = 0; i < m_dipX.length; i++)
             {
-                let markSprite = createSprite("4-mark", 0, 0, -1, -1);
+                let markSprite = createSprite("4-mark", 0, 0, null, null);
                 markSprite.pivot.x = markSprite.width / 2;
                 markSprite.pivot.y = markSprite.height / 2;
                 markSprite.x = m_dipX[i] * sprite.width + sprite.x;
@@ -1190,7 +1205,7 @@ let SLBG = (function ()
         if (id == 1)
         {
             drawImage("2-background", 0.0, 0.0, 1.0, 1.0);
-            drawImage("1-image", 0.0, 0.2, 1.0, -1);
+            drawImage("1-image", 0.0, 0.2, 1.0, null);
         }
         if (id == 2)
         {
@@ -1218,7 +1233,7 @@ let SLBG = (function ()
         if (id == 3)
         {
             drawImage("3-background", 0.0, 0.0, 1.0, 1.0);
-            drawImage("3-context", 0.0, 0.2, 0.7, -1);
+            drawImage("3-context", 0.0, 0.2, 0.7, null);
             drawButton("3-start", 0.8, 0.7, 0.1, 0.1, 31, true);
         }
         if (id == 31)
@@ -1307,7 +1322,7 @@ let SLBG = (function ()
 
             drawImage("3-backgroundAdv", 0.0, 0.0, 1.0, 1.0);
             drawImage("34-initial", 0.2, 0.25, 0.3, 0.7);
-            drawButton("3-startAdv", 0.0, 0.5, -1, -1, 34);
+            drawButton("3-startAdv", 0.0, 0.5, null, null, 34);
 
             computeToolResponse(m_welldirection, m_welldls, m_wellitd);
             
@@ -1316,7 +1331,7 @@ let SLBG = (function ()
         if (id == 4)
         {
             drawImage("4-background", 0.0, 0.0, 1.0, 1.0);
-            drawImage("4-instructions", 0.5, 0.1, 0.5, -1);
+            drawImage("4-instructions", 0.5, 0.1, 0.5, null);
             drawButton("4-start", 0.8, 0.7, 0.1, 0.1, 41, true);
         }
         if (id == 41 || id == 42)
@@ -1346,7 +1361,9 @@ let SLBG = (function ()
             drawImage("4-background", 0.0, 0.0, 1.0, 1.0);
             drawDipContainer(0.5, 0.0, 0.25, 1.0);
         }
-        drawButton("ui-home", 0.0, 0.9, 0.1, 0.1, 0, true);
+        drawImage("ui-logo-srpc", 0.0, 0.0, 1.0, 0.1, true);
+        drawImage("ui-copyright", -1.0, -1.0, 0.9, 0.1, true);
+        drawButton("ui-home", 0.0, -1.0, 0.1, 0.1, 0, true);
         
     }
     

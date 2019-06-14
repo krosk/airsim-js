@@ -628,7 +628,14 @@ let SLBG = (function ()
             let l_element = document.getElementById("divscoretable");
             l_element.parentNode.removeChild(l_element);
         }
-        
+        if (document.getElementById("divvideo"))
+        {
+            let l_element = document.getElementById("divvideo");
+            l_element.hidden = true;
+            let l_video  = document.getElementById("ivideo");
+            l_video.pause();
+            l_video.currentTime = 0;
+        }
         if (document.getElementById("controlTable"))
         {
             let l_element = document.getElementById("controlTable");
@@ -1202,7 +1209,7 @@ let SLBG = (function ()
             drawButton("0-button2", 0.15, 0.32, 0.7, 0.1, 2, true);
             drawButton("0-button3", 0.15, 0.44, 0.7, 0.1, 3, true);
             drawButton("0-button4", 0.15, 0.56, 0.7, 0.1, 4, true);
-            drawButton("0-button5", 0.15, 0.68, 0.7, 0.1, 4, true);
+            drawButton("0-button5", 0.15, 0.68, 0.7, 0.1, 5, true);
             resetData();
         }
         if (id == 1)
@@ -1365,10 +1372,47 @@ let SLBG = (function ()
             
             drawDipContainer(0.5, 0.0, 0.25, 1.0);
         }
+        if (id == 5)
+        {
+            drawImage("0-button5", -1.0, 0.0, 0.6, 0.1, true);
+            if (document.getElementById("divvideo"))
+            {
+                let l_element = document.getElementById("divvideo");
+                l_element.hidden = false;
+                let l_video = document.getElementById("ivideo");
+                l_video.play();
+            }
+            else
+            {
+                let l_videodiv = document.createElement("div");
+                l_videodiv.setAttribute("id", "divvideo");
+                l_videodiv.style.position = "absolute";
+                l_videodiv.style.top = "10%";
+                l_videodiv.style.width = "95%";
+                l_videodiv.style.textAlign = "center";
+                l_videodiv.hidden = false;
+                l_video = document.createElement("video");
+                l_video.setAttribute("id", "ivideo");
+                // video ratio is 1440:1080, keeping max ratio
+                let vratio = 1440 / 1080;
+                l_video.width = Math.min(getLayerWidth(), getLayerHeight() * 0.8 * vratio);
+                l_video.height = Math.min(getLayerHeight() * 0.8, getLayerWidth() / vratio);
+                l_video.innerHTML = "browser cannot read"
+                l_video.style.color = "#000000";
+                l_video.style.fontFamily = "arial narrow"
+                l_video.autoplay = true;
+                l_video.controls = true;
+                l_source = document.createElement("source");
+                l_source.src = "img/OneClickBHVoice.mp4";
+                l_source.type = "video/mp4";
+                l_video.appendChild(l_source);
+                l_videodiv.appendChild(l_video);
+                document.body.appendChild(l_videodiv);
+            }
+        }
         drawImage("ui-logo-srpc", 0.0, 0.0, 0.3, 0.1, true);
         drawImage("ui-copyright", -1.0, -1.0, 0.9, 0.1, true);
         drawButton("ui-home", 0.0, -1.0, 0.1, 0.1, 0, true);
-        
     }
     
     let allowNumRangeDLS = function slbg_allownums(a)

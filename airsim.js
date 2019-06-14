@@ -128,14 +128,15 @@ function OnReady()
         .add("ui-logo-srpc", "img/ui-logo-srpc.png")
         .add("ui-home", "img/ui-home.png")
         .add("ui-copyright", "img/ui-copyright.png")
+        .add("ui-background", "img/ui-background.png")
+        .add("0-logo", "img/0-logo.png")
         .add("0-background", "img/backgroundLayer.jpg")
         .add("0-button1", "img/button_SRPCImageHistory.png")
-        .add("0-button2", "img/button_ToolImages.png")
+        .add("0-button2", "img/button_Game1_ToolImages.png")
         .add("0-button3", "img/button_Game2_WellPlacement.png")
         .add("0-button4", "img/button_Game3_DipPicking.png")
         .add("0-button5", "img/button_BonusGeology.png")
         .add("1-image", "img/imageHistory.png")
-        .add("2-background", "img/game2Photos/game2_background.png")
         .add("2-toolnext", "img/game1Photos/next.png")
         .add("2-toolprev", "img/game1Photos/prev.png")
         .add("2-match", "img/game1Photos/match.png")
@@ -1192,53 +1193,55 @@ let SLBG = (function ()
         }
         m_sceneId = id;
         m_layer.removeChildren();
+        drawImage("ui-background", 0.0, 0.0, 1.0, 1.0);
         if (id == 0)
         {
-            drawImage("0-background", 0.0, 0.0, 1.0, 1.0);
-            drawButton("0-button1", 0.2, 0.2, 0.6, 0.1, 1);
-            drawButton("0-button2", 0.2, 0.35, 0.6, 0.1, 2);
-            drawButton("0-button3", 0.2, 0.5, 0.6, 0.1, 3);
-            drawButton("0-button4", 0.2, 0.65, 0.6, 0.1, 4);
-            drawButton("0-button5", 0.2, 0.8, 0.6, 0.1, 4);
+            
+            drawImage("0-logo", -1.0, 0.0, 0.6, 0.1, true);
+            drawButton("0-button1", 0.15, 0.2, 0.7, 0.1, 1, true);
+            drawButton("0-button2", 0.15, 0.32, 0.7, 0.1, 2, true);
+            drawButton("0-button3", 0.15, 0.44, 0.7, 0.1, 3, true);
+            drawButton("0-button4", 0.15, 0.56, 0.7, 0.1, 4, true);
+            drawButton("0-button5", 0.15, 0.68, 0.7, 0.1, 4, true);
             resetData();
         }
         if (id == 1)
         {
-            drawImage("2-background", 0.0, 0.0, 1.0, 1.0);
-            drawImage("1-image", 0.0, 0.2, 1.0, null);
+            drawImage("0-button1", -1.0, 0.0, 0.6, 0.1, true);
+            drawImage("1-image", 0.0, 0.1, 1.0, 0.8, true);
         }
         if (id == 2)
         {
-            drawImage("2-background", 0.0, 0.0, 1.0, 1.0);
+            drawImage("0-button2", -1.0, 0.0, 0.6, 0.1, true);
             drawGame1();
         }
         if (id == 20)
         {
-            drawImage("2-background", 0.0, 0.0, 1.0, 1.0);
+            drawImage("0-button2", -1.0, 0.0, 0.6, 0.1, true);
             drawGame1();
             drawTimeout("2-right", 0.2, 0.4, 0.6, 0.2, 1000);
         }
         if (id == 21)
         {
-            drawImage("2-background", 0.0, 0.0, 1.0, 1.0);
+            drawImage("0-button2", -1.0, 0.0, 0.6, 0.1, true);
             drawGame1();
             drawTimeout("2-wrong", 0.2, 0.4, 0.6, 0.2, 1000);
         }
         if (id == 22)
         {
-            drawImage("2-background", 0.0, 0.0, 1.0, 1.0);
+            drawImage("0-button2", -1.0, 0.0, 0.6, 0.1, true);
             drawImage("2-finish", 0.2, 0.4, 0.6, 0.2);
             drawGame1Score();
         }
         if (id == 3)
         {
-            drawImage("3-background", 0.0, 0.0, 1.0, 1.0);
+            drawImage("0-button3", -1.0, 0.0, 0.6, 0.1, true);
             drawImage("3-context", 0.0, 0.2, 0.7, null);
             drawButton("3-start", 0.8, 0.7, 0.1, 0.1, 31, true);
         }
         if (id == 31)
         {
-            drawImage("3-background", 0.0, 0.0, 1.0, 1.0);
+            drawImage("0-button3", -1.0, 0.0, 0.6, 0.1, true);
             drawTimed("31-left1", 0.0, 0.2, 0.6, 0.6, 1000);
             drawTimed("31-left2", 0.3, 0.2, 0.3, 0.6, 1000);
             drawTimed("31-left1", 0.0, 0.2, 0.6, 0.6, 2000);
@@ -1249,7 +1252,7 @@ let SLBG = (function ()
         }
         if (id == 32 || id == 33)
         {
-            drawImage("3-background", 0.0, 0.0, 1.0, 1.0);
+            drawImage("0-button3", -1.0, 0.0, 0.6, 0.1, true);
             drawImage("31-left1", 0.0, 0.2, 0.6, 0.6);
             if (id == 32) {
                 drawTimed("32-right1", 0.6, 0.2, 0.3, 0.616, 1000);
@@ -1269,6 +1272,7 @@ let SLBG = (function ()
            
         if (id == 34)
         {
+            drawImage("0-button3", -1.0, 0.0, 0.6, 0.1, true);
             if (document.getElementById("controlTable"))
             {
 
@@ -1330,12 +1334,13 @@ let SLBG = (function ()
         
         if (id == 4)
         {
-            drawImage("4-background", 0.0, 0.0, 1.0, 1.0);
+            drawImage("0-button4", -1.0, 0.0, 0.6, 0.1, true);
             drawImage("4-instructions", 0.5, 0.1, 0.5, null);
             drawButton("4-start", 0.8, 0.7, 0.1, 0.1, 41, true);
         }
         if (id == 41 || id == 42)
         {
+            drawImage("0-button4", -1.0, 0.0, 0.6, 0.1, true);
             if (document.getElementById("divscoretable"))
             {
                 let l_element = document.getElementById("divscoretable");
@@ -1358,10 +1363,9 @@ let SLBG = (function ()
             m_dipscoretable.style.maxHeight = 70 + "%";
             m_dipscoretable.style.overflow = "auto";
             
-            drawImage("4-background", 0.0, 0.0, 1.0, 1.0);
             drawDipContainer(0.5, 0.0, 0.25, 1.0);
         }
-        drawImage("ui-logo-srpc", 0.0, 0.0, 1.0, 0.1, true);
+        drawImage("ui-logo-srpc", 0.0, 0.0, 0.3, 0.1, true);
         drawImage("ui-copyright", -1.0, -1.0, 0.9, 0.1, true);
         drawButton("ui-home", 0.0, -1.0, 0.1, 0.1, 0, true);
         

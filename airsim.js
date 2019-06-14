@@ -139,6 +139,9 @@ function OnReady()
         .add("1-image", "img/imageHistory.png")
         .add("2-toolnext", "img/game1Photos/next.png")
         .add("2-toolprev", "img/game1Photos/prev.png")
+        .add("2-instruction1", "img/game1Photos/instruction_1.png")
+        .add("2-instruction2", "img/game1Photos/instruction_2.png")
+        .add("2-instruction3", "img/game1Photos/instruction_3.png")
         .add("2-match", "img/game1Photos/match.png")
         .add("2-tool0", "img/game1Photos/0_Tool.png")
         .add("2-image0", "img/game1Photos/0_Image.png")
@@ -948,33 +951,39 @@ let SLBG = (function ()
     {
         console.log('t: ' + m_toolDisplayedId + ' i: ' + m_toolImageDisplayedId + '[' + m_toolImageRandomMap[m_toolImageDisplayedId] + ']' + ' s: ' + m_toolScore);
         
-        let toolnext_sprite = createSprite("2-toolnext", 0.2, 0.8, 0.1, 0.1, true);
+        let toolnext_sprite = createSprite("2-toolnext", 0.2, -0.8, 0.1, 0.1, true);
         setSpriteSwitchTool(toolnext_sprite, SUTILS.getNextIndex);
         m_layer.addChild(toolnext_sprite);
         
-        let toolprev_sprite = createSprite("2-toolprev", 0.1, 0.8, 0.1, 0.1, true);
+        drawImage("2-instruction1", 0.1, 0.8, 0.2, 0.1, true);
+        
+        let toolprev_sprite = createSprite("2-toolprev", 0.1, -0.8, 0.1, 0.1, true);
         setSpriteSwitchTool(toolprev_sprite, SUTILS.getPrevIndex);
         m_layer.addChild(toolprev_sprite);
         
-        let imgnext_sprite = createSprite("2-toolnext", 0.8, 0.8, 0.1, 0.1, true);
+        let imgnext_sprite = createSprite("2-toolnext", 0.8, -0.8, 0.1, 0.1, true);
         setSpriteSwitchImg(imgnext_sprite, SUTILS.getNextIndex);
         m_layer.addChild(imgnext_sprite);
         
-        let imgprev_sprite = createSprite("2-toolprev", 0.7, 0.8, 0.1, 0.1, true);
+        drawImage("2-instruction2", -0.9, 0.8, 0.2, 0.1, true);
+        
+        let imgprev_sprite = createSprite("2-toolprev", 0.7, -0.8, 0.1, 0.1, true);
         setSpriteSwitchImg(imgprev_sprite, SUTILS.getPrevIndex);
         m_layer.addChild(imgprev_sprite);
         
-        drawImage("2-tool" + m_toolDisplayedId, 0.0, 0.3, 0.5, 0.5);
-        drawImage("2-image" + m_toolImageRandomMap[m_toolImageDisplayedId], 0.6, 0.1, 0.3, 0.6);
+        drawImage("2-tool" + m_toolDisplayedId, 0.0, -0.7, 0.45, 0.6);
+        drawImage("2-image" + m_toolImageRandomMap[m_toolImageDisplayedId], -0.95, 0.1, 0.3, 0.6);
         
         for (let i = 0; i < m_toolScore; i++)
         {
-            drawImage("2-point", 0.3 + 0.03 * i, 0.05, 0.03, 0.03, true);
+            drawImage("2-point", 0.5 + Math.floor(i / 12) * 0.05, 0.1 + (i % 12) * 0.05, 0.03, 0.03, true);
         }
         
-        let match_sprite = createSprite("2-match", 0.45, 0.8, 0.1, 0.1, true);
+        let match_sprite = createSprite("2-match", 0.45, -0.8, 0.1, 0.1, true);
         setSpriteMatch(match_sprite);
         m_layer.addChild(match_sprite);
+        
+        drawImage("2-instruction3", 0.35, 0.8, 0.3, 0.1, true);
     }
     
     let drawGame1Score = function slbg_drawGame1Score()
@@ -993,7 +1002,8 @@ let SLBG = (function ()
             if (m_dipstiming > 0)
             {
                 l_timer = document.getElementById("itimer");
-                l_timer.innerHTML = 'Remaining time: ' + Math.floor(m_dipstiming / 1000) + 's'
+                l_timer.innerHTML = 'Remaining time: ' + Math.floor(m_dipstiming / 1000) + 's';
+                l_timer.style.fontSize = "4vw"
             }
             else
             {
@@ -1005,6 +1015,7 @@ let SLBG = (function ()
         {
             l_timer = document.getElementById("itimer");
             l_timer.innerHTML = 'Time is up!</p>'
+            l_timer.style.fontSize = "4vw"
         }
     }
     
@@ -1015,6 +1026,10 @@ let SLBG = (function ()
             l_score = document.getElementById("iscore");
             l_score.innerHTML = "You picked " + dipCount + " dips in 30 seconds.";
             l_score.innerHTML += "<br>Your total score is " + Math.floor(dipScore * 10) / 10 + ".";
+            if (dipCount > 0)
+            {
+                l_score.innerHTML += "<br>Your average score is " + Math.floor(dipScore / dipCount * 10) / 10 + ".";
+            }
             l_score.innerHTML += "<br>";
             l_score.innerHTML += "<br>AutoDipPicking, an Interpretation Engineering Answer Product, picked 34 dips in 1 second."
         }
@@ -1079,6 +1094,7 @@ let SLBG = (function ()
         m_dipscoretable.innerHTML += '<p id="iscore"></p>';
         l_table = document.getElementById("itable");
         l_table.style.color = "#003366"
+        l_table.style.fontSize = "2vw";
         
         let dipScore = 0;
         
@@ -1113,7 +1129,7 @@ let SLBG = (function ()
                     let tA = Math.floor(rD * 10) / 10;
                     let tS = Math.floor(SUTILS.getDipScore(tB, rA, tP) * 10) / 10;
                     
-                    let baseBlockLineColor = 0x00FF00;
+                    let baseBlockLineColor = 0x0000FF;
                     graphics.lineStyle(4, baseBlockLineColor);
                     let rez = 64;
                     for (let j = 0; j <= rez; j++)
@@ -1179,7 +1195,7 @@ let SLBG = (function ()
         
         if (m_sceneId == 42)
         {
-            drawImage("4-dipimage_solution", 0.75, 0.0, 0.25, 1.0);
+            drawImage("4-dipimage_solution", 0.75, 0.1, 0.25, 0.8);
         }
     }
 
@@ -1342,8 +1358,8 @@ let SLBG = (function ()
         if (id == 4)
         {
             drawImage("0-button4", -1.0, 0.0, 0.6, 0.1, true);
-            drawImage("4-instructions", 0.5, 0.1, 0.5, null);
-            drawButton("4-start", 0.8, 0.7, 0.1, 0.1, 41, true);
+            drawImage("4-instructions", 0.0, 0.1, 1.0, 0.7, true);
+            drawButton("4-start", 0.45, 0.8, 0.1, 0.1, 41, true);
         }
         if (id == 41 || id == 42)
         {
@@ -1359,18 +1375,18 @@ let SLBG = (function ()
             m_dipscoretable.innerHTML = "";
             m_dipscoretable.style.position = "absolute";
             m_dipscoretable.style.color = "#003366";
-            m_dipscoretable.style.fontSize = "30px";
+            m_dipscoretable.style.fontSize = "2vw";
             m_dipscoretable.style.fontFamily = "arial narrow"
             m_dipscoretable.style.userSelect = "none";
             document.body.appendChild(m_dipscoretable);
             
-            m_dipscoretable.style.left = 10 + "px";
-            m_dipscoretable.style.top = 20 + "%";
-            m_dipscoretable.style.width = 45 + "%";
-            m_dipscoretable.style.maxHeight = 70 + "%";
+            m_dipscoretable.style.left = "10px";
+            m_dipscoretable.style.top = "20%";
+            m_dipscoretable.style.width = "45%";
+            m_dipscoretable.style.maxHeight = "70%";
             m_dipscoretable.style.overflow = "auto";
             
-            drawDipContainer(0.5, 0.0, 0.25, 1.0);
+            drawDipContainer(0.5, 0.1, 0.25, 0.8);
         }
         if (id == 5)
         {

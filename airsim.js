@@ -158,12 +158,12 @@ function OnReady()
         .add("31-drilldown", "img/game2Photos/drilldown.png")
         .add("32-right1", "img/game2Photos/game2_2_Ahead_right.png")
         .add("32-right2", "img/game2Photos/game2_right_white.png")
-        //.add("32-summary", "img/game2Photos/game2_2_drillUpFinal.png")
         .add("33-right1", "img/game2Photos/game2_2_drillDown_right.png")
         .add("33-right2", "img/game2Photos/game2_right_white.png")
-        //.add("33-summary", "img/game2Photos/game2_2_drillDownFinal.png")
-        .add("34-overlay", "img/game2Photos/game2_3_layout.png")
-        .add("34-initial", "img/game2Photos/game2_3_initial.png")
+        .add("34-interp1", "img/game2Photos/interpreteImage60deg.png")
+        .add("34-interp2", "img/game2Photos/interpreteImage45deg.png")
+        .add("34-interp3", "img/game2Photos/interpreteImage0deg.png")
+        .add("34-simulation", "img/game2Photos/game2_simulation.png")
         .add("4-background", "img/game2Photos/game2_background.png")
         .add("4-start", "img/game2Photos/start.png")
         .add("4-instructions", "img/game3Photos/game3_instructions.png")
@@ -1017,31 +1017,6 @@ let SLBG = (function ()
         }
     }
 
-    let validForm = function slbg_validForm() {
-        //get drop down value
-        var e = document.getElementById("dropDown");
-        var result = e.options[e.selectedIndex].value;
-        alert(result); //ID002
-        vform = new validForm();
-        var x = document.forms["DLS"]["fnameDLS"].value;
-        if (x == "") {
-            alert("DLS not entered. Use 0 deg as default");
-            return false;
-        }
-
-        var y = document.forms["ITD"]["fnameITD"].value;
-        if (x == "") {
-            alert("Interval to Drill not entered. Use 30m as default");
-            return false;
-        }
-        console.log(x);
-        console.log(y);
-    }
-
-    let m_controlTable;
-    let m_welldirection;
-    let m_welldls;
-    let m_wellitd;
 
     let drawDipContainer = function slbg_drawDipContainer(xp, yp, wp, hp)
     {
@@ -1241,7 +1216,7 @@ let SLBG = (function ()
         if (id == 3)
         {
             drawImage("0-button3", -1.0, 0.0, 0.6, 0.1, true);
-            drawImage("3-context", 0.0, 0.2, 0.7, null);
+            drawImage("3-context", 0.0, 0.1, 0.7, null);
             drawButton("3-start", 0.8, 0.7, 0.1, 0.1, 31, true);
         }
         if (id == 31)
@@ -1263,14 +1238,12 @@ let SLBG = (function ()
                 drawTimed("32-right1", 0.6, 0.2, 0.3, 0.616, 1000);
                 drawTimed("32-right2", 0.7, 0.2, 0.2, 0.4, 1000);
                 drawTimed("32-right1", 0.6, 0.2, 0.3, 0.616, 2000);
-                //drawTimed("32-summary", 0.0, 0.5, 0.7, 0.3, 3000);
                 drawTimedButton("3-startAdv", 0.9, 0.7, 0.1, 0.1, 3000, 34, true);
             }
             if (id == 33) {
                 drawTimed("33-right1", 0.6, 0.2, 0.3, 0.6, 1000);
                 drawTimed("33-right2", 0.7, 0.2, 0.2, 0.4, 1000);
                 drawTimed("33-right1", 0.6, 0.2, 0.3, 0.6, 2000);
-                //drawTimed("33-summary", 0.0, 0.5, 0.7, 0.3, 3000);
                 drawTimedButton("3-startAdv", 0.9, 0.7, 0.1, 0.1, 3000, 34, true);
             }
         }
@@ -1278,63 +1251,19 @@ let SLBG = (function ()
         if (id == 34)
         {
             drawImage("0-button3", -1.0, 0.0, 0.6, 0.1, true);
-            if (document.getElementById("controlTable"))
-            {
-
-                //get drop down value
-                l_ddirection = document.getElementById("dropDown");
-                m_welldirection = l_ddirection.options[l_ddirection.selectedIndex].value;
-              
-                console.log(m_welldirection);
-
-                l_dls = document.getElementById("iddls");
-                m_welldls = l_dls.value;
-                allowNumRangeDLS(m_welldls);
-                console.log(m_welldls);
-                
-                l_itd = document.getElementById("iditd");
-                m_wellitd = l_itd.value;
-                allowNumRangeDIT(m_wellitd);
-                console.log(m_wellitd);
-               
-                let l_element = document.getElementById("controlTable");
-                l_element.parentNode.removeChild(l_element);
-            }
-            m_controlTable = document.createElement("div");
-            m_controlTable.setAttribute("id", "controlTable");
-            m_controlTable.className = "userControl";
-            m_controlTable.innerHTML = "";
-            m_controlTable.style.position = "absolute";
-            m_controlTable.style.color = "#0ff";
-            m_controlTable.style.fontSize = "16px";
-            m_controlTable.style.userSelect = "none";
-            document.body.appendChild(m_controlTable);
-            m_controlTable.style.left = 10 + "px";
-            m_controlTable.style.top = 300 + "px";
-            m_controlTable.innerHTML = '<br><select id="dropDown"> <option value="hold">Hold</option>  <option value="build">Build</option> <option value="yield1">Yield</option> </select></br>' +
-            '<br><form name="DLS" onsubmit="allowNumRangeDLS(l_dls.value)"> <input type="number" name="fnameDLS" id="iddls">:</br><font color="black"> DLS (Max 3 deg / 30m)</font> </form>' +
-            '<form name="ITD" onsubmit="allowNumRangeDIT(l_itd.value)"> <input type="number" name="fnameITD" id="iditd">:</br><font color="black"> Interval to Drill (m)</font></form> <br></br></br>';
+            drawImage("34-simulation", 0.0, 0.1, 0.9, 0.8);
+            drawButton("3-startAdv", 0.9, 0.7, null, null, 35);
             
-            l_ddirection = document.getElementById("dropDown");
-            if (m_welldirection == "")
-                l_ddirection.value = "hold";
-            else
-                l_ddirection.value = m_welldirection;
+        }
+        if (id == 35) {
+            drawImage("0-button3", -1.0, 0.0, 0.6, 0.1, true);
+            drawImage("34-interp1", 0.0, 0.3, 0.25, 1.0, true);
+            drawImage("34-interp2", 0.25, 0.3, 0.25, 1.0, true);
+            drawImage("34-interp3", 0.5, 0.3, 0.25, 1.0, true);
+            var objShell = new ActiveXObject("Wscript.Shell");
+            objShell.run("D:\\KAI\\game\\SRPC60ansGameWeb\\gameAlexisJune26\\RT_Image_Interp.exe");
+           // window.open("index_executflash.htm")
 
-            l_dls = document.getElementById("iddls");
-            allowNumRangeDLS(m_welldls);
-            l_dls.value = m_welldls;
-            
-            l_itd = document.getElementById("iditd");
-            l_itd.value = m_wellitd;
-            allowNumRangeDIT(m_wellitd);
-
-            drawImage("3-backgroundAdv", 0.0, 0.0, 1.0, 1.0);
-            drawImage("34-initial", 0.2, 0.25, 0.3, 0.7);
-            drawButton("3-startAdv", 0.0, 0.5, null, null, 34);
-
-            computeToolResponse(m_welldirection, m_welldls, m_wellitd);
-            
         }
         
         if (id == 4)
@@ -1412,111 +1341,7 @@ let SLBG = (function ()
         drawImage("ui-copyright", -1.0, -1.0, 0.9, 0.1, true);
         drawButton("ui-home", 0.0, -1.0, 0.1, 0.1, 0, true);
     }
-    
-    let allowNumRangeDLS = function slbg_allownums(a)
-    {
-        if (a < 0.0)
-            a = 0.0;
-        if (a > 3.0)
-            a = 3.0;
-    }
-    let allowNumRangeDIT = function slbg_allownumsDIT(a)
-    {
-        if (a < 1.0)
-            a = 1.0;
-        if (a > 100.0)
-            a = 100.0;
-    }
-
-    var m_spatialResponse = [
-    [-6.015183e-11,    -6.259119e-10,    -6.488981e-09,    -2.614155e-08,    -5.896559e-08,    -9.046548e-08,    -1.977062e-07,    -1.487939e-07,    -8.842540e-08,    -3.445921e-08,    -2.263102e-12,    -2.220960e-08,    -1.018045e-07,    -5.921257e-08,    -1.081497e-07,    -7.507894e-08,    -5.768912e-08,    -1.818936e-08,    -1.007601e-08,    -1.996732e-09,    -2.663929e-10],    
-    [-5.475236e-11,    -5.463079e-10,    -4.536388e-09,    -1.772236e-08,    -4.519993e-08,    -5.401129e-08,    -1.000705e-07,    -7.721071e-08,    -5.309919e-08,    -1.414693e-08,    -6.356893e-12,    -1.444635e-08,    -6.276673e-08,    -7.947844e-08,    -9.670578e-08,    -1.174607e-07,    -3.141862e-08,    -1.200383e-08,    -6.166388e-09,    -1.408728e-09,    -2.516291e-10],   
-    [-6.124306e-11,    -5.945882e-10,    -3.337343e-09,    -1.191562e-08,    -2.396177e-08,    -2.730651e-08,    -4.231290e-08,    -4.725005e-08,    -2.783343e-08,    -8.577714e-09,    -1.059919e-12,    -9.861659e-09,    -8.916021e-09,    -5.496392e-08,    -4.732454e-08,    -2.340004e-08,    -3.241296e-08,    -1.166769e-08,    -3.646304e-09,    -1.023017e-09,    -2.465475e-10],    
-    [-9.254856e-11,    -7.799479e-10,    -2.619980e-09,    -2.219537e-08,    -1.403582e-08,    -1.057089e-08,    -1.282665e-08,    -2.284652e-08,    -1.684824e-08,    -5.822993e-09,    -5.239415e-13,    -4.641202e-09,    -7.676103e-09,    -2.696202e-08,    -2.623733e-08,    -3.238053e-08,    -1.231646e-08,    -9.990180e-09,    -2.112108e-09,    -7.264565e-10,    -2.430185e-10],    
-    [-2.424416e-10,    -1.124234e-09,    -2.214650e-09,    -1.652430e-08,    -6.577543e-09,    -1.658067e-08,    -1.777211e-08,    -1.589251e-08,    -9.486757e-09,    -3.633736e-09,    -5.190589e-15,    -3.549894e-09,    -6.231622e-09,    -1.346700e-08,    -1.546838e-08,    -1.394961e-08,    -8.092084e-09,    -6.663881e-09,    -3.402566e-09,    -4.636710e-10,    -2.061522e-10],    
-    [-1.893837e-10,    -5.576841e-10,    -2.018857e-09,    -3.769262e-09,    -6.405529e-09,    -9.127607e-09,    -1.090866e-08,    -1.052188e-08,    -5.371424e-09,    -2.059274e-09,    -3.232698e-13,    -2.215104e-09,    -4.822707e-09,    -7.026815e-09,    -8.996063e-09,    -1.072119e-08,    -5.324566e-09,    -1.723705e-09,    -2.614489e-09,    -4.267705e-10,    -1.344122e-10],    
-    [-1.429811e-10,    -2.919070e-10,    -1.467961e-09,    -9.922722e-11,    -2.883480e-09,    -4.798447e-09,    -6.606117e-09,    -6.951867e-09,    -3.658908e-09,    -8.753112e-10,    -1.209214e-12,    -1.347124e-09,    -3.586556e-09,    -3.957315e-09,    -5.455205e-09,    -6.629178e-09,    -3.519329e-09,    -1.261917e-09,    -2.111901e-09,    -2.007163e-10,    -8.789095e-10],    
-    [-1.042717e-10,    -8.022646e-10,    -9.777479e-10,    -7.010545e-11,    -2.222672e-09,    -5.638516e-09,    -6.146021e-09,    -4.676807e-09,    -2.124822e-09,    -5.074889e-10,    -2.561282e-14,    -8.001327e-10,    -2.579070e-09,    -1.858500e-09,    -5.467758e-09,    -4.082557e-09,    -2.345160e-09,    -9.460309e-10,    -1.253074e-09,    -6.450452e-11,    -7.204325e-10],    
-    [-2.467121e-10,    -5.611259e-10,    -6.540769e-10,    -1.637832e-10,    -3.133291e-10,    -4.082527e-09,    -4.069028e-09,    -1.885754e-09,    -1.212817e-09,    -3.269104e-10,    -3.182890e-15,    -4.645252e-10,    -1.802364e-09,    -1.896214e-09,    -3.105542e-09,    -2.512147e-09,    -1.582461e-09,    -7.289685e-10,    -4.198223e-10,    -6.135145e-11,    -5.222499e-10],    
-    [-1.585238e-10,    -3.855563e-10,    -4.412146e-10,    -2.840154e-10,    -3.769244e-10,    -8.817568e-10,    -2.799298e-09,    -1.120791e-09,    -7.032827e-10,    -2.300308e-10,    -3.773729e-14,    -1.888752e-10,    -6.638986e-10,    -1.566399e-09,    -1.745139e-09,    -1.550824e-09,    -1.086842e-09,    -5.794551e-10,    -1.640979e-10,    -8.556229e-11,    -3.251272e-10],    
-    [-9.763633e-11,    -2.596005e-10,    -3.014854e-10,    -3.436349e-10,    -3.581574e-10,    -6.633045e-10,    -1.436114e-09,    -7.149503e-10,    -4.539941e-10,    -1.386538e-10,    -1.828637e-14,    -1.386575e-10,    -3.890502e-10,    -8.253000e-10,    -9.659791e-10,    -1.062613e-09,    -8.415937e-10,    -5.273799e-10,    -1.529610e-10,    -8.145713e-11,    -1.623014e-10],    
-    [-5.679559e-11,    -1.707146e-10,    -2.097309e-10,    -3.333194e-10,    -2.831047e-10,    -4.349417e-10,    -8.666201e-10,    -3.780584e-10,    -2.999136e-10,    -8.140468e-11,    -5.025603e-15,    -8.306842e-11,    -2.522556e-10,    -4.919013e-10,    -5.076420e-10,    -8.231119e-10,    -7.182619e-10,    -4.647368e-10,    -2.687709e-10,    -2.605460e-11,    -1.785255e-11],    
-    [-3.043798e-11,    -1.091450e-10,    -1.493267e-10,    -2.745706e-10,    -1.873879e-10,    -2.414028e-10,    -4.594761e-10,    -2.823272e-10,    -1.807306e-10,    -4.982527e-11,    -1.644933e-16,    -4.910971e-11,    -1.463389e-10,    -2.991610e-10,    -3.942092e-10,    -4.983588e-10,    -4.719359e-10,    -2.114886e-10,    -8.679454e-11,    -6.493216e-12,    -3.376608e-12]   
-];
-
-    var m_coordRadial = [
-    4.260000e+00,  4.310000e+00,  4.360000e+00,  4.410000e+00,  4.460000e+00,  4.510000e+00,  4.560000e+00,  4.610000e+00,  4.660000e+00,  4.710000e+00,  4.760000e+00,  4.810000e+00,  4.860000e+00
-    ];
-
-    var m_coordDepth = [ 
-    -1.000000e+00,  -9.000000e-01,  -8.000000e-01,  -7.000000e-01,  -6.000000e-01,  -5.000000e-01,  -4.000000e-01,  -3.000000e-01,  -2.000000e-01,  -1.000000e-01,  0.000000e+00,  1.000000e-01,  2.000000e-01,  3.000000e-01,  4.000000e-01,  5.000000e-01,  6.000000e-01,  7.000000e-01,  8.000000e-01,  9.000000e-01,  1.000000e+00
-    ];
-
-    var m_simulatedKAI;
-    var m_simulatedGR;
-
-    let  computeToolResponse = function slbg_computeToolResponse(m_welldirection, m_welldls, m_wellitd)
-    {
-        //check value range
-        if (m_welldls < 0.0)
-            m_welldls = 0.0;
-        if (m_welldls > 3.0)
-            m_welldls = 3.0;
-
-        if (m_wellitd < 1.0) //drilling interval is between 1.0 - 30.0m
-            m_wellitd = 1.0;
-        if (m_wellitd > 30.0)
-            m_wellitd = 30.0;
-        //initial well trajectory and formation bedding assumption
-        var m_currentDepth = 8527.0 * 12.0 *25.4 / 1000.0; //ft to meter
-        var m_currentDip = 0.0; //current trajectory is horizontal
-        var m_formDip = 10.0;  //assume formation bedding is 10deg dipping down to the right
-        var m_dummyAmp = 10.0; //dummy amplifying the distance 10 times
-        var m_currentDis = 0.002; //2mm Quanta Geo pad to borehole distance
-        var m_samplingRate = 0.3 * 25.4/1000; //sampling rate 0.3-in
-        //---------------------------------------------
-        // calculate distance to bed boundary for the trajectory
-        var m_depthLevel = (Math.floor)(m_wellitd / m_samplingRate);
-        let m_disToBoundary = [];
-        m_disToBoundary[0] = m_currentDis * m_dummyAmp;
-        let m_simulatedKAI = [];
-        let m_simulatedGR = [];
-        var m_dist2Cross, m_newDist2Cross;
-        var m_newAngle = 0.0;
-        var m_newVert = 0.0;
-
-        if (m_welldirection == 'build')
-        {
-            m_newAngle = m_formDip + m_welldls;
-            m_newVert = m_currentDis * m_dummyAmp * Math.cos(m_newAngle * Math.PI / 180.0);
-        }
-        else if (m_welldirection == 'yield1')
-        {
-            m_newAngle = m_formDip - m_welldls;
-            m_newVert = m_currentDis * m_dummyAmp * Math.cos(m_newAngle * Math.PI / 180.0);
-        }
-        else {
-            m_newAngle = m_formDip;
-            m_newVert = m_currentDis * m_dummyAmp
-        }
-
-        m_dist2Cross = m_newVert / Math.tan(m_formDip * Math.PI / 180.0);
-        for (ii = 1; ii < m_depthLevel; ii++) {
-            m_newDist2Cross = m_dist2Cross - m_samplingRate * (ii);
-            m_disToBoundary[ii] = m_newDist2Cross * Math.tan(m_newAngle * Math.PI / 180.0);
-            if (m_newDist2Cross < 0.0) {
-                m_newDist2Cross = m_dist2Cross + m_samplingRate * (ii);
-                m_disToBoundary[ii] = -m_newDist2Cross * Math.tan(m_newAngle * Math.PI / 180.0);
-            }
-        }
-
-        m_welldirection.innerHTML('m_welldirection');
-
-    }
-
-    
-
-
+  
 
     let updateDebug = function slbg_updateDebug()
     {

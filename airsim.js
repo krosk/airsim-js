@@ -62,24 +62,6 @@ function fetchLocal(url)
     });
 }
 
-function adaptativeFetch(url)
-{
-    return fetch(url)
-    .then(response => {
-        console.log('fetch success');
-        return response;
-    }).catch(error => {
-        return fetchLocal("program.wasm")
-	    .then(response => {
-            console.log('xhr request success');
-            return response;
-        }).catch(error => {
-            console.log('failed to fetch');
-            console.log(error);
-            reject(error);
-	    });
-	});
-}
 
 // function naming conventions
 // Change state: verb
@@ -194,7 +176,7 @@ function OnReady()
         .on("progress", LoaderProgressHandler)
         .load(LoaderSetup);
     
-    PIXI.loader.onError.add((err, loader, resource) => {
+    PIXI.loader.onError.add(function (err, loader, resource){
         console.log('Failed to load ' + resource.name);
         delete PIXI.utils.TextureCache[resource.name];
     });
@@ -446,7 +428,7 @@ let SUTILS = (function ()
         {
             xp = Math.atan2(b, a);
             yp = (z0 + (x0 * a + y0 * b) / c);
-            amp = (-radius * (Math.hypot(a, b) / c));
+            amp = (-radius * (Math.sqrt(a * a + b * b) / c));
             return [xp, yp, amp];
         }
         else

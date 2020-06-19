@@ -196,7 +196,7 @@ function WaitingState()
 function StartState()
 {
     console.log("Start");
-    ASMAP.initialize(32, 32);
+    ASMAP.initialize(16, 16);
     g_state = EngineState;
 }
 

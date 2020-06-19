@@ -1,3 +1,4 @@
+self.importScripts('pse-tile.js');
 self.importScripts('airsim-tile.js');
 self.importScripts('airsim-module.js');
 

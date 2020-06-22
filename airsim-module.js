@@ -693,7 +693,7 @@ let ASZONE = (function ()
         BUILDING: 2
     }
     
-    public.C_TILEENUM = ASTILE.C_TILE_ZONE;
+    public.C_TILEENUM = ASTILE_ID.C_TILE_ZONE;
     const C_TERRAIN_DISPLAY = ASTILE.C_TILE_TERRAIN_DISPLAY;
     const C = public.C_TILEENUM;
     
@@ -950,8 +950,8 @@ let ASROAD = (function ()
     };
     const C_FROM = [2, 3, 0, 1, 6, 7, 4, 5];
     const C_DISPLAY = ASTILE.C_TILE_ROAD_DISPLAY;
-    const C_CONGESTION = ASTILE.C_TILE_ROAD_CONGESTION;
-    const C_ZONE = ASTILE.C_TILE_ZONE;
+    const C_CONGESTION = ASTILE_ID.C_TILE_ROAD_CONGESTION;
+    const C_ZONE = ASTILE_ID.C_TILE_ZONE;
     
     const C_ZONE_ROAD = {
         [C_ZONE.PATH] : true,
@@ -1750,8 +1750,8 @@ let ASRICO = (function ()
     
     public.C_NAME = 'ASRICO';
     
-    const C = ASTILE.C_TILE_RICO_DENSITY;
-    const C_Z = ASTILE.C_TILE_ZONE;
+    const C = ASTILE_ID.C_TILE_RICO_DENSITY;
+    const C_Z = ASTILE_ID.C_TILE_ZONE;
     
     // note: type must be (density id - C.NONE) / 10
     // could use C_ZONE instead

@@ -477,7 +477,7 @@ let ASMAPUI = (function ()
     let C_ICON_HEIGHT = 48;
     let C_ICON_WIDTH = 64;
     
-    let C = ASTILE.C_TILE_ZONE;
+    let C = ASTILE_ID.C_TILE_ZONE;
     const C_ZONE_DATA = [
         C.DIRT,
         C.ROAD, 
@@ -498,7 +498,7 @@ let ASMAPUI = (function ()
         C.RESLOW
     ];
     
-    C = ASTILE.C_TILE_ICON;
+    C = ASTILE_ID.C_TILE_ICON;
     const C_MAIN_DATA = [
         C.VIEW,
         C.ZONE,
@@ -979,7 +979,7 @@ let ASMAPUI = (function ()
     {
         // can skip this?
         //setSingleId(C_SAVE, saveId);
-        let C_DEF = ASTILE.C_TILE_ICON;
+        let C_DEF = ASTILE_ID.C_TILE_ICON;
         if (saveId == C_DEF.SAVE)
         {
             let callbackData = [ASMAPUI.C_NAME,'saveDataResponse'];
@@ -1013,7 +1013,7 @@ let ASMAPUI = (function ()
     let onPlaySpritePress = function asmapui_onPlaySpritePress(playId)
     {
         //setSingleId(C_PLAY, playId);
-        let C_DEF = ASTILE.C_TILE_ICON;
+        let C_DEF = ASTILE_ID.C_TILE_ICON;
         if (playId == C_DEF.PLAY)
         {
             //console.log("play");

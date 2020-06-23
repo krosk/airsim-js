@@ -694,7 +694,7 @@ let ASZONE = (function ()
     }
     
     public.C_TILEENUM = ASTILE_ID.C_TILE_ZONE;
-    const C_TERRAIN_DISPLAY = ASTILE.C_TILE_TERRAIN_DISPLAY;
+    const C_TERRAIN_DISPLAY = ASTILE_ID.C_TILE_TERRAIN_DISPLAY;
     const C = public.C_TILEENUM;
     
     let isValidZone = function aszone_isValidZone(id)
@@ -949,7 +949,7 @@ let ASROAD = (function ()
         WW: 7
     };
     const C_FROM = [2, 3, 0, 1, 6, 7, 4, 5];
-    const C_DISPLAY = ASTILE.C_TILE_ROAD_DISPLAY;
+    const C_DISPLAY = ASTILE_ID.C_TILE_ROAD_DISPLAY;
     const C_CONGESTION = ASTILE_ID.C_TILE_ROAD_CONGESTION;
     const C_ZONE = ASTILE_ID.C_TILE_ZONE;
     
@@ -1102,7 +1102,7 @@ let ASROAD = (function ()
             return;
         }
         let displayId = ASSTATE.getDisplayId(index);
-        let roadFlag = displayId % ASTILE.C_TILE_DISPLAY_BASE_MODULO;
+        let roadFlag = displayId % ASTILE_ID.C_TILE_DISPLAY_BASE_MODULO;
         let newRoadFlag = roadFlag;
         let roadDisplayIdBase = displayId - roadFlag;
         newRoadFlag &= ~(1 << d);
@@ -1970,7 +1970,7 @@ let ASRICO = (function ()
         }
         let displayId = code * 10;
         // depend on astile and asrico convention
-        displayId += Date.now() % ASTILE.C_RICO_DISPLAY_ID_VARIANT_MAX;
+        displayId += Date.now() % ASTILE_ID.C_RICO_DISPLAY_ID_VARIANT_MAX;
         ASSTATE.setDisplayId(index, displayId);
     }
     

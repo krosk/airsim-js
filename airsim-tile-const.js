@@ -86,5 +86,76 @@ let ASTILE_ID = (function ()
         BENC: 943
     };
     
+    public.C_TILE_DISPLAY_BASE_MODULO = 100;
+    
+    public.C_TILE_TERRAIN_DISPLAY = {
+        DIRT_0 : 1000
+    }
+    
+    public.C_TILE_ROAD_DISPLAY = {
+        ____ : 1400,
+        N___ : 1401,
+        _E__ : 1402,
+        __S_ : 1404,
+        ___W : 1408,
+        NE__ : 1403,
+        N_S_ : 1405,
+        N__W : 1409,
+        _ES_ : 1406,
+        _E_W : 1410,
+        __SW : 1412,
+        NES_ : 1407,
+        NE_W : 1411,
+        N_SW : 1413,
+        _ESW : 1414,
+        NESW : 1415
+    };
+    
+    // rule xxab
+    // xx is zone id
+    // a is level
+    // b is variant
+    public.C_RICO_DISPLAY_ID_ZONE_DIGIT = 100;
+    public.C_RICO_DISPLAY_ID_LEVEL_DIGIT = 10;
+    public.C_RICO_DISPLAY_ID_VARIANT_DIGIT = 1;
+    public.C_RICO_DISPLAY_ID_VARIANT_MAX = 1;
+    let metaGenerateRicoDisplayId = function astile_metaGen(table, codeBase, variant, densityMin, densityMax)
+    {
+        for (let j = densityMin; j <= densityMax; j++)
+        {
+            for (let k = 0; k < variant; k++)
+            {
+                let n = codeBase*public.C_RICO_DISPLAY_ID_ZONE_DIGIT + 
+                    j * public.C_RICO_DISPLAY_ID_LEVEL_DIGIT + 
+                    k * public.C_RICO_DISPLAY_ID_VARIANT_DIGIT;
+                table[n] = n;
+            }
+        }
+        let zeroDensityDisplayId = codeBase*public.C_RICO_DISPLAY_ID_ZONE_DIGIT;
+        table[zeroDensityDisplayId] = zeroDensityDisplayId;
+    }
+    
+    public.C_TILE_RICO_DISPLAY = {
+        
+    };
+    // meta generation
+    let ricoZone = [
+        public.C_TILE_ZONE.RESLOW,
+        public.C_TILE_ZONE.RESHIG,
+        public.C_TILE_ZONE.INDLOW,
+        public.C_TILE_ZONE.INDHIG,
+        public.C_TILE_ZONE.COMLOW,
+        public.C_TILE_ZONE.COMHIG
+    ];
+    const RICO_VARIANT = public.C_RICO_DISPLAY_ID_VARIANT_MAX;
+    const RICO_DENSITY_MIN = 0;
+    const RICO_DENSITY_MAX = 5;
+    for (let i = 0; i < ricoZone.length; i++)
+    {
+        let codeBase = ricoZone[i];
+        metaGenerateRicoDisplayId(public.C_TILE_RICO_DISPLAY, codeBase, RICO_VARIANT, RICO_DENSITY_MIN, RICO_DENSITY_MAX);
+    }
+    metaGenerateRicoDisplayId(public.C_TILE_RICO_DISPLAY, public.C_TILE_ZONE.POWLOW, 0, 0, 0);
+    
     return public;
 })();

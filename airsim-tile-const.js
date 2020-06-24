@@ -1,5 +1,5 @@
 
-
+// File must have no other dependencies
 let ASTILE_ID = (function ()
 {
     let public = {};

@@ -218,7 +218,7 @@ let ASENGINE = (function ()
     let m_worker;
     if (G_WORKER)
     {
-        m_worker = new window.Worker('airsim-worker.js');
+        m_worker = new window.Worker('pse-worker.js');
         m_worker.onmessage = function asengine_onmessage(e)
         {
             let value = e.data[0];

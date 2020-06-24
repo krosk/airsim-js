@@ -173,7 +173,6 @@ let PSETILE = (function ()
         return graphics;
     }
     
-    let m_textureNameCache = {};
     let m_tileIdToTextureNameCache = {};
     
     let getTileTextureNameUnprotected = function psetile_getTileTextureNameUnprotected(tileId)
@@ -185,10 +184,6 @@ let PSETILE = (function ()
     {
         let name = m_tileIdToTextureNameCache[tileId];
         if (typeof name == 'undefined')
-        {
-            name = getTileTextureNameUnprotected(tileId);
-        }
-        if (typeof m_textureNameCache[name] == 'undefined')
         {
             console.log('texture not loaded for ' + tileId);
             return getTileTextureNameUnprotected(0);
@@ -209,13 +204,11 @@ let PSETILE = (function ()
                 let graphics = library.createTexture(tileId);
                 let texture = g_app.renderer.generateTexture(graphics);
                 PIXI.utils.TextureCache[textureName] = texture;
-                m_textureNameCache[textureName] = true;
                 m_tileIdToTextureNameCache[tileId] = textureName;
             }
             else
             {
                 let textureName = textureMap[tileId];
-                m_textureNameCache[textureName] = true;
                 m_tileIdToTextureNameCache[tileId] = textureName;
             }
         }

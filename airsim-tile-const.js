@@ -111,8 +111,28 @@ let ASTILE_ID = (function ()
         NESW : 1415
     };
     
+    public.C_TILE_ROAD_DISPLAY_TEXTURE_MAP = {
+        1000 : "cityTiles_066.png",
+        1400 : "cityTiles_082.png",
+        1401 : "cityTiles_111.png",
+        1402 : "cityTiles_116.png",
+        1403 : "cityTiles_126.png",
+        1404 : "cityTiles_104.png",
+        1405 : "cityTiles_073.png",
+        1406 : "cityTiles_124.png",
+        1407 : "cityTiles_103.png",
+        1408 : "cityTiles_110.png",
+        1409 : "cityTiles_125.png",
+        1410 : "cityTiles_081.png",
+        1411 : "cityTiles_088.png",
+        1412 : "cityTiles_122.png",
+        1413 : "cityTiles_096.png",
+        1414 : "cityTiles_095.png",
+        1415 : "cityTiles_089.png"
+    };
+    
     // rule xxab
-    // xx is zone id
+    // xx is zone id, from 20 to 3x
     // a is level
     // b is variant
     public.C_RICO_DISPLAY_ID_ZONE_DIGIT = 100;

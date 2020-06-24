@@ -779,7 +779,7 @@ let ASMAPUI = (function ()
     
     let createSprite = function asmapui_createSprite(id, tileEnumId, callback)
     {
-        let textureName = ASTILE.getTileTextureName(id);
+        let textureName = PSETILE.getTileTextureName(id);
         let textureCache = PIXI.utils.TextureCache[textureName];
         let sprite = new PIXI.Sprite(textureCache);
         
@@ -1277,7 +1277,7 @@ let MMAPBATCH = (function ()
             {
                 for (let y = 0; y < public.C_BATCH_SIZE_Y; y++)
                 {
-                    let textureName = ASTILE.getTileTextureName(0);
+                    let textureName = PSETILE.getTileTextureName(0);
                     let textureCache = PIXI.utils.TextureCache[textureName];
                     let sprite = new PIXI.Sprite(textureCache);
 
@@ -1446,7 +1446,7 @@ let MMAPBATCH = (function ()
 
             let cTileX = public.getBatchXToStartTileX(batchX);
             let cTileY = public.getBatchYToStartTileY(batchY);
-            let textureName = ASTILE.getTileTextureName(id);
+            let textureName = PSETILE.getTileTextureName(id);
             let textureCache = PIXI.utils.TextureCache[textureName];
             let sprite = getSpriteFromBatch(batch, tileX - cTileX, tileY - cTileY);
             sprite.setTexture(textureCache);

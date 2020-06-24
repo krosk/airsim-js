@@ -149,7 +149,7 @@ let PSETILE = (function ()
         contourRight();
     }
     
-    public.createTexture = function astile_createTexture(color, margin, height)
+    public.createTexture = function psetile_createTexture(color, margin, height)
     {
         let graphics = new PIXI.Graphics(false);
         
@@ -171,6 +171,54 @@ let PSETILE = (function ()
         public.drawBlock(graphics, color, BWo, BHo, BW, BH, H);
         
         return graphics;
+    }
+    
+    let m_textureNameCache = {};
+    let m_tileIdToTextureNameCache = {};
+    
+    let getTileTextureNameUnprotected = function psetile_getTileTextureNameUnprotected(tileId)
+    {
+        return "TEXTURE-" + tileId;
+    }
+    
+    public.getTileTextureName = function psetile_getTileTextureName(tileId)
+    {
+        let name = m_tileIdToTextureNameCache[tileId];
+        if (typeof name == 'undefined')
+        {
+            name = getTileTextureNameUnprotected(tileId);
+        }
+        if (typeof m_textureNameCache[name] == 'undefined')
+        {
+            console.log('texture not loaded for ' + tileId);
+            return getTileTextureNameUnprotected(0);
+        }
+        return name;
+    }
+    
+    public.initializeTextureFor = function psetile_initializeTextureFor(library)
+    {
+        let values = Object.values(library.C_TILEENUM);
+        let textureMap = library.C_TEXTUREENUM;
+        for (let i in values)
+        {
+            let tileId = values[i] | 0;
+            if (typeof textureMap === 'undefined' || typeof textureMap[tileId] === 'undefined')
+            {
+                let textureName = getTileTextureNameUnprotected(tileId);
+                let graphics = library.createTexture(tileId);
+                let texture = g_app.renderer.generateTexture(graphics);
+                PIXI.utils.TextureCache[textureName] = texture;
+                m_textureNameCache[textureName] = true;
+                m_tileIdToTextureNameCache[tileId] = textureName;
+            }
+            else
+            {
+                let textureName = textureMap[tileId];
+                m_textureNameCache[textureName] = true;
+                m_tileIdToTextureNameCache[tileId] = textureName;
+            }
+        }
     }
     
     return public;

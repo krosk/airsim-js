@@ -20,79 +20,15 @@ let ASTILE = (function ()
     // hard rule: display id must be bigger
     // than 100
     
-    let C_TILE_ID_TO_TEXTURE = {
-        1000 : "cityTiles_066.png",
-        1400 : "cityTiles_082.png",
-        1401 : "cityTiles_111.png",
-        1402 : "cityTiles_116.png",
-        1403 : "cityTiles_126.png",
-        1404 : "cityTiles_104.png",
-        1405 : "cityTiles_073.png",
-        1406 : "cityTiles_124.png",
-        1407 : "cityTiles_103.png",
-        1408 : "cityTiles_110.png",
-        1409 : "cityTiles_125.png",
-        1410 : "cityTiles_081.png",
-        1411 : "cityTiles_088.png",
-        1412 : "cityTiles_122.png",
-        1413 : "cityTiles_096.png",
-        1414 : "cityTiles_095.png",
-        1415 : "cityTiles_089.png"
-    };
-    
-    let m_textureNameCache = {};
-    
-    let getTileTextureNameUnprotected = function astile_getTileTextureNameUnprotected(tileId)
-    {
-        return "TEXTURE-" + tileId;
-    }
-    
-    public.getTileTextureName = function astile_getTileTextureName(tileId)
-    {
-        let name = C_TILE_ID_TO_TEXTURE[tileId];
-        if (typeof name == 'undefined')
-        {
-            name = getTileTextureNameUnprotected(tileId);
-        }
-        if (typeof m_textureNameCache[name] == 'undefined')
-        {
-            console.log('texture not loaded for ' + tileId);
-            return getTileTextureNameUnprotected(0);
-        }
-        return name;
-    }
-    
     public.initializeTexture = function astile_initializeTexture()
     {
-        initializeTextureFor(ASICON_TILE);
-        initializeTextureFor(ASZONE_TILE);
-        initializeTextureFor(ASZONE_TERRAIN_TILE);
-        initializeTextureFor(ASROAD_CONGESTION_TILE);
-        initializeTextureFor(ASROAD_DISPLAY_TILE);
-        initializeTextureFor(ASRICO_DENSITY_TILE);
-        initializeTextureFor(ASRICO_DISPLAY_TILE);
-    }
-    
-    let initializeTextureFor = function astile_initializeTextureFor(library)
-    {
-        let values = Object.values(library.C_TILEENUM);
-        for (let i in values)
-        {
-            let id = values[i] | 0;
-            if (typeof C_TILE_ID_TO_TEXTURE[id] === 'undefined')
-            {
-                let textureName = getTileTextureNameUnprotected(id);
-                let graphics = library.createTexture(id);
-                let texture = g_app.renderer.generateTexture(graphics);
-                PIXI.utils.TextureCache[textureName] = texture;
-                m_textureNameCache[textureName] = true;
-            }
-            else
-            {
-                let textureName = C_TILE_ID_TO_TEXTURE[id];
-                m_textureNameCache[textureName] = true;
-            }
-        }
+        PSETILE.initializeTextureFor(ASICON_TILE);
+        PSETILE.initializeTextureFor(ASZONE_TILE);
+        PSETILE.initializeTextureFor(ASZONE_TERRAIN_TILE);
+        PSETILE.initializeTextureFor(ASROAD_CONGESTION_TILE);
+        PSETILE.initializeTextureFor(ASROAD_DISPLAY_TILE);
+        PSETILE.initializeTextureFor(ASRICO_DENSITY_TILE);
+        PSETILE.initializeTextureFor(ASRICO_DISPLAY_TILE);
     }
     
     return public;
@@ -157,7 +93,7 @@ let ASZONE_TERRAIN_TILE = (function ()
     
     public.createTexture = function aszone_terrain_tile_createTexture(id)
     {
-        return ASZONE_TILE.createTexture(ASTILE.C_TILE_ZONE.DIRT);
+        return ASZONE_TILE.createTexture(ASTILE_ID.C_TILE_ZONE.DIRT);
     }
     
     return public;
@@ -206,6 +142,7 @@ let ASROAD_DISPLAY_TILE = (function ()
     let public = {};
     
     public.C_TILEENUM = ASTILE_ID.C_TILE_ROAD_DISPLAY;
+    public.C_TEXTUREENUM = ASTILE_ID.C_TILE_ROAD_DISPLAY_TEXTURE_MAP;
     const C = public.C_TILEENUM;
     
     let getColor = ASTILE.getColor;

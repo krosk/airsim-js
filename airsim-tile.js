@@ -290,17 +290,17 @@ let ASRICO_DISPLAY_TILE = (function ()
     
     public.getDisplayIdZone = function asrico_display_tile_getdisplayidzone(id)
     {
-        return (id / ASTILE.C_RICO_DISPLAY_ID_ZONE_DIGIT) | 0;
+        return (id / ASTILE_ID.C_RICO_DISPLAY_ID_ZONE_DIGIT) | 0;
     }
     
     public.getDisplayIdLevel = function asrico_display_tile_getdisplayidlevel(id)
     {
-        return ((id % (10 * ASTILE.C_RICO_DISPLAY_ID_LEVEL_DIGIT)) / ASTILE.C_RICO_DISPLAY_ID_LEVEL_DIGIT) | 0;
+        return ((id % (10 * ASTILE_ID.C_RICO_DISPLAY_ID_LEVEL_DIGIT)) / ASTILE_ID.C_RICO_DISPLAY_ID_LEVEL_DIGIT) | 0;
     }
     
     public.getDisplayIdVariant = function asrico_display_tile_getdisplayidvariant(id)
     {
-        return ((id % (10 * ASTILE.C_RICO_DISPLAY_ID_VARIANT_DIGIT)) / ASTILE.C_RICO_DISPLAY_ID_VARIANT_DIGIT) | 0;
+        return ((id % (10 * ASTILE_ID.C_RICO_DISPLAY_ID_VARIANT_DIGIT)) / ASTILE_ID.C_RICO_DISPLAY_ID_VARIANT_DIGIT) | 0;
     }
     
     public.createTexture = function (id)

@@ -1,3 +1,10 @@
+// LOADED BY
+//   airsim-engine.js
+// IS (worker thread)
+//   pse-worker.js
+// LOADS (worker thread)
+//   pse-edit-modules.js
+
 self.importScripts('pse-edit-modules.js');
 
 self.onmessage = function pseworker_onmessage(e)

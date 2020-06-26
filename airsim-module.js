@@ -1,3 +1,10 @@
+// LOADED BY (worker thread)
+//   pse-edit-modules.js
+// IS (worker thread)
+//   airsim-module.js
+// LOADS (worker thread)
+//   
+
 const G_CHECK = true;
 const G_CACHE_NODE = true;
 
@@ -552,7 +559,6 @@ let ASSTATE = (function()
     public.setTableSize = function asstate_setTableSize(sizeX, sizeY)
     {
         let totalSize = (G.END + sizeX*sizeY*C.END); //* Int32Array.BYTES_PER_ELEMENT;
-        console.log(totalSize);
         public.setRawData(new ArrayBuffer(totalSize*Int16Array.BYTES_PER_ELEMENT));
         public.setTableSizeX(sizeX);
         public.setTableSizeY(sizeY);

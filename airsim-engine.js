@@ -1,3 +1,10 @@
+// LOADED BY
+//   index.html
+// IS (main thread)
+//   airsim-engine.js
+// LOADS (worker thread)
+//   pse-worker.js
+
 const G_WORKER = true && window.Worker;
 
 let ASENGINE = (function ()

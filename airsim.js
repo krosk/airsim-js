@@ -109,7 +109,7 @@ function OnReady()
     InitializeDebugOverlay();
 
     g_interactionManager = g_app.renderer.plugins.interaction;
-    console.log("touch " + g_interactionManager.supportsTouchEvents);
+    //console.log("touch " + g_interactionManager.supportsTouchEvents);
     g_interactionManager.moveWhenInside = true;
 
     document.body.appendChild(g_stats.domElement);
@@ -168,16 +168,16 @@ function LoaderProgressHandler(loader, resource)
 
 function LoaderSetup()
 {
-    console.log("image loaded");
+    //console.log("image loaded");
     
     g_state = StartState;
     
-    console.log("Ready");
+    //console.log("Ready");
 }
 
 function Resize()
 {
-    console.log('resizing');
+    //console.log('resizing');
     let width = window.innerWidth - 8;
     let height = window.innerHeight - 8;
 

@@ -7,6 +7,8 @@
 
 const G_WORKER = true && window.Worker;
 
+PSEENGINE.registerModule(ASSTATE);
+
 let ASENGINE = (function ()
 {
     let public = {};
@@ -44,13 +46,13 @@ let ASENGINE = (function ()
     // directly readable globals
     
     // async functions with callbacks
-    public.retrieveAllChangedTileId = function asengine_retrieveAllChangedTileId(viewName, callbackData)
+    public.retrieveAllChangedTileId = function asengine_retrieveAllChangedTileId(callbackData, viewName)
     {
         let postData = [ASTILEVIEW.C_NAME, 'retrieveAllChangedTileId', viewName];
         dispatch(postData, callbackData);
     }
     
-    public.update = function asengine_update(computeTimeLimit, time, callbackData)
+    public.update = function asengine_update(callbackData, computeTimeLimit, time)
     {
         let postData = [ASZONE.C_NAME, 'update', computeTimeLimit, time];
         dispatch(postData, callbackData);
@@ -62,7 +64,7 @@ let ASENGINE = (function ()
         dispatch(postData, callbackData);
     }
     
-    public.setSerializable = function asengine_setSerializable(value, callbackData)
+    public.setSerializable = function asengine_setSerializable(callbackData, value)
     {
         let postData = [ASSTATE.C_NAME, 'setSerializable', value];
         dispatch(postData, callbackData);
@@ -74,7 +76,7 @@ let ASENGINE = (function ()
         dispatch(postData, callbackData);
     }
     
-    public.getTileIdTable = function asengine_getTileIdTable(viewName, callbackData)
+    public.getTileIdTable = function asengine_getTileIdTable(callbackData, viewName)
     {
         let postData = [ASTILEVIEW.C_NAME, 'getTileIdTable', viewName];
         dispatch(postData, callbackData);
@@ -82,13 +84,13 @@ let ASENGINE = (function ()
     
     // async functions without callback
     // direct order
-    public.setTickSpeed = function asengine_setTickSpeed(value)
+    public.setTickSpeed = function asengine_setTickSpeed(unused, value)
     {
         let postData = [ASSTATE.C_NAME, 'setTickSpeed', value];
         dispatch(postData);
     }
     
-    public.setZone = function asengine_setZone(x, y, selectedId)
+    public.setZone = function asengine_setZone(unused, x, y, selectedId)
     {
         if (selectedId == public.V_ZONE.ROAD)
         {
@@ -104,7 +106,7 @@ let ASENGINE = (function ()
         dispatch(postData);
     }
     
-    public.initializeTraversal = function asengine_initializeTraversal(x, y)
+    public.initializeTraversal = function asengine_initializeTraversal(unused, x, y)
     {
         const postData = [ASROAD.C_NAME, 'initializeTraversal', x, y];
         dispatch(postData);
@@ -141,14 +143,14 @@ let ASENGINE = (function ()
         dispatch(postData, callbackData);
     }
     
-    public.getInfoRoad = function asengine_getInfoRoad(x, y)
+    public.getInfoRoad = function asengine_getInfoRoad(unused, x, y)
     {
         const callbackData = [ASENGINE.C_NAME, 'printValue'];
         const postData = [ASROAD.C_NAME, 'getInfo', x, y];
         dispatch(postData, callbackData);
     }
     
-    public.getInfoRico = function asengine_getInfoRico(x, y)
+    public.getInfoRico = function asengine_getInfoRico(unused, x, y)
     {
         const callbackData = [ASENGINE.C_NAME, 'printValue'];
         const postData = [ASRICO.C_NAME, 'getInfo', x, y];

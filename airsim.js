@@ -307,7 +307,7 @@ let ASMAP = (function ()
             m_updateStateMachine = 1;
             let callbackData = [public.C_NAME, 'refreshTileListResponse'];
             let viewName = MMAPDATA.getTileViewName();
-            ASENGINE.retrieveAllChangedTileId(viewName, callbackData);
+            ASENGINE.retrieveAllChangedTileId(callbackData, viewName);
         }
     }
     
@@ -331,14 +331,14 @@ let ASMAP = (function ()
         {
             m_updateStateMachine = 5;
             let callbackData = [public.C_NAME, 'updateEngineResponse'];
-            ASENGINE.update(computeTimeLimit, time, callbackData);
+            ASENGINE.update(callbackData, computeTimeLimit, time);
         }
         else if (!ASENGINE.hasAccess())
         {
             const ENGINE_YIELD_PERIOD = 330; // ms
             m_updateStateMachine = 5;
             let callbackData = [public.C_NAME, 'updateEngineResponse'];
-            ASENGINE.update(Date.now() + ENGINE_YIELD_PERIOD, Date.now(), callbackData);
+            ASENGINE.update(callbackData, Date.now() + ENGINE_YIELD_PERIOD, Date.now());
         }
         let infoCallbackData = [public.C_NAME, 'updateEngineInfo'];
         ASENGINE.getInfo(infoCallbackData);
@@ -385,7 +385,7 @@ let ASMAP = (function ()
     {
         let selectedId = ASMAPUI.getCurrentZoneId();
         // this assumes selectedId is a valid zone id
-        ASENGINE.setZone(x, y, selectedId);
+        ASENGINE.setZone(undefined, x, y, selectedId);
     }
     
     let doViewModeRoadLayerSingleClick = function asmap_doViewRoadSingleClick(x, y)
@@ -394,7 +394,7 @@ let ASMAP = (function ()
         let selectedId = ASMAPUI.getCurrentRoadId();
         if (selectedId == ASENGINE.V_ROAD.LOW)
         {
-            ASENGINE.initializeTraversal(x, y);
+            ASENGINE.initializeTraversal(undefined, x, y);
             //console.log('start traversal x' + x + 'y' + y + 'c' + m_roadTraversalTemp);
         }
         else if (selectedId == ASENGINE.V_ROAD.MID)
@@ -417,12 +417,12 @@ let ASMAP = (function ()
             ASENGINE.printTraversal();
         }
         */
-        ASENGINE.getInfoRoad(x, y);
+        ASENGINE.getInfoRoad(undefined, x, y);
     }
     
     let doViewModeRicoLayerSingleClick = function asmap_doViewModeRicoLayerSingleClick(x, y)
     {
-        ASENGINE.getInfoRico(x, y);
+        ASENGINE.getInfoRico(undefined, x, y);
     }
     
     let doSingleClick = function asmap_doSingleClick(x, y)
@@ -989,7 +989,7 @@ let ASMAPUI = (function ()
         {
             let stateData = localStorage.getItem('ASSTATE');
             let callbackData = [ASMAPUI.C_NAME, 'loadDataResponse'];
-            ASENGINE.setSerializable(stateData, callbackData);
+            ASENGINE.setSerializable(callbackData, stateData);
         }
         else if (saveId == C_DEF.BENC)
         {
@@ -1017,27 +1017,27 @@ let ASMAPUI = (function ()
         if (playId == C_DEF.PLAY)
         {
             //console.log("play");
-            ASENGINE.setTickSpeed(1000);
+            ASENGINE.setTickSpeed(undefined,1000);
         }
         else if (playId == C_DEF.PLAY2)
         {
-            ASENGINE.setTickSpeed(100);
+            ASENGINE.setTickSpeed(undefined,100);
         }
         else if (playId == C_DEF.PLAY3)
         {
-            ASENGINE.setTickSpeed(0);
+            ASENGINE.setTickSpeed(undefined,0);
         }
         else if (playId == C_DEF.STOP)
         {
             //console.log("stop");
             // infinite tick speed in fact
-            ASENGINE.setTickSpeed(-1);
+            ASENGINE.setTickSpeed(undefined,-1);
         }
         else if (playId == C_DEF.STEP)
         {
             //console.log("frame");
             // probably needs a special value
-            ASENGINE.setTickSpeed(1001);
+            ASENGINE.setTickSpeed(undefined,1001);
         }
     }
     
@@ -1118,7 +1118,7 @@ let MMAPDATA = (function ()
     public.refreshAllTiles = function mmapdata_refreshAllTiles()
     {
         let callbackData = [MMAPDATA.C_NAME, 'refreshAllTilesResponse'];
-        ASENGINE.getTileIdTable(m_tileViewName, callbackData);
+        ASENGINE.getTileIdTable(callbackData, m_tileViewName);
     }
     public.refreshAllTilesResponse = function mmapdata_refreshAllTilesResponse(tileIdTable)
     {

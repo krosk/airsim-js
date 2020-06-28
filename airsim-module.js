@@ -11,6 +11,9 @@ const G_CACHE_NODE = true;
 let ASSTATE = (function()
 {
     let public = {};
+    public.EXPORT = {};
+    
+    public.C_NAME = "ASSTATE";
     
     let m_dataStateBuffer;
     let m_dataStateView;
@@ -359,6 +362,7 @@ let ASSTATE = (function()
     {
         w(0, G.TICK_SPEED, data);
     }
+    public.EXPORT.setTickSpeed = public.setTickSpeed;
     
     public.getUnused = function asstate_getUnused()
     {
@@ -664,6 +668,7 @@ let ASSTATE = (function()
         console.log(Array.from(m_dataStateView));
         return JSON.stringify(Array.from(m_dataStateView));
     }
+    public.EXPORT.getSerializable = public.getSerializable;
     
     public.setSerializable = function asstate_setSerializable(string)
     {
@@ -671,6 +676,7 @@ let ASSTATE = (function()
         public.setRawData(Int16Array.from(array).buffer);
         ASROAD.resetInternal();
     }
+    public.EXPORT.setSerializable = public.setSerializable;
     
     public.setRawData = function asstate_setRawData(arrayBuffer)
     {
@@ -690,6 +696,7 @@ let ASSTATE = (function()
 let ASZONE = (function ()
 {
     let public = {};
+    public.EXPORT = {};
     
     public.C_NAME = 'ASZONE';
     
@@ -856,6 +863,7 @@ let ASZONE = (function ()
         }
         return tick;
     }
+    public.EXPORT.update = public.update;
     
     let commitStats = function aszone_commitStats()
     {
@@ -927,11 +935,13 @@ let ASZONE = (function ()
             }
         }
     }
+    public.EXPORT.setPreset = public.setPreset;
     
     public.getInfo = function aszone_getInfo()
     {
         return ASSTATE.getRicoOfferTotalLast() + ' ' + ASSTATE.getRicoDemandTotalLast();
     }
+    public.EXPORT.getInfo = public.getInfo;
     
     return public;
 })();
@@ -2484,6 +2494,7 @@ let ASRICO = (function ()
 let ASTILEVIEW = (function ()
 {
     let public = {};
+    public.EXPORT = {};
     
     public.C_NAME = 'ASTILEVIEW';
     
@@ -2538,6 +2549,7 @@ let ASTILEVIEW = (function ()
             throw 'invalid retrieveallchangeid tileview ' + viewName;
         }
     }
+    public.EXPORT.retrieveAllChangedTileId = public.retrieveAllChangedTileId;
     
     let getTileIdTableLogic = function astileview_getTileIdTableLogic(targetFunction)
     {
@@ -2567,6 +2579,7 @@ let ASTILEVIEW = (function ()
             throw 'invalid gettileid tileview ' + viewName;
         }
     }
+    public.EXPORT.getTileIdTable = public.getTileIdTable;
     
     return public;
 })();

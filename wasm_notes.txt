@@ -1,0 +1,14 @@
+# Notes for on-the-go development of engine using
+# wasm and rust
+
+
+1/ install Termux
+2/ >pkg install rust
+3/ >export OPENSSL_DIR=$PREFIX
+3/ >cargo install wasm-bindgen-cli (26 min)
+4/ >nano ~/.bashrc
+5/ export PATH=$PATH:$HOME/.cargo/bin
+6/ restart Termux
+7/ >pkg install git
+8/ git clone https://github.com/krosk/airsim-js.git 
+

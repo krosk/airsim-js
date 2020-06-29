@@ -949,6 +949,7 @@ let ASZONE = (function ()
 let ASROAD = (function ()
 {
     let public = {};
+    public.EXPORT = {};
     
     public.C_NAME = 'ASROAD';
     
@@ -1507,6 +1508,7 @@ let ASROAD = (function ()
             m_cacheNodeRefresh = true;
         }
     }
+    public.EXPORT.initializeTraversal = public.initializeTraversal;
     
     const C_TR = {
         FROM: 1,
@@ -1673,6 +1675,7 @@ let ASROAD = (function ()
             return [-1, -1];
         }
     }
+    public.EXPORT.getNextStepTraversal = public.getNextStepTraversal;
     
     public.getTraversalPath = function asroad_getTraversalPath()
     {
@@ -1702,6 +1705,7 @@ let ASROAD = (function ()
             return pathNodeXY;
         }
     }
+    public.EXPORT.getTraversalPath = public.getTraversalPath;
     
     public.resetTraversalPath = function asroad_resetTraversalPath()
     {
@@ -1720,6 +1724,7 @@ let ASROAD = (function ()
         }
         m_cacheNodeRefresh = true;
     }
+    public.EXPORT.resetTraversalPath = public.resetTraversalPath;
     
     public.resetInternal = function asroad_resetInternal()
     {
@@ -1731,6 +1736,7 @@ let ASROAD = (function ()
         console.log();
         //console.log(data[0]);
     }
+    public.EXPORT.printTraversal = public.printTraversal;
 
     public.assessRoad = function asroad_assessroad(costMax, roadX, roadY)
     {

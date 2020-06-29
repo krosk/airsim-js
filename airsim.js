@@ -399,22 +399,24 @@ let ASMAP = (function ()
         }
         else if (selectedId == ASENGINE.V_ROAD.MID)
         {
-            ASENGINE.getNextStepTraversal();
+            const callbackData = [ASENGINE.C_NAME, 'printValue'];
+            ASENGINE.getNextStepTraversal(callbackData);
             //console.log('incre traversal x' + next[0] + 'y' + next[1] + 'c' + m_roadTraversalTemp);
         }
         else if (selectedId == ASENGINE.V_ROAD.HIG)
         {
-            ASENGINE.getTraversalPath();
+            const callbackData = [ASENGINE.C_NAME, 'printValue'];
+            ASENGINE.getTraversalPath(callbackData);
             //console.log('finish traversal');
             //console.log(pathXY);
         }
         else if (selectedId == ASENGINE.V_ROAD.NONE)
         {
-            ASENGINE.resetTraversalPath();
+            ASENGINE.resetTraversalPath(undefined);
         }
         else if (selectedId == ASENGINE.V_ROAD.VHI)
         {
-            ASENGINE.printTraversal();
+            ASENGINE.printTraversal(undefined);
         }
         */
         ASENGINE.getInfoRoad(undefined, x, y);

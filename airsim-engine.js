@@ -207,36 +207,35 @@ let ASENGINE = (function ()
         dispatch(postData);
     }
     
-    public.initializeTraversal = function asengine_initializeTraversal(unused, x, y)
+    /*public.initializeTraversal = function asengine_initializeTraversal(unused, x, y)
     {
         const postData = [ASROAD.C_NAME, 'initializeTraversal', x, y];
         dispatch(postData);
     }
     
-    public.getNextStepTraversal = function asengine_getNextStepTraversal()
+    public.getNextStepTraversal = function asengine_getNextStepTraversal(callbackData)
     {
         const postData = [ASROAD.C_NAME, 'getNextStepTraversal'];
-        dispatch(postData);
+        dispatch(postData, callbackData);
     }
     
-    public.getTraversalPath = function asengine_getTraversalPath()
+    public.getTraversalPath = function asengine_getTraversalPath(callbackData)
     {
-        const callbackData = [ASENGINE.C_NAME, 'printValue'];
         const postData = [ASROAD.C_NAME, 'getTraversalPath'];
         dispatch(postData, callbackData);
     }
     
-    public.resetTraversalPath = function asengine_resetTraversalPath()
+    public.resetTraversalPath = function asengine_resetTraversalPath(unused)
     {
         const postData = [ASROAD.C_NAME, 'resetTraversalPath'];
-        dispatch(postData);
+        dispatch(postData, undefined);
     }
     
     public.printTraversal = function asengine_printTraversal()
     {
         const postData = [ASROAD.C_NAME, 'printTraversal'];
         dispatch(postData);
-    }
+    }*/
     
     /*public.getInfo = function asengine_getInfo(callbackData)
     {

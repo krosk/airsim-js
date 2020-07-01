@@ -4,11 +4,23 @@
 
 1/ install Termux
 2/ >pkg install rust
+2/ >pkg install rust-std-wasm32
+
+* optional if install wasm-bindgen
 3/ >export OPENSSL_DIR=$PREFIX
 3/ >cargo install wasm-bindgen-cli (26 min)
+
 4/ >nano ~/.bashrc
 5/ export PATH=$PATH:$HOME/.cargo/bin
 6/ restart Termux
-7/ >pkg install git
-8/ git clone https://github.com/krosk/airsim-js.git 
+7/ >termux-setup-storage
+8/ >cd storage/shared/ScriptIt/ProjectColony/
+9/ >cargo new --lib rust
+10/ edit lib.rs to add a cdylib
 
+* raw compile
+11/ >cargo build --target-dir ~/target --target wasm32-unknown-unknown --release
+12/ >ls ~/target/wasm32-unknown-unknown/release
+13/ >cat ~/target/wasm32-unknown-unknown/release/asengine.wasm
+14/ >cp ~/target/wasm32-unknown-unknown/release/asengine.wasm .
+15/ >sh build.sh

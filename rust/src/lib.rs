@@ -1,2 +1,2 @@
-pub mod first_ch;
-pub mod second;
+pub mod tuto_list_first_ch;
+pub mod tuto_list_second;

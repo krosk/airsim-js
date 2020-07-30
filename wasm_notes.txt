@@ -24,3 +24,13 @@
 13/ >cat ~/target/wasm32-unknown-unknown/release/asengine.wasm
 14/ >cp ~/target/wasm32-unknown-unknown/release/asengine.wasm .
 15/ >sh build.sh
+
+
+
+# Notes on debian WSL environment
+1/ >sudo apt-get install curl
+1/ >sudo apt-get install gcc
+2/ >curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+3/ >code .
+4/ >cd rust/
+5/ >cargo test --target-dir ~/target -- --nocapture

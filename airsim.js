@@ -67,7 +67,7 @@ function adaptativeFetch(url)
         console.log('fetch success');
         return response;
     }).catch(error => {
-        return fetchLocal("program.wasm")
+        return fetchLocal("rust/asengine.wasm")
 	    .then(response => {
             console.log('xhr request success');
             return response;
@@ -125,9 +125,9 @@ function OnReady()
     
     /*
     g_state = StartState;
-
-    console.log("Ready");
     */
+    
+    console.log("Ready");
 }
 
 function InitializeDebugOverlay()

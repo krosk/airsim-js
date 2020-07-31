@@ -5,6 +5,12 @@ pub struct List<T> {
 
 pub struct IntoIter<T>(List<T>);
 
+// needs a lifetime, because as an output
+// has a lifetime
+pub struct Iter<'a, T> {
+  next: Option<&'a Node<T>>,
+}
+
 // T used to be i32
 struct Node<T> {
   elem: T,
@@ -67,8 +73,26 @@ impl<T> List<T> {
     })
   }
 
+  // returns an iterator at head
   pub fn into_iter(self) -> IntoIter<T> {
     IntoIter(self)
+  }
+  
+  // returns an iterator at head
+  // lifetime declared at function name
+  // used for self
+  // used for return Iter
+  pub fn iter<'a>(&'a self) -> Iter<'a, T> {
+    // as_ref required
+    Iter { next: self.head.as_ref().map(|_boxed_node| {
+      // self.head is Option Box Node
+      // self.head.as_ref is Option &Box Node
+      // _boxed_node is &Box Node
+      // *_boxed_node is Box Node
+      // **_boxed_node is Node
+      // next expects a &Node
+      &**_boxed_node
+    })}
   }
 }
 
@@ -78,6 +102,24 @@ impl<T> Iterator for IntoIter<T> {
   fn next(&mut self) -> Option<Self::Item> {
     // access fields of a tuple struct numerically
     self.0.pop()
+  }
+}
+
+impl<'a, T> Iterator for Iter<'a, T> {
+  type Item = &'a T;
+  // you need self to point to the next item
+  fn next(&mut self) -> Option<Self::Item> {
+    self.next.map(|_node| {
+      // self.next is Option<&Node>
+      // _node is Node
+      // _node.next is Option<Box<Node>>
+      // __boxed_node is &Box Node
+      // **__boxed_node is Node
+      self.next = _node.next.as_ref().map(|__boxed_node| {
+        &**__boxed_node
+      });
+      &_node.elem
+    })
   }
 }
 
@@ -137,6 +179,18 @@ mod test {
     assert_eq!(iter.next(), Some(3.));
     assert_eq!(iter.next(), Some(2.));
     assert_eq!(iter.next(), Some(1.));
+    assert_eq!(iter.next(), None);
+  }
+  
+  #[test]
+  fn iter() {
+    let mut list = List::new();
+    list.push(1.); list.push(2.); list.push(3.);
+    
+    let mut iter = list.iter();
+    assert_eq!(iter.next(), Some(&3.));
+    assert_eq!(iter.next(), Some(&2.));
+    assert_eq!(iter.next(), Some(&1.));
     assert_eq!(iter.next(), None);
   }
 }

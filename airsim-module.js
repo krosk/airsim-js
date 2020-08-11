@@ -2495,7 +2495,7 @@ let ASRICO = (function ()
             " " + getInitialDemand(code) +
             " " + getInitialOffer(code);
     }
-    public.EXPORT.getInfo = public.getInfo;
+    //public.EXPORT.getInfo = public.getInfo;
     
     return public;
 })();

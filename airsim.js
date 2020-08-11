@@ -120,15 +120,17 @@ function OnReady()
     
     g_app.ticker.add(Update);
 
-    PIXI.loader.add("img/cityTiles_sheet.json")
-        .on("progress", LoaderProgressHandler)
-        .load(LoaderSetup);
+    // asynchronous loading
+    const loader = PIXI.loader;
     
-    /*
-    g_state = StartState;
-    */
+    loader.add("img/cityTiles_sheet.json");
+    loader.load();
+    loader.onProgress.add(LoaderProgressHandler);
+    loader.onComplete.add(LoaderSetup);
 
-    WebAssembly.instantiateStreaming(fetch('rust/asengine.wasm'))
+    // asynchronous loading
+    WebAssembly.instantiateStreaming(
+        fetch('rust/asengine.wasm'))
     .then(obj => {
         console.log('Successfully downloaded wasm, exported funcs are: ');
         console.log(Object.keys(obj.instance.exports));
@@ -136,7 +138,7 @@ function OnReady()
         console.log(err);
     });
     
-    console.log("Ready");
+    // Ready when all asynchronous loading finish
 }
 
 function InitializeDebugOverlay()

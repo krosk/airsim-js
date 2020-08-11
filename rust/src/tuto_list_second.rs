@@ -11,6 +11,11 @@ pub struct Iter<'a, T> {
   next: Option<&'a Node<T>>,
 }
 
+
+pub struct IterMut<'a, T> {
+  next: Option<&'a mut Node<T>>,
+}
+
 // T used to be i32
 struct Node<T> {
   elem: T,
@@ -94,6 +99,13 @@ impl<T> List<T> {
       &**_boxed_node
     })}
   }
+
+
+  pub fn iter_mut(&mut self) -> IterMut<'_, T> {
+    IterMut { next: self.head.as_mut().map(|_boxed_node| {
+      &mut ** _boxed_node
+    })}
+  }
 }
 
 impl<T> Iterator for IntoIter<T> {
@@ -108,7 +120,9 @@ impl<T> Iterator for IntoIter<T> {
 impl<'a, T> Iterator for Iter<'a, T> {
   type Item = &'a T;
   // you need self to point to the next item
-  fn next(&mut self) -> Option<Self::Item> {
+  // sugar for 
+  // fn next(&mut self) -> Option<Self::Item>
+  fn next<'b> (&'b mut self) -> Option<&'a T> {
     self.next.map(|_node| {
       // self.next is Option<&Node>
       // _node is Node
@@ -119,6 +133,20 @@ impl<'a, T> Iterator for Iter<'a, T> {
         &**__boxed_node
       });
       &_node.elem
+    })
+  }
+}
+
+impl<'a, T> Iterator for IterMut<'a, T> {
+  type Item = &'a mut T;
+
+  // must use take because &mut self is not copiable
+  fn next(&mut self) -> Option<Self::Item> {
+    self.next.take().map(|_node| {
+      self.next = _node.next.as_mut().map(|__boxed_node| {
+        &mut ** __boxed_node
+      });
+      &mut _node.elem
     })
   }
 }
@@ -192,5 +220,16 @@ mod test {
     assert_eq!(iter.next(), Some(&2.));
     assert_eq!(iter.next(), Some(&1.));
     assert_eq!(iter.next(), None);
+  }
+
+  #[test]
+  fn iter_mut() {
+      let mut list = List::new();
+      list.push(1); list.push(2); list.push(3);
+
+      let mut iter = list.iter_mut();
+      assert_eq!(iter.next(), Some(&mut 3));
+      assert_eq!(iter.next(), Some(&mut 2));
+      assert_eq!(iter.next(), Some(&mut 1));
   }
 }

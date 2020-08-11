@@ -112,6 +112,7 @@ function OnReady()
     //console.log("touch " + g_interactionManager.supportsTouchEvents);
     g_interactionManager.moveWhenInside = true;
 
+    g_stats.domElement.style.userSelect = 'none';
     document.body.appendChild(g_stats.domElement);
 
     window.onresize = Resize;

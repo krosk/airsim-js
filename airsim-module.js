@@ -1277,6 +1277,7 @@ let ASROAD = (function ()
         public.disconnectAll(x, y);
         m_cacheNodeRefresh = true;
     }
+    public.EXPORT.removeRoad = public.removeRoad;
     
     public.updateRoad = function asroad_updateRoad(tick, timeLimit)
     {
@@ -1769,6 +1770,7 @@ let ASROAD = (function ()
 let ASRICO = (function ()
 {
     let public = {};
+    public.EXPORT = {};
     
     public.C_NAME = 'ASRICO';
     
@@ -2493,6 +2495,7 @@ let ASRICO = (function ()
             " " + getInitialDemand(code) +
             " " + getInitialOffer(code);
     }
+    public.EXPORT.getInfo = public.getInfo;
     
     return public;
 })();

@@ -127,6 +127,12 @@ function OnReady()
     /*
     g_state = StartState;
     */
+
+    WebAssembly.instantiateStreaming(fetch('rust/asengine.wasm'))
+    .then(obj => {
+        console.log('Successfully downloaded wasm, exported funcs are: ');
+        console.log(Object.keys(obj.instance.exports));
+    });
     
     console.log("Ready");
 }

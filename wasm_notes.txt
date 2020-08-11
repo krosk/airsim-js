@@ -34,3 +34,13 @@
 3/ >code .
 4/ >cd rust/
 5/ >cargo test --target-dir ~/target -- --nocapture
+
+# for wasm
+6/ >rustup target install wasm32-unknown-unknown
+7/ >cargo build --target-dir ~/target --target wasm32-unknown-unknown --release
+8/ >cp ~/target/wasm32-unknown-unknown/release/asengine.wasm .
+
+# to run the js part
+8/ >sudo apt-get install python3
+9/ >python3 -m http.server
+10/ on browser, http://localhost:8000

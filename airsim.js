@@ -132,6 +132,8 @@ function OnReady()
     .then(obj => {
         console.log('Successfully downloaded wasm, exported funcs are: ');
         console.log(Object.keys(obj.instance.exports));
+    }).catch(err => {
+        console.log(err);
     });
     
     console.log("Ready");

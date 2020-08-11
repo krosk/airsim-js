@@ -85,6 +85,10 @@ function adaptativeFetch(url)
 
 let g_state = WaitingState;
 
+let g_loadingCounter = 2;
+
+let g_engine = null;
+
 function OnReady()
 {
     g_stats = new Stats();
@@ -126,19 +130,22 @@ function OnReady()
     loader.add("img/cityTiles_sheet.json");
     loader.load();
     loader.onProgress.add(LoaderProgressHandler);
-    loader.onComplete.add(LoaderSetup);
+    loader.onComplete.add(() => {
+        g_loadingCounter -= 1;
+    });
 
     // asynchronous loading
     WebAssembly.instantiateStreaming(
         fetch('rust/asengine.wasm'))
     .then(obj => {
-        console.log('Successfully downloaded wasm, exported funcs are: ');
-        console.log(Object.keys(obj.instance.exports));
+        g_engine = obj;
+        g_loadingCounter -= 1;
     }).catch(err => {
         console.log(err);
     });
     
     // Ready when all asynchronous loading finish
+    console.log("Waiting");
 }
 
 function InitializeDebugOverlay()
@@ -202,6 +209,12 @@ function Resize()
 function WaitingState()
 {
     // do nothing, wait for loader
+    if (g_loadingCounter == 0)
+    {
+        console.log('Successfully downloaded wasm, exported funcs are: ');
+        console.log(Object.keys(g_engine.instance.exports));
+        g_state = StartState;
+    }
 }
 
 function StartState()

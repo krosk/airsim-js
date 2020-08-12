@@ -114,20 +114,6 @@ let ASENGINE = (function ()
     
     public.C_NAME = 'ASENGINE';
     
-    /*
-    const C_MODULE_INT = {
-        [public.C_NAME] : public,
-        [ASMAP.C_NAME] : ASMAP,
-        [ASMAPUI.C_NAME] : ASMAPUI,
-        [MMAPDATA.C_NAME] : MMAPDATA,
-        [ASSTATE.C_NAME] : ASSTATE,
-        [ASROAD.C_NAME] : ASROAD,
-        [ASZONE.C_NAME] : ASZONE,
-        [ASRICO.C_NAME] : ASRICO,
-        [ASTILEVIEW.C_NAME] : ASTILEVIEW
-    };
-    */
-    
     public.hasAccess = function asengine_hasAccess()
     {
         return !G_WORKER;
@@ -144,55 +130,6 @@ let ASENGINE = (function ()
         dispatch(postData);
     }
     
-    // directly readable globals
-    
-    // async functions with callbacks
-    /*
-    public.retrieveAllChangedTileId = function asengine_retrieveAllChangedTileId(callbackData, viewName)
-    {
-        let postData = [ASTILEVIEW.C_NAME, 'retrieveAllChangedTileId', viewName];
-        dispatch(postData, callbackData);
-    }*/
-    
-    /*public.update = function asengine_update(callbackData, computeTimeLimit, time)
-    {
-        let postData = [ASZONE.C_NAME, 'update', computeTimeLimit, time];
-        dispatch(postData, callbackData);
-    }*/
-    
-    /*public.getSerializable = function asengine_getSerializable(callbackData)
-    {
-        let postData = [ASSTATE.C_NAME, 'getSerializable'];
-        dispatch(postData, callbackData);
-    }
-    
-    public.setSerializable = function asengine_setSerializable(callbackData, value)
-    {
-        let postData = [ASSTATE.C_NAME, 'setSerializable', value];
-        dispatch(postData, callbackData);
-    }*/
-    
-    /*public.setPreset = function asengine_setPreset(callbackData)
-    {
-        let postData = [ASZONE.C_NAME, 'setPreset'];
-        dispatch(postData, callbackData);
-    }*/
-    
-    /*
-    public.getTileIdTable = function asengine_getTileIdTable(callbackData, viewName)
-    {
-        let postData = [ASTILEVIEW.C_NAME, 'getTileIdTable', viewName];
-        dispatch(postData, callbackData);
-    }*/
-    
-    // async functions without callback
-    // direct order
-    /*public.setTickSpeed = function asengine_setTickSpeed(unused, value)
-    {
-        let postData = [ASSTATE.C_NAME, 'setTickSpeed', value];
-        dispatch(postData);
-    }*/
-    
     public.setZone = function asengine_setZone(unused, x, y, selectedId)
     {
         if (selectedId == public.V_ZONE.ROAD)
@@ -208,58 +145,6 @@ let ASENGINE = (function ()
         const postData = [ASZONE.C_NAME, 'setZone', x, y, selectedId];
         dispatch(postData);
     }
-    
-    /*public.initializeTraversal = function asengine_initializeTraversal(unused, x, y)
-    {
-        const postData = [ASROAD.C_NAME, 'initializeTraversal', x, y];
-        dispatch(postData);
-    }
-    
-    public.getNextStepTraversal = function asengine_getNextStepTraversal(callbackData)
-    {
-        const postData = [ASROAD.C_NAME, 'getNextStepTraversal'];
-        dispatch(postData, callbackData);
-    }
-    
-    public.getTraversalPath = function asengine_getTraversalPath(callbackData)
-    {
-        const postData = [ASROAD.C_NAME, 'getTraversalPath'];
-        dispatch(postData, callbackData);
-    }
-    
-    public.resetTraversalPath = function asengine_resetTraversalPath(unused)
-    {
-        const postData = [ASROAD.C_NAME, 'resetTraversalPath'];
-        dispatch(postData, undefined);
-    }
-    
-    public.printTraversal = function asengine_printTraversal()
-    {
-        const postData = [ASROAD.C_NAME, 'printTraversal'];
-        dispatch(postData);
-    }*/
-    
-    /*public.getInfoZone = function asengine_getInfoZone(callbackData)
-    {
-        const postData = [ASZONE.C_NAME, 'getInfoZone'];
-        dispatch(postData, callbackData);
-    }*/
-    
-    /*
-    public.getInfoRoad = function asengine_getInfoRoad(unused, x, y)
-    {
-        const callbackData = [ASENGINE.C_NAME, 'printValue'];
-        const postData = [ASROAD.C_NAME, 'getInfoRoad', x, y];
-        dispatch(postData, callbackData);
-    }
-    
-    public.getInfoRico = function asengine_getInfoRico(unused, x, y)
-    {
-        const callbackData = [ASENGINE.C_NAME, 'printValue'];
-        const postData = [ASRICO.C_NAME, 'getInfoRico', x, y];
-        dispatch(postData, callbackData);
-    }
-    */
     
     public.printValue = function asengine_printValue(value)
     {

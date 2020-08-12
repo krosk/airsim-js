@@ -937,11 +937,11 @@ let ASZONE = (function ()
     }
     public.EXPORT.setPreset = public.setPreset;
     
-    public.getInfo = function aszone_getInfo()
+    public.getInfoZone = function aszone_getInfoZone()
     {
         return ASSTATE.getRicoOfferTotalLast() + ' ' + ASSTATE.getRicoDemandTotalLast();
     }
-    public.EXPORT.getInfo = public.getInfo;
+    public.EXPORT.getInfoZone = public.getInfoZone;
     
     return public;
 })();
@@ -1750,7 +1750,7 @@ let ASROAD = (function ()
         return costSoFar < costMax;
     }
     
-    public.getInfo = function asroad_getInfo(x, y)
+    public.getInfoRoad = function asroad_getInfoRoad(x, y)
     {
         let index = ASSTATE.getIndex(x, y);
         if (!hasRoad(index))
@@ -2482,7 +2482,7 @@ let ASRICO = (function ()
         return list;
     }
     
-    public.getInfo = function asrico_getInfo(x, y)
+    public.getInfoRico = function asrico_getInfoRico(x, y)
     {
         let index = ASSTATE.getIndex(x, y);
         if (!hasBuilding(index))
@@ -2495,7 +2495,7 @@ let ASRICO = (function ()
             " " + getInitialDemand(code) +
             " " + getInitialOffer(code);
     }
-    //public.EXPORT.getInfo = public.getInfo;
+    public.EXPORT.getInfoRico = public.getInfoRico;
     
     return public;
 })();

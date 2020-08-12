@@ -237,23 +237,23 @@ let ASENGINE = (function ()
         dispatch(postData);
     }*/
     
-    /*public.getInfo = function asengine_getInfo(callbackData)
+    /*public.getInfoZone = function asengine_getInfoZone(callbackData)
     {
-        const postData = [ASZONE.C_NAME, 'getInfo'];
+        const postData = [ASZONE.C_NAME, 'getInfoZone'];
         dispatch(postData, callbackData);
     }*/
     
     public.getInfoRoad = function asengine_getInfoRoad(unused, x, y)
     {
         const callbackData = [ASENGINE.C_NAME, 'printValue'];
-        const postData = [ASROAD.C_NAME, 'getInfo', x, y];
+        const postData = [ASROAD.C_NAME, 'getInfoRoad', x, y];
         dispatch(postData, callbackData);
     }
     
     public.getInfoRico = function asengine_getInfoRico(unused, x, y)
     {
         const callbackData = [ASENGINE.C_NAME, 'printValue'];
-        const postData = [ASRICO.C_NAME, 'getInfo', x, y];
+        const postData = [ASRICO.C_NAME, 'getInfoRico', x, y];
         dispatch(postData, callbackData);
     }
     
@@ -283,5 +283,5 @@ ASENGINE.registerModule(ASENGINE);
 ASENGINE.registerModule(ASSTATE);
 ASENGINE.registerModule(ASTILEVIEW);
 ASENGINE.registerModule(ASZONE);
-//ASENGINE.registerModule(ASROAD);
-//ASENGINE.registerModule(ASRICO);
+ASENGINE.registerModule(ASROAD);
+ASENGINE.registerModule(ASRICO);

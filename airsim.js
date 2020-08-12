@@ -365,7 +365,7 @@ let ASMAP = (function ()
             ASENGINE.update(callbackData, Date.now() + ENGINE_YIELD_PERIOD, Date.now());
         }
         let infoCallbackData = [public.C_NAME, 'updateEngineInfo'];
-        ASENGINE.getInfo(infoCallbackData);
+        ASENGINE.getInfoZone(infoCallbackData);
     }
     
     let m_lastTick = 0;

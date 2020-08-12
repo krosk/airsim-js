@@ -1763,6 +1763,7 @@ let ASROAD = (function ()
         "/" + (getRoadMaximumCarFlow(index) | 0) +
         " Ls:" + ASSTATE.getRoadLastCarFlow(index);
     }
+    public.EXPORT.getInfoRoad = public.getInfoRoad;
     
     return public;
 })();

@@ -114,6 +114,7 @@ let ASENGINE = (function ()
     
     public.C_NAME = 'ASENGINE';
     
+    /*
     const C_MODULE_INT = {
         [public.C_NAME] : public,
         [ASMAP.C_NAME] : ASMAP,
@@ -125,6 +126,7 @@ let ASENGINE = (function ()
         [ASRICO.C_NAME] : ASRICO,
         [ASTILEVIEW.C_NAME] : ASTILEVIEW
     };
+    */
     
     public.hasAccess = function asengine_hasAccess()
     {
@@ -243,6 +245,7 @@ let ASENGINE = (function ()
         dispatch(postData, callbackData);
     }*/
     
+    /*
     public.getInfoRoad = function asengine_getInfoRoad(unused, x, y)
     {
         const callbackData = [ASENGINE.C_NAME, 'printValue'];
@@ -256,6 +259,7 @@ let ASENGINE = (function ()
         const postData = [ASRICO.C_NAME, 'getInfoRico', x, y];
         dispatch(postData, callbackData);
     }
+    */
     
     public.printValue = function asengine_printValue(value)
     {

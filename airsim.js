@@ -443,12 +443,14 @@ let ASMAP = (function ()
             ASENGINE.printTraversal(undefined);
         }
         */
-        ASENGINE.getInfoRoad(undefined, x, y);
+        const callbackData = [ASENGINE.C_NAME, 'printValue'];
+        ASENGINE.getInfoRoad(callbackData, x, y);
     }
     
     let doViewModeRicoLayerSingleClick = function asmap_doViewModeRicoLayerSingleClick(x, y)
     {
-        ASENGINE.getInfoRico(undefined, x, y);
+        const callbackData = [ASENGINE.C_NAME, 'printValue'];
+        ASENGINE.getInfoRico(callbackData, x, y);
     }
     
     let doSingleClick = function asmap_doSingleClick(x, y)

@@ -277,7 +277,7 @@ let ASMAP = (function ()
     
     public.initialize = function asmap_initialize(w, h)
     {
-        ASWENGINE.initializeModule(w, h);
+        PSEENGINE.initializeModule(undefined, w, h);
         MMAPDATA.initializeMapTableSize(w, h);
         MMAPDATA.initialize(ASTILEVIEW.C_TILEVIEW.ZONE);
         ASTILE.initializeTexture();

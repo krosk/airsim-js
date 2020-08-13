@@ -23,12 +23,9 @@ let ASWENGINE = (function ()
     // engine exported functions
     public.initializeModule = function aswengine_initializeModule(... args)
     {
-        let postData = [ASSTATE.C_NAME, 'initialize', ...args];
-        PSEENGINE.dispatch(postData);
-        postData = [ASZONE.C_NAME, 'initialize', ...args];
-        PSEENGINE.dispatch(postData);
-        postData = [ASRICO.C_NAME, 'initialize', ...args];
-        PSEENGINE.dispatch(postData);
+        ASSTATE.initialize(... args);
+        ASZONE.initialize(... args);
+        ASRICO.initialize(... args);
     }
     public.EXPORT.initializeModule = public.initializeModule;
     

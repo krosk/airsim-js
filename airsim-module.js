@@ -20,7 +20,6 @@ let ASWENGINE = (function ()
         return !G_WORKER;
     }
     
-    // engine exported functions
     public.initializeModule = function aswengine_initializeModule(... args)
     {
         ASSTATE.initialize(... args);
@@ -29,20 +28,17 @@ let ASWENGINE = (function ()
     }
     public.EXPORT.initializeModule = public.initializeModule;
     
-    public.setZone = function aswengine_setZone(unused, x, y, selectedId)
+    public.setZone = function aswengine_setZone(x, y, selectedId)
     {
         if (selectedId == public.V_ZONE.ROAD)
         {
-            const postData = [ASROAD.C_NAME, 'addRoad', x, y];
-            PSEENGINE.dispatch(postData);
+            ASROAD.addRoad(x, y);
         }
         else
         {
-            const postData = [ASROAD.C_NAME, 'removeRoad', x, y];
-            PSEENGINE.dispatch(postData);
+            ASROAD.removeRoad(x, y);
         }
-        const postData = [ASZONE.C_NAME, 'setZone', x, y, selectedId];
-        PSEENGINE.dispatch(postData);
+        ASZONE.setZone(x, y, selectedId);
     }
     public.EXPORT.setZone = public.setZone;
     

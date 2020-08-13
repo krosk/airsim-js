@@ -409,7 +409,7 @@ let ASMAP = (function ()
     {
         let selectedId = ASMAPUI.getCurrentZoneId();
         // this assumes selectedId is a valid zone id
-        ASWENGINE.setZone(undefined, x, y, selectedId);
+        PSEENGINE.setZone(undefined, x, y, selectedId);
     }
     
     let doViewModeRoadLayerSingleClick = function asmap_doViewRoadSingleClick(x, y)

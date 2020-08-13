@@ -1,2 +1,2 @@
 cargo build --target-dir ~/target --target wasm32-unknown-unknown --release
-cp ~/target/wasm32-unknown-unknown/release/*.wasm .
+wasm-gc ~/target/wasm32-unknown-unknown/release/asengine.wasm asengine.wasm

@@ -11,7 +11,10 @@
 // IS (main thread)
 //   pse-edit-modules.js
 
+G_WASM_ENGINE = {};
+
 const G_METHOD_TO_MODULE_TABLE = {};
+
 for (moduleName in G_MODULE_INT)
 {
     moduleObject = G_MODULE_INT[moduleName];

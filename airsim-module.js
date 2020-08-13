@@ -154,7 +154,8 @@ let ASSTATE = (function()
         {
             throw ('error accessing undefined field');
         }
-        let target = index == 0 ? field : (index - 1)*C.END + G.END + field;
+        let target = (G_WASM_ENGINE.rust_r(index, field, m_dataStateView));
+        //let target = index == 0 ? field : (index - 1)*C.END + G.END + field;
         if (typeof m_dataStateView == 'undefined')
         {
             throw ('dataStateView not initialized for ' + index + ' ' + field);

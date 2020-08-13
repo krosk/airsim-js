@@ -15,6 +15,7 @@ WebAssembly.instantiateStreaming(
 .then(obj => {
     console.log('Successfully downloaded wasm, exported funcs are: ');
     console.log(Object.keys(obj.instance.exports));
+    G_WASM_ENGINE = obj.instance.exports;
 }).catch(err => {
     console.log(err);
 });

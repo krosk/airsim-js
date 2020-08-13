@@ -11,6 +11,8 @@
 // IS (main thread)
 //   pse-edit-modules.js
 
+const G_WORKER = true;
+
 if (typeof WorkerGlobalScope !== 'undefined')
 {
     self.importScripts('airsim-tile-const.js');

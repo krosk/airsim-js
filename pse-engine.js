@@ -5,8 +5,6 @@
 // LOADS (worker thread)
 //   pse-worker.js
 
-const G_WORKER = true && window.Worker;
-
 // PSEENGINE is the engine object that faces the main thread,  
 // and allow API communication between main thread and worker.
 // The main responsibility is to expose engine API functions 
@@ -109,7 +107,7 @@ let PSEENGINE_Obj = (function ()
     
     let dispatch = function pseengine_dispatch(postData, callbackData)
     {
-        if (G_WORKER)
+        if (G_WORKER && window.Worker)
         {
             m_worker.postMessage([postData, callbackData]);
         }
@@ -150,11 +148,11 @@ let PSEENGINE_Obj = (function ()
     // means has access to internals without having to cross message
     public.hasAccess = function pseengine_hasAccess()
     {
-        return !G_WORKER;
+        return !(G_WORKER && window.Worker);
     }
     
     let m_worker;
-    if (G_WORKER)
+    if (G_WORKER && window.Worker)
     {
         m_worker = new window.Worker('pse-worker.js');
         m_worker.onmessage = function pseengine_onmessage(e)

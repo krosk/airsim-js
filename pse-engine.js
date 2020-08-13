@@ -126,6 +126,11 @@ let PSEENGINE = (function ()
         }
     }
     public.dispatch = dispatch;
+
+    public.hasAccess = function pseengine_hasAccess()
+    {
+        return !G_WORKER;
+    }
     
     let m_worker;
     if (G_WORKER)

@@ -15,11 +15,6 @@ let ASWENGINE = (function ()
 
     public.C_NAME = 'ASWENGINE';
     
-    public.hasAccess = function asengine_hasAccess()
-    {
-        return !G_WORKER;
-    }
-    
     public.initializeModule = function aswengine_initializeModule(... args)
     {
         ASSTATE.initialize(... args);

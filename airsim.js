@@ -351,13 +351,13 @@ let ASMAP = (function ()
     {
         // this is uni directional call
         // in practice
-        if (ASWENGINE.hasAccess() && Date.now() < computeTimeLimit)
+        if (PSEENGINE.hasAccess() && Date.now() < computeTimeLimit)
         {
             m_updateStateMachine = 5;
             let callbackData = [public.C_NAME, 'updateEngineResponse'];
             PSEENGINE.update(callbackData, computeTimeLimit, time);
         }
-        else if (!ASWENGINE.hasAccess())
+        else if (!PSEENGINE.hasAccess())
         {
             const ENGINE_YIELD_PERIOD = 330; // ms
             m_updateStateMachine = 5;
@@ -476,7 +476,7 @@ let ASMAP = (function ()
 
     let updateDebug = function asmap_updateDebug()
     {
-        let b = ASWENGINE.hasAccess();
+        let b = PSEENGINE.hasAccess();
         
         let interactState = 'i(' + (MMAPTOUCH.isStatePan() ? 'P' : '-') + (MMAPTOUCH.isStateZoom() ? 'Z' : '-') + (MMAPTOUCH.getTouchCount()) + (MMAPTOUCH.getClickCount()) + ') ';
         let frameElapsed = 'f(' + (b ? ASSTATE.getFrame() : 0) + ') ';

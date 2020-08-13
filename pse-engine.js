@@ -34,7 +34,7 @@ const G_WORKER = true && window.Worker;
 // follows the same signature of the exported function.
 // This mechanism is used for modules running on the worker.
 
-let PSEENGINE = (function ()
+let PSEENGINE_Obj = (function ()
 {
     let public = {};
     
@@ -146,3 +146,21 @@ let PSEENGINE = (function ()
     
     return public;
 })();
+
+// notes from https://stackoverflow.com/questions/9779624/does-javascript-have-something-like-rubys-method-missing-feature
+let PSEENGINE = new Proxy(PSEENGINE_Obj, {
+    get: function (target, methodOrAttributeName) {
+        if (Object.keys(target).indexOf(methodOrAttributeName) !== -1)
+        {
+            return target[methodOrAttributeName];
+        }
+        else
+        {
+            return function (callbackData, ...args)
+                {
+                    let postData = [undefined, methodOrAttributeName, ...args];
+                    target.dispatch(postData, callbackData);
+                }
+        }
+    }
+});

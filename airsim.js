@@ -2666,9 +2666,3 @@ let MMAPRENDER = (function ()
 PSEENGINE.registerModule(MMAPDATA);
 PSEENGINE.registerModule(ASMAP);
 PSEENGINE.registerModule(ASMAPUI);
-PSEENGINE.registerModule(ASWENGINE);
-PSEENGINE.registerModule(ASSTATE);
-PSEENGINE.registerModule(ASTILEVIEW);
-PSEENGINE.registerModule(ASZONE);
-PSEENGINE.registerModule(ASROAD);
-PSEENGINE.registerModule(ASRICO);

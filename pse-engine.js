@@ -7,6 +7,33 @@
 
 const G_WORKER = true && window.Worker;
 
+// PSEENGINE is the engine object that faces the main thread,  
+// and allow API communication between main thread and worker.
+// The main responsibility is to expose engine API functions 
+// to the main thread, while those functions are executed on
+// the worker. As a reminder, message passing between main
+// thread and worker are strictly a list of strings/values.
+//
+// PSEENGINE exposes a function PSEENGINE.dispatch, which role
+// is to transfer the message to the worker. Hence, all engine
+// calls (with no callback) can be performed using only dispatch.
+//
+// However, for functions with callbacks, PSEENGINE requires
+// a handle into the module that defines the callback so it knows
+// where to call the function. The handle used by PSEENGINE is
+// given by a mapping between the module name and the module object,
+// which is populated with the function PSEENGINE.registerModule(). 
+// The callbacked function should at least be a public function 
+// of the module, but does not need to be exported. 
+// Note that module name, function, and arguments, are passed 
+// alongside the engine function call as a list.
+//
+// For convenience, PSEENGINE.registerModule() adds functions 
+// alongside PSEENGINE.dispatch(), if they are defined in the
+// EXPORT field of the module. The added function signature
+// follows the same signature of the exported function.
+// This mechanism is used for modules running on the worker.
+
 let PSEENGINE = (function ()
 {
     let public = {};
@@ -58,7 +85,7 @@ let PSEENGINE = (function ()
             let uiArg1 = callbackData[3];
             if (typeof MODULE_INT[uiModuleName] === 'undefined')
             {
-                throw uiModuleName + ' not found';
+                throw uiModuleName + ' not found for method ' + uiMethodName;
             }
             let uiMethod = MODULE_INT[uiModuleName][uiMethodName];
             if (typeof uiMethod === 'undefined')

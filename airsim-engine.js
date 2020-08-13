@@ -7,6 +7,67 @@
 
 const G_WORKER = true && window.Worker;
 
+let ASWENGINE = (function ()
+{
+    let public = {};
+    public.EXPORT = {};
+
+    public.C_NAME = 'ASWENGINE';
+    
+    public.hasAccess = function asengine_hasAccess()
+    {
+        return !G_WORKER;
+    }
+    
+    // engine exported functions
+    public.initializeModule = function aswengine_initializeModule(... args)
+    {
+        let postData = [ASSTATE.C_NAME, 'initialize', ...args];
+        ASENGINE.dispatch(postData);
+        postData = [ASZONE.C_NAME, 'initialize', ...args];
+        ASENGINE.dispatch(postData);
+        postData = [ASRICO.C_NAME, 'initialize', ...args];
+        ASENGINE.dispatch(postData);
+    }
+    public.EXPORT.initializeModule = public.initializeModule;
+    
+    public.setZone = function aswengine_setZone(unused, x, y, selectedId)
+    {
+        if (selectedId == public.V_ZONE.ROAD)
+        {
+            const postData = [ASROAD.C_NAME, 'addRoad', x, y];
+            ASENGINE.dispatch(postData);
+        }
+        else
+        {
+            const postData = [ASROAD.C_NAME, 'removeRoad', x, y];
+            ASENGINE.dispatch(postData);
+        }
+        const postData = [ASZONE.C_NAME, 'setZone', x, y, selectedId];
+        ASENGINE.dispatch(postData);
+    }
+    public.EXPORT.setZone = public.setZone;
+    
+    public.printValue = function aswengine_printValue(value)
+    {
+        console.log(value);
+    }
+    public.EXPORT.printValue = public.printValue;
+    
+    // tiles bank
+    public.V_ZONE = function aswengine_v_zone()
+    {
+        return ASZONE.C_TILEENUM;
+    }
+    
+    public.V_ROAD = function aswengine_v_road()
+    {
+        return ASROAD.C_TILEENUM;
+    }
+
+    return public;
+})();
+
 let ASENGINE = (function ()
 {
     let public = {};
@@ -99,6 +160,7 @@ let ASENGINE = (function ()
             processCallback(value, callbackData);
         }
     }
+    public.dispatch = dispatch;
     
     let m_worker;
     if (G_WORKER)
@@ -111,56 +173,6 @@ let ASENGINE = (function ()
             processCallback(value, callbackData);
         }
     }
-    
-    public.C_NAME = 'ASENGINE';
-    
-    public.hasAccess = function asengine_hasAccess()
-    {
-        return !G_WORKER;
-    }
-    
-    // engine exported functions
-    public.initializeModule = function asengine_initializeModule(... args)
-    {
-        let postData = [ASSTATE.C_NAME, 'initialize', ...args];
-        dispatch(postData);
-        postData = [ASZONE.C_NAME, 'initialize', ...args];
-        dispatch(postData);
-        postData = [ASRICO.C_NAME, 'initialize', ...args];
-        dispatch(postData);
-    }
-    
-    public.setZone = function asengine_setZone(unused, x, y, selectedId)
-    {
-        if (selectedId == public.V_ZONE.ROAD)
-        {
-            const postData = [ASROAD.C_NAME, 'addRoad', x, y];
-            dispatch(postData);
-        }
-        else
-        {
-            const postData = [ASROAD.C_NAME, 'removeRoad', x, y];
-            dispatch(postData);
-        }
-        const postData = [ASZONE.C_NAME, 'setZone', x, y, selectedId];
-        dispatch(postData);
-    }
-    
-    public.printValue = function asengine_printValue(value)
-    {
-        console.log(value);
-    }
-    
-    // tiles bank
-    public.V_ZONE = function asengine_v_zone()
-    {
-        return ASZONE.C_TILEENUM;
-    }
-    
-    public.V_ROAD = function asengine_v_road()
-    {
-        return ASROAD.C_TILEENUM;
-    }
 
     return public;
 })();
@@ -168,7 +180,7 @@ let ASENGINE = (function ()
 ASENGINE.registerModule(MMAPDATA);
 ASENGINE.registerModule(ASMAP);
 ASENGINE.registerModule(ASMAPUI);
-ASENGINE.registerModule(ASENGINE);
+ASENGINE.registerModule(ASWENGINE);
 ASENGINE.registerModule(ASSTATE);
 ASENGINE.registerModule(ASTILEVIEW);
 ASENGINE.registerModule(ASZONE);

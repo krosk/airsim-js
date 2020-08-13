@@ -277,7 +277,7 @@ let ASMAP = (function ()
     
     public.initialize = function asmap_initialize(w, h)
     {
-        ASENGINE.initializeModule(w, h);
+        ASWENGINE.initializeModule(w, h);
         MMAPDATA.initializeMapTableSize(w, h);
         MMAPDATA.initialize(ASTILEVIEW.C_TILEVIEW.ZONE);
         ASTILE.initializeTexture();
@@ -351,13 +351,13 @@ let ASMAP = (function ()
     {
         // this is uni directional call
         // in practice
-        if (ASENGINE.hasAccess() && Date.now() < computeTimeLimit)
+        if (ASWENGINE.hasAccess() && Date.now() < computeTimeLimit)
         {
             m_updateStateMachine = 5;
             let callbackData = [public.C_NAME, 'updateEngineResponse'];
             ASENGINE.update(callbackData, computeTimeLimit, time);
         }
-        else if (!ASENGINE.hasAccess())
+        else if (!ASWENGINE.hasAccess())
         {
             const ENGINE_YIELD_PERIOD = 330; // ms
             m_updateStateMachine = 5;
@@ -409,7 +409,7 @@ let ASMAP = (function ()
     {
         let selectedId = ASMAPUI.getCurrentZoneId();
         // this assumes selectedId is a valid zone id
-        ASENGINE.setZone(undefined, x, y, selectedId);
+        ASWENGINE.setZone(undefined, x, y, selectedId);
     }
     
     let doViewModeRoadLayerSingleClick = function asmap_doViewRoadSingleClick(x, y)
@@ -443,13 +443,13 @@ let ASMAP = (function ()
             ASENGINE.printTraversal(undefined);
         }
         */
-        const callbackData = [ASENGINE.C_NAME, 'printValue'];
+        const callbackData = [ASWENGINE.C_NAME, 'printValue'];
         ASENGINE.getInfoRoad(callbackData, x, y);
     }
     
     let doViewModeRicoLayerSingleClick = function asmap_doViewModeRicoLayerSingleClick(x, y)
     {
-        const callbackData = [ASENGINE.C_NAME, 'printValue'];
+        const callbackData = [ASWENGINE.C_NAME, 'printValue'];
         ASENGINE.getInfoRico(callbackData, x, y);
     }
     
@@ -476,7 +476,7 @@ let ASMAP = (function ()
 
     let updateDebug = function asmap_updateDebug()
     {
-        let b = ASENGINE.hasAccess();
+        let b = ASWENGINE.hasAccess();
         
         let interactState = 'i(' + (MMAPTOUCH.isStatePan() ? 'P' : '-') + (MMAPTOUCH.isStateZoom() ? 'Z' : '-') + (MMAPTOUCH.getTouchCount()) + (MMAPTOUCH.getClickCount()) + ') ';
         let frameElapsed = 'f(' + (b ? ASSTATE.getFrame() : 0) + ') ';

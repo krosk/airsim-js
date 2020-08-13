@@ -18,6 +18,12 @@ const G_WORKER = true && window.Worker;
 // is to transfer the message to the worker. Hence, all engine
 // calls (with no callback) can be performed using only dispatch.
 //
+// PSENGINE is implemented as a Proxy, and any function call
+// performed on PSENGINE is intercepted and redirected as 
+// a message to the worker. Hence main thread does not need
+// prior knowledge of the exposed methods of the engine, as
+// the resolution happens on the worker.
+//
 // However, for functions with callbacks, PSEENGINE requires
 // a handle into the module that defines the callback so it knows
 // where to call the function. The handle used by PSEENGINE is
@@ -28,19 +34,13 @@ const G_WORKER = true && window.Worker;
 // Note that module name, function, and arguments, are passed 
 // alongside the engine function call as a list.
 //
-// For convenience, PSEENGINE.registerModule() adds functions 
-// alongside PSEENGINE.dispatch(), if they are defined in the
-// EXPORT field of the module. The added function signature
-// follows the same signature of the exported function.
-// This mechanism is used for modules running on the worker.
+// When worker is unavailable, the dispatch call is executed
+// on the main thread. Hence engine internal modules also have
+// to be registered with PSEENGINE.registerModule().
 
 let PSEENGINE_Obj = (function ()
 {
     let public = {};
-    
-    // engine calls and callback back calls
-    // all go through this
-    let MODULE_INT = {};
     
     public.registerModule = function pseengine_registerModule(module)
     {
@@ -50,7 +50,7 @@ let PSEENGINE_Obj = (function ()
             console.log(methodList);
             throw "registered module has no C_NAME, method list printed in console";
         }
-        MODULE_INT[module.C_NAME] = module;
+        G_MODULE_INT[module.C_NAME] = module;
         if (typeof(module.EXPORT) === 'object')
         {
             exportedMethodsList = Object.getOwnPropertyNames(module.EXPORT).filter(item => typeof module[item] === 'function');
@@ -83,11 +83,11 @@ let PSEENGINE_Obj = (function ()
             let uiMethodName = callbackData[1];
             let uiArg0 = callbackData[2];
             let uiArg1 = callbackData[3];
-            if (typeof MODULE_INT[uiModuleName] === 'undefined')
+            if (typeof G_MODULE_INT[uiModuleName] === 'undefined')
             {
                 throw uiModuleName + ' not found for method ' + uiMethodName;
             }
-            let uiMethod = MODULE_INT[uiModuleName][uiMethodName];
+            let uiMethod = G_MODULE_INT[uiModuleName][uiMethodName];
             if (typeof uiMethod === 'undefined')
             {
                 throw uiModuleName + '.' + uiMethodName + ' not found';
@@ -109,24 +109,45 @@ let PSEENGINE_Obj = (function ()
     
     let dispatch = function pseengine_dispatch(postData, callbackData)
     {
-        let engineModuleName = postData[0];
-        let engineMethodName = postData[1];
-        let engineArg0 = postData[2];
-        let engineArg1 = postData[3];
-        let engineArg2 = postData[4];
-        
         if (G_WORKER)
         {
             m_worker.postMessage([postData, callbackData]);
         }
         else
         {
-            let value = MODULE_INT[engineModuleName][engineMethodName](engineArg0, engineArg1, engineArg2);
-            processCallback(value, callbackData);
+            if (typeof postData != 'undefined')
+            {
+                let engineModuleName = postData[0];
+                let engineMethodName = postData[1];
+                let engineArg0 = postData[2];
+                let engineArg1 = postData[3];
+                let engineArg2 = postData[4];
+    
+                let value = undefined;
+                if (typeof engineModuleName === 'undefined')
+                {
+                    engineModuleName = G_METHOD_TO_MODULE_TABLE[engineMethodName];
+                }
+    
+                if (typeof engineModuleName != 'undefined')
+                {
+                    value = G_MODULE_INT[engineModuleName][engineMethodName](engineArg0, engineArg1, engineArg2);
+                }
+                else
+                {
+                    throw "No module for called method " + engineMethodName;
+                }
+
+                if (typeof callbackData != 'undefined')
+                {
+                    processCallback(value, callbackData);
+                }
+            }
         }
     }
     public.dispatch = dispatch;
 
+    // means has access to internals without having to cross message
     public.hasAccess = function pseengine_hasAccess()
     {
         return !G_WORKER;

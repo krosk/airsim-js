@@ -6,8 +6,16 @@
 //   airsim-tile-const.js
 //   airsim-module.js
 
-self.importScripts('airsim-tile-const.js');
-self.importScripts('airsim-module.js');
+// LOADED BY
+//   index.html
+// IS (main thread)
+//   pse-edit-modules.js
+
+if (typeof WorkerGlobalScope !== 'undefined')
+{
+    self.importScripts('airsim-tile-const.js');
+    self.importScripts('airsim-module.js');
+}
 
 const G_MODULE_INT = {
     [ASSTATE.C_NAME] : ASSTATE,

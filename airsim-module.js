@@ -3,10 +3,71 @@
 // IS (worker thread)
 //   airsim-module.js
 // LOADS (worker thread)
-//   
+//   ???
 
 const G_CHECK = true;
 const G_CACHE_NODE = true;
+
+let ASWENGINE = (function ()
+{
+    let public = {};
+    public.EXPORT = {};
+
+    public.C_NAME = 'ASWENGINE';
+    
+    public.hasAccess = function asengine_hasAccess()
+    {
+        return !G_WORKER;
+    }
+    
+    // engine exported functions
+    public.initializeModule = function aswengine_initializeModule(... args)
+    {
+        let postData = [ASSTATE.C_NAME, 'initialize', ...args];
+        PSEENGINE.dispatch(postData);
+        postData = [ASZONE.C_NAME, 'initialize', ...args];
+        PSEENGINE.dispatch(postData);
+        postData = [ASRICO.C_NAME, 'initialize', ...args];
+        PSEENGINE.dispatch(postData);
+    }
+    public.EXPORT.initializeModule = public.initializeModule;
+    
+    public.setZone = function aswengine_setZone(unused, x, y, selectedId)
+    {
+        if (selectedId == public.V_ZONE.ROAD)
+        {
+            const postData = [ASROAD.C_NAME, 'addRoad', x, y];
+            PSEENGINE.dispatch(postData);
+        }
+        else
+        {
+            const postData = [ASROAD.C_NAME, 'removeRoad', x, y];
+            PSEENGINE.dispatch(postData);
+        }
+        const postData = [ASZONE.C_NAME, 'setZone', x, y, selectedId];
+        PSEENGINE.dispatch(postData);
+    }
+    public.EXPORT.setZone = public.setZone;
+    
+    public.printValue = function aswengine_printValue(value)
+    {
+        console.log(value);
+    }
+    public.EXPORT.printValue = public.printValue;
+    
+    // tiles bank
+    public.V_ZONE = function aswengine_v_zone()
+    {
+        return ASZONE.C_TILEENUM;
+    }
+    
+    public.V_ROAD = function aswengine_v_road()
+    {
+        return ASROAD.C_TILEENUM;
+    }
+
+    return public;
+})();
 
 let ASSTATE = (function()
 {

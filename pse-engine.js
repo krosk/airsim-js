@@ -1,4 +1,11 @@
-const GG_WORKER = false && window.Worker;
+// LOADED BY
+//   index.html
+// IS (main thread)
+//   pse-engine.js
+// LOADS (worker thread)
+//   pse-worker.js
+
+const G_WORKER = true && window.Worker;
 
 let PSEENGINE = (function ()
 {
@@ -81,7 +88,7 @@ let PSEENGINE = (function ()
         let engineArg1 = postData[3];
         let engineArg2 = postData[4];
         
-        if (GG_WORKER)
+        if (G_WORKER)
         {
             m_worker.postMessage([postData, callbackData]);
         }
@@ -91,9 +98,10 @@ let PSEENGINE = (function ()
             processCallback(value, callbackData);
         }
     }
+    public.dispatch = dispatch;
     
     let m_worker;
-    if (GG_WORKER)
+    if (G_WORKER)
     {
         m_worker = new window.Worker('pse-worker.js');
         m_worker.onmessage = function pseengine_onmessage(e)

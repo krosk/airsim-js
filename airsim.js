@@ -331,7 +331,7 @@ let ASMAP = (function ()
             m_updateStateMachine = 1;
             let callbackData = [public.C_NAME, 'refreshTileListResponse'];
             let viewName = MMAPDATA.getTileViewName();
-            ASENGINE.retrieveAllChangedTileId(callbackData, viewName);
+            PSEENGINE.retrieveAllChangedTileId(callbackData, viewName);
         }
     }
     
@@ -355,17 +355,17 @@ let ASMAP = (function ()
         {
             m_updateStateMachine = 5;
             let callbackData = [public.C_NAME, 'updateEngineResponse'];
-            ASENGINE.update(callbackData, computeTimeLimit, time);
+            PSEENGINE.update(callbackData, computeTimeLimit, time);
         }
         else if (!ASWENGINE.hasAccess())
         {
             const ENGINE_YIELD_PERIOD = 330; // ms
             m_updateStateMachine = 5;
             let callbackData = [public.C_NAME, 'updateEngineResponse'];
-            ASENGINE.update(callbackData, Date.now() + ENGINE_YIELD_PERIOD, Date.now());
+            PSEENGINE.update(callbackData, Date.now() + ENGINE_YIELD_PERIOD, Date.now());
         }
         let infoCallbackData = [public.C_NAME, 'updateEngineInfo'];
-        ASENGINE.getInfoZone(infoCallbackData);
+        PSEENGINE.getInfoZone(infoCallbackData);
     }
     
     let m_lastTick = 0;
@@ -416,41 +416,41 @@ let ASMAP = (function ()
     {
         /*
         let selectedId = ASMAPUI.getCurrentRoadId();
-        if (selectedId == ASENGINE.V_ROAD.LOW)
+        if (selectedId == PSEENGINE.V_ROAD.LOW)
         {
-            ASENGINE.initializeTraversal(undefined, x, y);
+            PSEENGINE.initializeTraversal(undefined, x, y);
             //console.log('start traversal x' + x + 'y' + y + 'c' + m_roadTraversalTemp);
         }
-        else if (selectedId == ASENGINE.V_ROAD.MID)
+        else if (selectedId == PSEENGINE.V_ROAD.MID)
         {
-            const callbackData = [ASENGINE.C_NAME, 'printValue'];
-            ASENGINE.getNextStepTraversal(callbackData);
+            const callbackData = [PSEENGINE.C_NAME, 'printValue'];
+            PSEENGINE.getNextStepTraversal(callbackData);
             //console.log('incre traversal x' + next[0] + 'y' + next[1] + 'c' + m_roadTraversalTemp);
         }
-        else if (selectedId == ASENGINE.V_ROAD.HIG)
+        else if (selectedId == PSEENGINE.V_ROAD.HIG)
         {
-            const callbackData = [ASENGINE.C_NAME, 'printValue'];
-            ASENGINE.getTraversalPath(callbackData);
+            const callbackData = [PSEENGINE.C_NAME, 'printValue'];
+            PSEENGINE.getTraversalPath(callbackData);
             //console.log('finish traversal');
             //console.log(pathXY);
         }
-        else if (selectedId == ASENGINE.V_ROAD.NONE)
+        else if (selectedId == PSEENGINE.V_ROAD.NONE)
         {
-            ASENGINE.resetTraversalPath(undefined);
+            PSEENGINE.resetTraversalPath(undefined);
         }
-        else if (selectedId == ASENGINE.V_ROAD.VHI)
+        else if (selectedId == PSEENGINE.V_ROAD.VHI)
         {
-            ASENGINE.printTraversal(undefined);
+            PSEENGINE.printTraversal(undefined);
         }
         */
         const callbackData = [ASWENGINE.C_NAME, 'printValue'];
-        ASENGINE.getInfoRoad(callbackData, x, y);
+        PSEENGINE.getInfoRoad(callbackData, x, y);
     }
     
     let doViewModeRicoLayerSingleClick = function asmap_doViewModeRicoLayerSingleClick(x, y)
     {
         const callbackData = [ASWENGINE.C_NAME, 'printValue'];
-        ASENGINE.getInfoRico(callbackData, x, y);
+        PSEENGINE.getInfoRico(callbackData, x, y);
     }
     
     let doSingleClick = function asmap_doSingleClick(x, y)
@@ -1011,18 +1011,18 @@ let ASMAPUI = (function ()
         if (saveId == C_DEF.SAVE)
         {
             let callbackData = [ASMAPUI.C_NAME,'saveDataResponse'];
-            ASENGINE.getSerializable(callbackData);
+            PSEENGINE.getSerializable(callbackData);
         }
         else if (saveId == C_DEF.LOAD)
         {
             let stateData = localStorage.getItem('ASSTATE');
             let callbackData = [ASMAPUI.C_NAME, 'loadDataResponse'];
-            ASENGINE.setSerializable(callbackData, stateData);
+            PSEENGINE.setSerializable(callbackData, stateData);
         }
         else if (saveId == C_DEF.BENC)
         {
             let callbackData = [ASMAPUI.C_NAME, 'loadDataResponse'];
-            ASENGINE.setPreset(callbackData);
+            PSEENGINE.setPreset(callbackData);
         }
     }
     
@@ -1045,27 +1045,27 @@ let ASMAPUI = (function ()
         if (playId == C_DEF.PLAY)
         {
             //console.log("play");
-            ASENGINE.setTickSpeed(undefined,1000);
+            PSEENGINE.setTickSpeed(undefined,1000);
         }
         else if (playId == C_DEF.PLAY2)
         {
-            ASENGINE.setTickSpeed(undefined,100);
+            PSEENGINE.setTickSpeed(undefined,100);
         }
         else if (playId == C_DEF.PLAY3)
         {
-            ASENGINE.setTickSpeed(undefined,0);
+            PSEENGINE.setTickSpeed(undefined,0);
         }
         else if (playId == C_DEF.STOP)
         {
             //console.log("stop");
             // infinite tick speed in fact
-            ASENGINE.setTickSpeed(undefined,-1);
+            PSEENGINE.setTickSpeed(undefined,-1);
         }
         else if (playId == C_DEF.STEP)
         {
             //console.log("frame");
             // probably needs a special value
-            ASENGINE.setTickSpeed(undefined,1001);
+            PSEENGINE.setTickSpeed(undefined,1001);
         }
     }
     
@@ -1146,7 +1146,7 @@ let MMAPDATA = (function ()
     public.refreshAllTiles = function mmapdata_refreshAllTiles()
     {
         let callbackData = [MMAPDATA.C_NAME, 'refreshAllTilesResponse'];
-        ASENGINE.getTileIdTable(callbackData, m_tileViewName);
+        PSEENGINE.getTileIdTable(callbackData, m_tileViewName);
     }
     public.refreshAllTilesResponse = function mmapdata_refreshAllTilesResponse(tileIdTable)
     {
@@ -2662,3 +2662,13 @@ let MMAPRENDER = (function ()
     return public;
 })();
 // ---------------------
+
+PSEENGINE.registerModule(MMAPDATA);
+PSEENGINE.registerModule(ASMAP);
+PSEENGINE.registerModule(ASMAPUI);
+PSEENGINE.registerModule(ASWENGINE);
+PSEENGINE.registerModule(ASSTATE);
+PSEENGINE.registerModule(ASTILEVIEW);
+PSEENGINE.registerModule(ASZONE);
+PSEENGINE.registerModule(ASROAD);
+PSEENGINE.registerModule(ASRICO);

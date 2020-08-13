@@ -1,5 +1,5 @@
 // LOADED BY
-//   airsim-engine.js
+//   pse-engine.js
 // IS (worker thread)
 //   pse-worker.js
 // LOADS (worker thread)

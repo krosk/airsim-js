@@ -162,7 +162,19 @@ let PSEENGINE_Obj = (function ()
             processCallback(value, callbackData);
         }
     }
-    
+    else
+    {
+        // asynchronous loading
+        WebAssembly.instantiateStreaming(
+            fetch('rust/asengine.wasm'))
+        .then(obj => {
+            console.log('Successfully downloaded wasm, exported funcs are: ');
+            console.log(Object.keys(obj.instance.exports));
+        }).catch(err => {
+            console.log(err);
+        });
+    }
+
     return public;
 })();
 

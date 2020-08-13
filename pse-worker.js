@@ -9,6 +9,16 @@
 self.importScripts('pse-edit-modules.js');
 self.importScripts('pse-global.js')
 
+// asynchronous loading
+WebAssembly.instantiateStreaming(
+    fetch('rust/asengine.wasm'))
+.then(obj => {
+    console.log('Successfully downloaded wasm, exported funcs are: ');
+    console.log(Object.keys(obj.instance.exports));
+}).catch(err => {
+    console.log(err);
+});
+
 // pse-worker relies on G_MODULE_INT defined in pse-global
 
 self.onmessage = function pseworker_onmessage(e)

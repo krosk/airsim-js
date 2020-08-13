@@ -85,10 +85,6 @@ function adaptativeFetch(url)
 
 let g_state = WaitingState;
 
-let g_loadingCounter = 2;
-
-let g_engine = null;
-
 function OnReady()
 {
     g_stats = new Stats();
@@ -131,17 +127,7 @@ function OnReady()
     loader.load();
     loader.onProgress.add(LoaderProgressHandler);
     loader.onComplete.add(() => {
-        g_loadingCounter -= 1;
-    });
-
-    // asynchronous loading
-    WebAssembly.instantiateStreaming(
-        fetch('rust/asengine.wasm'))
-    .then(obj => {
-        g_engine = obj;
-        g_loadingCounter -= 1;
-    }).catch(err => {
-        console.log(err);
+        g_state = StartState;
     });
     
     // Ready when all asynchronous loading finish
@@ -184,15 +170,6 @@ function LoaderProgressHandler(loader, resource)
     console.log(loader.progress);
 }
 
-function LoaderSetup()
-{
-    //console.log("image loaded");
-    
-    g_state = StartState;
-    
-    //console.log("Ready");
-}
-
 function Resize()
 {
     //console.log('resizing');
@@ -209,17 +186,11 @@ function Resize()
 function WaitingState()
 {
     // do nothing, wait for loader
-    if (g_loadingCounter == 0)
-    {
-        console.log('Successfully downloaded wasm, exported funcs are: ');
-        console.log(Object.keys(g_engine.instance.exports));
-        g_state = StartState;
-    }
 }
 
 function StartState()
 {
-    console.log("Start");
+    console.log("Start state");
     ASMAP.initialize(16, 16);
     g_state = EngineState;
 }

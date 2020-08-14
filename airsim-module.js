@@ -562,7 +562,7 @@ let ASSTATE = (function()
     public.setTableSize = function asstate_setTableSize(sizeX, sizeY)
     {
         let totalSize = (G.END + sizeX*sizeY*C.END); //* Int32Array.BYTES_PER_ELEMENT;
-        public.setRawData(new Array(totalSize), totalSize);
+        public.setRawData(Int16Array.from(new Array(totalSize)), totalSize);
         public.setTableSizeX(sizeX);
         public.setTableSizeY(sizeY);
     }
@@ -673,13 +673,14 @@ let ASSTATE = (function()
     public.setSerializable = function asstate_setSerializable(string)
     {
         let array = JSON.parse(string);
-        public.setRawData(array, array.length);
+        public.setRawData(Int16Array.from(array), array.length);
         ASROAD.resetInternal();
     }
     public.EXPORT.setSerializable = public.setSerializable;
 
     public.setRawData = function asstate_setRawData(array, arraySize)
     {
+        return m_wasm.setRawData(array, arraySize);
         setRawDataSize(arraySize);
         for (let i = 0; i < arraySize; i++)
         {

@@ -26,6 +26,23 @@ let wasm_bindgen;
         }
         return cachegetInt32Memory0;
     }
+
+    let cachegetUint16Memory0 = null;
+    function getUint16Memory0() {
+        if (cachegetUint16Memory0 === null || cachegetUint16Memory0.buffer !== wasm.memory.buffer) {
+            cachegetUint16Memory0 = new Uint16Array(wasm.memory.buffer);
+        }
+        return cachegetUint16Memory0;
+    }
+
+    let WASM_VECTOR_LEN = 0;
+
+    function passArray16ToWasm0(arg, malloc) {
+        const ptr = malloc(arg.length * 2);
+        getUint16Memory0().set(arg, ptr / 2);
+        WASM_VECTOR_LEN = arg.length;
+        return ptr;
+    }
     /**
     */
     class AsState {
@@ -107,6 +124,15 @@ let wasm_bindgen;
                 wasm.__wbindgen_export_0.value += 16;
                 wasm.__wbindgen_free(r0, r1);
             }
+        }
+        /**
+        * @param {Int16Array} array
+        * @param {number} array_size
+        */
+        setRawData(array, array_size) {
+            var ptr0 = passArray16ToWasm0(array, wasm.__wbindgen_malloc);
+            var len0 = WASM_VECTOR_LEN;
+            wasm.asstate_setRawData(this.ptr, ptr0, len0, array_size);
         }
         /**
         * @param {number} array_size

@@ -253,6 +253,14 @@ impl AsState {
         stringify(self.cells.clone())
     }
 
+    pub fn setRawData(&mut self, array: Box<[i16]>, array_size: usize)
+    {
+        self.setRawDataSize(array_size);
+        for i in 0..array_size {
+            self.setRawDataValue(i as i32, array[i]);
+        }
+    }
+
     pub fn setRawDataSize(&mut self, array_size: usize) {
         self.cells = vec![0; array_size];
     }

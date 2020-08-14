@@ -134,19 +134,6 @@ let wasm_bindgen;
             var len0 = WASM_VECTOR_LEN;
             wasm.asstate_setRawData(this.ptr, ptr0, len0, array_size);
         }
-        /**
-        * @param {number} array_size
-        */
-        setRawDataSize(array_size) {
-            wasm.asstate_setRawDataSize(this.ptr, array_size);
-        }
-        /**
-        * @param {number} index
-        * @param {number} value
-        */
-        setRawDataValue(index, value) {
-            wasm.asstate_setRawDataValue(this.ptr, index, value);
-        }
     }
     __exports.AsState = AsState;
 

@@ -621,47 +621,11 @@ let ASSTATE = (function()
     public.notifyChange = function asstate_notifyChange(newIndex) //
     {
         return m_wasm.notifyChange(newIndex);
-        let firstIndex = getChangeFirst();
-        if (firstIndex > 0)
-        {
-            let middleIndex = getChangeFlag(newIndex);
-            if (middleIndex > 0 && middleIndex != newIndex)
-            {
-                
-            }
-            else
-            {
-                replaceChangeLast(newIndex);
-            }
-        }
-        else
-        {
-            replaceChangeFirst(newIndex);
-        }
     }
     
     public.retrieveChange = function asstate_retrieveChange() //
     {
         return m_wasm.retrieveChange();
-        let firstIndex = getChangeFirst();
-        let lastIndex = getChangeLast();
-        if (firstIndex > 0 && lastIndex > 0 && firstIndex == lastIndex)
-        {
-            setChangeFirst(0);
-            setChangeLast(0);
-            setChangeFlag(firstIndex, 0);
-        }
-        else if (firstIndex > 0)
-        {
-            let nextIndex = getChangeFlag(firstIndex);
-            setChangeFirst(nextIndex);
-            if (G_CHECK && nextIndex == 0)
-            {
-                throw 'nextIndex 0';
-            }
-            setChangeFlag(firstIndex, 0);
-        }
-        return firstIndex;
     }
     
     public.getSerializable = function asstate_getSerializable()
@@ -681,20 +645,6 @@ let ASSTATE = (function()
     public.setRawData = function asstate_setRawData(array, arraySize)
     {
         return m_wasm.setRawData(array, arraySize);
-        setRawDataSize(arraySize);
-        for (let i = 0; i < arraySize; i++)
-        {
-            setRawDataValue(i, array[i]);
-        }
-    }
-
-    let setRawDataSize = function asstate_setRawDataSize(arraySize)
-    {
-        return m_wasm.setRawDataSize(arraySize);
-    }
-    let setRawDataValue = function asstate_setRawDataValue(index, value)
-    {
-        return m_wasm.setRawDataValue(index, value);
     }
     
     return public;

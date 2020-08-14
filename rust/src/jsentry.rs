@@ -234,50 +234,55 @@ impl AsState {
         self.w(0, AsStateG::SIZE_Y as i32, data);
     }
 
-    fn replaceChangeFirst(&mut self, newIndex: i32) {
-        self.setChangeFirst(newIndex as i16);
-        self.setChangeLast(newIndex as i16);
-        self.setChangeFlag(newIndex, newIndex as i16);
-    }
-    
-    fn replaceChangeLast(&mut self, newIndex: i32) {
-        let lastIndex = self.getChangeLast() as i32;
-        self.setChangeFlag(lastIndex, newIndex as i16);
-        self.setChangeFlag(newIndex, newIndex as i16);
-        self.setChangeLast(newIndex as i16);
+    pub fn isValidCoordinates(&self, tile_x: i32, tile_y: i32) -> bool {
+        let is_out_of_bound = tile_x < 0 || tile_x >= self.getTableSizeX() as i32 || tile_y < 0 || tile_y >= self.getTableSizeY() as i32;
+        return !is_out_of_bound;
     }
 
-    pub fn notifyChange(&mut self, newIndex: i32) {
-        let firstIndex = self.getChangeFirst();
-        if firstIndex > 0 {
-            let middleIndex = self.getChangeFlag(newIndex);
-            if middleIndex > 0 && middleIndex != newIndex as i16 {
+    fn replaceChangeFirst(&mut self, new_index: i32) {
+        self.setChangeFirst(new_index as i16);
+        self.setChangeLast(new_index as i16);
+        self.setChangeFlag(new_index, new_index as i16);
+    }
+    
+    fn replaceChangeLast(&mut self, new_index: i32) {
+        let last_index = self.getChangeLast() as i32;
+        self.setChangeFlag(last_index, new_index as i16);
+        self.setChangeFlag(new_index, new_index as i16);
+        self.setChangeLast(new_index as i16);
+    }
+
+    pub fn notifyChange(&mut self, new_index: i32) {
+        let first_index = self.getChangeFirst();
+        if first_index > 0 {
+            let middle_index = self.getChangeFlag(new_index);
+            if middle_index > 0 && middle_index != new_index as i16 {
                 
             } else {
-                self.replaceChangeLast(newIndex);
+                self.replaceChangeLast(new_index);
             }
         } else {
-            self.replaceChangeFirst(newIndex);
+            self.replaceChangeFirst(new_index);
         }
     }
 
     pub fn retrieveChange(&mut self) -> i32 {
-        let firstIndex = self.getChangeFirst();
-        let lastIndex = self.getChangeLast();
-        if firstIndex > 0 && lastIndex > 0 && firstIndex == lastIndex {
+        let first_index = self.getChangeFirst();
+        let last_index = self.getChangeLast();
+        if first_index > 0 && last_index > 0 && first_index == last_index {
             self.setChangeFirst(0);
             self.setChangeLast(0);
-            self.setChangeFlag(firstIndex as i32, 0);
-        } else if firstIndex > 0 {
-            let nextIndex = self.getChangeFlag(firstIndex as i32);
-            self.setChangeFirst(nextIndex);
-            /*if (G_CHECK && nextIndex == 0)
+            self.setChangeFlag(first_index as i32, 0);
+        } else if first_index > 0 {
+            let next_index = self.getChangeFlag(first_index as i32);
+            self.setChangeFirst(next_index);
+            /*if (G_CHECK && next_index == 0)
             {
-                throw 'nextIndex 0';
+                throw 'next_index 0';
             }*/
-            self.setChangeFlag(firstIndex as i32, 0);
+            self.setChangeFlag(first_index as i32, 0);
         }
-        return firstIndex as i32;
+        return first_index as i32;
     }
 
     pub fn getSerializable(&self) -> String {
@@ -285,13 +290,11 @@ impl AsState {
     }
 
     // Internal use
-    fn setRawDataVec(&mut self, array: Vec<i16>)
-    {
+    fn setRawDataVec(&mut self, array: Vec<i16>) {
         self.cells = array;
     }
 
-    pub fn setRawData(&mut self, array: Box<[i16]>, array_size: usize)
-    {
+    pub fn setRawData(&mut self, array: Box<[i16]>, array_size: usize) {
         self.cells = vec![0; array_size];
         for i in 0..array_size {
             self.cells[i] = array[i];

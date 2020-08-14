@@ -556,7 +556,7 @@ let ASSTATE = (function()
     
     public.setTableSize = function asstate_setTableSize(sizeX, sizeY) //
     {
-        return m_wasm.setTableSize(sizeX, sizeY);
+        m_wasm.setTableSize(sizeX, sizeY);
     }
     
     public.getTableSizeX = function asstate_getTableSizeX() //
@@ -589,10 +589,9 @@ let ASSTATE = (function()
         return !isOutOfBound;
     }
     
-    public.isValidCoordinates = function asstate_isValidCoordinates(tileX, tileY)
+    public.isValidCoordinates = function asstate_isValidCoordinates(tileX, tileY) //
     {
-        let isOutOfBound = tileX < 0 || tileX >= public.getTableSizeX() || tileY < 0 || tileY >= public.getTableSizeY();
-        return !isOutOfBound;
+        return m_wasm.isValidCoordinates(tileX, tileY);
     }
     
     let replaceChangeFirst = function asstate_replaceChangeFirst(newIndex) //

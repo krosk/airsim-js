@@ -139,10 +139,19 @@ let wasm_bindgen;
             wasm.asstate_setTableSizeY(this.ptr, data);
         }
         /**
-        * @param {number} newIndex
+        * @param {number} tile_x
+        * @param {number} tile_y
+        * @returns {boolean}
         */
-        notifyChange(newIndex) {
-            wasm.asstate_notifyChange(this.ptr, newIndex);
+        isValidCoordinates(tile_x, tile_y) {
+            var ret = wasm.asstate_isValidCoordinates(this.ptr, tile_x, tile_y);
+            return ret !== 0;
+        }
+        /**
+        * @param {number} new_index
+        */
+        notifyChange(new_index) {
+            wasm.asstate_notifyChange(this.ptr, new_index);
         }
         /**
         * @returns {number}

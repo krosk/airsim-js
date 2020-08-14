@@ -64,7 +64,6 @@ let ASSTATE = (function()
     
     public.C_NAME = "ASSTATE";
     
-    let m_dataStateBuffer;
     let m_dataStateView;
     
     // map structure
@@ -613,7 +612,7 @@ let ASSTATE = (function()
     public.setTableSize = function asstate_setTableSize(sizeX, sizeY)
     {
         let totalSize = (G.END + sizeX*sizeY*C.END); //* Int32Array.BYTES_PER_ELEMENT;
-        public.setRawData(new Array(totalSize));
+        public.setRawData(new Array(totalSize), totalSize);
         public.setTableSizeX(sizeX);
         public.setTableSizeY(sizeY);
     }
@@ -723,20 +722,14 @@ let ASSTATE = (function()
     public.setSerializable = function asstate_setSerializable(string)
     {
         let array = JSON.parse(string);
-        public.setRawData(array);
+        public.setRawData(array, array.length);
         ASROAD.resetInternal();
     }
     public.EXPORT.setSerializable = public.setSerializable;
 
-    public.setRawData = function asstate_setRawData(array)
+    public.setRawData = function asstate_setRawData(array, arraySize)
     {
-        m_dataStateBuffer = Int16Array.from(array).buffer;
-        m_dataStateView = new Int16Array(m_dataStateBuffer);
-    }
-    
-    public.getRawData = function asstate_getRawData()
-    {
-        return m_dataStateBuffer;
+        m_dataStateView = Int16Array.from(array);
     }
     
     return public;

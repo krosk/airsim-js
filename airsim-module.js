@@ -154,8 +154,8 @@ let ASSTATE = (function()
         {
             throw ('error accessing undefined field');
         }
-        let target = (G_WASM_ENGINE.rust_r(index, field, m_dataStateView));
-        //let target = index == 0 ? field : (index - 1)*C.END + G.END + field;
+        //let target = (G_WASM_ENGINE.rust_r(index, field, m_dataStateView));
+        let target = index == 0 ? field : (index - 1)*C.END + G.END + field;
         if (typeof m_dataStateView == 'undefined')
         {
             throw ('dataStateView not initialized for ' + index + ' ' + field);
@@ -613,7 +613,7 @@ let ASSTATE = (function()
     public.setTableSize = function asstate_setTableSize(sizeX, sizeY)
     {
         let totalSize = (G.END + sizeX*sizeY*C.END); //* Int32Array.BYTES_PER_ELEMENT;
-        public.setRawData(new ArrayBuffer(totalSize*Int16Array.BYTES_PER_ELEMENT));
+        public.setRawData(new Array(totalSize));
         public.setTableSizeX(sizeX);
         public.setTableSizeY(sizeY);
     }
@@ -723,14 +723,14 @@ let ASSTATE = (function()
     public.setSerializable = function asstate_setSerializable(string)
     {
         let array = JSON.parse(string);
-        public.setRawData(Int16Array.from(array).buffer);
+        public.setRawData(array);
         ASROAD.resetInternal();
     }
     public.EXPORT.setSerializable = public.setSerializable;
-    
-    public.setRawData = function asstate_setRawData(arrayBuffer)
+
+    public.setRawData = function asstate_setRawData(array)
     {
-        m_dataStateBuffer = arrayBuffer;
+        m_dataStateBuffer = Int16Array.from(array).buffer;
         m_dataStateView = new Int16Array(m_dataStateBuffer);
     }
     

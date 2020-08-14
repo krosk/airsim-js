@@ -729,7 +729,20 @@ let ASSTATE = (function()
 
     public.setRawData = function asstate_setRawData(array, arraySize)
     {
-        m_dataStateView = Int16Array.from(array);
+        public.setRawDataSize(arraySize);
+        for (let i = 0; i < arraySize; i++)
+        {
+            public.setRawDataValue(i, array[i]);
+        }
+    }
+
+    public.setRawDataSize = function asstate_setRawDataSize(arraySize)
+    {
+        m_dataStateView = Int16Array.from(new Array(arraySize));
+    }
+    public.setRawDataValue = function asstate_setRawDataValue(index, value)
+    {
+        m_dataStateView[index] = value;
     }
     
     return public;

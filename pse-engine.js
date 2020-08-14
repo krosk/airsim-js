@@ -165,14 +165,12 @@ let PSEENGINE_Obj = (function ()
     else
     {
         // asynchronous loading
-        WebAssembly.instantiateStreaming(
-            fetch('rust/asengine.wasm'))
-        .then(obj => {
-            console.log('Successfully downloaded wasm, exported funcs are: ');
-            console.log(Object.keys(obj.instance.exports));
-        }).catch(err => {
-            console.log(err);
-        });
+        async function init() {
+            await wasm_bindgen('rust/asengine_bg.wasm');
+            console.log('wasm engine loaded');
+            G_WASM_ENGINE = wasm_bindgen;
+        }
+        init();
     }
 
     return public;

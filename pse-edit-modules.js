@@ -16,6 +16,7 @@ const G_WORKER = true;
 if (typeof WorkerGlobalScope !== 'undefined')
 {
     self.importScripts('airsim-tile-const.js');
+    self.importScripts('rust/asengine.js');
     self.importScripts('airsim-module.js');
 }
 

@@ -64,6 +64,8 @@ let ASSTATE = (function()
     
     public.C_NAME = "ASSTATE";
     
+    let m_wasm;
+
     let m_dataStateView;
     
     // map structure
@@ -149,73 +151,22 @@ let ASSTATE = (function()
     
     let r = function r(index, field)
     {
-        if (G_CHECK && typeof field == 'undefined')
-        {
-            throw ('error accessing undefined field');
-        }
-        //let target = (G_WASM_ENGINE.rust_r(index, field, m_dataStateView));
-        let target = index == 0 ? field : (index - 1)*C.END + G.END + field;
-        if (typeof m_dataStateView == 'undefined')
-        {
-            throw ('dataStateView not initialized for ' + index + ' ' + field);
-            return;
-        }
-        if (G_CHECK && (target < 0 || target > m_dataStateView.length))
-        {
-            throw ('error accessing dataState at ' + index + ' ' + field);
-            return;
-        }
-        return m_dataStateView[target];
+        return m_wasm.r(index, field);
     }
     
     let w = function w(index, field, data)
     {
-        if (G_CHECK && typeof field == 'undefined')
-        {
-            throw ('error writing undefined field at index ' + index);
-        }
-        if (G_CHECK && typeof data == 'undefined')
-        {
-            throw ('error writing undefined data at index ' + index)
-        }
-        let target = index == 0 ? field : (index - 1)*C.END + G.END + field;
-        if (G_CHECK && (target < 0 || target > m_dataStateView.length))
-        {
-            throw ('error writing to dataState at ' + index + ' ' + field + ' ' + data);
-            return;
-        }
-        m_dataStateView[target] = data;
+        return m_wasm.w(index, field, data);
     }
     
     public.clear = function asstate_clear(index)
     {
-        if (index == 0)
-        {
-            for (let i = 0; i < G.END; i++)
-            {
-                m_dataStateView[i] = 0;
-            }
-        }
-        else
-        {
-            let targetBase = (index - 1)*C.END + G.END;
-            for (let i = 0; i < C.END; i++)
-            {
-                m_dataStateView[targetBase + i] = 0;
-            }
-        }
+        return m_wasm.clear(index);
     }
     
     public.clearProperties = function asstate_clearProperties(index)
     {
-        if (index > 0)
-        {
-            let targetBase = (index - 1)*C.END + G.END;
-            for (let i = C.PROPERTY_START; i < C.END; i++)
-            {
-                m_dataStateView[targetBase + i] = 0;
-            }
-        }
+        return m_wasm.clearProperties(index);
     }
     
     public.getZoneId = function asstate_getZoneId(index)
@@ -583,6 +534,8 @@ let ASSTATE = (function()
     
     public.initialize = function asstate_initialize(tableSizeX, tableSizeY)
     {
+        m_wasm = G_WASM_ENGINE.AsState.new();
+
         public.setTableSize(tableSizeX, tableSizeY);
         public.setPlay(-1);
         public.setTick(0);
@@ -729,20 +682,20 @@ let ASSTATE = (function()
 
     public.setRawData = function asstate_setRawData(array, arraySize)
     {
-        public.setRawDataSize(arraySize);
+        setRawDataSize(arraySize);
         for (let i = 0; i < arraySize; i++)
         {
-            public.setRawDataValue(i, array[i]);
+            setRawDataValue(i, array[i]);
         }
     }
 
-    public.setRawDataSize = function asstate_setRawDataSize(arraySize)
+    let setRawDataSize = function asstate_setRawDataSize(arraySize)
     {
-        m_dataStateView = Int16Array.from(new Array(arraySize));
+        return m_wasm.setRawDataSize(arraySize);
     }
-    public.setRawDataValue = function asstate_setRawDataValue(index, value)
+    let setRawDataValue = function asstate_setRawDataValue(index, value)
     {
-        m_dataStateView[index] = value;
+        return m_wasm.setRawDataValue(index, value);
     }
     
     return public;

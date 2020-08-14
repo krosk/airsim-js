@@ -131,14 +131,9 @@ let ASSTATE = (function()
         END : 30
     }
     
-    public.getIndex = function asstate_getIndex(x, y)
+    public.getIndex = function asstate_getIndex(x, y) //
     {
-        //return MUTIL.mathCantor(x, y);
-        if (x < 0 || x >= public.getTableSizeX() || y < 0 || y >= public.getTableSizeY())
-        {
-            return -1;
-        }
-        return x*public.getTableSizeY() + y + 1;
+        return m_wasm.getIndex(x, y);
     }
     
     public.getXYFromIndex = function asstate_getXYFromIndex(index)
@@ -147,22 +142,22 @@ let ASSTATE = (function()
         return public.isValidIndex(index) ? [((index - 1) / public.getTableSizeY()) | 0, (index - 1) % public.getTableSizeY()] : [-1, -1];
     }
     
-    let r = function r(index, field)
+    let r = function r(index, field) //
     {
         return m_wasm.r(index, field);
     }
     
-    let w = function w(index, field, data)
+    let w = function w(index, field, data) //
     {
         return m_wasm.w(index, field, data);
     }
     
-    public.clear = function asstate_clear(index)
+    public.clear = function asstate_clear(index) //
     {
         return m_wasm.clear(index);
     }
     
-    public.clearProperties = function asstate_clearProperties(index)
+    public.clearProperties = function asstate_clearProperties(index) //
     {
         return m_wasm.clearProperties(index);
     }
@@ -559,32 +554,29 @@ let ASSTATE = (function()
         return (1 << (8 * Int16Array.BYTES_PER_ELEMENT - 1)) - 1; // Int16Array maximum value
     }
     
-    public.setTableSize = function asstate_setTableSize(sizeX, sizeY)
+    public.setTableSize = function asstate_setTableSize(sizeX, sizeY) //
     {
-        let totalSize = (G.END + sizeX*sizeY*C.END); //* Int32Array.BYTES_PER_ELEMENT;
-        public.setRawData(Int16Array.from(new Array(totalSize)), totalSize);
-        public.setTableSizeX(sizeX);
-        public.setTableSizeY(sizeY);
+        return m_wasm.setTableSize(sizeX, sizeY);
     }
     
-    public.getTableSizeX = function asstate_getTableSizeX()
+    public.getTableSizeX = function asstate_getTableSizeX() //
     {
-        return r(0, G.SIZE_X);
+        return m_wasm.getTableSizeX();
     }
     
-    public.setTableSizeX = function asstate_setTableSizeX(data)
+    public.setTableSizeX = function asstate_setTableSizeX(data) //
     {
-        w(0, G.SIZE_X, data);
+        m_wasm.setTableSizeX(data);
     }
     
-    public.getTableSizeY = function asstate_getTableSizeY()
+    public.getTableSizeY = function asstate_getTableSizeY() //
     {
-        return r(0, G.SIZE_Y);
+        return m_wasm.getTableSizeY();
     }
     
-    public.setTableSizeY = function asstate_setTableSizeY(data)
+    public.setTableSizeY = function asstate_setTableSizeY(data) //
     {
-        w(0, G.SIZE_Y, data);
+        m_wasm.setTableSizeY(data);
     }
     
     public.isValidIndex = function asstate_isValidIndex(index)
@@ -620,7 +612,7 @@ let ASSTATE = (function()
     
     public.notifyChange = function asstate_notifyChange(newIndex) //
     {
-        return m_wasm.notifyChange(newIndex);
+        m_wasm.notifyChange(newIndex);
     }
     
     public.retrieveChange = function asstate_retrieveChange() //
@@ -628,7 +620,7 @@ let ASSTATE = (function()
         return m_wasm.retrieveChange();
     }
     
-    public.getSerializable = function asstate_getSerializable()
+    public.getSerializable = function asstate_getSerializable() //
     {
         return m_wasm.getSerializable();
     }
@@ -642,9 +634,9 @@ let ASSTATE = (function()
     }
     public.EXPORT.setSerializable = public.setSerializable;
 
-    public.setRawData = function asstate_setRawData(array, arraySize)
+    public.setRawData = function asstate_setRawData(array, arraySize) //
     {
-        return m_wasm.setRawData(array, arraySize);
+        m_wasm.setRawData(array, arraySize);
     }
     
     return public;

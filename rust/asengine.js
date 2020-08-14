@@ -68,6 +68,15 @@ let wasm_bindgen;
             return AsState.__wrap(ret);
         }
         /**
+        * @param {number} x
+        * @param {number} y
+        * @returns {number}
+        */
+        getIndex(x, y) {
+            var ret = wasm.asstate_getIndex(this.ptr, x, y);
+            return ret;
+        }
+        /**
         * @param {number} index
         * @param {number} field
         * @returns {number}
@@ -95,6 +104,39 @@ let wasm_bindgen;
         */
         clearProperties(index) {
             wasm.asstate_clearProperties(this.ptr, index);
+        }
+        /**
+        * @param {number} size_x
+        * @param {number} size_y
+        */
+        setTableSize(size_x, size_y) {
+            wasm.asstate_setTableSize(this.ptr, size_x, size_y);
+        }
+        /**
+        * @returns {number}
+        */
+        getTableSizeX() {
+            var ret = wasm.asstate_getTableSizeX(this.ptr);
+            return ret;
+        }
+        /**
+        * @param {number} data
+        */
+        setTableSizeX(data) {
+            wasm.asstate_setTableSizeX(this.ptr, data);
+        }
+        /**
+        * @returns {number}
+        */
+        getTableSizeY() {
+            var ret = wasm.asstate_getTableSizeY(this.ptr);
+            return ret;
+        }
+        /**
+        * @param {number} data
+        */
+        setTableSizeY(data) {
+            wasm.asstate_setTableSizeY(this.ptr, data);
         }
         /**
         * @param {number} newIndex

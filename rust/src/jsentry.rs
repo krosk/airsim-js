@@ -109,6 +109,13 @@ impl AsState {
         AsState { cells }
     }
 
+    pub fn getIndex(&self, x: i32, y: i32) -> i16 {
+        if x < 0 || x >= self.getTableSizeX() as i32 || y < 0 || y >= self.getTableSizeY() as i32 {
+            return -1;
+        }
+        return (x*self.getTableSizeY() as i32 + y + 1) as i16;
+    }
+
     pub fn r(&self, index: i32, field: i32) -> i16 {
         let target: usize = (if index == 0 { field } else { (index - 1)*(AsStateC::END as i32) + (AsStateG::END as i32) + field }) as usize;
         return self.cells[target as usize];
@@ -203,6 +210,30 @@ impl AsState {
         self.w(0, AsStateG::CHANGE_LAST as i32, data);
     }
 
+    pub fn setTableSize(&mut self, size_x: usize, size_y: usize) {
+        let total_size = AsStateG::END as usize + size_x*size_y*AsStateC::END as usize; //* Int32Array.BYTES_PER_ELEMENT;
+        let empty_vec: Vec<i16> = vec![0;total_size];
+        self.setRawDataVec(empty_vec);
+        self.setTableSizeX(size_x as i16);
+        self.setTableSizeY(size_y as i16);
+    }
+
+    pub fn getTableSizeX(&self) -> i16 {
+        return self.r(0, AsStateG::SIZE_X as i32);
+    }
+    
+    pub fn setTableSizeX(&mut self, data: i16) {
+        self.w(0, AsStateG::SIZE_X as i32, data);
+    }
+    
+    pub fn getTableSizeY(&self) -> i16 {
+        return self.r(0, AsStateG::SIZE_Y as i32);
+    }
+    
+    pub fn setTableSizeY(&mut self, data: i16) {
+        self.w(0, AsStateG::SIZE_Y as i32, data);
+    }
+
     fn replaceChangeFirst(&mut self, newIndex: i32) {
         self.setChangeFirst(newIndex as i16);
         self.setChangeLast(newIndex as i16);
@@ -251,6 +282,12 @@ impl AsState {
 
     pub fn getSerializable(&self) -> String {
         stringify(self.cells.clone())
+    }
+
+    // Internal use
+    fn setRawDataVec(&mut self, array: Vec<i16>)
+    {
+        self.cells = array;
     }
 
     pub fn setRawData(&mut self, array: Box<[i16]>, array_size: usize)

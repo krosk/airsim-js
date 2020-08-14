@@ -10,6 +10,7 @@ pub extern fn rust_r(index: i32, field: i32) -> i32 {
 }
 
 use wasm_bindgen::prelude::*;
+use json::stringify;
 
 #[wasm_bindgen]
 pub struct AsState {
@@ -184,7 +185,11 @@ impl AsState {
 
     pub fn setRawDataValue(&mut self, index: i32, value: i16) {
         self.cells[index as usize] = value;
-    } 
+    }
+
+    pub fn getSerializable(&self) -> String {
+        stringify(self.cells.clone())
+    }
 }
 
 #[cfg(test)]

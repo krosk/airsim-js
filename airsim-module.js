@@ -667,8 +667,7 @@ let ASSTATE = (function()
     
     public.getSerializable = function asstate_getSerializable()
     {
-        console.log(Array.from(m_dataStateView));
-        return JSON.stringify(Array.from(m_dataStateView));
+        return m_wasm.getSerializable();
     }
     public.EXPORT.getSerializable = public.getSerializable;
     

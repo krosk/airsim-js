@@ -65,8 +65,6 @@ let ASSTATE = (function()
     public.C_NAME = "ASSTATE";
     
     let m_wasm;
-
-    let m_dataStateView;
     
     // map structure
     const C = {
@@ -189,12 +187,12 @@ let ASSTATE = (function()
         w(index, C.ZONE_REQUEST, data);
     }
     
-    public.getChangeFlag = function asstate_getChangeFlag(index)
+    let getChangeFlag = function asstate_getChangeFlag(index) //
     {
         return r(index, C.CHANGE);
     }
     
-    public.setChangeFlag = function asstate_setChangeFlag(index, data)
+    let setChangeFlag = function asstate_setChangeFlag(index, data) //
     {
         w(index, C.CHANGE, data);
     }
@@ -277,7 +275,6 @@ let ASSTATE = (function()
     
     public.getRoadTraversalCost = function asstate_getRoadTraversalCost(index)
     {
-        //console.log(r(index, C.ROAD_TRAVERSAL_COST));
         return r(index, C.ROAD_TRAVERSAL_COST);
     }
     
@@ -444,22 +441,22 @@ let ASSTATE = (function()
         w(0, G.ROAD_TRAVERSAL_EDGE_COUNT, data);
     }
     
-    public.getChangeFirst = function asstate_getChangeFirst()
+    let getChangeFirst = function asstate_getChangeFirst() //
     {
         return r(0, G.CHANGE_FIRST);
     }
     
-    public.setChangeFirst = function asstate_setChangeFirst(data)
+    let setChangeFirst = function asstate_setChangeFirst(data) //
     {
         w(0, G.CHANGE_FIRST, data);
     }
     
-    public.getChangeLast = function asstate_getChangeLast()
+    let getChangeLast = function asstate_getChangeLast() //
     {
         return r(0, G.CHANGE_LAST);
     }
     
-    public.setChangeLast = function asstate_setChangeLast(data)
+    let setChangeLast = function asstate_setChangeLast(data) //
     {
         w(0, G.CHANGE_LAST, data);
     }
@@ -541,15 +538,15 @@ let ASSTATE = (function()
         public.setTick(0);
         public.setFrame(0);
         public.setTickSpeed(0);
-        public.setChangeFirst(0);
-        public.setChangeLast(0);
+        setChangeFirst(0);
+        setChangeLast(0);
         for (let x = 0; x < tableSizeX; x++)
         {
             for (let y = 0; y < tableSizeY; y++)
             {
                 var index = public.getIndex(x, y);
                 public.clear(index);
-                public.setChangeFlag(index, 0);
+                setChangeFlag(index, 0);
             }
         }
         public.setRoadTraversalStart(-1);
@@ -606,27 +603,28 @@ let ASSTATE = (function()
         return !isOutOfBound;
     }
     
-    let replaceChangeFirst = function asstate_replaceChangeFirst(newIndex)
+    let replaceChangeFirst = function asstate_replaceChangeFirst(newIndex) //
     {
-        public.setChangeFirst(newIndex);
-        public.setChangeLast(newIndex);
-        public.setChangeFlag(newIndex, newIndex);
+        setChangeFirst(newIndex);
+        setChangeLast(newIndex);
+        setChangeFlag(newIndex, newIndex);
     }
     
-    let replaceChangeLast = function asstate_replaceChangeLast(newIndex)
+    let replaceChangeLast = function asstate_replaceChangeLast(newIndex) //
     {
-        let lastIndex = public.getChangeLast();
-        public.setChangeFlag(lastIndex, newIndex);
-        public.setChangeFlag(newIndex, newIndex);
-        public.setChangeLast(newIndex);
+        let lastIndex = getChangeLast();
+        setChangeFlag(lastIndex, newIndex);
+        setChangeFlag(newIndex, newIndex);
+        setChangeLast(newIndex);
     }
     
-    public.notifyChange = function asstate_notifyChange(newIndex)
+    public.notifyChange = function asstate_notifyChange(newIndex) //
     {
-        let firstIndex = public.getChangeFirst();
+        return m_wasm.notifyChange(newIndex);
+        let firstIndex = getChangeFirst();
         if (firstIndex > 0)
         {
-            let middleIndex = public.getChangeFlag(newIndex);
+            let middleIndex = getChangeFlag(newIndex);
             if (middleIndex > 0 && middleIndex != newIndex)
             {
                 
@@ -642,25 +640,26 @@ let ASSTATE = (function()
         }
     }
     
-    public.retrieveChange = function asstate_retrieveChange()
+    public.retrieveChange = function asstate_retrieveChange() //
     {
-        let firstIndex = public.getChangeFirst();
-        let lastIndex = public.getChangeLast();
+        return m_wasm.retrieveChange();
+        let firstIndex = getChangeFirst();
+        let lastIndex = getChangeLast();
         if (firstIndex > 0 && lastIndex > 0 && firstIndex == lastIndex)
         {
-            public.setChangeFirst(0);
-            public.setChangeLast(0);
-            public.setChangeFlag(firstIndex, 0);
+            setChangeFirst(0);
+            setChangeLast(0);
+            setChangeFlag(firstIndex, 0);
         }
         else if (firstIndex > 0)
         {
-            let nextIndex = public.getChangeFlag(firstIndex);
-            public.setChangeFirst(nextIndex);
+            let nextIndex = getChangeFlag(firstIndex);
+            setChangeFirst(nextIndex);
             if (G_CHECK && nextIndex == 0)
             {
                 throw 'nextIndex 0';
             }
-            public.setChangeFlag(firstIndex, 0);
+            setChangeFlag(firstIndex, 0);
         }
         return firstIndex;
     }

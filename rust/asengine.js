@@ -80,17 +80,17 @@ let wasm_bindgen;
             wasm.asstate_clearProperties(this.ptr, index);
         }
         /**
-        * @param {number} array_size
+        * @param {number} newIndex
         */
-        setRawDataSize(array_size) {
-            wasm.asstate_setRawDataSize(this.ptr, array_size);
+        notifyChange(newIndex) {
+            wasm.asstate_notifyChange(this.ptr, newIndex);
         }
         /**
-        * @param {number} index
-        * @param {number} value
+        * @returns {number}
         */
-        setRawDataValue(index, value) {
-            wasm.asstate_setRawDataValue(this.ptr, index, value);
+        retrieveChange() {
+            var ret = wasm.asstate_retrieveChange(this.ptr);
+            return ret;
         }
         /**
         * @returns {string}
@@ -107,6 +107,19 @@ let wasm_bindgen;
                 wasm.__wbindgen_export_0.value += 16;
                 wasm.__wbindgen_free(r0, r1);
             }
+        }
+        /**
+        * @param {number} array_size
+        */
+        setRawDataSize(array_size) {
+            wasm.asstate_setRawDataSize(this.ptr, array_size);
+        }
+        /**
+        * @param {number} index
+        * @param {number} value
+        */
+        setRawDataValue(index, value) {
+            wasm.asstate_setRawDataValue(this.ptr, index, value);
         }
     }
     __exports.AsState = AsState;

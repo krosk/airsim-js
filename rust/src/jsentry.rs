@@ -179,16 +179,86 @@ impl AsState {
         }
     }
 
+    fn getChangeFlag(&self, index: i32) -> i16 {
+        return self.r(index, AsStateC::CHANGE as i32);
+    }
+
+    fn setChangeFlag(&mut self, index: i32, data: i16) {
+        self.w(index, AsStateC::CHANGE as i32, data);
+    }
+
+    fn getChangeFirst(&self) -> i16 {
+        return self.r(0, AsStateG::CHANGE_FIRST as i32);
+    }
+    
+    fn setChangeFirst(&mut self, data: i16) {
+        self.w(0, AsStateG::CHANGE_FIRST as i32, data);
+    }
+    
+    fn getChangeLast(&self) -> i16 {
+        return self.r(0, AsStateG::CHANGE_LAST as i32);
+    }
+    
+    fn setChangeLast(&mut self, data: i16) {
+        self.w(0, AsStateG::CHANGE_LAST as i32, data);
+    }
+
+    fn replaceChangeFirst(&mut self, newIndex: i32) {
+        self.setChangeFirst(newIndex as i16);
+        self.setChangeLast(newIndex as i16);
+        self.setChangeFlag(newIndex, newIndex as i16);
+    }
+    
+    fn replaceChangeLast(&mut self, newIndex: i32) {
+        let lastIndex = self.getChangeLast() as i32;
+        self.setChangeFlag(lastIndex, newIndex as i16);
+        self.setChangeFlag(newIndex, newIndex as i16);
+        self.setChangeLast(newIndex as i16);
+    }
+
+    pub fn notifyChange(&mut self, newIndex: i32) {
+        let firstIndex = self.getChangeFirst();
+        if firstIndex > 0 {
+            let middleIndex = self.getChangeFlag(newIndex);
+            if middleIndex > 0 && middleIndex != newIndex as i16 {
+                
+            } else {
+                self.replaceChangeLast(newIndex);
+            }
+        } else {
+            self.replaceChangeFirst(newIndex);
+        }
+    }
+
+    pub fn retrieveChange(&mut self) -> i32 {
+        let firstIndex = self.getChangeFirst();
+        let lastIndex = self.getChangeLast();
+        if firstIndex > 0 && lastIndex > 0 && firstIndex == lastIndex {
+            self.setChangeFirst(0);
+            self.setChangeLast(0);
+            self.setChangeFlag(firstIndex as i32, 0);
+        } else if firstIndex > 0 {
+            let nextIndex = self.getChangeFlag(firstIndex as i32);
+            self.setChangeFirst(nextIndex);
+            /*if (G_CHECK && nextIndex == 0)
+            {
+                throw 'nextIndex 0';
+            }*/
+            self.setChangeFlag(firstIndex as i32, 0);
+        }
+        return firstIndex as i32;
+    }
+
+    pub fn getSerializable(&self) -> String {
+        stringify(self.cells.clone())
+    }
+
     pub fn setRawDataSize(&mut self, array_size: usize) {
         self.cells = vec![0; array_size];
     }
 
     pub fn setRawDataValue(&mut self, index: i32, value: i16) {
         self.cells[index as usize] = value;
-    }
-
-    pub fn getSerializable(&self) -> String {
-        stringify(self.cells.clone())
     }
 }
 

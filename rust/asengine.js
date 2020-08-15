@@ -626,6 +626,13 @@ let wasm_bindgen;
             wasm.asstate_initialize(this.ptr, table_size_x, table_size_y);
         }
         /**
+        * @returns {number}
+        */
+        getMaximumValue() {
+            var ret = wasm.asstate_getMaximumValue(this.ptr);
+            return ret;
+        }
+        /**
         * @param {number} size_x
         * @param {number} size_y
         */

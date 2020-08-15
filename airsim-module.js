@@ -42,6 +42,13 @@ let ASWENGINE = (function ()
         console.log(value);
     }
     public.EXPORT.printValue = public.printValue;
+
+    public.setSerializable = function aswengine_setSerializable(string)
+    {
+        ASSTATE.setSerializable(string);
+        ASROAD.resetInternal();
+    }
+    public.EXPORT.setSerializable = public.setSerializable;
     
     // tiles bank
     public.V_ZONE = function aswengine_v_zone()
@@ -526,7 +533,7 @@ let ASSTATE = (function()
     
     public.getMaximumValue = function asstate_getMaximumValue()
     {
-        return (1 << (8 * Int16Array.BYTES_PER_ELEMENT - 1)) - 1; // Int16Array maximum value
+        return m_wasm.getMaximumValue();
     }
     
     public.setTableSize = function asstate_setTableSize(sizeX, sizeY) //
@@ -599,9 +606,7 @@ let ASSTATE = (function()
     {
         let array = JSON.parse(string);
         public.setRawData(Int16Array.from(array), array.length);
-        ASROAD.resetInternal();
     }
-    public.EXPORT.setSerializable = public.setSerializable;
 
     public.setRawData = function asstate_setRawData(array, arraySize) //
     {

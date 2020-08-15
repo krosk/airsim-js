@@ -495,6 +495,10 @@ impl AsState {
         self.setRoadTraversalEdgeCount(-1);
     }
 
+    pub fn getMaximumValue(&self) -> i32 {
+        return std::i16::MAX as i32;
+    }
+
     pub fn setTableSize(&mut self, size_x: usize, size_y: usize) {
         let total_size = AsStateG::END as usize + size_x*size_y*AsStateC::END as usize; //* Int32Array.BYTES_PER_ELEMENT;
         let empty_vec: Vec<i16> = vec![0;total_size];

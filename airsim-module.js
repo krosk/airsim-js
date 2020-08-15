@@ -292,14 +292,23 @@ let ASSTATE = (function()
         m_wasm.setRoadDebug(index, data);
     }
     
-    public.getRicoDemandOffer = function asstate_getRicoDemandOffer(index) //
+    public.getRicoDemandOffer = function asstate_getRicoDemandOffer(index)
     {
         return m_wasm.getRicoDemandOffer(index);
+        /*let dor = r(index, C.RICO_DEMAND_OFFER_R);
+        let doi = r(index, C.RICO_DEMAND_OFFER_I);
+        let doc = r(index, C.RICO_DEMAND_OFFER_C);
+        let dop = r(index, C.RICO_DEMAND_OFFER_P);
+        return [dor, doi, doc, dop];*/
     }
     
-    public.setRicoDemandOffer = function asstate_setRicoDemandOffer(index, demandOffer) //
+    public.setRicoDemandOffer = function asstate_setRicoDemandOffer(index, demandOffer)
     {
         m_wasm.setRicoDemandOffer(index, demandOffer);
+        /*w(index, C.RICO_DEMAND_OFFER_R, demandOffer[0]);
+        w(index, C.RICO_DEMAND_OFFER_I, demandOffer[1]);
+        w(index, C.RICO_DEMAND_OFFER_C, demandOffer[2]);
+        w(index, C.RICO_DEMAND_OFFER_P, demandOffer[3]);*/
     }
     
     public.getRicoDensity = function asstate_getRicoDensity(index) //

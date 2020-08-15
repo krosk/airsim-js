@@ -55,3 +55,16 @@
 13/ >cargo install wasm-bindgen-cli
 14/ >export OPENSSL_LIB_DIR="/usr/lib/x86_64-linux-gnu"
 15/ >export OPENSSL_INCLUDE_DIR="/usr/include/openssl"
+
+
+# performance notes
+Case of a Rust function that returns a box typed array of a few values
+to the javascript domain.
+Implementation A: 4 calls to a rust function to return 4 i16 values, 
+    an array is built out of those 4 values in javascript and returned
+Implementation B: One call to a rust function to return a box<[i16]>
+    the array is returned as is (Int16Array) or converted.
+Observed that the implementation A is faster, emaning that:
+- the overhead of calling a rust function 4 times is lower than the overhead
+  involved in copying a typed array as a return value of 4 values
+  

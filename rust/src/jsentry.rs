@@ -475,6 +475,26 @@ impl AsState {
         self.w(0, AsStateG::STAT_DEMAND_P_TOTAL_LAST as i32, data[3]);
     }
 
+    pub fn initialize(&mut self, table_size_x: usize, table_size_y: usize) {
+        self.setTableSize(table_size_x, table_size_y);
+        self.setPlay(-1);
+        self.setTick(0);
+        self.setFrame(0);
+        self.setTickSpeed(0);
+        self.setChangeFirst(0);
+        self.setChangeLast(0);
+        for x in 0..table_size_x as i32 {
+            for y in 0..table_size_y as i32 {
+                let index = self.getIndex(x, y) as i32;
+                self.clear(index);
+                self.setChangeFlag(index, 0);
+            }
+        }
+        self.setRoadTraversalStart(-1);
+        self.setRoadTraversalCurrentIndex(-1);
+        self.setRoadTraversalEdgeCount(-1);
+    }
+
     pub fn setTableSize(&mut self, size_x: usize, size_y: usize) {
         let total_size = AsStateG::END as usize + size_x*size_y*AsStateC::END as usize; //* Int32Array.BYTES_PER_ELEMENT;
         let empty_vec: Vec<i16> = vec![0;total_size];

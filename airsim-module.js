@@ -521,26 +521,7 @@ let ASSTATE = (function()
     public.initialize = function asstate_initialize(tableSizeX, tableSizeY)
     {
         m_wasm = G_WASM_ENGINE.AsState.new();
-
-        public.setTableSize(tableSizeX, tableSizeY);
-        public.setPlay(-1);
-        public.setTick(0);
-        public.setFrame(0);
-        public.setTickSpeed(0);
-        setChangeFirst(0);
-        setChangeLast(0);
-        for (let x = 0; x < tableSizeX; x++)
-        {
-            for (let y = 0; y < tableSizeY; y++)
-            {
-                var index = public.getIndex(x, y);
-                public.clear(index);
-                setChangeFlag(index, 0);
-            }
-        }
-        public.setRoadTraversalStart(-1);
-        public.setRoadTraversalCurrentIndex(-1);
-        public.setRoadTraversalEdgeCount(-1);
+        m_wasm.initialize(tableSizeX, tableSizeY);
     }
     
     public.getMaximumValue = function asstate_getMaximumValue()

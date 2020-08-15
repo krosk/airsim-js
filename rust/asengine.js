@@ -619,6 +619,13 @@ let wasm_bindgen;
             wasm.asstate_setRicoDemandTotalLast(this.ptr, ptr0, len0);
         }
         /**
+        * @param {number} table_size_x
+        * @param {number} table_size_y
+        */
+        initialize(table_size_x, table_size_y) {
+            wasm.asstate_initialize(this.ptr, table_size_x, table_size_y);
+        }
+        /**
         * @param {number} size_x
         * @param {number} size_y
         */

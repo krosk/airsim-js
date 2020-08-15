@@ -436,7 +436,7 @@ let ASSTATE = (function()
         w(0, G.ROAD_TRAVERSAL_EDGE_COUNT, data);
     }
     
-    let getChangeFirst = function asstate_getChangeFirst() //
+    public.getChangeFirst = function asstate_getChangeFirst() //
     {
         return r(0, G.CHANGE_FIRST);
     }
@@ -446,7 +446,7 @@ let ASSTATE = (function()
         w(0, G.CHANGE_FIRST, data);
     }
     
-    let getChangeLast = function asstate_getChangeLast() //
+    public.getChangeLast = function asstate_getChangeLast() //
     {
         return r(0, G.CHANGE_LAST);
     }
@@ -603,7 +603,7 @@ let ASSTATE = (function()
     
     let replaceChangeLast = function asstate_replaceChangeLast(newIndex) //
     {
-        let lastIndex = getChangeLast();
+        let lastIndex = public.getChangeLast();
         setChangeFlag(lastIndex, newIndex);
         setChangeFlag(newIndex, newIndex);
         setChangeLast(newIndex);

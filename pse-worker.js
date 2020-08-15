@@ -14,6 +14,7 @@ async function init() {
     await wasm_bindgen('rust/asengine_bg.wasm');
     console.log('wasm engine loaded');
     G_WASM_ENGINE = wasm_bindgen;
+    postMessage(["OK"]);
 }
 init();
 

@@ -119,8 +119,12 @@ function OnReady()
     Resize();
     
     g_app.ticker.add(Update);
+    
+    console.log("Waiting");
+}
 
-    // asynchronous loading
+function loadTexture()
+{
     const loader = PIXI.loader;
     
     loader.add("img/cityTiles_sheet.json");
@@ -129,10 +133,9 @@ function OnReady()
     loader.onComplete.add(() => {
         g_state = StartState;
     });
-    
-    // Ready when all asynchronous loading finish
-    console.log("Waiting");
 }
+
+PSEENGINE.onComplete = loadTexture;
 
 function InitializeDebugOverlay()
 {

@@ -144,6 +144,12 @@ let PSEENGINE_Obj = (function ()
         }
     }
     public.dispatch = dispatch;
+    
+    // to be overriden
+    public.onComplete = function pseengine_oncompete()
+    {
+        console.log('Engine loaded; override PSEENGINE.onComplete() for callback')
+    }
 
     // means has access to internals without having to cross message
     public.hasAccess = function pseengine_hasAccess()
@@ -159,7 +165,15 @@ let PSEENGINE_Obj = (function ()
         {
             let value = e.data[0];
             let callbackData = e.data[1];
-            processCallback(value, callbackData);
+            if (value == "OK")
+            {
+                // signal that worker is ready
+                public.onComplete();
+            }
+            else
+            {
+                processCallback(value, callbackData);
+            }
         }
     }
     else
@@ -169,6 +183,7 @@ let PSEENGINE_Obj = (function ()
             await wasm_bindgen('rust/asengine_bg.wasm');
             console.log('wasm engine loaded');
             G_WASM_ENGINE = wasm_bindgen;
+            public.onComplete();
         }
         init();
     }

@@ -136,10 +136,9 @@ let ASSTATE = (function()
         return m_wasm.getIndex(x, y);
     }
     
-    public.getXYFromIndex = function asstate_getXYFromIndex(index)
+    public.getXYFromIndex = function asstate_getXYFromIndex(index) //
     {
-        //return MUTIL.mathReverseCantorPair(index);
-        return public.isValidIndex(index) ? [((index - 1) / public.getTableSizeY()) | 0, (index - 1) % public.getTableSizeY()] : [-1, -1];
+        return m_wasm.getXYFromIndex(index);
     }
     
     let r = function r(index, field) //
@@ -162,34 +161,34 @@ let ASSTATE = (function()
         return m_wasm.clearProperties(index);
     }
     
-    public.getZoneId = function asstate_getZoneId(index)
+    public.getZoneId = function asstate_getZoneId(index) //
     {
-        return r(index, C.ZONE_ID);
+        return m_wasm.getZoneId(index);
     }
     
-    public.setZoneId = function asstate_setZoneId(index, data)
+    public.setZoneId = function asstate_setZoneId(index, data) //
     {
-        w(index, C.ZONE_ID, data);
+        m_wasm.setZoneId(index, data);
     }
     
-    public.getZoneRequest = function asstate_getZoneRequest(index)
+    public.getZoneRequest = function asstate_getZoneRequest(index) //
     {
-        return r(index, C.ZONE_REQUEST);
+        return m_wasm.getZoneRequest(index);
     }
     
-    public.setZoneRequest = function asstate_setZoneRequest(index, data)
+    public.setZoneRequest = function asstate_setZoneRequest(index, data) //
     {
-        w(index, C.ZONE_REQUEST, data);
+        m_wasm.setZoneRequest(index, data);
     }
     
     let getChangeFlag = function asstate_getChangeFlag(index) //
     {
-        return r(index, C.CHANGE);
+        return m_wasm.getChangeFlag(index)
     }
     
     let setChangeFlag = function asstate_setChangeFlag(index, data) //
     {
-        w(index, C.CHANGE, data);
+        m_wasm.setChangeFlag(index, data);
     }
     
     const roadConnectToFlag = [
@@ -203,257 +202,235 @@ let ASSTATE = (function()
         C.ROAD_CONNECT_Ww
     ];
     
-    public.getRoadConnected = function asstate_getRoadConnected(index)
+    public.getRoadConnected = function asstate_getRoadConnected(index) //
     {
-        return r(index, C.ROAD_CONNECT) > 0;
+        return m_wasm.getRoadConnected(index);
     }
     
-    public.getRoadConnectTo = function asstate_getRoadConnectTo(index, d)
+    public.getRoadConnectTo = function asstate_getRoadConnectTo(index, d) //
     {
-        let mask = 1 << d;
-        return r(index, C.ROAD_CONNECT) & mask;
+        return m_wasm.getRoadConnectTo(index, d);
     }
     
-    public.setRoadConnectTo = function asstate_setRoadConnectTo(index, d)
+    public.setRoadConnectTo = function asstate_setRoadConnectTo(index, d) //
     {
-        let mask = 1 << d;
-        let data = r(index, C.ROAD_CONNECT) | mask;
-        w(index, C.ROAD_CONNECT, data);
+        m_wasm.setRoadConnectTo(index, d);
     }
     
-    public.setRoadDisconnectTo = function asstate_setRoadDisconnectTo(index, d)
+    public.setRoadDisconnectTo = function asstate_setRoadDisconnectTo(index, d) //
     {
-        let mask = ~(1 << d);
-        let data = r(index, C.ROAD_CONNECT) & mask;
-        w(index, C.ROAD_CONNECT, data);
+        m_wasm.setRoadDisconnectTo(index, d);
     }
     
-    public.getDisplayId = function asstate_getDisplayId(index)
+    public.getDisplayId = function asstate_getDisplayId(index) //
     {
-        return r(index, C.DISPLAY_ID);
+        return m_wasm.getDisplayId(index);
     }
     
-    public.setDisplayId = function asstate_setDisplayId(index, data)
+    public.setDisplayId = function asstate_setDisplayId(index, data) //
     {
-        w(index, C.DISPLAY_ID, data);
+        m_wasm.setDisplayId(index, data);
     }
     
-    public.getRoadLastCarFlow = function asstate_getRoadLastCarFlow(index)
+    public.getRoadLastCarFlow = function asstate_getRoadLastCarFlow(index) //
     {
-        return r(index, C.ROAD_CAR_LAST_FLOW);
+        return m_wasm.getRoadLastCarFlow(index);
     }
     
-    public.setRoadLastCarFlow = function asstate_setRoadLastCarFlow(index, data)
+    public.setRoadLastCarFlow = function asstate_setRoadLastCarFlow(index, data) //
     {
-        w(index, C.ROAD_CAR_LAST_FLOW, data);
+        m_wasm.setRoadLastCarFlow(index, data);
     }
     
-    public.getRoadCarFlow = function asstate_getRoadCarFlow(index)
+    public.getRoadCarFlow = function asstate_getRoadCarFlow(index) //
     {
-        return r(index, C.ROAD_CAR_FLOW);
+        return m_wasm.getRoadCarFlow(index);
     }
     
-    public.setRoadCarFlow = function asstate_setRoadCarFlow(index, data)
+    public.setRoadCarFlow = function asstate_setRoadCarFlow(index, data) //
     {
-        w(index, C.ROAD_CAR_FLOW, data);
+        m_wasm.setRoadCarFlow(index, data);
     }
     
-    public.getRoadTraversalProcessed = function asstate_getRoadTraversalProcessed(index)
+    public.getRoadTraversalProcessed = function asstate_getRoadTraversalProcessed(index) //
     {
-        return r(index, C.ROAD_TRAVERSAL_PROCESSED);
+        return m_wasm.getRoadTraversalProcessed(index);
     }
     
-    public.setRoadTraversalProcessed = function asstate_setRoadTraversalProcessed(index, data)
+    public.setRoadTraversalProcessed = function asstate_setRoadTraversalProcessed(index, data) //
     {
-        w(index, C.ROAD_TRAVERSAL_PROCESSED, data);
+        m_wasm.setRoadTraversalProcessed(index, data);
     }
     
-    public.getRoadTraversalCost = function asstate_getRoadTraversalCost(index)
+    public.getRoadTraversalCost = function asstate_getRoadTraversalCost(index) //
     {
-        return r(index, C.ROAD_TRAVERSAL_COST);
+        return m_wasm.getRoadTraversalCost(index);
     }
     
-    public.setRoadTraversalCost = function asstate_setRoadTraversalCost(index, data)
+    public.setRoadTraversalCost = function asstate_setRoadTraversalCost(index, data) //
     {
-        w(index, C.ROAD_TRAVERSAL_COST, data);
+        m_wasm.setRoadTraversalCost(index, data);
     }
     
-    public.getRoadTraversalParent = function asstate_getRoadTraversalParent(index)
+    public.getRoadTraversalParent = function asstate_getRoadTraversalParent(index) //
     {
-        return r(index, C.ROAD_TRAVERSAL_PARENT);
+        return m_wasm.getRoadTraversalParent(index);
     }
     
-    public.setRoadTraversalParent = function asstate_setRoadTraversalParent(index, data)
+    public.setRoadTraversalParent = function asstate_setRoadTraversalParent(index, data) //
     {
-        w(index, C.ROAD_TRAVERSAL_PARENT, data);
+        m_wasm.setRoadTraversalParent(index, data);
     }
     
-    public.getRoadDebug = function asstate_getRoadDebug(index)
+    public.getRoadDebug = function asstate_getRoadDebug(index) //
     {
-        return r(index, C.ROAD_DEBUG);
+        return m_wasm.getRoadDebug(index);
     }
     
-    public.setRoadDebug = function asstate_setRoadDebug(index, data)
+    public.setRoadDebug = function asstate_setRoadDebug(index, data) //
     {
-        w(index, C.ROAD_DEBUG, data);
+        m_wasm.setRoadDebug(index, data);
     }
     
-    public.getRicoDemandOffer = function asstate_getRicoDemandOffer(index)
+    public.getRicoDemandOffer = function asstate_getRicoDemandOffer(index) //
     {
-        let dor = r(index, C.RICO_DEMAND_OFFER_R);
-        let doi = r(index, C.RICO_DEMAND_OFFER_I);
-        let doc = r(index, C.RICO_DEMAND_OFFER_C);
-        let dop = r(index, C.RICO_DEMAND_OFFER_P);
-        return [dor, doi, doc, dop];
+        return m_wasm.getRicoDemandOffer(index);
     }
     
-    public.setRicoDemandOffer = function asstate_setRicoDemandOffer(index, demandOffer)
+    public.setRicoDemandOffer = function asstate_setRicoDemandOffer(index, demandOffer) //
     {
-        w(index, C.RICO_DEMAND_OFFER_R, demandOffer[0]);
-        w(index, C.RICO_DEMAND_OFFER_I, demandOffer[1]);
-        w(index, C.RICO_DEMAND_OFFER_C, demandOffer[2]);
-        w(index, C.RICO_DEMAND_OFFER_P, demandOffer[3]);
+        m_wasm.setRicoDemandOffer(index, demandOffer);
     }
     
-    public.getRicoDensity = function asstate_getRicoDensity(index)
+    public.getRicoDensity = function asstate_getRicoDensity(index) //
     {
-        return r(index, C.RICO_DENSITY_LEVEL);
+        return m_wasm.getRicoDensity(index);
     }
     
-    public.setRicoDensity = function asstate_setRicoDensity(index, data)
+    public.setRicoDensity = function asstate_setRicoDensity(index, data) //
     {
-        w(index, C.RICO_DENSITY_LEVEL, data);
+        m_wasm.setRicoDensity(index, data);
     }
     
-    public.getBuildingData = function asstate_getBuildingData(field, index)
+    public.getBuildingData = function asstate_getBuildingData(field, index) //
     {
-        return r(index, field);
+        return m_wasm.getBuildingData(field, index);
     }
     
-    public.setBuildingData = function asstate_setBuildingData(field, index, data)
+    public.setBuildingData = function asstate_setBuildingData(field, index, data) //
     {
-        w(index, field, data);
+        m_wasm.setBuildingData(field, index, data);
     }
     
-    public.getTick = function asstate_getTick()
+    public.getTick = function asstate_getTick() //
     {
-        return r(0, G.TICK);
+        return m_wasm.getTick();
     }
     
-    public.setTick = function asstate_setTick(data)
+    public.setTick = function asstate_setTick(data) //
     {
-        w(0, G.TICK, data);
+        m_wasm.setTick(data);
     }
     
-    public.getTickSpeed = function asstate_getTickSpeed()
+    public.getTickSpeed = function asstate_getTickSpeed() //
     {
-        return r(0, G.TICK_SPEED);
+        return m_wasm.getTickSpeed();
     }
     
-    public.setTickSpeed = function asstate_setTickSpeed(data)
+    public.setTickSpeed = function asstate_setTickSpeed(data) //
     {
-        w(0, G.TICK_SPEED, data);
+        m_wasm.setTickSpeed(data);
     }
     public.EXPORT.setTickSpeed = public.setTickSpeed;
     
-    public.getUnused = function asstate_getUnused()
+    public.getFrame = function asstate_getFrame() //
     {
-        return r(0, G.UNUSED);
+        return m_wasm.getFrame();
     }
     
-    public.setUnused = function asstate_setUnused(data)
+    public.setFrame = function asstate_setFrame(data) //
     {
-        w(0, G.UNUSED, data);
+        m_wasm.setFrame(data);
     }
     
-    public.getFrame = function asstate_getFrame()
+    public.getPlay = function asstate_getPlay() //
     {
-        return r(0, G.FRAME);
+        return m_wasm.getPlay();
     }
     
-    public.setFrame = function asstate_setFrame(data)
+    public.setPlay = function asstate_setPlay(data) //
     {
-        w(0, G.FRAME, data);
+        m_wasm.setPlay(data);
     }
     
-    public.getPlay = function asstate_getPlay()
+    public.getTickProgress = function asstate_getTickProgress() //
     {
-        return r(0, G.PLAY);
+        return m_wasm.getTickProgress();
     }
     
-    public.setPlay = function asstate_setPlay(data)
+    public.setTickProgress = function asstate_setTickProgress(data) //
     {
-        w(0, G.PLAY, data);
+        m_wasm.setTickProgress(data);
     }
     
-    public.getTickProgress = function asstate_getTickProgress()
+    public.getRicoStep = function asstate_getRicoStep() //
     {
-        return r(0, G.TICK_PROGRESS);
+        return m_wasm.getRicoStep();
     }
     
-    public.setTickProgress = function asstate_setTickProgress(data)
+    public.setRicoStep = function asstate_setRicoStep(data) //
     {
-        w(0, G.TICK_PROGRESS, data);
+        m_wasm.setRicoStep(data);
     }
     
-    public.getRicoStep = function asstate_getRicoStep()
+    public.getRoadTraversalStart = function asstate_getRoadTraversalStart() //
     {
-        return r(0, G.RICO_STEP);
+        return m_wasm.getRoadTraversalStart();
     }
     
-    public.setRicoStep = function asstate_setRicoStep(data)
+    public.setRoadTraversalStart = function asstate_setRoadTraversalStart(data) //
     {
-        w(0, G.RICO_STEP, data);
+        m_wasm.setRoadTraversalStart(data);
     }
     
-    public.getRoadTraversalStart = function asstate_getRoadTraversalStart()
+    public.getRoadTraversalCurrentIndex = function asstate_getRoadTraversalCurrentIndex() //
     {
-        return r(0, G.ROAD_TRAVERSAL_START);
+        return m_wasm.getRoadTraversalCurrentIndex();
     }
     
-    public.setRoadTraversalStart = function asstate_setRoadTraversalStart(data)
+    public.setRoadTraversalCurrentIndex = function asstate_setRoadTraversalCurrentIndex(data) //
     {
-        w(0, G.ROAD_TRAVERSAL_START, data);
+        m_wasm.setRoadTraversalCurrentIndex(data);
     }
     
-    public.getRoadTraversalCurrentIndex = function asstate_getRoadTraversalCurrentIndex()
+    public.getRoadTraversalEdgeCount = function asstate_getRoadTraversalEdgeCount() //
     {
-        return r(0, G.ROAD_TRAVERSAL_CURRENT_INDEX);
+        return m_wasm.getRoadTraversalEdgeCount();
     }
     
-    public.setRoadTraversalCurrentIndex = function asstate_setRoadTraversalCurrentIndex(data)
+    public.setRoadTraversalEdgeCount = function asstate_setRoadTraversalEdgeCount(data) //
     {
-        w(0, G.ROAD_TRAVERSAL_CURRENT_INDEX, data);
-    }
-    
-    public.getRoadTraversalEdgeCount = function asstate_getRoadTraversalEdgeCount()
-    {
-        return r(0, G.ROAD_TRAVERSAL_EDGE_COUNT);
-    }
-    
-    public.setRoadTraversalEdgeCount = function asstate_setRoadTraversalEdgeCount(data)
-    {
-        w(0, G.ROAD_TRAVERSAL_EDGE_COUNT, data);
+        m_wasm.setRoadTraversalEdgeCount(data);
     }
     
     public.getChangeFirst = function asstate_getChangeFirst() //
     {
-        return r(0, G.CHANGE_FIRST);
+        return m_wasm.getChangeFirst();
     }
     
     let setChangeFirst = function asstate_setChangeFirst(data) //
     {
-        w(0, G.CHANGE_FIRST, data);
+        m_wasm.setChangeFirst(data);
     }
     
     public.getChangeLast = function asstate_getChangeLast() //
     {
-        return r(0, G.CHANGE_LAST);
+        return m_wasm.getChangeLast();
     }
     
     let setChangeLast = function asstate_setChangeLast(data) //
     {
-        w(0, G.CHANGE_LAST, data);
+        m_wasm.setChangeLast(data);
     }
     
     public.getRicoOfferTotal = function asstate_getRicoOfferTotal()
@@ -581,12 +558,7 @@ let ASSTATE = (function()
     
     public.isValidIndex = function asstate_isValidIndex(index)
     {
-        if (typeof index == 'undefined' || index == null)
-        {
-            throw 'undefined index';
-        }
-        let isOutOfBound = index <= 0 || index > public.getTableSizeX() * public.getTableSizeY();
-        return !isOutOfBound;
+        return m_wasm.isValidIndex(index);
     }
     
     public.isValidCoordinates = function asstate_isValidCoordinates(tileX, tileY) //

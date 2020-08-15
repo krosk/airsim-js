@@ -27,6 +27,18 @@ let wasm_bindgen;
         return cachegetInt32Memory0;
     }
 
+    let cachegetInt16Memory0 = null;
+    function getInt16Memory0() {
+        if (cachegetInt16Memory0 === null || cachegetInt16Memory0.buffer !== wasm.memory.buffer) {
+            cachegetInt16Memory0 = new Int16Array(wasm.memory.buffer);
+        }
+        return cachegetInt16Memory0;
+    }
+
+    function getArrayI16FromWasm0(ptr, len) {
+        return getInt16Memory0().subarray(ptr / 2, ptr / 2 + len);
+    }
+
     let cachegetUint16Memory0 = null;
     function getUint16Memory0() {
         if (cachegetUint16Memory0 === null || cachegetUint16Memory0.buffer !== wasm.memory.buffer) {
@@ -78,6 +90,24 @@ let wasm_bindgen;
         }
         /**
         * @param {number} index
+        * @returns {Int16Array}
+        */
+        getXYFromIndex(index) {
+            try {
+                const retptr = wasm.__wbindgen_export_0.value - 16;
+                wasm.__wbindgen_export_0.value = retptr;
+                wasm.asstate_getXYFromIndex(retptr, this.ptr, index);
+                var r0 = getInt32Memory0()[retptr / 4 + 0];
+                var r1 = getInt32Memory0()[retptr / 4 + 1];
+                var v0 = getArrayI16FromWasm0(r0, r1).slice();
+                wasm.__wbindgen_free(r0, r1 * 2);
+                return v0;
+            } finally {
+                wasm.__wbindgen_export_0.value += 16;
+            }
+        }
+        /**
+        * @param {number} index
         * @param {number} field
         * @returns {number}
         */
@@ -104,6 +134,389 @@ let wasm_bindgen;
         */
         clearProperties(index) {
             wasm.asstate_clearProperties(this.ptr, index);
+        }
+        /**
+        * @param {number} index
+        * @returns {number}
+        */
+        getZoneId(index) {
+            var ret = wasm.asstate_getZoneId(this.ptr, index);
+            return ret;
+        }
+        /**
+        * @param {number} index
+        * @param {number} data
+        */
+        setZoneId(index, data) {
+            wasm.asstate_setZoneId(this.ptr, index, data);
+        }
+        /**
+        * @param {number} index
+        * @returns {number}
+        */
+        getZoneRequest(index) {
+            var ret = wasm.asstate_getZoneRequest(this.ptr, index);
+            return ret;
+        }
+        /**
+        * @param {number} index
+        * @param {number} data
+        */
+        setZoneRequest(index, data) {
+            wasm.asstate_setZoneRequest(this.ptr, index, data);
+        }
+        /**
+        * @param {number} index
+        * @returns {number}
+        */
+        getChangeFlag(index) {
+            var ret = wasm.asstate_getChangeFlag(this.ptr, index);
+            return ret;
+        }
+        /**
+        * @param {number} index
+        * @param {number} data
+        */
+        setChangeFlag(index, data) {
+            wasm.asstate_setChangeFlag(this.ptr, index, data);
+        }
+        /**
+        * @param {number} index
+        * @returns {boolean}
+        */
+        getRoadConnected(index) {
+            var ret = wasm.asstate_getRoadConnected(this.ptr, index);
+            return ret !== 0;
+        }
+        /**
+        * @param {number} index
+        * @param {number} d
+        * @returns {number}
+        */
+        getRoadConnectTo(index, d) {
+            var ret = wasm.asstate_getRoadConnectTo(this.ptr, index, d);
+            return ret;
+        }
+        /**
+        * @param {number} index
+        * @param {number} d
+        */
+        setRoadConnectTo(index, d) {
+            wasm.asstate_setRoadConnectTo(this.ptr, index, d);
+        }
+        /**
+        * @param {number} index
+        * @param {number} d
+        */
+        setRoadDisconnectTo(index, d) {
+            wasm.asstate_setRoadDisconnectTo(this.ptr, index, d);
+        }
+        /**
+        * @param {number} index
+        * @returns {number}
+        */
+        getDisplayId(index) {
+            var ret = wasm.asstate_getDisplayId(this.ptr, index);
+            return ret;
+        }
+        /**
+        * @param {number} index
+        * @param {number} data
+        */
+        setDisplayId(index, data) {
+            wasm.asstate_setDisplayId(this.ptr, index, data);
+        }
+        /**
+        * @param {number} index
+        * @returns {number}
+        */
+        getRoadLastCarFlow(index) {
+            var ret = wasm.asstate_getRoadLastCarFlow(this.ptr, index);
+            return ret;
+        }
+        /**
+        * @param {number} index
+        * @param {number} data
+        */
+        setRoadLastCarFlow(index, data) {
+            wasm.asstate_setRoadLastCarFlow(this.ptr, index, data);
+        }
+        /**
+        * @param {number} index
+        * @returns {number}
+        */
+        getRoadCarFlow(index) {
+            var ret = wasm.asstate_getRicoDensity(this.ptr, index);
+            return ret;
+        }
+        /**
+        * @param {number} index
+        * @param {number} data
+        */
+        setRoadCarFlow(index, data) {
+            wasm.asstate_setRicoDensity(this.ptr, index, data);
+        }
+        /**
+        * @param {number} index
+        * @returns {number}
+        */
+        getRoadTraversalProcessed(index) {
+            var ret = wasm.asstate_getRoadTraversalProcessed(this.ptr, index);
+            return ret;
+        }
+        /**
+        * @param {number} index
+        * @param {number} data
+        */
+        setRoadTraversalProcessed(index, data) {
+            wasm.asstate_setRoadTraversalProcessed(this.ptr, index, data);
+        }
+        /**
+        * @param {number} index
+        * @returns {number}
+        */
+        getRoadTraversalCost(index) {
+            var ret = wasm.asstate_getRoadTraversalCost(this.ptr, index);
+            return ret;
+        }
+        /**
+        * @param {number} index
+        * @param {number} data
+        */
+        setRoadTraversalCost(index, data) {
+            wasm.asstate_setRoadTraversalCost(this.ptr, index, data);
+        }
+        /**
+        * @param {number} index
+        * @returns {number}
+        */
+        getRoadTraversalParent(index) {
+            var ret = wasm.asstate_getRoadTraversalParent(this.ptr, index);
+            return ret;
+        }
+        /**
+        * @param {number} index
+        * @param {number} data
+        */
+        setRoadTraversalParent(index, data) {
+            wasm.asstate_setRoadTraversalParent(this.ptr, index, data);
+        }
+        /**
+        * @param {number} index
+        * @returns {number}
+        */
+        getRoadDebug(index) {
+            var ret = wasm.asstate_getRoadDebug(this.ptr, index);
+            return ret;
+        }
+        /**
+        * @param {number} index
+        * @param {number} data
+        */
+        setRoadDebug(index, data) {
+            wasm.asstate_setRoadDebug(this.ptr, index, data);
+        }
+        /**
+        * @param {number} index
+        * @returns {Int16Array}
+        */
+        getRicoDemandOffer(index) {
+            try {
+                const retptr = wasm.__wbindgen_export_0.value - 16;
+                wasm.__wbindgen_export_0.value = retptr;
+                wasm.asstate_getRicoDemandOffer(retptr, this.ptr, index);
+                var r0 = getInt32Memory0()[retptr / 4 + 0];
+                var r1 = getInt32Memory0()[retptr / 4 + 1];
+                var v0 = getArrayI16FromWasm0(r0, r1).slice();
+                wasm.__wbindgen_free(r0, r1 * 2);
+                return v0;
+            } finally {
+                wasm.__wbindgen_export_0.value += 16;
+            }
+        }
+        /**
+        * @param {number} index
+        * @param {Int16Array} demand_offer
+        */
+        setRicoDemandOffer(index, demand_offer) {
+            var ptr0 = passArray16ToWasm0(demand_offer, wasm.__wbindgen_malloc);
+            var len0 = WASM_VECTOR_LEN;
+            wasm.asstate_setRicoDemandOffer(this.ptr, index, ptr0, len0);
+        }
+        /**
+        * @param {number} index
+        * @returns {number}
+        */
+        getRicoDensity(index) {
+            var ret = wasm.asstate_getRicoDensity(this.ptr, index);
+            return ret;
+        }
+        /**
+        * @param {number} index
+        * @param {number} data
+        */
+        setRicoDensity(index, data) {
+            wasm.asstate_setRicoDensity(this.ptr, index, data);
+        }
+        /**
+        * @param {number} field
+        * @param {number} index
+        * @returns {number}
+        */
+        getBuildingData(field, index) {
+            var ret = wasm.asstate_getBuildingData(this.ptr, field, index);
+            return ret;
+        }
+        /**
+        * @param {number} field
+        * @param {number} index
+        * @param {number} data
+        */
+        setBuildingData(field, index, data) {
+            wasm.asstate_setBuildingData(this.ptr, field, index, data);
+        }
+        /**
+        * @returns {number}
+        */
+        getTick() {
+            var ret = wasm.asstate_getTick(this.ptr);
+            return ret;
+        }
+        /**
+        * @param {number} data
+        */
+        setTick(data) {
+            wasm.asstate_setTick(this.ptr, data);
+        }
+        /**
+        * @returns {number}
+        */
+        getTickSpeed() {
+            var ret = wasm.asstate_getTickSpeed(this.ptr);
+            return ret;
+        }
+        /**
+        * @param {number} data
+        */
+        setTickSpeed(data) {
+            wasm.asstate_setTickSpeed(this.ptr, data);
+        }
+        /**
+        * @returns {number}
+        */
+        getFrame() {
+            var ret = wasm.asstate_getFrame(this.ptr);
+            return ret;
+        }
+        /**
+        * @param {number} data
+        */
+        setFrame(data) {
+            wasm.asstate_setFrame(this.ptr, data);
+        }
+        /**
+        * @returns {number}
+        */
+        getPlay() {
+            var ret = wasm.asstate_getPlay(this.ptr);
+            return ret;
+        }
+        /**
+        * @param {number} data
+        */
+        setPlay(data) {
+            wasm.asstate_setPlay(this.ptr, data);
+        }
+        /**
+        * @returns {number}
+        */
+        getTickProgress() {
+            var ret = wasm.asstate_getTickProgress(this.ptr);
+            return ret;
+        }
+        /**
+        * @param {number} data
+        */
+        setTickProgress(data) {
+            wasm.asstate_setTickProgress(this.ptr, data);
+        }
+        /**
+        * @returns {number}
+        */
+        getRicoStep() {
+            var ret = wasm.asstate_getRicoStep(this.ptr);
+            return ret;
+        }
+        /**
+        * @param {number} data
+        */
+        setRicoStep(data) {
+            wasm.asstate_setRicoStep(this.ptr, data);
+        }
+        /**
+        * @returns {number}
+        */
+        getRoadTraversalStart() {
+            var ret = wasm.asstate_getRoadTraversalStart(this.ptr);
+            return ret;
+        }
+        /**
+        * @param {number} data
+        */
+        setRoadTraversalStart(data) {
+            wasm.asstate_setRoadTraversalStart(this.ptr, data);
+        }
+        /**
+        * @returns {number}
+        */
+        getRoadTraversalCurrentIndex() {
+            var ret = wasm.asstate_getRoadTraversalCurrentIndex(this.ptr);
+            return ret;
+        }
+        /**
+        * @param {number} data
+        */
+        setRoadTraversalCurrentIndex(data) {
+            wasm.asstate_setRoadTraversalCurrentIndex(this.ptr, data);
+        }
+        /**
+        * @returns {number}
+        */
+        getRoadTraversalEdgeCount() {
+            var ret = wasm.asstate_getRoadTraversalEdgeCount(this.ptr);
+            return ret;
+        }
+        /**
+        * @param {number} data
+        */
+        setRoadTraversalEdgeCount(data) {
+            wasm.asstate_setRoadTraversalEdgeCount(this.ptr, data);
+        }
+        /**
+        * @returns {number}
+        */
+        getChangeFirst() {
+            var ret = wasm.asstate_getChangeFirst(this.ptr);
+            return ret;
+        }
+        /**
+        * @param {number} data
+        */
+        setChangeFirst(data) {
+            wasm.asstate_setChangeFirst(this.ptr, data);
+        }
+        /**
+        * @returns {number}
+        */
+        getChangeLast() {
+            var ret = wasm.asstate_getChangeLast(this.ptr);
+            return ret;
+        }
+        /**
+        * @param {number} data
+        */
+        setChangeLast(data) {
+            wasm.asstate_setChangeLast(this.ptr, data);
         }
         /**
         * @param {number} size_x
@@ -137,6 +550,14 @@ let wasm_bindgen;
         */
         setTableSizeY(data) {
             wasm.asstate_setTableSizeY(this.ptr, data);
+        }
+        /**
+        * @param {number} index
+        * @returns {boolean}
+        */
+        isValidIndex(index) {
+            var ret = wasm.asstate_isValidIndex(this.ptr, index);
+            return ret !== 0;
         }
         /**
         * @param {number} tile_x

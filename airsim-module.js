@@ -444,70 +444,78 @@ let ASSTATE = (function()
     
     public.getRicoOfferTotal = function asstate_getRicoOfferTotal()
     {
-        let ro = r(0, G.STAT_OFFER_R_TOTAL);
+        return m_wasm.getRicoOfferTotal();
+        /*let ro = r(0, G.STAT_OFFER_R_TOTAL);
         let io = r(0, G.STAT_OFFER_I_TOTAL);
         let co = r(0, G.STAT_OFFER_C_TOTAL);
         let po = r(0, G.STAT_OFFER_P_TOTAL);
-        return [ro, io, co, po];
+        return [ro, io, co, po];*/
     }
     
     public.setRicoOfferTotal = function asstate_setRicoOfferTotal(data)
     {
-        w(0, G.STAT_OFFER_R_TOTAL, data[0]);
+        m_wasm.setRicoOfferTotal(data);
+        /*w(0, G.STAT_OFFER_R_TOTAL, data[0]);
         w(0, G.STAT_OFFER_I_TOTAL, data[1]);
         w(0, G.STAT_OFFER_C_TOTAL, data[2]);
-        w(0, G.STAT_OFFER_P_TOTAL, data[3]);
+        w(0, G.STAT_OFFER_P_TOTAL, data[3]);*/
     }
     
     public.getRicoOfferTotalLast = function asstate_getRicoOfferTotalLast()
     {
-        let ro = r(0, G.STAT_OFFER_R_TOTAL_LAST);
+        return m_wasm.getRicoOfferTotalLast();
+        /*let ro = r(0, G.STAT_OFFER_R_TOTAL_LAST);
         let io = r(0, G.STAT_OFFER_I_TOTAL_LAST);
         let co = r(0, G.STAT_OFFER_C_TOTAL_LAST);
         let po = r(0, G.STAT_OFFER_P_TOTAL_LAST);
-        return [ro, io, co, po];
+        return [ro, io, co, po];*/
     }
     
     public.setRicoOfferTotalLast = function asstate_setRicoOfferTotalLast(data)
     {
-        w(0, G.STAT_OFFER_R_TOTAL_LAST, data[0]);
+        m_wasm.setRicoOfferTotalLast(data);
+        /*w(0, G.STAT_OFFER_R_TOTAL_LAST, data[0]);
         w(0, G.STAT_OFFER_I_TOTAL_LAST, data[1]);
         w(0, G.STAT_OFFER_C_TOTAL_LAST, data[2]);
-        w(0, G.STAT_OFFER_P_TOTAL_LAST, data[3]);
+        w(0, G.STAT_OFFER_P_TOTAL_LAST, data[3]);*/
     }
     
     public.getRicoDemandTotal = function asstate_getRicoDemandTotal()
     {
-        let ro = r(0, G.STAT_DEMAND_R_TOTAL);
+        return m_wasm.getRicoDemandTotal();
+        /*let ro = r(0, G.STAT_DEMAND_R_TOTAL);
         let io = r(0, G.STAT_DEMAND_I_TOTAL);
         let co = r(0, G.STAT_DEMAND_C_TOTAL);
         let po = r(0, G.STAT_DEMAND_P_TOTAL);
-        return [ro, io, co, po];
+        return [ro, io, co, po];*/
     }
     
     public.setRicoDemandTotal = function asstate_setRicoDemandTotal(data)
     {
-        w(0, G.STAT_DEMAND_R_TOTAL, data[0]);
+        m_wasm.setRicoDemandTotal(data);
+        /*w(0, G.STAT_DEMAND_R_TOTAL, data[0]);
         w(0, G.STAT_DEMAND_I_TOTAL, data[1]);
         w(0, G.STAT_DEMAND_C_TOTAL, data[2]);
-        w(0, G.STAT_DEMAND_P_TOTAL, data[3]);
+        w(0, G.STAT_DEMAND_P_TOTAL, data[3]);*/
     }
     
     public.getRicoDemandTotalLast = function asstate_getRicoDemandTotalLast()
     {
-        let ro = r(0, G.STAT_DEMAND_R_TOTAL_LAST);
+        return m_wasm.getRicoDemandTotalLast();
+        /*let ro = r(0, G.STAT_DEMAND_R_TOTAL_LAST);
         let io = r(0, G.STAT_DEMAND_I_TOTAL_LAST);
         let co = r(0, G.STAT_DEMAND_C_TOTAL_LAST);
         let po = r(0, G.STAT_DEMAND_P_TOTAL_LAST);
-        return [ro, io, co, po];
+        return [ro, io, co, po];*/
     }
     
     public.setRicoDemandTotalLast = function asstate_setRicoDemandTotalLast(data)
     {
-        w(0, G.STAT_DEMAND_R_TOTAL_LAST, data[0]);
+        m_wasm.setRicoDemandTotalLast(data);
+        /*w(0, G.STAT_DEMAND_R_TOTAL_LAST, data[0]);
         w(0, G.STAT_DEMAND_I_TOTAL_LAST, data[1]);
         w(0, G.STAT_DEMAND_C_TOTAL_LAST, data[2]);
-        w(0, G.STAT_DEMAND_P_TOTAL_LAST, data[3]);
+        w(0, G.STAT_DEMAND_P_TOTAL_LAST, data[3]);*/
     }
     
     public.initialize = function asstate_initialize(tableSizeX, tableSizeY)

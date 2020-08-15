@@ -415,6 +415,66 @@ impl AsState {
         self.w(0, AsStateG::CHANGE_LAST as i32, data);
     }
 
+    pub fn getRicoOfferTotal(&self) -> Box<[i16]> {
+        let ro = self.r(0, AsStateG::STAT_OFFER_R_TOTAL as i32);
+        let io = self.r(0, AsStateG::STAT_OFFER_I_TOTAL as i32);
+        let co = self.r(0, AsStateG::STAT_OFFER_C_TOTAL as i32);
+        let po = self.r(0, AsStateG::STAT_OFFER_P_TOTAL as i32);
+        return Box::new([ro, io, co, po]);
+    }
+
+    pub fn setRicoOfferTotal(&mut self, data: Box<[i16]>) {
+        self.w(0, AsStateG::STAT_OFFER_R_TOTAL as i32, data[0]);
+        self.w(0, AsStateG::STAT_OFFER_I_TOTAL as i32, data[1]);
+        self.w(0, AsStateG::STAT_OFFER_C_TOTAL as i32, data[2]);
+        self.w(0, AsStateG::STAT_OFFER_P_TOTAL as i32, data[3]);
+    }
+
+    pub fn getRicoOfferTotalLast(&self) -> Box<[i16]> {
+        let ro = self.r(0, AsStateG::STAT_OFFER_R_TOTAL_LAST as i32);
+        let io = self.r(0, AsStateG::STAT_OFFER_I_TOTAL_LAST as i32);
+        let co = self.r(0, AsStateG::STAT_OFFER_C_TOTAL_LAST as i32);
+        let po = self.r(0, AsStateG::STAT_OFFER_P_TOTAL_LAST as i32);
+        return Box::new([ro, io, co, po]);
+    }
+
+    pub fn setRicoOfferTotalLast(&mut self, data: Box<[i16]>) {
+        self.w(0, AsStateG::STAT_OFFER_R_TOTAL_LAST as i32, data[0]);
+        self.w(0, AsStateG::STAT_OFFER_I_TOTAL_LAST as i32, data[1]);
+        self.w(0, AsStateG::STAT_OFFER_C_TOTAL_LAST as i32, data[2]);
+        self.w(0, AsStateG::STAT_OFFER_P_TOTAL_LAST as i32, data[3]);
+    }
+
+    pub fn getRicoDemandTotal(&self) -> Box<[i16]> {
+        let ro = self.r(0, AsStateG::STAT_DEMAND_R_TOTAL as i32);
+        let io = self.r(0, AsStateG::STAT_DEMAND_I_TOTAL as i32);
+        let co = self.r(0, AsStateG::STAT_DEMAND_C_TOTAL as i32);
+        let po = self.r(0, AsStateG::STAT_DEMAND_P_TOTAL as i32);
+        return Box::new([ro, io, co, po]);
+    }
+    
+    pub fn setRicoDemandTotal(&mut self, data: Box<[i16]>) {
+        self.w(0, AsStateG::STAT_DEMAND_R_TOTAL as i32, data[0]);
+        self.w(0, AsStateG::STAT_DEMAND_I_TOTAL as i32, data[1]);
+        self.w(0, AsStateG::STAT_DEMAND_C_TOTAL as i32, data[2]);
+        self.w(0, AsStateG::STAT_DEMAND_P_TOTAL as i32, data[3]);
+    }
+
+    pub fn getRicoDemandTotalLast(&self) -> Box<[i16]> {
+        let ro = self.r(0, AsStateG::STAT_DEMAND_R_TOTAL_LAST as i32);
+        let io = self.r(0, AsStateG::STAT_DEMAND_I_TOTAL_LAST as i32);
+        let co = self.r(0, AsStateG::STAT_DEMAND_C_TOTAL_LAST as i32);
+        let po = self.r(0, AsStateG::STAT_DEMAND_P_TOTAL_LAST as i32);
+        return Box::new([ro, io, co, po]);
+    }
+    
+    pub fn setRicoDemandTotalLast(&mut self, data: Box<[i16]>) {
+        self.w(0, AsStateG::STAT_DEMAND_R_TOTAL_LAST as i32, data[0]);
+        self.w(0, AsStateG::STAT_DEMAND_I_TOTAL_LAST as i32, data[1]);
+        self.w(0, AsStateG::STAT_DEMAND_C_TOTAL_LAST as i32, data[2]);
+        self.w(0, AsStateG::STAT_DEMAND_P_TOTAL_LAST as i32, data[3]);
+    }
+
     pub fn setTableSize(&mut self, size_x: usize, size_y: usize) {
         let total_size = AsStateG::END as usize + size_x*size_y*AsStateC::END as usize; //* Int32Array.BYTES_PER_ELEMENT;
         let empty_vec: Vec<i16> = vec![0;total_size];

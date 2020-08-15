@@ -519,6 +519,106 @@ let wasm_bindgen;
             wasm.asstate_setChangeLast(this.ptr, data);
         }
         /**
+        * @returns {Int16Array}
+        */
+        getRicoOfferTotal() {
+            try {
+                const retptr = wasm.__wbindgen_export_0.value - 16;
+                wasm.__wbindgen_export_0.value = retptr;
+                wasm.asstate_getRicoOfferTotal(retptr, this.ptr);
+                var r0 = getInt32Memory0()[retptr / 4 + 0];
+                var r1 = getInt32Memory0()[retptr / 4 + 1];
+                var v0 = getArrayI16FromWasm0(r0, r1).slice();
+                wasm.__wbindgen_free(r0, r1 * 2);
+                return v0;
+            } finally {
+                wasm.__wbindgen_export_0.value += 16;
+            }
+        }
+        /**
+        * @param {Int16Array} data
+        */
+        setRicoOfferTotal(data) {
+            var ptr0 = passArray16ToWasm0(data, wasm.__wbindgen_malloc);
+            var len0 = WASM_VECTOR_LEN;
+            wasm.asstate_setRicoOfferTotal(this.ptr, ptr0, len0);
+        }
+        /**
+        * @returns {Int16Array}
+        */
+        getRicoOfferTotalLast() {
+            try {
+                const retptr = wasm.__wbindgen_export_0.value - 16;
+                wasm.__wbindgen_export_0.value = retptr;
+                wasm.asstate_getRicoOfferTotalLast(retptr, this.ptr);
+                var r0 = getInt32Memory0()[retptr / 4 + 0];
+                var r1 = getInt32Memory0()[retptr / 4 + 1];
+                var v0 = getArrayI16FromWasm0(r0, r1).slice();
+                wasm.__wbindgen_free(r0, r1 * 2);
+                return v0;
+            } finally {
+                wasm.__wbindgen_export_0.value += 16;
+            }
+        }
+        /**
+        * @param {Int16Array} data
+        */
+        setRicoOfferTotalLast(data) {
+            var ptr0 = passArray16ToWasm0(data, wasm.__wbindgen_malloc);
+            var len0 = WASM_VECTOR_LEN;
+            wasm.asstate_setRicoOfferTotalLast(this.ptr, ptr0, len0);
+        }
+        /**
+        * @returns {Int16Array}
+        */
+        getRicoDemandTotal() {
+            try {
+                const retptr = wasm.__wbindgen_export_0.value - 16;
+                wasm.__wbindgen_export_0.value = retptr;
+                wasm.asstate_getRicoDemandTotal(retptr, this.ptr);
+                var r0 = getInt32Memory0()[retptr / 4 + 0];
+                var r1 = getInt32Memory0()[retptr / 4 + 1];
+                var v0 = getArrayI16FromWasm0(r0, r1).slice();
+                wasm.__wbindgen_free(r0, r1 * 2);
+                return v0;
+            } finally {
+                wasm.__wbindgen_export_0.value += 16;
+            }
+        }
+        /**
+        * @param {Int16Array} data
+        */
+        setRicoDemandTotal(data) {
+            var ptr0 = passArray16ToWasm0(data, wasm.__wbindgen_malloc);
+            var len0 = WASM_VECTOR_LEN;
+            wasm.asstate_setRicoDemandTotal(this.ptr, ptr0, len0);
+        }
+        /**
+        * @returns {Int16Array}
+        */
+        getRicoDemandTotalLast() {
+            try {
+                const retptr = wasm.__wbindgen_export_0.value - 16;
+                wasm.__wbindgen_export_0.value = retptr;
+                wasm.asstate_getRicoDemandTotalLast(retptr, this.ptr);
+                var r0 = getInt32Memory0()[retptr / 4 + 0];
+                var r1 = getInt32Memory0()[retptr / 4 + 1];
+                var v0 = getArrayI16FromWasm0(r0, r1).slice();
+                wasm.__wbindgen_free(r0, r1 * 2);
+                return v0;
+            } finally {
+                wasm.__wbindgen_export_0.value += 16;
+            }
+        }
+        /**
+        * @param {Int16Array} data
+        */
+        setRicoDemandTotalLast(data) {
+            var ptr0 = passArray16ToWasm0(data, wasm.__wbindgen_malloc);
+            var len0 = WASM_VECTOR_LEN;
+            wasm.asstate_setRicoDemandTotalLast(this.ptr, ptr0, len0);
+        }
+        /**
         * @param {number} size_x
         * @param {number} size_y
         */

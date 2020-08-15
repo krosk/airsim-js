@@ -43,6 +43,18 @@ let ASWENGINE = (function ()
     }
     public.EXPORT.printValue = public.printValue;
 
+    public.setTickSpeed = function aswengine_setTickSpeed(data) //
+    {
+        ASSTATE.setTickSpeed(data);
+    }
+    public.EXPORT.setTickSpeed = public.setTickSpeed;
+
+    public.getSerializable = function aswengine_getSerializable()
+    {
+        return ASSTATE.getSerializable();
+    }
+    public.EXPORT.getSerializable = public.getSerializable;
+
     public.setSerializable = function aswengine_setSerializable(string)
     {
         ASSTATE.setSerializable(string);
@@ -72,71 +84,6 @@ let ASSTATE = (function()
     public.C_NAME = "ASSTATE";
     
     let m_wasm;
-    
-    // map structure
-    const C = {
-        ZONE_ID : 0,
-        CHANGE : 1,
-        ZONE_REQUEST : 2,
-        ROAD_CONNECT : 3,
-        DISPLAY_ID : 4,
-        
-        PROPERTY_START : 5,
-        
-        ROAD_CAR_FLOW : 5,
-        ROAD_CAR_LAST_FLOW : 6,
-        ROAD_TRAVERSAL_PROCESSED : 7,
-        ROAD_TRAVERSAL_COST : 8,
-        ROAD_TRAVERSAL_PARENT : 9,
-        ROAD_DEBUG : 10,
-        
-        RICO_DENSITY_LEVEL : 5,
-        RICO_DEMAND_OFFER_R : 6,
-        RICO_DEMAND_OFFER_I : 7,
-        RICO_DEMAND_OFFER_C : 8,
-        RICO_DEMAND_OFFER_P : 9,
-        
-        END : 11
-    }
-    public.C_DATA = C;
-    
-    const G = {
-        SIZE_X : 0,
-        SIZE_Y : 1,
-        PLAY : 2,
-        TICK : 3,
-        FRAME : 4,
-        TICK_SPEED : 5,
-        TICK_PROGRESS : 6,
-        RICO_STEP : 7,
-        ROAD_TRAVERSAL_START : 8,
-        ROAD_TRAVERSAL_LAST : 9,
-        ROAD_TRAVERSAL_CURRENT_INDEX : 10,
-        ROAD_TRAVERSAL_EDGE_COUNT : 11,
-        CHANGE_FIRST : 12,
-        CHANGE_LAST : 13,
-        STAT_OFFER_R_TOTAL : 14,
-        STAT_OFFER_R_TOTAL_LAST : 15,
-        STAT_DEMAND_R_TOTAL : 16,
-        STAT_DEMAND_R_TOTAL_LAST : 17,
-        
-        STAT_OFFER_I_TOTAL : 18,
-        STAT_OFFER_I_TOTAL_LAST : 19,
-        STAT_DEMAND_I_TOTAL : 20,
-        STAT_DEMAND_I_TOTAL_LAST : 21,
-        
-        STAT_OFFER_C_TOTAL : 22,
-        STAT_OFFER_C_TOTAL_LAST : 23,
-        STAT_DEMAND_C_TOTAL : 24,
-        STAT_DEMAND_C_TOTAL_LAST : 25,
-        
-        STAT_OFFER_P_TOTAL : 26,
-        STAT_OFFER_P_TOTAL_LAST : 27,
-        STAT_DEMAND_P_TOTAL : 28,
-        STAT_DEMAND_P_TOTAL_LAST : 29,
-        
-        END : 30
-    }
     
     public.getIndex = function asstate_getIndex(x, y) //
     {
@@ -197,17 +144,6 @@ let ASSTATE = (function()
     {
         m_wasm.setChangeFlag(index, data);
     }
-    
-    const roadConnectToFlag = [
-        C.ROAD_CONNECT_N,
-        C.ROAD_CONNECT_E,
-        C.ROAD_CONNECT_S,
-        C.ROAD_CONNECT_W,
-        C.ROAD_CONNECT_NN,
-        C.ROAD_CONNECT_EE,
-        C.ROAD_CONNECT_SS,
-        C.ROAD_CONNECT_Ww
-    ];
     
     public.getRoadConnected = function asstate_getRoadConnected(index) //
     {
@@ -357,7 +293,6 @@ let ASSTATE = (function()
     {
         m_wasm.setTickSpeed(data);
     }
-    public.EXPORT.setTickSpeed = public.setTickSpeed;
     
     public.getFrame = function asstate_getFrame() //
     {
@@ -600,7 +535,6 @@ let ASSTATE = (function()
     {
         return m_wasm.getSerializable();
     }
-    public.EXPORT.getSerializable = public.getSerializable;
     
     public.setSerializable = function asstate_setSerializable(string)
     {

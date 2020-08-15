@@ -110,10 +110,10 @@ let wasm_bindgen;
     }
     /**
     */
-    class AsState {
+    class ASSTATE {
 
         static __wrap(ptr) {
-            const obj = Object.create(AsState.prototype);
+            const obj = Object.create(ASSTATE.prototype);
             obj.ptr = ptr;
 
             return obj;
@@ -126,11 +126,11 @@ let wasm_bindgen;
             wasm.__wbg_asstate_free(ptr);
         }
         /**
-        * @returns {AsState}
+        * @returns {ASSTATE}
         */
         static new() {
             var ret = wasm.asstate_new();
-            return AsState.__wrap(ret);
+            return ASSTATE.__wrap(ret);
         }
         /**
         * @param {number} x
@@ -782,7 +782,7 @@ let wasm_bindgen;
             wasm.asstate_setRawData(this.ptr, ptr0, len0, array_size);
         }
     }
-    __exports.AsState = AsState;
+    __exports.ASSTATE = ASSTATE;
 
     async function load(module, imports) {
         if (typeof Response === 'function' && module instanceof Response) {

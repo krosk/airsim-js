@@ -14,7 +14,7 @@ use json::stringify;
 use serde_json::{Result, Value};
 
 #[wasm_bindgen]
-pub struct AsState {
+pub struct ASSTATE {
     cells: Vec<i16>, //dataStateView
 }
 
@@ -104,10 +104,10 @@ enum AsStateG {
 }
 
 #[wasm_bindgen]
-impl AsState {
-    pub fn new() -> AsState {
+impl ASSTATE {
+    pub fn new() -> ASSTATE {
         let cells = Vec::new();
-        AsState { cells }
+        ASSTATE { cells }
     }
 
     pub fn getIndex(&self, x: i32, y: i32) -> i16 {

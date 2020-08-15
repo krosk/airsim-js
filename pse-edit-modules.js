@@ -21,7 +21,7 @@ if (typeof WorkerGlobalScope !== 'undefined')
 }
 
 const G_MODULE_INT = {
-    [ASSTATE.C_NAME] : ASSTATE,
+    //[ASSTATE.C_NAME] : ASSTATE,
     [ASROAD.C_NAME] : ASROAD,
     [ASZONE.C_NAME] : ASZONE,
     [ASRICO.C_NAME] : ASRICO,

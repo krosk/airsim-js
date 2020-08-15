@@ -11,6 +11,7 @@ pub extern fn rust_r(index: i32, field: i32) -> i32 {
 
 use wasm_bindgen::prelude::*;
 use json::stringify;
+use serde_json::{Result, Value};
 
 #[wasm_bindgen]
 pub struct AsState {
@@ -584,7 +585,13 @@ impl AsState {
     }
 
     pub fn getSerializable(&self) -> String {
-        stringify(self.cells.clone())
+        return stringify(self.cells.clone());
+    }
+
+    pub fn setSerializable(&mut self, string: String) {
+        let _str: &str = string.as_str();
+        let v: Vec<i16> = serde_json::from_str(_str).unwrap();
+        self.setRawDataVec(v);
     }
 
     // Internal use

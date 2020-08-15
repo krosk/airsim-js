@@ -604,8 +604,7 @@ let ASSTATE = (function()
     
     public.setSerializable = function asstate_setSerializable(string)
     {
-        let array = JSON.parse(string);
-        public.setRawData(Int16Array.from(array), array.length);
+        m_wasm.setSerializable(string);
     }
 
     public.setRawData = function asstate_setRawData(array, arraySize) //

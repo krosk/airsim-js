@@ -30,7 +30,7 @@ impl ASENGINE {
     }
 }*/
 
-enum AsStateC {
+enum ASSTATE_C {
     ZONE_ID = 0,
     CHANGE = 1,
     ZONE_REQUEST = 2,
@@ -60,24 +60,24 @@ enum AsStateC {
     END = 11
 }
 
-impl AsStateC {
-    pub const PROPERTY_START: AsStateC = AsStateC::_5;
+impl ASSTATE_C {
+    pub const PROPERTY_START: ASSTATE_C = ASSTATE_C::_5;
 
-    pub const ROAD_CAR_FLOW: AsStateC = AsStateC::_5;
-    pub const ROAD_CAR_LAST_FLOW: AsStateC = AsStateC::_6;
-    pub const ROAD_TRAVERSAL_PROCESSED: AsStateC = AsStateC::_7;
-    pub const ROAD_TRAVERSAL_COST: AsStateC = AsStateC::_8;
-    pub const ROAD_TRAVERSAL_PARENT: AsStateC = AsStateC::_9;
-    pub const ROAD_DEBUG: AsStateC = AsStateC::_10;
+    pub const ROAD_CAR_FLOW: ASSTATE_C = ASSTATE_C::_5;
+    pub const ROAD_CAR_LAST_FLOW: ASSTATE_C = ASSTATE_C::_6;
+    pub const ROAD_TRAVERSAL_PROCESSED: ASSTATE_C = ASSTATE_C::_7;
+    pub const ROAD_TRAVERSAL_COST: ASSTATE_C = ASSTATE_C::_8;
+    pub const ROAD_TRAVERSAL_PARENT: ASSTATE_C = ASSTATE_C::_9;
+    pub const ROAD_DEBUG: ASSTATE_C = ASSTATE_C::_10;
 
-    pub const RICO_DENSITY_LEVEL: AsStateC = AsStateC::_5;
-    pub const RICO_DEMAND_OFFER_R: AsStateC = AsStateC::_6;
-    pub const RICO_DEMAND_OFFER_I: AsStateC = AsStateC::_7;
-    pub const RICO_DEMAND_OFFER_C: AsStateC = AsStateC::_8;
-    pub const RICO_DEMAND_OFFER_P: AsStateC = AsStateC::_9;
+    pub const RICO_DENSITY_LEVEL: ASSTATE_C = ASSTATE_C::_5;
+    pub const RICO_DEMAND_OFFER_R: ASSTATE_C = ASSTATE_C::_6;
+    pub const RICO_DEMAND_OFFER_I: ASSTATE_C = ASSTATE_C::_7;
+    pub const RICO_DEMAND_OFFER_C: ASSTATE_C = ASSTATE_C::_8;
+    pub const RICO_DEMAND_OFFER_P: ASSTATE_C = ASSTATE_C::_9;
 }
 
-enum AsStateG {
+enum ASSTATE_G {
     SIZE_X = 0,
     SIZE_Y = 1,
     PLAY = 2,
@@ -138,7 +138,7 @@ impl ASSTATE {
     }
 
     pub fn r(&self, index: i32, field: i32) -> i16 {
-        let target: usize = (if index == 0 { field } else { (index - 1)*(AsStateC::END as i32) + (AsStateG::END as i32) + field }) as usize;
+        let target: usize = (if index == 0 { field } else { (index - 1)*(ASSTATE_C::END as i32) + (ASSTATE_G::END as i32) + field }) as usize;
         return self.cells[target as usize];
         /*
         if (G_CHECK && typeof field == 'undefined')
@@ -161,7 +161,7 @@ impl ASSTATE {
     }
 
     pub fn w(&mut self, index: i32, field: i32, data: i16) {
-        let target: usize = (if index == 0 { field } else { (index - 1)*(AsStateC::END as i32) + (AsStateG::END as i32) + field }) as usize;
+        let target: usize = (if index == 0 { field } else { (index - 1)*(ASSTATE_C::END as i32) + (ASSTATE_G::END as i32) + field }) as usize;
         self.cells[target] = data;
         /*
         if (G_CHECK && typeof field == 'undefined')
@@ -184,14 +184,14 @@ impl ASSTATE {
 
     pub fn clear(&mut self, index: i32) {
         if index == 0 {
-            for i in 0..(AsStateG::END as usize) {
+            for i in 0..(ASSTATE_G::END as usize) {
                 self.cells[i] = 0;
             }
         }
         else
         {
-            let target_base: usize = ((index - 1)*(AsStateC::END as i32) + (AsStateG::END as i32)) as usize;
-            for i in 0..(AsStateC::END as usize)
+            let target_base: usize = ((index - 1)*(ASSTATE_C::END as i32) + (ASSTATE_G::END as i32)) as usize;
+            for i in 0..(ASSTATE_C::END as usize)
             {
                 self.cells[target_base + i] = 0;
             }
@@ -200,136 +200,136 @@ impl ASSTATE {
 
     pub fn clearProperties(&mut self, index: i32) {
         if index > 0 {
-            let target_base: usize = ((index - 1)*(AsStateC::END as i32) + (AsStateG::END as i32)) as usize;
-            for i in (AsStateC::PROPERTY_START as usize)..(AsStateC::END as usize) {
+            let target_base: usize = ((index - 1)*(ASSTATE_C::END as i32) + (ASSTATE_G::END as i32)) as usize;
+            for i in (ASSTATE_C::PROPERTY_START as usize)..(ASSTATE_C::END as usize) {
                 self.cells[target_base + i] = 0;
             }
         }
     }
 
     pub fn getZoneId(&self, index: i32) -> i16 {
-        return self.r(index, AsStateC::ZONE_ID as i32);
+        return self.r(index, ASSTATE_C::ZONE_ID as i32);
     }
 
     pub fn setZoneId(&mut self, index: i32, data: i16) {
-        self.w(index, AsStateC::ZONE_ID as i32, data);
+        self.w(index, ASSTATE_C::ZONE_ID as i32, data);
     }
 
     pub fn getZoneRequest(&self, index: i32) -> i16 {
-        return self.r(index, AsStateC::ZONE_REQUEST as i32);
+        return self.r(index, ASSTATE_C::ZONE_REQUEST as i32);
     }
 
     pub fn setZoneRequest(&mut self, index: i32, data: i16) {
-        self.w(index, AsStateC::ZONE_REQUEST as i32, data);
+        self.w(index, ASSTATE_C::ZONE_REQUEST as i32, data);
     }
 
     pub fn getChangeFlag(&self, index: i32) -> i16 {
-        return self.r(index, AsStateC::CHANGE as i32);
+        return self.r(index, ASSTATE_C::CHANGE as i32);
     }
 
     pub fn setChangeFlag(&mut self, index: i32, data: i16) {
-        self.w(index, AsStateC::CHANGE as i32, data);
+        self.w(index, ASSTATE_C::CHANGE as i32, data);
     }
 
     pub fn getRoadConnected(&self, index: i32) -> bool {
-        return self.r(index, AsStateC::ROAD_CONNECT as i32) > 0;
+        return self.r(index, ASSTATE_C::ROAD_CONNECT as i32) > 0;
     }
 
     pub fn getRoadConnectTo(&self, index: i32, d: i32) -> i16 {
         let mask = 1 << d;
-        return self.r(index, AsStateC::ROAD_CONNECT as i32) & mask;
+        return self.r(index, ASSTATE_C::ROAD_CONNECT as i32) & mask;
     }
 
     pub fn setRoadConnectTo(&mut self, index: i32, d: i32) {
         let mask = 1 << d;
-        let data = self.r(index, AsStateC::ROAD_CONNECT as i32) | mask;
-        self.w(index, AsStateC::ROAD_CONNECT as i32, data);
+        let data = self.r(index, ASSTATE_C::ROAD_CONNECT as i32) | mask;
+        self.w(index, ASSTATE_C::ROAD_CONNECT as i32, data);
     }
 
     pub fn setRoadDisconnectTo(&mut self, index: i32, d: i32) {
         let mask = !(1 << d);
-        let data = self.r(index, AsStateC::ROAD_CONNECT as i32) & mask;
-        self.w(index, AsStateC::ROAD_CONNECT as i32, data);
+        let data = self.r(index, ASSTATE_C::ROAD_CONNECT as i32) & mask;
+        self.w(index, ASSTATE_C::ROAD_CONNECT as i32, data);
     }
 
     pub fn getDisplayId(&self, index: i32) -> i16 {
-        return self.r(index, AsStateC::DISPLAY_ID as i32);
+        return self.r(index, ASSTATE_C::DISPLAY_ID as i32);
     }
 
     pub fn setDisplayId(&mut self, index: i32, data: i16) {
-        self.w(index, AsStateC::DISPLAY_ID as i32, data);
+        self.w(index, ASSTATE_C::DISPLAY_ID as i32, data);
     }
 
     pub fn getRoadLastCarFlow(&self, index: i32) -> i16 {
-        return self.r(index, AsStateC::ROAD_CAR_LAST_FLOW as i32);
+        return self.r(index, ASSTATE_C::ROAD_CAR_LAST_FLOW as i32);
     }
     
     pub fn setRoadLastCarFlow(&mut self, index: i32, data: i16) {
-        self.w(index, AsStateC::ROAD_CAR_LAST_FLOW as i32, data);
+        self.w(index, ASSTATE_C::ROAD_CAR_LAST_FLOW as i32, data);
     }
 
     pub fn getRoadCarFlow(&self, index: i32) -> i16 {
-        return self.r(index, AsStateC::ROAD_CAR_FLOW as i32);
+        return self.r(index, ASSTATE_C::ROAD_CAR_FLOW as i32);
     }
     
     pub fn setRoadCarFlow(&mut self, index: i32, data: i16) {
-        self.w(index, AsStateC::ROAD_CAR_FLOW as i32, data);
+        self.w(index, ASSTATE_C::ROAD_CAR_FLOW as i32, data);
     }
 
     pub fn getRoadTraversalProcessed(&self, index: i32) -> i16 {
-        return self.r(index, AsStateC::ROAD_TRAVERSAL_PROCESSED as i32);
+        return self.r(index, ASSTATE_C::ROAD_TRAVERSAL_PROCESSED as i32);
     }
     
     pub fn setRoadTraversalProcessed(&mut self, index: i32, data: i16) {
-        self.w(index, AsStateC::ROAD_TRAVERSAL_PROCESSED as i32, data);
+        self.w(index, ASSTATE_C::ROAD_TRAVERSAL_PROCESSED as i32, data);
     }
     
     pub fn getRoadTraversalCost(&self, index: i32) -> i16 {
-        return self.r(index, AsStateC::ROAD_TRAVERSAL_COST as i32);
+        return self.r(index, ASSTATE_C::ROAD_TRAVERSAL_COST as i32);
     }
     
     pub fn setRoadTraversalCost(&mut self, index: i32, data: i16) {
-        self.w(index, AsStateC::ROAD_TRAVERSAL_COST as i32, data);
+        self.w(index, ASSTATE_C::ROAD_TRAVERSAL_COST as i32, data);
     }
 
     pub fn getRoadTraversalParent(&self, index: i32) -> i16 {
-        return self.r(index, AsStateC::ROAD_TRAVERSAL_PARENT as i32);
+        return self.r(index, ASSTATE_C::ROAD_TRAVERSAL_PARENT as i32);
     }
     
     pub fn setRoadTraversalParent(&mut self, index: i32, data: i16) {
-        self.w(index, AsStateC::ROAD_TRAVERSAL_PARENT as i32, data);
+        self.w(index, ASSTATE_C::ROAD_TRAVERSAL_PARENT as i32, data);
     }
     
     pub fn getRoadDebug(&self, index: i32) -> i16 {
-        return self.r(index, AsStateC::ROAD_DEBUG as i32);
+        return self.r(index, ASSTATE_C::ROAD_DEBUG as i32);
     }
     
     pub fn setRoadDebug(&mut self, index: i32, data: i16) {
-        self.w(index, AsStateC::ROAD_DEBUG as i32, data);
+        self.w(index, ASSTATE_C::ROAD_DEBUG as i32, data);
     }
 
     pub fn getRicoDemandOffer(&self, index: i32) -> Box<[i16]> {
-        let dor = self.r(index, AsStateC::RICO_DEMAND_OFFER_R as i32);
-        let doi = self.r(index, AsStateC::RICO_DEMAND_OFFER_I as i32);
-        let doc = self.r(index, AsStateC::RICO_DEMAND_OFFER_C as i32);
-        let dop = self.r(index, AsStateC::RICO_DEMAND_OFFER_P as i32);
+        let dor = self.r(index, ASSTATE_C::RICO_DEMAND_OFFER_R as i32);
+        let doi = self.r(index, ASSTATE_C::RICO_DEMAND_OFFER_I as i32);
+        let doc = self.r(index, ASSTATE_C::RICO_DEMAND_OFFER_C as i32);
+        let dop = self.r(index, ASSTATE_C::RICO_DEMAND_OFFER_P as i32);
         return Box::new([dor, doi, doc, dop]);
     }
 
     pub fn setRicoDemandOffer(&mut self, index: i32, demand_offer: Box<[i16]>)
     {
-        self.w(index, AsStateC::RICO_DEMAND_OFFER_R as i32, demand_offer[0]);
-        self.w(index, AsStateC::RICO_DEMAND_OFFER_I as i32, demand_offer[1]);
-        self.w(index, AsStateC::RICO_DEMAND_OFFER_C as i32, demand_offer[2]);
-        self.w(index, AsStateC::RICO_DEMAND_OFFER_P as i32, demand_offer[3]);
+        self.w(index, ASSTATE_C::RICO_DEMAND_OFFER_R as i32, demand_offer[0]);
+        self.w(index, ASSTATE_C::RICO_DEMAND_OFFER_I as i32, demand_offer[1]);
+        self.w(index, ASSTATE_C::RICO_DEMAND_OFFER_C as i32, demand_offer[2]);
+        self.w(index, ASSTATE_C::RICO_DEMAND_OFFER_P as i32, demand_offer[3]);
     }
 
     pub fn getRicoDensity(&self, index: i32) -> i16 {
-        return self.r(index, AsStateC::RICO_DENSITY_LEVEL as i32);
+        return self.r(index, ASSTATE_C::RICO_DENSITY_LEVEL as i32);
     }
     
     pub fn setRicoDensity(&mut self, index: i32, data: i16) {
-        self.w(index, AsStateC::RICO_DENSITY_LEVEL as i32, data);
+        self.w(index, ASSTATE_C::RICO_DENSITY_LEVEL as i32, data);
     }
     
     pub fn getBuildingData(&self, field: i32, index: i32) -> i16 {
@@ -341,151 +341,151 @@ impl ASSTATE {
     }
     
     pub fn getTick(&self) -> i16 {
-        return self.r(0, AsStateG::TICK as i32);
+        return self.r(0, ASSTATE_G::TICK as i32);
     }
     
     pub fn setTick(&mut self, data: i16) {
-        self.w(0, AsStateG::TICK as i32, data);
+        self.w(0, ASSTATE_G::TICK as i32, data);
     }
     
     pub fn getTickSpeed(&self) -> i16 {
-        return self.r(0, AsStateG::TICK_SPEED as i32);
+        return self.r(0, ASSTATE_G::TICK_SPEED as i32);
     }
     
     pub fn setTickSpeed(&mut self, data: i16) {
-        self.w(0, AsStateG::TICK_SPEED as i32, data);
+        self.w(0, ASSTATE_G::TICK_SPEED as i32, data);
     }
     
     pub fn getFrame(&self) -> i16 {
-        return self.r(0, AsStateG::FRAME as i32);
+        return self.r(0, ASSTATE_G::FRAME as i32);
     }
     
     pub fn setFrame(&mut self, data: i16) {
-        self.w(0, AsStateG::FRAME as i32, data);
+        self.w(0, ASSTATE_G::FRAME as i32, data);
     }
     
     pub fn getPlay(&self) -> i16 {
-        return self.r(0, AsStateG::PLAY as i32);
+        return self.r(0, ASSTATE_G::PLAY as i32);
     }
     
     pub fn setPlay(&mut self, data: i16) {
-        self.w(0, AsStateG::PLAY as i32, data);
+        self.w(0, ASSTATE_G::PLAY as i32, data);
     }
     
     pub fn getTickProgress(&self) -> i16 {
-        return self.r(0, AsStateG::TICK_PROGRESS as i32);
+        return self.r(0, ASSTATE_G::TICK_PROGRESS as i32);
     }
     
     pub fn setTickProgress(&mut self, data: i16) {
-        self.w(0, AsStateG::TICK_PROGRESS as i32, data);
+        self.w(0, ASSTATE_G::TICK_PROGRESS as i32, data);
     }
     
     pub fn getRicoStep(&self) -> i16 {
-        return self.r(0, AsStateG::RICO_STEP as i32);
+        return self.r(0, ASSTATE_G::RICO_STEP as i32);
     }
     
     pub fn setRicoStep(&mut self, data: i16) {
-        self.w(0, AsStateG::RICO_STEP as i32, data);
+        self.w(0, ASSTATE_G::RICO_STEP as i32, data);
     }
     
     pub fn getRoadTraversalStart(&self) -> i16 {
-        return self.r(0, AsStateG::ROAD_TRAVERSAL_START as i32);
+        return self.r(0, ASSTATE_G::ROAD_TRAVERSAL_START as i32);
     }
     
     pub fn setRoadTraversalStart(&mut self, data: i16) {
-        self.w(0, AsStateG::ROAD_TRAVERSAL_START as i32, data);
+        self.w(0, ASSTATE_G::ROAD_TRAVERSAL_START as i32, data);
     }
     
     pub fn getRoadTraversalCurrentIndex(&self) -> i16  {
-        return self.r(0, AsStateG::ROAD_TRAVERSAL_CURRENT_INDEX as i32);
+        return self.r(0, ASSTATE_G::ROAD_TRAVERSAL_CURRENT_INDEX as i32);
     }
     
     pub fn setRoadTraversalCurrentIndex(&mut self, data: i16) {
-        self.w(0, AsStateG::ROAD_TRAVERSAL_CURRENT_INDEX as i32, data);
+        self.w(0, ASSTATE_G::ROAD_TRAVERSAL_CURRENT_INDEX as i32, data);
     }
     
     pub fn getRoadTraversalEdgeCount(&self) -> i16 {
-        return self.r(0, AsStateG::ROAD_TRAVERSAL_EDGE_COUNT as i32);
+        return self.r(0, ASSTATE_G::ROAD_TRAVERSAL_EDGE_COUNT as i32);
     }
     
     pub fn setRoadTraversalEdgeCount(&mut self, data: i16) {
-        self.w(0, AsStateG::ROAD_TRAVERSAL_EDGE_COUNT as i32, data);
+        self.w(0, ASSTATE_G::ROAD_TRAVERSAL_EDGE_COUNT as i32, data);
     }
 
     pub fn getChangeFirst(&self) -> i16 {
-        return self.r(0, AsStateG::CHANGE_FIRST as i32);
+        return self.r(0, ASSTATE_G::CHANGE_FIRST as i32);
     }
     
     pub fn setChangeFirst(&mut self, data: i16) {
-        self.w(0, AsStateG::CHANGE_FIRST as i32, data);
+        self.w(0, ASSTATE_G::CHANGE_FIRST as i32, data);
     }
     
     pub fn getChangeLast(&self) -> i16 {
-        return self.r(0, AsStateG::CHANGE_LAST as i32);
+        return self.r(0, ASSTATE_G::CHANGE_LAST as i32);
     }
     
     pub fn setChangeLast(&mut self, data: i16) {
-        self.w(0, AsStateG::CHANGE_LAST as i32, data);
+        self.w(0, ASSTATE_G::CHANGE_LAST as i32, data);
     }
 
     pub fn getRicoOfferTotal(&self) -> Box<[i16]> {
-        let ro = self.r(0, AsStateG::STAT_OFFER_R_TOTAL as i32);
-        let io = self.r(0, AsStateG::STAT_OFFER_I_TOTAL as i32);
-        let co = self.r(0, AsStateG::STAT_OFFER_C_TOTAL as i32);
-        let po = self.r(0, AsStateG::STAT_OFFER_P_TOTAL as i32);
+        let ro = self.r(0, ASSTATE_G::STAT_OFFER_R_TOTAL as i32);
+        let io = self.r(0, ASSTATE_G::STAT_OFFER_I_TOTAL as i32);
+        let co = self.r(0, ASSTATE_G::STAT_OFFER_C_TOTAL as i32);
+        let po = self.r(0, ASSTATE_G::STAT_OFFER_P_TOTAL as i32);
         return Box::new([ro, io, co, po]);
     }
 
     pub fn setRicoOfferTotal(&mut self, data: Box<[i16]>) {
-        self.w(0, AsStateG::STAT_OFFER_R_TOTAL as i32, data[0]);
-        self.w(0, AsStateG::STAT_OFFER_I_TOTAL as i32, data[1]);
-        self.w(0, AsStateG::STAT_OFFER_C_TOTAL as i32, data[2]);
-        self.w(0, AsStateG::STAT_OFFER_P_TOTAL as i32, data[3]);
+        self.w(0, ASSTATE_G::STAT_OFFER_R_TOTAL as i32, data[0]);
+        self.w(0, ASSTATE_G::STAT_OFFER_I_TOTAL as i32, data[1]);
+        self.w(0, ASSTATE_G::STAT_OFFER_C_TOTAL as i32, data[2]);
+        self.w(0, ASSTATE_G::STAT_OFFER_P_TOTAL as i32, data[3]);
     }
 
     pub fn getRicoOfferTotalLast(&self) -> Box<[i16]> {
-        let ro = self.r(0, AsStateG::STAT_OFFER_R_TOTAL_LAST as i32);
-        let io = self.r(0, AsStateG::STAT_OFFER_I_TOTAL_LAST as i32);
-        let co = self.r(0, AsStateG::STAT_OFFER_C_TOTAL_LAST as i32);
-        let po = self.r(0, AsStateG::STAT_OFFER_P_TOTAL_LAST as i32);
+        let ro = self.r(0, ASSTATE_G::STAT_OFFER_R_TOTAL_LAST as i32);
+        let io = self.r(0, ASSTATE_G::STAT_OFFER_I_TOTAL_LAST as i32);
+        let co = self.r(0, ASSTATE_G::STAT_OFFER_C_TOTAL_LAST as i32);
+        let po = self.r(0, ASSTATE_G::STAT_OFFER_P_TOTAL_LAST as i32);
         return Box::new([ro, io, co, po]);
     }
 
     pub fn setRicoOfferTotalLast(&mut self, data: Box<[i16]>) {
-        self.w(0, AsStateG::STAT_OFFER_R_TOTAL_LAST as i32, data[0]);
-        self.w(0, AsStateG::STAT_OFFER_I_TOTAL_LAST as i32, data[1]);
-        self.w(0, AsStateG::STAT_OFFER_C_TOTAL_LAST as i32, data[2]);
-        self.w(0, AsStateG::STAT_OFFER_P_TOTAL_LAST as i32, data[3]);
+        self.w(0, ASSTATE_G::STAT_OFFER_R_TOTAL_LAST as i32, data[0]);
+        self.w(0, ASSTATE_G::STAT_OFFER_I_TOTAL_LAST as i32, data[1]);
+        self.w(0, ASSTATE_G::STAT_OFFER_C_TOTAL_LAST as i32, data[2]);
+        self.w(0, ASSTATE_G::STAT_OFFER_P_TOTAL_LAST as i32, data[3]);
     }
 
     pub fn getRicoDemandTotal(&self) -> Box<[i16]> {
-        let ro = self.r(0, AsStateG::STAT_DEMAND_R_TOTAL as i32);
-        let io = self.r(0, AsStateG::STAT_DEMAND_I_TOTAL as i32);
-        let co = self.r(0, AsStateG::STAT_DEMAND_C_TOTAL as i32);
-        let po = self.r(0, AsStateG::STAT_DEMAND_P_TOTAL as i32);
+        let ro = self.r(0, ASSTATE_G::STAT_DEMAND_R_TOTAL as i32);
+        let io = self.r(0, ASSTATE_G::STAT_DEMAND_I_TOTAL as i32);
+        let co = self.r(0, ASSTATE_G::STAT_DEMAND_C_TOTAL as i32);
+        let po = self.r(0, ASSTATE_G::STAT_DEMAND_P_TOTAL as i32);
         return Box::new([ro, io, co, po]);
     }
     
     pub fn setRicoDemandTotal(&mut self, data: Box<[i16]>) {
-        self.w(0, AsStateG::STAT_DEMAND_R_TOTAL as i32, data[0]);
-        self.w(0, AsStateG::STAT_DEMAND_I_TOTAL as i32, data[1]);
-        self.w(0, AsStateG::STAT_DEMAND_C_TOTAL as i32, data[2]);
-        self.w(0, AsStateG::STAT_DEMAND_P_TOTAL as i32, data[3]);
+        self.w(0, ASSTATE_G::STAT_DEMAND_R_TOTAL as i32, data[0]);
+        self.w(0, ASSTATE_G::STAT_DEMAND_I_TOTAL as i32, data[1]);
+        self.w(0, ASSTATE_G::STAT_DEMAND_C_TOTAL as i32, data[2]);
+        self.w(0, ASSTATE_G::STAT_DEMAND_P_TOTAL as i32, data[3]);
     }
 
     pub fn getRicoDemandTotalLast(&self) -> Box<[i16]> {
-        let ro = self.r(0, AsStateG::STAT_DEMAND_R_TOTAL_LAST as i32);
-        let io = self.r(0, AsStateG::STAT_DEMAND_I_TOTAL_LAST as i32);
-        let co = self.r(0, AsStateG::STAT_DEMAND_C_TOTAL_LAST as i32);
-        let po = self.r(0, AsStateG::STAT_DEMAND_P_TOTAL_LAST as i32);
+        let ro = self.r(0, ASSTATE_G::STAT_DEMAND_R_TOTAL_LAST as i32);
+        let io = self.r(0, ASSTATE_G::STAT_DEMAND_I_TOTAL_LAST as i32);
+        let co = self.r(0, ASSTATE_G::STAT_DEMAND_C_TOTAL_LAST as i32);
+        let po = self.r(0, ASSTATE_G::STAT_DEMAND_P_TOTAL_LAST as i32);
         return Box::new([ro, io, co, po]);
     }
     
     pub fn setRicoDemandTotalLast(&mut self, data: Box<[i16]>) {
-        self.w(0, AsStateG::STAT_DEMAND_R_TOTAL_LAST as i32, data[0]);
-        self.w(0, AsStateG::STAT_DEMAND_I_TOTAL_LAST as i32, data[1]);
-        self.w(0, AsStateG::STAT_DEMAND_C_TOTAL_LAST as i32, data[2]);
-        self.w(0, AsStateG::STAT_DEMAND_P_TOTAL_LAST as i32, data[3]);
+        self.w(0, ASSTATE_G::STAT_DEMAND_R_TOTAL_LAST as i32, data[0]);
+        self.w(0, ASSTATE_G::STAT_DEMAND_I_TOTAL_LAST as i32, data[1]);
+        self.w(0, ASSTATE_G::STAT_DEMAND_C_TOTAL_LAST as i32, data[2]);
+        self.w(0, ASSTATE_G::STAT_DEMAND_P_TOTAL_LAST as i32, data[3]);
     }
 
     pub fn initialize(&mut self, table_size_x: usize, table_size_y: usize) {
@@ -513,7 +513,7 @@ impl ASSTATE {
     }
 
     pub fn setTableSize(&mut self, size_x: usize, size_y: usize) {
-        let total_size = AsStateG::END as usize + size_x*size_y*AsStateC::END as usize; //* Int32Array.BYTES_PER_ELEMENT;
+        let total_size = ASSTATE_G::END as usize + size_x*size_y*ASSTATE_C::END as usize; //* Int32Array.BYTES_PER_ELEMENT;
         let empty_vec: Vec<i16> = vec![0;total_size];
         self.setRawDataVec(empty_vec);
         self.setTableSizeX(size_x as i16);
@@ -521,19 +521,19 @@ impl ASSTATE {
     }
 
     pub fn getTableSizeX(&self) -> i16 {
-        return self.r(0, AsStateG::SIZE_X as i32);
+        return self.r(0, ASSTATE_G::SIZE_X as i32);
     }
     
     pub fn setTableSizeX(&mut self, data: i16) {
-        self.w(0, AsStateG::SIZE_X as i32, data);
+        self.w(0, ASSTATE_G::SIZE_X as i32, data);
     }
     
     pub fn getTableSizeY(&self) -> i16 {
-        return self.r(0, AsStateG::SIZE_Y as i32);
+        return self.r(0, ASSTATE_G::SIZE_Y as i32);
     }
     
     pub fn setTableSizeY(&mut self, data: i16) {
-        self.w(0, AsStateG::SIZE_Y as i32, data);
+        self.w(0, ASSTATE_G::SIZE_Y as i32, data);
     }
 
     pub fn isValidIndex(&self, index: i32) -> bool {
@@ -644,7 +644,7 @@ impl ASROAD {
     }
     
     pub fn changeTraversalIndex(&self, state: &mut ASSTATE, index: i32) {
-        if ASROAD::C_DEBUG_TRAVERSAL {
+        if Self::C_DEBUG_TRAVERSAL {
             state.notifyChange(index);
         }
     }

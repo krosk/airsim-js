@@ -9,6 +9,7 @@ const G_CHECK = true;
 const G_CACHE_NODE = true;
 
 let ASSTATE = {};
+let ASROADW = {};
 
 let ASWENGINE = (function ()
 {
@@ -20,6 +21,7 @@ let ASWENGINE = (function ()
     public.initializeModule = function aswengine_initializeModule(... args)
     {
         ASSTATE = G_WASM_ENGINE.ASSTATE.new();
+        ASROADW = G_WASM_ENGINE.ASROAD.new();
         ASSTATE.initialize(... args);
         ASZONE.initialize(... args);
         ASRICO.initialize(... args);
@@ -386,20 +388,14 @@ let ASROAD = (function ()
     
     let C_DEBUG_TRAVERSAL = true;
     
-    let getRoadType = function asroad_getRoadType(index)
+    let getRoadType = function asroad_getRoadType(index) //
     {
-        let zoneId = ASSTATE.getZoneId(index);
-        let type = C_ZONE_ROAD[zoneId];
-        if (G_CHECK && (type == null))
-        {
-            throw 'zone ' + zoneId + ' at ' + index + ' is not a road';
-        }
-        return zoneId;
+        return ASROADW.getRoadType(ASSTATE, index);
     }
     
-    let changeDataIndex = function asroad_changeDataIndex(index)
+    let changeDataIndex = function asroad_changeDataIndex(index) //
     {
-        ASSTATE.notifyChange(index);
+        ASROADW.changeDataIndex(ASSTATE, index);
     }
     
     let changeTraversalIndex = function asroad_changeTraversalIndex(index)
@@ -565,11 +561,6 @@ let ASROAD = (function ()
         }
     }
     
-    public.hasRoad = function asroad_hasRoad(index)
-    {
-        //let index = ASSTATE.getIndex(x, y);
-        return hasRoad(index);
-    }
     let hasRoad = function asroad_hasRoad(index)
     {
         if (!ASSTATE.isValidIndex(index))
@@ -581,6 +572,7 @@ let ASROAD = (function ()
         // no need to check for undefined
         return type != null;
     }
+    public.hasRoad = hasRoad;
     
     let isConnectedTo = function asroad_isConnectedTo(from, d)
     {

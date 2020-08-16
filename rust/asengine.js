@@ -108,6 +108,65 @@ let wasm_bindgen;
         WASM_VECTOR_LEN = offset;
         return ptr;
     }
+
+    function _assertClass(instance, klass) {
+        if (!(instance instanceof klass)) {
+            throw new Error(`expected instance of ${klass.name}`);
+        }
+        return instance.ptr;
+    }
+    /**
+    */
+    class ASROAD {
+
+        static __wrap(ptr) {
+            const obj = Object.create(ASROAD.prototype);
+            obj.ptr = ptr;
+
+            return obj;
+        }
+
+        free() {
+            const ptr = this.ptr;
+            this.ptr = 0;
+
+            wasm.__wbg_asroad_free(ptr);
+        }
+        /**
+        * @returns {ASROAD}
+        */
+        static new() {
+            var ret = wasm.asroad_new();
+            return ASROAD.__wrap(ret);
+        }
+        /**
+        * @param {ASSTATE} state
+        * @param {number} index
+        * @returns {number}
+        */
+        getRoadType(state, index) {
+            _assertClass(state, ASSTATE);
+            var ret = wasm.asroad_getRoadType(this.ptr, state.ptr, index);
+            return ret;
+        }
+        /**
+        * @param {ASSTATE} state
+        * @param {number} index
+        */
+        changeDataIndex(state, index) {
+            _assertClass(state, ASSTATE);
+            wasm.asroad_changeDataIndex(this.ptr, state.ptr, index);
+        }
+        /**
+        * @param {ASSTATE} state
+        * @param {number} index
+        */
+        changeTraversalIndex(state, index) {
+            _assertClass(state, ASSTATE);
+            wasm.asroad_changeDataIndex(this.ptr, state.ptr, index);
+        }
+    }
+    __exports.ASROAD = ASROAD;
     /**
     */
     class ASSTATE {

@@ -11,12 +11,24 @@ pub extern fn rust_r(index: i32, field: i32) -> i32 {
 
 use wasm_bindgen::prelude::*;
 use json::stringify;
-use serde_json::{Result, Value};
+use serde_json;
 
 #[wasm_bindgen]
 pub struct ASSTATE {
     cells: Vec<i16>, //dataStateView
 }
+
+#[wasm_bindgen]
+pub struct ASROAD {
+    
+}
+
+/*#[wasm_bindgen]
+impl ASENGINE {
+    pub fn new(&asstate: ASSTATE) -> ASENGINE {
+        return ASENGINE { asstate }
+    }
+}*/
 
 enum AsStateC {
     ZONE_ID = 0,
@@ -107,7 +119,7 @@ enum AsStateG {
 impl ASSTATE {
     pub fn new() -> ASSTATE {
         let cells = Vec::new();
-        ASSTATE { cells }
+        return ASSTATE { cells };
     }
 
     pub fn getIndex(&self, x: i32, y: i32) -> i16 {
@@ -603,6 +615,37 @@ impl ASSTATE {
         self.cells = vec![0; array_size];
         for i in 0..array_size {
             self.cells[i] = array[i];
+        }
+    }
+}
+
+impl ASROAD {
+    const C_DEBUG_TRAVERSAL: bool = true;
+}
+
+#[wasm_bindgen]
+impl ASROAD {
+    pub fn new() -> ASROAD {
+        return ASROAD {};
+    }
+    
+    pub fn getRoadType(&self, state: &ASSTATE, index: i32) -> i16 {
+        let zoneId = state.getZoneId(index);
+        //let type = C_ZONE_ROAD[zoneId];
+        /*if (G_CHECK && (type == null))
+        {
+            throw 'zone ' + zoneId + ' at ' + index + ' is not a road';
+        }*/
+        return zoneId;
+    }
+    
+    pub fn changeDataIndex(&self, state: &mut ASSTATE, index: i32) {
+        state.notifyChange(index);
+    }
+    
+    pub fn changeTraversalIndex(&self, state: &mut ASSTATE, index: i32) {
+        if ASROAD::C_DEBUG_TRAVERSAL {
+            state.notifyChange(index);
         }
     }
 }

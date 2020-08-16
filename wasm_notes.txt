@@ -56,6 +56,43 @@
 14/ >export OPENSSL_LIB_DIR="/usr/lib/x86_64-linux-gnu"
 15/ >export OPENSSL_INCLUDE_DIR="/usr/include/openssl"
 
+# implementation notes
+Javascript initial implementation uses global singleton
+modules for each component. This allows each module
+to reference to other modules arbitrarily, without
+any other references. This probably makes modules
+nore tightly coupled than necessary, but makes
+for an easier implementation.
+The alternative to so singleton, which is accessible
+anywhere, is (refer to dependency injection):
+- the referred module as a function argument
+  (method injection)
+  pro: explicit coupling, good practice?
+  pro: plays fine with rust and wasm-bindgen
+       in that I know it is ok to pass an object
+       as mutable reference from Javascript
+  con: burden super level to pass the required
+       module as argument, if accessible
+  con: changes function signature if module referred
+  con: might be uneccessary when modules all live
+       in rust?
+  con: may induce cascade arguments depending on
+       data flow, and impact a big chunk of code
+       base
+- the referred module as a member
+  (property injection)
+  pro: reduced code modification
+  pro: flexibility in calling other modules
+  con: lifetime consideration
+  con: mutable reference needs to be shared, may
+       not be compatible with rust philosophy?
+- referred module in constructor
+  (constructor injection)
+  con: probably impossible in some cases
+       because we have cyclic dependencies
+       but this could be solved by having the
+       super function orchestrating the dependence
+
 
 # performance notes
 Case of a Rust function that returns a box typed array of a few values

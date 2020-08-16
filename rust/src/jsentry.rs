@@ -619,6 +619,26 @@ impl ASSTATE {
     }
 }
 
+#[repr(i16)]
+enum C_TILE_ZONE {
+    NONE = 0,
+    DIRT = 10,
+    PATH = 12,
+    ROAD = 14,
+    HIGHWAY = 16,
+    RESLOW = 21,
+    INDLOW = 24,
+    COMLOW = 27,
+    RESHIG = 23,
+    INDHIG = 26,
+    COMHIG = 29,
+    POWLOW = 31,
+}
+
+impl C_TILE_ZONE {
+    pub const DEFAULT: C_TILE_ZONE = C_TILE_ZONE::DIRT;
+}
+
 impl ASROAD {
     const C_DEBUG_TRAVERSAL: bool = true;
 }
@@ -647,6 +667,23 @@ impl ASROAD {
         if Self::C_DEBUG_TRAVERSAL {
             state.notifyChange(index);
         }
+    }
+
+    pub fn hasRoad(&self, state: &mut ASSTATE, index: i32) -> bool {
+        if !state.isValidIndex(index) {
+            return false;
+        }
+        let zone_id: i16 = state.getZoneId(index);
+        if zone_id == C_TILE_ZONE::PATH as i16 {
+            return true;
+        }
+        if zone_id == C_TILE_ZONE::ROAD as i16 {
+            return true;
+        }
+        if zone_id == C_TILE_ZONE::HIGHWAY as i16 {
+            return true;
+        }
+        return false;
     }
 }
 

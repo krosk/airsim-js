@@ -398,7 +398,7 @@ let ASROAD = (function ()
         ASROADW.changeDataIndex(ASSTATE, index);
     }
     
-    let changeTraversalIndex = function asroad_changeTraversalIndex(index)
+    let changeTraversalIndex = function asroad_changeTraversalIndex(index) //
     {
         if (C_DEBUG_TRAVERSAL)
         {
@@ -563,14 +563,7 @@ let ASROAD = (function ()
     
     let hasRoad = function asroad_hasRoad(index)
     {
-        if (!ASSTATE.isValidIndex(index))
-        {
-            return false;
-        }
-        let zoneId = ASSTATE.getZoneId(index);
-        let type = C_ZONE_ROAD[zoneId];
-        // no need to check for undefined
-        return type != null;
+        return ASROADW.hasRoad(ASSTATE, index);
     }
     public.hasRoad = hasRoad;
     

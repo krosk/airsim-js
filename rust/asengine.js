@@ -165,6 +165,16 @@ let wasm_bindgen;
             _assertClass(state, ASSTATE);
             wasm.asroad_changeDataIndex(this.ptr, state.ptr, index);
         }
+        /**
+        * @param {ASSTATE} state
+        * @param {number} index
+        * @returns {boolean}
+        */
+        hasRoad(state, index) {
+            _assertClass(state, ASSTATE);
+            var ret = wasm.asroad_hasRoad(this.ptr, state.ptr, index);
+            return ret !== 0;
+        }
     }
     __exports.ASROAD = ASROAD;
     /**

@@ -708,20 +708,12 @@ let ASROAD = (function ()
     
     let getRoadSpeed = function asroad_getRoadSpeed(index)
     {
-        // LN * TL / TC / IC
-        let type = getRoadType(index);
-        let maxSpeed = C_TYPE_SPEED[type];
-        let ratio = getRoadCarFlowRatio(index);
-        return ratio >= 1 ? 0 : maxSpeed | 0;
+        return ASROADW.getRoadSpeed(ASSTATE, index);
     }
     
     let getRoadCarFlowRatio = function asroad_getRoadCarFlowRatio(index)
     {
-        let type = getRoadType(index);
-        let maxFlow = getRoadMaximumCarFlow(index);
-        let currentFlow = ASSTATE.getRoadCarFlow(index);
-        let ratio = currentFlow / maxFlow;
-        return ratio >= 1 ? 1 : ratio;
+        return ASROADW.getRoadCarFlowRatio(ASSTATE, index);
     }
     
     let getRoadLastCarFlowRatio = function asroad_getRoadLastCarFlowRatio(index)

@@ -778,6 +778,21 @@ impl ASROAD {
         let max_flow = (lane_count as f32 * Self::C_DAY_DURATION as f32 / (Self::C_CAR_LENGTH as f32 / max_speed as f32 + Self::C_INTER_CAR as f32)) as i32;
         return max_flow;
     }
+
+    pub fn getRoadSpeed(&self, state: &mut ASSTATE, index: i32) -> i32 {
+        // LN * TL / TC / IC
+        let road_type_enum: C_TILE_ZONE = self.getRoadTypeEnum(state, index);
+        let max_speed = road_type_enum.C_TYPE_SPEED();
+        let ratio = self.getRoadCarFlowRatio(state, index);
+        return if ratio >= 1. { 0 } else { max_speed | 0 };
+    }
+
+    pub fn getRoadCarFlowRatio(&self, state: &mut ASSTATE, index: i32) -> f32 {
+        let max_flow: i32 = self.getRoadMaximumCarFlow(state, index);
+        let current_flow: i16 = state.getRoadCarFlow(index);
+        let ratio: f32 = current_flow as f32 / max_flow as f32;
+        return if ratio >= 1. { 1. } else { ratio };
+    }
 }
 
 #[cfg(test)]

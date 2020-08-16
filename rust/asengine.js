@@ -185,6 +185,26 @@ let wasm_bindgen;
             var ret = wasm.asroad_getRoadMaximumCarFlow(this.ptr, state.ptr, index);
             return ret;
         }
+        /**
+        * @param {ASSTATE} state
+        * @param {number} index
+        * @returns {number}
+        */
+        getRoadSpeed(state, index) {
+            _assertClass(state, ASSTATE);
+            var ret = wasm.asroad_getRoadSpeed(this.ptr, state.ptr, index);
+            return ret;
+        }
+        /**
+        * @param {ASSTATE} state
+        * @param {number} index
+        * @returns {number}
+        */
+        getRoadCarFlowRatio(state, index) {
+            _assertClass(state, ASSTATE);
+            var ret = wasm.asroad_getRoadCarFlowRatio(this.ptr, state.ptr, index);
+            return ret;
+        }
     }
     __exports.ASROAD = ASROAD;
     /**

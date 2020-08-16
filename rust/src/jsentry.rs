@@ -634,13 +634,75 @@ enum C_TILE_ZONE {
     COMHIG = 29,
     POWLOW = 31,
 }
-
 impl C_TILE_ZONE {
     pub const DEFAULT: C_TILE_ZONE = C_TILE_ZONE::DIRT;
 }
 
+#[repr(i16)]
+enum C_TILE_ROAD_CONGESTION {
+    NONE = 100,
+    LOW = 101,
+    MID = 102,
+    HIG = 103,
+    VHI = 104
+}
+
+
+
+enum C_TILE {
+    ZONE(C_TILE_ZONE),
+    ROAD_CONGESTION(C_TILE_ROAD_CONGESTION)
+}
+
+
+impl C_TILE_ZONE {
+    pub fn C_TYPE_SPEED(&self) -> i32 {
+        match &self {
+            Self::PATH => 5,
+            Self::ROAD => 14,
+            Self::HIGHWAY => 25,
+            _ => 0
+        }
+    }
+
+    pub fn C_TYPE_LANE(&self) -> i32 {
+        match &self {
+            Self::PATH => 1,
+            Self::ROAD => 1,
+            Self::HIGHWAY => 3,
+            _ => 0
+        }
+    }
+}
+
+
 impl ASROAD {
     const C_DEBUG_TRAVERSAL: bool = true;
+
+    const C_DAY_DURATION: i32 = 3600; // s
+    const C_TILE_LENGTH: i32 = 16; // m
+    const C_MAX_SPEED: i32 = 50; // m / s
+    const C_INTER_CAR: i32 = 1; // s
+    const C_CAR_LENGTH: i32 = 4; // m
+
+    const G_CHECK: bool = false;
+
+    fn getRoadTypeEnum(&self, state: &ASSTATE, index: i32) -> C_TILE_ZONE {
+        let zone_id = state.getZoneId(index);
+        if zone_id == C_TILE_ZONE::PATH as i16 {
+            return C_TILE_ZONE::PATH;
+        }
+        if zone_id == C_TILE_ZONE::ROAD as i16 {
+            return C_TILE_ZONE::ROAD;
+        }
+        if zone_id == C_TILE_ZONE::HIGHWAY as i16 {
+            return C_TILE_ZONE::HIGHWAY;
+        }
+        if Self::G_CHECK {
+            // throw exception in which zone_id is not a road
+        }
+        return C_TILE_ZONE::NONE;
+    }
 }
 
 #[wasm_bindgen]
@@ -650,13 +712,13 @@ impl ASROAD {
     }
     
     pub fn getRoadType(&self, state: &ASSTATE, index: i32) -> i16 {
-        let zoneId = state.getZoneId(index);
-        //let type = C_ZONE_ROAD[zoneId];
+        let zone_id = state.getZoneId(index);
+        //let type = C_ZONE_ROAD[zone_id];
         /*if (G_CHECK && (type == null))
         {
             throw 'zone ' + zoneId + ' at ' + index + ' is not a road';
         }*/
-        return zoneId;
+        return zone_id;
     }
     
     pub fn changeDataIndex(&self, state: &mut ASSTATE, index: i32) {
@@ -668,6 +730,28 @@ impl ASROAD {
             state.notifyChange(index);
         }
     }
+
+    /*pub fn getDataIdByCongestion(&self, state: &mut ASSTATE, x: i32, y: i32) -> C_TILE_ROAD_CONGESTION {
+        if !state.isValidCoordinates(x, y) {
+            return C_TILE_ROAD_CONGESTION::NONE;
+        }
+        let index = state.getIndex(x, y);
+        if !self.hasRoad(state, index as i32) {
+            return C_TILE_ROAD_CONGESTION::NONE;
+        }
+        let ratio = 0.; //getRoadLastCarFlowRatio(index);
+        if ratio < 0.5 {
+            return C_TILE_ROAD_CONGESTION::LOW;
+        } else if ratio < 0.75 {
+            return C_TILE_ROAD_CONGESTION::MID;
+        } else if ratio < 1. {
+            return C_TILE_ROAD_CONGESTION::HIG;
+        } else if ratio >= 1. {
+        	return C_TILE_ROAD_CONGESTION::VHI;
+        } else {
+        	return C_TILE_ROAD_CONGESTION::NONE;
+        }
+    }*/
 
     pub fn hasRoad(&self, state: &mut ASSTATE, index: i32) -> bool {
         if !state.isValidIndex(index) {
@@ -684,6 +768,15 @@ impl ASROAD {
             return true;
         }
         return false;
+    }
+
+    pub fn getRoadMaximumCarFlow(&self, state: &mut ASSTATE, index: i32) -> i32 {
+        //LC * (TD - TL / TS) / (CL / SP + IC)
+        let road_type_enum: C_TILE_ZONE = self.getRoadTypeEnum(state, index);
+        let max_speed = road_type_enum.C_TYPE_SPEED();
+        let lane_count = road_type_enum.C_TYPE_LANE();
+        let max_flow = (lane_count as f32 * Self::C_DAY_DURATION as f32 / (Self::C_CAR_LENGTH as f32 / max_speed as f32 + Self::C_INTER_CAR as f32)) as i32;
+        return max_flow;
     }
 }
 

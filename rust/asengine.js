@@ -175,6 +175,16 @@ let wasm_bindgen;
             var ret = wasm.asroad_hasRoad(this.ptr, state.ptr, index);
             return ret !== 0;
         }
+        /**
+        * @param {ASSTATE} state
+        * @param {number} index
+        * @returns {number}
+        */
+        getRoadMaximumCarFlow(state, index) {
+            _assertClass(state, ASSTATE);
+            var ret = wasm.asroad_getRoadMaximumCarFlow(this.ptr, state.ptr, index);
+            return ret;
+        }
     }
     __exports.ASROAD = ASROAD;
     /**

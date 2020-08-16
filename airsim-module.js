@@ -703,12 +703,7 @@ let ASROAD = (function ()
     
     let getRoadMaximumCarFlow = function asroad_getRoadMaximumCarFlow(index)
     {
-        //LC * (TD - TL / TS) / (CL / SP + IC)
-        let type = getRoadType(index);
-        let maxSpeed = C_TYPE_SPEED[type];
-        let laneCount = C_TYPE_LANE[type];
-        let maxFlow = laneCount * C_DAY_DURATION / (C_CAR_LENGTH / maxSpeed + C_INTER_CAR);
-        return maxFlow;
+        return ASROADW.getRoadMaximumCarFlow(ASSTATE, index);
     }
     
     let getRoadSpeed = function asroad_getRoadSpeed(index)

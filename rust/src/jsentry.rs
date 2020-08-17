@@ -773,8 +773,8 @@ impl ASROAD {
     pub fn getRoadMaximumCarFlow(&self, state: &mut ASSTATE, index: i32) -> i32 {
         //LC * (TD - TL / TS) / (CL / SP + IC)
         let road_type_enum: C_TILE_ZONE = self.getRoadTypeEnum(state, index);
-        let max_speed = road_type_enum.C_TYPE_SPEED();
-        let lane_count = road_type_enum.C_TYPE_LANE();
+        let max_speed: i32 = road_type_enum.C_TYPE_SPEED();
+        let lane_count: i32 = road_type_enum.C_TYPE_LANE();
         let max_flow = (lane_count as f32 * Self::C_DAY_DURATION as f32 / (Self::C_CAR_LENGTH as f32 / max_speed as f32 + Self::C_INTER_CAR as f32)) as i32;
         return max_flow;
     }
@@ -782,8 +782,8 @@ impl ASROAD {
     pub fn getRoadSpeed(&self, state: &mut ASSTATE, index: i32) -> i32 {
         // LN * TL / TC / IC
         let road_type_enum: C_TILE_ZONE = self.getRoadTypeEnum(state, index);
-        let max_speed = road_type_enum.C_TYPE_SPEED();
-        let ratio = self.getRoadCarFlowRatio(state, index);
+        let max_speed: i32 = road_type_enum.C_TYPE_SPEED();
+        let ratio: f32 = self.getRoadCarFlowRatio(state, index);
         return if ratio >= 1. { 0 } else { max_speed | 0 };
     }
 
@@ -792,6 +792,23 @@ impl ASROAD {
         let current_flow: i16 = state.getRoadCarFlow(index);
         let ratio: f32 = current_flow as f32 / max_flow as f32;
         return if ratio >= 1. { 1. } else { ratio };
+    }
+    
+    pub fn getRoadLastCarFlowRatio(&self, state: &mut ASSTATE, index: i32) -> f32 {
+        //let type = getRoadType(index);
+        let max_flow: i32 = self.getRoadMaximumCarFlow(state, index);
+        let last_flow: i16 = state.getRoadLastCarFlow(index);
+        let ratio: f32 = last_flow as f32 / max_flow as f32;
+        return if ratio >= 1. { 1. } else { ratio };
+    }
+    
+    pub fn getRoadTrafficDecay(&self, state: &mut ASSTATE, index: i32) -> f32 {
+        // LN / TF / IC * TD
+        let road_type_enum: C_TILE_ZONE = self.getRoadTypeEnum(state, index);
+        let lane_count = road_type_enum.C_TYPE_LANE();
+        let car_flow: i16 = state.getRoadCarFlow(index);
+        let decay: f32 = (lane_count as f32 / car_flow as f32 / Self::C_INTER_CAR as f32 * Self::C_DAY_DURATION as f32);
+        return decay;
     }
 }
 

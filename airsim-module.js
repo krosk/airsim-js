@@ -400,10 +400,11 @@ let ASROAD = (function ()
     
     let changeTraversalIndex = function asroad_changeTraversalIndex(index) //
     {
-        if (C_DEBUG_TRAVERSAL)
+        ASROADW.changeTraversalIndex(ASSTATE, index);
+        /*if (C_DEBUG_TRAVERSAL)
         {
             ASSTATE.notifyChange(index);
-        }
+        }*/
     }
     
     // for display
@@ -718,21 +719,12 @@ let ASROAD = (function ()
     
     let getRoadLastCarFlowRatio = function asroad_getRoadLastCarFlowRatio(index)
     {
-        let type = getRoadType(index);
-        let maxFlow = getRoadMaximumCarFlow(index);
-        let lastFlow = ASSTATE.getRoadLastCarFlow(index);
-        let ratio = lastFlow / maxFlow;
-        return ratio >= 1 ? 1 : ratio;
+        return ASROADW.getRoadLastCarFlowRatio(ASSTATE, index);
     }
     
     let getRoadTrafficDecay = function asroad_getRoadTrafficDecay(index)
     {
-        // LN / TF / IC * TD
-        let type = getRoadType(index);
-        let laneCount = C_TYPE_LANE[type];
-        let carFlow = ASSTATE.getRoadCarFlow(index);
-        let decay = (laneCount / carFlow / C_INTER_CAR * C_DAY_DURATION);
-        return decay;
+        return ASROADW.getRoadTrafficDecay(ASSTATE, index);
     }
     
     public.addCongestion = function asroad_addCongestion(x, y, additionalCarFlow)

@@ -205,6 +205,26 @@ let wasm_bindgen;
             var ret = wasm.asroad_getRoadCarFlowRatio(this.ptr, state.ptr, index);
             return ret;
         }
+        /**
+        * @param {ASSTATE} state
+        * @param {number} index
+        * @returns {number}
+        */
+        getRoadLastCarFlowRatio(state, index) {
+            _assertClass(state, ASSTATE);
+            var ret = wasm.asroad_getRoadLastCarFlowRatio(this.ptr, state.ptr, index);
+            return ret;
+        }
+        /**
+        * @param {ASSTATE} state
+        * @param {number} index
+        * @returns {number}
+        */
+        getRoadTrafficDecay(state, index) {
+            _assertClass(state, ASSTATE);
+            var ret = wasm.asroad_getRoadTrafficDecay(this.ptr, state.ptr, index);
+            return ret;
+        }
     }
     __exports.ASROAD = ASROAD;
     /**

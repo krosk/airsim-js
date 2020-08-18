@@ -280,23 +280,6 @@ let wasm_bindgen;
         }
         /**
         * @param {number} index
-        * @param {number} field
-        * @returns {number}
-        */
-        r(index, field) {
-            var ret = wasm.asstate_r(this.ptr, index, field);
-            return ret;
-        }
-        /**
-        * @param {number} index
-        * @param {number} field
-        * @param {number} data
-        */
-        w(index, field, data) {
-            wasm.asstate_w(this.ptr, index, field, data);
-        }
-        /**
-        * @param {number} index
         */
         clear(index) {
             wasm.asstate_clear(this.ptr, index);

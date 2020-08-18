@@ -118,7 +118,7 @@ enum ASSTATE_G {
 impl ASSTATE {
     fn rc(&self, index: i32, field: ASSTATE_C) -> i16 {
         if index == 0 {
-            // throw
+            panic!("Accessing invalid index 0");
         }
         let target: usize = (index as usize - 1)*(ASSTATE_C::END as usize) + (ASSTATE_G::END as usize) + field as usize;
         return self.cells[target];
@@ -126,10 +126,18 @@ impl ASSTATE {
     
     fn wc(&mut self, index: i32, field: ASSTATE_C, data: i16) {
         if index == 0 {
-            // throw
+            panic!("Accessing invalid index 0");
         }
         let target: usize = (index as usize - 1)*(ASSTATE_C::END as usize) + (ASSTATE_G::END as usize) + field as usize;
         self.cells[target] = data;
+    }
+    
+    fn rg(&self, field: ASSTATE_G) -> i16 {
+        return self.cells[field as usize];
+    }
+    
+    fn wg(&mut self, field: ASSTATE_G, data: i16) {
+        self.cells[field as usize] = data;
     }
 }
 
@@ -157,10 +165,10 @@ impl ASSTATE {
         }
     }
 
-    pub fn r(&self, index: i32, field: i32) -> i16 {
+    /*pub fn r(&self, index: i32, field: i32) -> i16 {
         let target: usize = (if index == 0 { field } else { (index - 1)*(ASSTATE_C::END as i32) + (ASSTATE_G::END as i32) + field }) as usize;
         return self.cells[target as usize];
-        /*
+        
         if (G_CHECK && typeof field == 'undefined')
         {
             throw ('error accessing undefined field');
@@ -177,13 +185,13 @@ impl ASSTATE {
             return;
         }
         return m_dataStateView[target];
-        */
+        
     }
 
     pub fn w(&mut self, index: i32, field: i32, data: i16) {
         let target: usize = (if index == 0 { field } else { (index - 1)*(ASSTATE_C::END as i32) + (ASSTATE_G::END as i32) + field }) as usize;
         self.cells[target] = data;
-        /*
+        
         if (G_CHECK && typeof field == 'undefined')
         {
             throw ('error writing undefined field at index ' + index);
@@ -199,8 +207,8 @@ impl ASSTATE {
             return;
         }
         m_dataStateView[target] = data;
-        */
-    }
+        
+    }*/
 
     pub fn clear(&mut self, index: i32) {
         if index == 0 {
@@ -352,151 +360,151 @@ impl ASSTATE {
     }
     
     pub fn getTick(&self) -> i16 {
-        return self.r(0, ASSTATE_G::TICK as i32);
+        return self.rg(ASSTATE_G::TICK);
     }
     
     pub fn setTick(&mut self, data: i16) {
-        self.w(0, ASSTATE_G::TICK as i32, data);
+        self.wg(ASSTATE_G::TICK, data);
     }
     
     pub fn getTickSpeed(&self) -> i16 {
-        return self.r(0, ASSTATE_G::TICK_SPEED as i32);
+        return self.rg(ASSTATE_G::TICK_SPEED);
     }
     
     pub fn setTickSpeed(&mut self, data: i16) {
-        self.w(0, ASSTATE_G::TICK_SPEED as i32, data);
+        self.wg(ASSTATE_G::TICK_SPEED, data);
     }
     
     pub fn getFrame(&self) -> i16 {
-        return self.r(0, ASSTATE_G::FRAME as i32);
+        return self.rg(ASSTATE_G::FRAME);
     }
     
     pub fn setFrame(&mut self, data: i16) {
-        self.w(0, ASSTATE_G::FRAME as i32, data);
+        self.wg(ASSTATE_G::FRAME, data);
     }
     
     pub fn getPlay(&self) -> i16 {
-        return self.r(0, ASSTATE_G::PLAY as i32);
+        return self.rg(ASSTATE_G::PLAY);
     }
     
     pub fn setPlay(&mut self, data: i16) {
-        self.w(0, ASSTATE_G::PLAY as i32, data);
+        self.wg(ASSTATE_G::PLAY, data);
     }
     
     pub fn getTickProgress(&self) -> i16 {
-        return self.r(0, ASSTATE_G::TICK_PROGRESS as i32);
+        return self.rg(ASSTATE_G::TICK_PROGRESS);
     }
     
     pub fn setTickProgress(&mut self, data: i16) {
-        self.w(0, ASSTATE_G::TICK_PROGRESS as i32, data);
+        self.wg(ASSTATE_G::TICK_PROGRESS, data);
     }
     
     pub fn getRicoStep(&self) -> i16 {
-        return self.r(0, ASSTATE_G::RICO_STEP as i32);
+        return self.rg(ASSTATE_G::RICO_STEP);
     }
     
     pub fn setRicoStep(&mut self, data: i16) {
-        self.w(0, ASSTATE_G::RICO_STEP as i32, data);
+        self.wg(ASSTATE_G::RICO_STEP, data);
     }
     
     pub fn getRoadTraversalStart(&self) -> i16 {
-        return self.r(0, ASSTATE_G::ROAD_TRAVERSAL_START as i32);
+        return self.rg(ASSTATE_G::ROAD_TRAVERSAL_START);
     }
     
     pub fn setRoadTraversalStart(&mut self, data: i16) {
-        self.w(0, ASSTATE_G::ROAD_TRAVERSAL_START as i32, data);
+        self.wg(ASSTATE_G::ROAD_TRAVERSAL_START, data);
     }
     
     pub fn getRoadTraversalCurrentIndex(&self) -> i16  {
-        return self.r(0, ASSTATE_G::ROAD_TRAVERSAL_CURRENT_INDEX as i32);
+        return self.rg(ASSTATE_G::ROAD_TRAVERSAL_CURRENT_INDEX);
     }
     
     pub fn setRoadTraversalCurrentIndex(&mut self, data: i16) {
-        self.w(0, ASSTATE_G::ROAD_TRAVERSAL_CURRENT_INDEX as i32, data);
+        self.wg(ASSTATE_G::ROAD_TRAVERSAL_CURRENT_INDEX, data);
     }
     
     pub fn getRoadTraversalEdgeCount(&self) -> i16 {
-        return self.r(0, ASSTATE_G::ROAD_TRAVERSAL_EDGE_COUNT as i32);
+        return self.rg(ASSTATE_G::ROAD_TRAVERSAL_EDGE_COUNT);
     }
     
     pub fn setRoadTraversalEdgeCount(&mut self, data: i16) {
-        self.w(0, ASSTATE_G::ROAD_TRAVERSAL_EDGE_COUNT as i32, data);
+        self.wg(ASSTATE_G::ROAD_TRAVERSAL_EDGE_COUNT, data);
     }
 
     pub fn getChangeFirst(&self) -> i16 {
-        return self.r(0, ASSTATE_G::CHANGE_FIRST as i32);
+        return self.rg(ASSTATE_G::CHANGE_FIRST);
     }
     
     pub fn setChangeFirst(&mut self, data: i16) {
-        self.w(0, ASSTATE_G::CHANGE_FIRST as i32, data);
+        self.wg(ASSTATE_G::CHANGE_FIRST, data);
     }
     
     pub fn getChangeLast(&self) -> i16 {
-        return self.r(0, ASSTATE_G::CHANGE_LAST as i32);
+        return self.rg(ASSTATE_G::CHANGE_LAST);
     }
     
     pub fn setChangeLast(&mut self, data: i16) {
-        self.w(0, ASSTATE_G::CHANGE_LAST as i32, data);
+        self.wg(ASSTATE_G::CHANGE_LAST, data);
     }
 
     pub fn getRicoOfferTotal(&self) -> Box<[i16]> {
-        let ro = self.r(0, ASSTATE_G::STAT_OFFER_R_TOTAL as i32);
-        let io = self.r(0, ASSTATE_G::STAT_OFFER_I_TOTAL as i32);
-        let co = self.r(0, ASSTATE_G::STAT_OFFER_C_TOTAL as i32);
-        let po = self.r(0, ASSTATE_G::STAT_OFFER_P_TOTAL as i32);
+        let ro = self.rg(ASSTATE_G::STAT_OFFER_R_TOTAL);
+        let io = self.rg(ASSTATE_G::STAT_OFFER_I_TOTAL);
+        let co = self.rg(ASSTATE_G::STAT_OFFER_C_TOTAL);
+        let po = self.rg(ASSTATE_G::STAT_OFFER_P_TOTAL);
         return Box::new([ro, io, co, po]);
     }
 
     pub fn setRicoOfferTotal(&mut self, data: Box<[i16]>) {
-        self.w(0, ASSTATE_G::STAT_OFFER_R_TOTAL as i32, data[0]);
-        self.w(0, ASSTATE_G::STAT_OFFER_I_TOTAL as i32, data[1]);
-        self.w(0, ASSTATE_G::STAT_OFFER_C_TOTAL as i32, data[2]);
-        self.w(0, ASSTATE_G::STAT_OFFER_P_TOTAL as i32, data[3]);
+        self.wg(ASSTATE_G::STAT_OFFER_R_TOTAL, data[0]);
+        self.wg(ASSTATE_G::STAT_OFFER_I_TOTAL, data[1]);
+        self.wg(ASSTATE_G::STAT_OFFER_C_TOTAL, data[2]);
+        self.wg(ASSTATE_G::STAT_OFFER_P_TOTAL, data[3]);
     }
 
     pub fn getRicoOfferTotalLast(&self) -> Box<[i16]> {
-        let ro = self.r(0, ASSTATE_G::STAT_OFFER_R_TOTAL_LAST as i32);
-        let io = self.r(0, ASSTATE_G::STAT_OFFER_I_TOTAL_LAST as i32);
-        let co = self.r(0, ASSTATE_G::STAT_OFFER_C_TOTAL_LAST as i32);
-        let po = self.r(0, ASSTATE_G::STAT_OFFER_P_TOTAL_LAST as i32);
+        let ro = self.rg(ASSTATE_G::STAT_OFFER_R_TOTAL_LAST);
+        let io = self.rg(ASSTATE_G::STAT_OFFER_I_TOTAL_LAST);
+        let co = self.rg(ASSTATE_G::STAT_OFFER_C_TOTAL_LAST);
+        let po = self.rg(ASSTATE_G::STAT_OFFER_P_TOTAL_LAST);
         return Box::new([ro, io, co, po]);
     }
 
     pub fn setRicoOfferTotalLast(&mut self, data: Box<[i16]>) {
-        self.w(0, ASSTATE_G::STAT_OFFER_R_TOTAL_LAST as i32, data[0]);
-        self.w(0, ASSTATE_G::STAT_OFFER_I_TOTAL_LAST as i32, data[1]);
-        self.w(0, ASSTATE_G::STAT_OFFER_C_TOTAL_LAST as i32, data[2]);
-        self.w(0, ASSTATE_G::STAT_OFFER_P_TOTAL_LAST as i32, data[3]);
+        self.wg(ASSTATE_G::STAT_OFFER_R_TOTAL_LAST, data[0]);
+        self.wg(ASSTATE_G::STAT_OFFER_I_TOTAL_LAST, data[1]);
+        self.wg(ASSTATE_G::STAT_OFFER_C_TOTAL_LAST, data[2]);
+        self.wg(ASSTATE_G::STAT_OFFER_P_TOTAL_LAST, data[3]);
     }
 
     pub fn getRicoDemandTotal(&self) -> Box<[i16]> {
-        let ro = self.r(0, ASSTATE_G::STAT_DEMAND_R_TOTAL as i32);
-        let io = self.r(0, ASSTATE_G::STAT_DEMAND_I_TOTAL as i32);
-        let co = self.r(0, ASSTATE_G::STAT_DEMAND_C_TOTAL as i32);
-        let po = self.r(0, ASSTATE_G::STAT_DEMAND_P_TOTAL as i32);
+        let ro = self.rg(ASSTATE_G::STAT_DEMAND_R_TOTAL);
+        let io = self.rg(ASSTATE_G::STAT_DEMAND_I_TOTAL);
+        let co = self.rg(ASSTATE_G::STAT_DEMAND_C_TOTAL);
+        let po = self.rg(ASSTATE_G::STAT_DEMAND_P_TOTAL);
         return Box::new([ro, io, co, po]);
     }
     
     pub fn setRicoDemandTotal(&mut self, data: Box<[i16]>) {
-        self.w(0, ASSTATE_G::STAT_DEMAND_R_TOTAL as i32, data[0]);
-        self.w(0, ASSTATE_G::STAT_DEMAND_I_TOTAL as i32, data[1]);
-        self.w(0, ASSTATE_G::STAT_DEMAND_C_TOTAL as i32, data[2]);
-        self.w(0, ASSTATE_G::STAT_DEMAND_P_TOTAL as i32, data[3]);
+        self.wg(ASSTATE_G::STAT_DEMAND_R_TOTAL, data[0]);
+        self.wg(ASSTATE_G::STAT_DEMAND_I_TOTAL, data[1]);
+        self.wg(ASSTATE_G::STAT_DEMAND_C_TOTAL, data[2]);
+        self.wg(ASSTATE_G::STAT_DEMAND_P_TOTAL, data[3]);
     }
 
     pub fn getRicoDemandTotalLast(&self) -> Box<[i16]> {
-        let ro = self.r(0, ASSTATE_G::STAT_DEMAND_R_TOTAL_LAST as i32);
-        let io = self.r(0, ASSTATE_G::STAT_DEMAND_I_TOTAL_LAST as i32);
-        let co = self.r(0, ASSTATE_G::STAT_DEMAND_C_TOTAL_LAST as i32);
-        let po = self.r(0, ASSTATE_G::STAT_DEMAND_P_TOTAL_LAST as i32);
+        let ro = self.rg(ASSTATE_G::STAT_DEMAND_R_TOTAL_LAST);
+        let io = self.rg(ASSTATE_G::STAT_DEMAND_I_TOTAL_LAST);
+        let co = self.rg(ASSTATE_G::STAT_DEMAND_C_TOTAL_LAST);
+        let po = self.rg(ASSTATE_G::STAT_DEMAND_P_TOTAL_LAST);
         return Box::new([ro, io, co, po]);
     }
     
     pub fn setRicoDemandTotalLast(&mut self, data: Box<[i16]>) {
-        self.w(0, ASSTATE_G::STAT_DEMAND_R_TOTAL_LAST as i32, data[0]);
-        self.w(0, ASSTATE_G::STAT_DEMAND_I_TOTAL_LAST as i32, data[1]);
-        self.w(0, ASSTATE_G::STAT_DEMAND_C_TOTAL_LAST as i32, data[2]);
-        self.w(0, ASSTATE_G::STAT_DEMAND_P_TOTAL_LAST as i32, data[3]);
+        self.wg(ASSTATE_G::STAT_DEMAND_R_TOTAL_LAST, data[0]);
+        self.wg(ASSTATE_G::STAT_DEMAND_I_TOTAL_LAST, data[1]);
+        self.wg(ASSTATE_G::STAT_DEMAND_C_TOTAL_LAST, data[2]);
+        self.wg(ASSTATE_G::STAT_DEMAND_P_TOTAL_LAST, data[3]);
     }
 
     pub fn initialize(&mut self, table_size_x: usize, table_size_y: usize) {
@@ -532,19 +540,19 @@ impl ASSTATE {
     }
 
     pub fn getTableSizeX(&self) -> i16 {
-        return self.r(0, ASSTATE_G::SIZE_X as i32);
+        return self.rg(ASSTATE_G::SIZE_X);
     }
     
     pub fn setTableSizeX(&mut self, data: i16) {
-        self.w(0, ASSTATE_G::SIZE_X as i32, data);
+        self.wg(ASSTATE_G::SIZE_X, data);
     }
     
     pub fn getTableSizeY(&self) -> i16 {
-        return self.r(0, ASSTATE_G::SIZE_Y as i32);
+        return self.rg(ASSTATE_G::SIZE_Y);
     }
     
     pub fn setTableSizeY(&mut self, data: i16) {
-        self.w(0, ASSTATE_G::SIZE_Y as i32, data);
+        self.wg(ASSTATE_G::SIZE_Y, data);
     }
 
     pub fn isValidIndex(&self, index: i32) -> bool {

@@ -531,23 +531,6 @@ let wasm_bindgen;
             wasm.asstate_setRicoDensity(this.ptr, index, data);
         }
         /**
-        * @param {number} field
-        * @param {number} index
-        * @returns {number}
-        */
-        getBuildingData(field, index) {
-            var ret = wasm.asstate_getBuildingData(this.ptr, field, index);
-            return ret;
-        }
-        /**
-        * @param {number} field
-        * @param {number} index
-        * @param {number} data
-        */
-        setBuildingData(field, index, data) {
-            wasm.asstate_setBuildingData(this.ptr, field, index, data);
-        }
-        /**
         * @returns {number}
         */
         getTick() {

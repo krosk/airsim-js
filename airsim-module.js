@@ -408,72 +408,14 @@ let ASROAD = (function ()
     }
     
     // for display
-    public.getDataIdByCongestion = function asroad_getTileByCongestion(x, y)
+    public.getDataIdByCongestion = function asroad_getDataIdByCongestion(x, y)
     {
-        if (!ASSTATE.isValidCoordinates(x, y))
-        {
-            return C_CONGESTION.NONE;
-        }
-        let index = ASSTATE.getIndex(x, y);
-        if (!hasRoad(index))
-        {
-            return C_CONGESTION.NONE;
-        }
-        let ratio = getRoadLastCarFlowRatio(index);
-        if (ratio < 0.5)
-        {
-            return C_CONGESTION.LOW;
-        }
-        else if (ratio < 0.75)
-        {
-            return C_CONGESTION.MID;
-        }
-        else if (ratio < 1)
-        {
-            return C_CONGESTION.HIG;
-        }
-        else if (ratio >= 1)
-        {
-        	return C_CONGESTION.VHI;
-        }
-        else
-        {
-        	return C_CONGESTION.NONE;
-        }
+        return ASROADW.getDataIdByCongestion(ASSTATE, x, y);
     }
     
-    public.getDataIdByTraversalState = function asroad_getTileByTraversalState(x, y)
+    public.getDataIdByTraversalState = function asroad_getDataIdByTraversalState(x, y)
     {
-        if (!ASSTATE.isValidCoordinates(x, y))
-        {
-            return C_CONGESTION.NONE;
-        }
-        let index = ASSTATE.getIndex(x, y);
-        let value = hasRoad(index) ? ASSTATE.getRoadDebug(index) : 0;
-        if (value >= 104)
-        {
-            return C_CONGESTION.VHI;
-        }
-        else if (value >= 103)
-        {
-            return C_CONGESTION.HIG; // in queue and processed
-        }
-        else if (value >= 102)
-        {
-            return C_CONGESTION.MID; // current
-        }
-        else if (value >= 101)
-        {
-        	return C_CONGESTION.LOW; // in queue
-        }
-        else if (value >= 0)
-        {
-        	return C_CONGESTION.NONE; // unexplored
-        }
-        else
-        {
-            console.log('getTileByTraversalState error ' + index);
-        }
+        return ASROADW.getDataIdByTraversalState(ASSTATE, x, y);
     }
     
     let getIndexTo = function asroad_getIndexTo(x, y, d)

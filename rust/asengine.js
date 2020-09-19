@@ -167,6 +167,28 @@ let wasm_bindgen;
         }
         /**
         * @param {ASSTATE} state
+        * @param {number} x
+        * @param {number} y
+        * @returns {number}
+        */
+        getDataIdByCongestion(state, x, y) {
+            _assertClass(state, ASSTATE);
+            var ret = wasm.asroad_getDataIdByCongestion(this.ptr, state.ptr, x, y);
+            return ret;
+        }
+        /**
+        * @param {ASSTATE} state
+        * @param {number} x
+        * @param {number} y
+        * @returns {number}
+        */
+        getDataIdByTraversalState(state, x, y) {
+            _assertClass(state, ASSTATE);
+            var ret = wasm.asroad_getDataIdByTraversalState(this.ptr, state.ptr, x, y);
+            return ret;
+        }
+        /**
+        * @param {ASSTATE} state
         * @param {number} index
         * @returns {boolean}
         */

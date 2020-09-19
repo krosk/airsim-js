@@ -667,13 +667,6 @@ enum C_TILE_ROAD_CONGESTION {
 }
 
 
-
-enum C_TILE {
-    ZONE(C_TILE_ZONE),
-    ROAD_CONGESTION(C_TILE_ROAD_CONGESTION)
-}
-
-
 impl C_TILE_ZONE {
     pub fn C_TYPE_SPEED(&self) -> i32 {
         match &self {
@@ -750,26 +743,63 @@ impl ASROAD {
         }
     }
 
-    /*pub fn getDataIdByCongestion(&self, state: &mut ASSTATE, x: i32, y: i32) -> C_TILE_ROAD_CONGESTION {
+    pub fn getDataIdByCongestion(&self, state: &mut ASSTATE, x: i32, y: i32) -> i32 {
         if !state.isValidCoordinates(x, y) {
-            return C_TILE_ROAD_CONGESTION::NONE;
+            return C_TILE_ROAD_CONGESTION::NONE as i32;
         }
-        let index = state.getIndex(x, y);
-        if !self.hasRoad(state, index as i32) {
-            return C_TILE_ROAD_CONGESTION::NONE;
+        let index: i32 = state.getIndex(x, y) as i32;
+        if !self.hasRoad(state, index) {
+            return C_TILE_ROAD_CONGESTION::NONE as i32;
         }
-        let ratio = 0.; //getRoadLastCarFlowRatio(index);
+        let ratio: f32 = 0.; //getRoadLastCarFlowRatio(index);
         if ratio < 0.5 {
-            return C_TILE_ROAD_CONGESTION::LOW;
+            return C_TILE_ROAD_CONGESTION::LOW as i32;
         } else if ratio < 0.75 {
-            return C_TILE_ROAD_CONGESTION::MID;
+            return C_TILE_ROAD_CONGESTION::MID as i32;
         } else if ratio < 1. {
-            return C_TILE_ROAD_CONGESTION::HIG;
+            return C_TILE_ROAD_CONGESTION::HIG as i32;
         } else if ratio >= 1. {
-        	return C_TILE_ROAD_CONGESTION::VHI;
+        	return C_TILE_ROAD_CONGESTION::VHI as i32;
         } else {
-        	return C_TILE_ROAD_CONGESTION::NONE;
+        	return C_TILE_ROAD_CONGESTION::NONE as i32;
         }
+    }
+    
+    pub fn getDataIdByTraversalState(&self, state: &mut ASSTATE, x: i32, y: i32) -> i32 {
+        if !state.isValidCoordinates(x, y) {
+            return C_TILE_ROAD_CONGESTION::NONE as i32;
+        }
+        let index: i32 = state.getIndex(x, y) as i32;
+        let value = if self.hasRoad(state, index) { state.getRoadDebug(index) } else { 0 };
+        if (value >= 104) {
+            return C_TILE_ROAD_CONGESTION::VHI as i32;
+        }
+        else if (value >= 103) {
+            return C_TILE_ROAD_CONGESTION::HIG as i32; // in queue and processed
+        }
+        else if (value >= 102) {
+            return C_TILE_ROAD_CONGESTION::MID as i32; // current
+        }
+        else if (value >= 101) {
+        	return C_TILE_ROAD_CONGESTION::LOW as i32; // in queue
+        }
+        else if (value >= 0) {
+        	return C_TILE_ROAD_CONGESTION::NONE as i32; // unexplored
+        }
+        else {
+            return 0;
+            //console.log('getTileByTraversalState error ' + index);
+        }
+    }
+    
+    /*pub fn getIndexTo(&self, x: i32, y: i32, d: i32)
+    {
+        const C_XOFFSET = [-1, 0, 1, 0, -2, 0, 2, 0];
+        const C_YOFFSET = [0, -1, 0, 1, 0, -2, 0, 2];
+        let xd = x + C_XOFFSET[d];
+        let yd = y + C_YOFFSET[d];
+        let to = ASSTATE.getIndex(xd, yd);
+        return to;
     }*/
 
     pub fn hasRoad(&self, state: &mut ASSTATE, index: i32) -> bool {

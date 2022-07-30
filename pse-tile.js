@@ -1,5 +1,12 @@
 // PixiSimEngine
 
+// Description:
+// Handles Pixi abstraction as tiles
+
+// Call:
+//   PIXI
+//   Math
+
 let PSETILE = (function ()
 {
     let public = {};
@@ -149,12 +156,12 @@ let PSETILE = (function ()
         contourRight();
     }
     
-    public.createTexture = function psetile_createTexture(color, margin, height)
+    public.createTexture = function psetile_createTexture(color, margin, height, textureBaseSizeX, textureBaseSizeY)
     {
         let graphics = new PIXI.Graphics(false);
         
-        let C_TEXTURE_BASE_SIZE_X = MMAPRENDER.getTextureBaseSizeX();
-        let C_TEXTURE_BASE_SIZE_Y = MMAPRENDER.getTextureBaseSizeY();
+        let C_TEXTURE_BASE_SIZE_X = textureBaseSizeX;
+        let C_TEXTURE_BASE_SIZE_Y = textureBaseSizeY;
         
         // defining a rectangle
         // is defining its base and height

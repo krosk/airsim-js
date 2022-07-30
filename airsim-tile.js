@@ -79,7 +79,9 @@ let ASZONE_TILE = (function ()
         let color = C_CITYCOLOR[id];
         let margin = getCityTextureMargin(id);
         let height = C_CITYHEIGHT[id];
-        return PSETILE.createTexture(color, margin, height);
+        let textureBaseSizeX = MMAPRENDER.getTextureBaseSizeX();
+        let textureBaseSizeY = MMAPRENDER.getTextureBaseSizeY();
+        return PSETILE.createTexture(color, margin, height, textureBaseSizeX, textureBaseSizeY);
     }
     
     return public;
@@ -131,7 +133,9 @@ let ASROAD_CONGESTION_TILE = (function ()
         let color = C_CONGESTION_COLOR[id];
         let margin = getCongestionTextureMargin(id);
         let height = getCongestionTextureHeight(id);
-        return PSETILE.createTexture(color, margin, height);
+        let textureBaseSizeX = MMAPRENDER.getTextureBaseSizeX();
+        let textureBaseSizeY = MMAPRENDER.getTextureBaseSizeY();
+        return PSETILE.createTexture(color, margin, height, textureBaseSizeX, textureBaseSizeY);
     }
     
     return public;
@@ -151,19 +155,21 @@ let ASROAD_DISPLAY_TILE = (function ()
     {
         let margin = getTextureMargin();
         let height = getTextureHeight();
-        let graphics = PSETILE.createTexture(color, margin, height);
+        let textureBaseSizeX = MMAPRENDER.getTextureBaseSizeX();
+        let textureBaseSizeY = MMAPRENDER.getTextureBaseSizeY();
+        let graphics = PSETILE.createTexture(color, margin, height, textureBaseSizeX, textureBaseSizeY);
         let yellow = 0xFFFF00;
         graphics.beginFill(color);
         graphics.lineStyle(1, yellow);
         return graphics;
     }
     
-    let getTextureMargin = function ()
+    let getTextureMargin = function asroad_display_tile_getTextureMargin()
     {
         return 0;
     }
     
-    let getTextureHeight = function ()
+    let getTextureHeight = function asroad_display_tile_getTextureHeight()
     {
         return 3;
     }
@@ -284,7 +290,9 @@ let ASRICO_DISPLAY_TILE = (function ()
         let color = ASTILE.C_COLOR.ROAD;
         let margin = getBaseMargin();
         let height = public.getBaseHeight();
-        let graphic = PSETILE.createTexture(color, margin, height);
+        let textureBaseSizeX = MMAPRENDER.getTextureBaseSizeX();
+        let textureBaseSizeY = MMAPRENDER.getTextureBaseSizeY();
+        let graphic = PSETILE.createTexture(color, margin, height, textureBaseSizeX, textureBaseSizeY);
         return graphic;
     }
     
@@ -392,7 +400,9 @@ let ASRICO_DENSITY_TILE = (function ()
         let color = C_TILETEXTURE[id][0];
         let margin = getTileTextureMargin(id);
         let height = C_TILETEXTURE[id][1];
-        return PSETILE.createTexture(color, margin, height);
+        let textureBaseSizeX = MMAPRENDER.getTextureBaseSizeX();
+        let textureBaseSizeY = MMAPRENDER.getTextureBaseSizeY();
+        return PSETILE.createTexture(color, margin, height, textureBaseSizeX, textureBaseSizeY);
     }
     
     return public;
@@ -433,7 +443,9 @@ let ASICON_TILE = (function ()
     {
         let margin = 0;
         let height = 3;
-        let graphics = PSETILE.createTexture(0xFFFFFF, margin, height);
+        let textureBaseSizeX = MMAPRENDER.getTextureBaseSizeX();
+        let textureBaseSizeY = MMAPRENDER.getTextureBaseSizeY();
+        let graphics = PSETILE.createTexture(0xFFFFFF, margin, height, textureBaseSizeX, textureBaseSizeY);
         let black = 0x000000;
         graphics.beginFill(color);
         graphics.lineStyle(1, black);

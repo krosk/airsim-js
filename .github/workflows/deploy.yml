@@ -1,0 +1,63 @@
+name: Build and deploy
+
+on:
+  push:
+    branches: [master]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ~/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('rust/Cargo.lock') }}
+
+      - name: Get wasm-bindgen-cli version
+        id: wbg
+        run: |
+          VERSION=$(awk '/^name = "wasm-bindgen"$/{found=1} found && /^version/{print; exit}' rust/Cargo.lock | sed 's/version = "\(.*\)"/\1/')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Install wasm-bindgen-cli
+        run: cargo install wasm-bindgen-cli --version ${{ steps.wbg.outputs.version }}
+
+      - name: Build WASM
+        run: |
+          cd rust
+          cargo build --target-dir ~/target --target wasm32-unknown-unknown --release
+          wasm-bindgen --out-dir . --no-typescript --target no-modules ~/target/wasm32-unknown-unknown/release/asengine.wasm
+
+      - uses: actions/configure-pages@v4
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/deploy-pages@v4
+        id: deployment

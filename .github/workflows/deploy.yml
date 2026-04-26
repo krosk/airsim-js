@@ -23,6 +23,14 @@ jobs:
         with:
           targets: wasm32-unknown-unknown
 
+      # Update wasm-bindgen from the pinned 0.2.67 to the latest compatible
+      # 0.2.x release. Cargo.toml already allows any 0.2.x >= 0.2.67, so no
+      # manifest change is needed. This keeps the CLI version in sync with the
+      # crate version used in the build.
+      - name: Update wasm-bindgen
+        working-directory: rust
+        run: cargo update -p wasm-bindgen
+
       - uses: actions/cache@v4
         with:
           path: |
@@ -31,14 +39,22 @@ jobs:
             ~/target
           key: ${{ runner.os }}-cargo-${{ hashFiles('rust/Cargo.lock') }}
 
-      - name: Get wasm-bindgen-cli version
+      - name: Get wasm-bindgen version
         id: wbg
         run: |
           VERSION=$(awk '/^name = "wasm-bindgen"$/{found=1} found && /^version/{print; exit}' rust/Cargo.lock | sed 's/version = "\(.*\)"/\1/')
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
+      # Download the pre-built musl binary instead of compiling from source.
+      # Compiling wasm-bindgen-cli 0.2.67 on a modern Rust toolchain fails due
+      # to OpenSSL and edition issues. Pre-built musl binaries are static and
+      # have no system dependencies.
       - name: Install wasm-bindgen-cli
-        run: cargo install wasm-bindgen-cli --version ${{ steps.wbg.outputs.version }}
+        run: |
+          VERSION="${{ steps.wbg.outputs.version }}"
+          curl -fsSL "https://github.com/rustwasm/wasm-bindgen/releases/download/${VERSION}/wasm-bindgen-${VERSION}-x86_64-unknown-linux-musl.tar.gz" \
+            | tar xzf - --strip-components=1 -C "$HOME/.cargo/bin" \
+              "wasm-bindgen-${VERSION}-x86_64-unknown-linux-musl/wasm-bindgen"
 
       - name: Build WASM
         run: |

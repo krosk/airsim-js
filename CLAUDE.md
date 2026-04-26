@@ -9,15 +9,15 @@ python3 server.py   # required — plain file:// breaks WASM loading due to CORS
 # open http://localhost:8000
 ```
 
-No build step for JS. To rebuild WASM after editing `rust/src/jsentry.rs`:
+No build step for JS. The WASM artifacts (`asengine.js`, `asengine_bg.wasm`) are **not committed** — they are built in CI and must be built locally before `server.py` will work. To build:
 
 ```bash
 cd rust
 cargo build --target wasm32-unknown-unknown --release
-sh build.sh   # runs wasm-bindgen, overwrites asengine.js and asengine_bg.wasm
+sh build.sh   # runs wasm-bindgen, writes asengine.js and asengine_bg.wasm into rust/
 ```
 
-The compiled `.wasm` and generated `.js` are committed to the repo so the project runs without a Rust toolchain.
+`build.sh` calls `wasm-bindgen --out-dir . --no-typescript --target no-modules`. The CLI version must exactly match the crate version in `Cargo.lock` or wasm-bindgen aborts with a version mismatch error. Run `cargo update -p wasm-bindgen` before installing the CLI if you are unsure they are in sync.
 
 ## Architecture
 
@@ -130,6 +130,16 @@ Tile IDs are integers partitioned by range — different ranges mean different t
 `C_TILE_DISPLAY_BASE_MODULO = 100` is used to extract the zone from a RICO display ID.
 
 Road display IDs encode the 4-neighbour connection as a bitmask in the name: `NE_W` means connected North, East, West but not South.
+
+## Deployment
+
+The site is deployed to GitHub Pages via `.github/workflows/deploy.yml`. The pipeline builds WASM from source on every push to `master` and uploads the whole repo (plus the freshly generated `asengine.js`/`asengine_bg.wasm`) as a Pages artifact.
+
+**GitHub Pages source must be set to "GitHub Actions".** The legacy "Deploy from branch" mode will not pick up artifacts uploaded by the workflow. This is a one-time repo setting under Settings → Pages. If the site goes blank after a push, check that setting before debugging the workflow.
+
+**wasm-bindgen CLI version must exactly match the crate version.** The workflow pins the crate to `0.2.67` in `Cargo.toml` but immediately runs `cargo update -p wasm-bindgen` so both the crate and the downloaded CLI binary stay on the same latest `0.2.x` release. The version is read from `Cargo.lock` after the update using `awk`, then used to download the matching pre-built musl binary from GitHub Releases. Do not install `wasm-bindgen-cli` with `cargo install` in CI — compiling the 2020-era crate against a modern Rust toolchain fails due to OpenSSL and edition issues. The pre-built musl binary is static and has no system dependencies.
+
+**Cargo build cache key includes `Cargo.lock`.** The `cargo update` step runs before the cache restore, which means the lock file is updated before the key is evaluated — the cache will miss after any `wasm-bindgen` update, which is intentional.
 
 ## Key invariants
 

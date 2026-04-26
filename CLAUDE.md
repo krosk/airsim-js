@@ -21,6 +21,58 @@ The compiled `.wasm` and generated `.js` are committed to the repo so the projec
 
 ## Architecture
 
+### Layers and responsibilities
+
+Three layers. Each layer only calls downward.
+
+**Layer 1 — State (Rust/WASM, `rust/src/jsentry.rs`)**
+`ASSTATE` is the only source of truth for all simulation state. It is a flat `Vec<i16>` with no knowledge of the browser, rendering, or JS. `ASROAD` (the Rust portion) lives here too. Nothing in this layer calls JS.
+
+**Layer 2 — Engine (JS modules, `airsim-module.js`)**
+`ASZONE`, `ASROAD`, `ASRICO`, `ASWENGINE` implement simulation logic by reading and writing `ASSTATE` through its scalar accessor API. `ASWENGINE` is the sequencer: each tick it calls `ASZONE.update` → `ASROAD.updateRoad` → `ASRICO.updateRico` in that order. These modules have no direct PIXI dependency.
+
+**Layer 3 — Rendering + UI (JS + PIXI, `airsim.js`, `airsim-tile.js`, `pse-tile.js`)**
+`MMAPRENDER` owns the camera, hit-testing, and the PIXI render loop. `ASTILE`/`PSETILE` create textures. `ASMAPUI` renders the toolbar. `MMAPDATA` maintains a JS-side dirty-cell list so only changed tiles are re-queried each frame. This layer never writes simulation state directly — it goes through `PSEENGINE`.
+
+**The bridge — `PSEENGINE` (`pse-engine.js`)**
+A JS `Proxy` between layer 3 and layer 2. Intercepts every method call and dispatches it to either a Web Worker (production) or WASM directly on the main thread (debug). The caller is unaware of which path is active. Callbacks are identified by `[moduleName, methodName, arg]` tuples so responses route back to the right JS module.
+
+### Data flow: user click to screen update
+
+```
+User taps tile (x, y)
+  └─ MMAPRENDER hit-test → grid coords
+  └─ ASMAPUI.isZoneMode() → PSEENGINE.setZone(x, y, zoneId)
+       └─ Proxy dispatch → [ASWENGINE, setZone, x, y, zoneId]
+            └─ ASSTATE.setZoneRequest(index, zoneId)   ← write is deferred
+
+Next tick (ASZONE.updateZone):
+  └─ reads ZONE_REQUEST per cell
+  └─ calls paintZone(x, y, zone)
+       └─ ASSTATE.setZoneId, clearProperties
+       └─ ASROAD.addRoad OR ASRICO.addRicoInitial (depending on zone type)
+       └─ ASSTATE.notifyChange(index)   ← marks cell dirty
+
+Next frame (ASMAP.retrieveAllDisplayChange):
+  └─ PSEENGINE.retrieveAllChangedTileId()
+       └─ returns flat [x, y, tileId, x, y, tileId, ...] for all dirty cells
+  └─ MMAPDATA.refreshTileResponse(x, y, t) updates JS tile cache
+  └─ MMAPRENDER renders changed tiles via PIXI sprites
+```
+
+### Initialization order
+
+`ASMAP.initialize(w, h)` in `airsim.js:252` must call these in order — each depends on the previous:
+
+1. `PSEENGINE.initializeModule(w, h)` — creates `ASSTATE` and `ASROAD` Rust structs, initializes `ASZONE` and `ASRICO`
+2. `MMAPDATA.initializeMapTableSize(w, h)` — allocates JS tile cache sized to match
+3. `MMAPDATA.initialize(tileView)` — populates initial tile view state
+4. `ASTILE.initializeTexture()` — creates PIXI textures; **requires `MMAPRENDER` already initialized** to get texture base dimensions
+5. `MMAPRENDER.initialize(...)` — sets up camera and PIXI containers
+6. `ASMAPUI.initialize()` — creates toolbar sprites; requires PIXI stage to exist
+
+Steps 4 and 5 are ordered counter-intuitively: `MMAPRENDER.initialize` must run before `ASTILE.initializeTexture` because texture creation calls `MMAPRENDER.getTextureBaseSizeX/Y()`. Swapping them produces zero-dimension textures with no error.
+
 ### The two execution paths
 
 `PSEENGINE` is a JS `Proxy` that transparently routes engine calls to one of two backends depending on `G_WORKER` in `pse-edit-modules.js`:

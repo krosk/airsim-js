@@ -1,0 +1,11 @@
+{
+  "name": "airsim-js",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "canvas": "^2.11.2",
+    "vitest": "^2.0.0"
+  }
+}

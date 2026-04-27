@@ -1,21 +1,31 @@
 // PixiSimEngine
 
 // Description:
-// Handles Pixi abstraction as tiles
+// Handles tile texture generation via Canvas 2D and atlas packing.
+// Tile canvases are drawn CPU-side; a single atlas texture is handed to PIXI.
+// This module has no PIXI dependency for drawing — only for atlas registration.
 
 // Call:
-//   PIXI
+//   PIXI (for atlas registration only)
 //   Math
 
-let PSETILE = (function ()
+var PSETILE = (function ()
 {
     let public = {};
-    
+
+    // --- Color utilities ---
+
     public.getColor = function psetile_getColor(r, g, b)
     {
         return (r | 0) * 2**16 + (g | 0) * 2**8 + (b | 0);
     }
-    
+
+    // Converts a packed numeric color to a CSS hex string.
+    public.colorToHex = function psetile_colorToHex(color)
+    {
+        return '#' + Math.floor(color).toString(16).padStart(6, '0');
+    }
+
     let nuanceColor = function psetile_nuanceColor(color, level)
     {
         const R = 0xff0000;
@@ -38,155 +48,147 @@ let PSETILE = (function ()
         nB = nB & B;
         return nR + nG + nB;
     }
-    
-    public.drawBlock = function psetile_drawBlock(graphics, color, BWo, BHo, BW, BH, H)
+
+    // --- Canvas factory ---
+    // Injectable for Node.js testing: PSETILE.setCanvasFactory(require('canvas').createCanvas)
+
+    let _createCanvas = function psetile_defaultCreateCanvas(w, h)
     {
-        //console.log(color + ' ' + nuanceColor(color, 1));
-        //console.log(BW + ' ' + BH + ' ' + BWo + ' ' + BHo);
-        // 0, 0 is the center of the base
-        let x1 = BWo;
-        let y1 = BHo - BH / 2 - H;
-        
-        let x2 = BWo - BW / 2;
-        let y2 = BHo - H;
-        
-        let x3 = x2;
-        let y3 = y2 + H;
-        
-        let x7 = x1;
-        let y7 = BHo + BH / 2 - H;
-        
-        let x4 = x1;
-        let y4 = y7 + H;
-        
-        let x6 = BWo + BW / 2;
-        let y6 = y2;
-        
-        let x5 = x6;
-        let y5 = y6 + H;
-        
-        let baseBlockLineColor = 0x000000;
-        let bisBlockLineColor = 0x000000;
-        let terBlockLineColor = 0x000000;
-            
-        // draw a rectangle
-        // top
-        // fill
-        let fillTop = function ()
-        {
-            graphics.lineStyle(0, baseBlockLineColor);
-            graphics.beginFill(color);
-            graphics.moveTo(x1, y1 - 1);
-            graphics.lineTo(x2, y2 - 1);
-            graphics.lineTo(x7, y7 - 1);
-            graphics.lineTo(x6, y6 - 1);
-            graphics.lineTo(x1, y1 - 1);
-            graphics.endFill();
-        };
-        
-        let contourTop = function ()
-        {
-            // contour
-            graphics.lineStyle(1, baseBlockLineColor);
-            graphics.moveTo(x1, y1 - 1);
-            graphics.lineTo(x2, y2 - 1);
-            graphics.lineStyle(1, terBlockLineColor);
-            graphics.moveTo(x2, y2 - 1);
-            graphics.lineTo(x7, y7 - 1);
-            graphics.lineStyle(1, bisBlockLineColor);
-            graphics.moveTo(x7, y7 - 1);
-            graphics.lineTo(x6, y6 - 1);
-            graphics.moveTo(x6, y6 - 1);
-            graphics.lineTo(x1, y1 - 1);
-        };
-        
-        // left
-        let fillLeft = function ()
-        {
-            graphics.lineStyle(0, baseBlockLineColor);
-            graphics.beginFill(nuanceColor(color, -32));
-            graphics.moveTo(x7, y7 - 1);
-            graphics.lineTo(x2, y2 - 1);
-            graphics.lineTo(x3, y3);
-            graphics.lineTo(x4, y4);
-            graphics.endFill();
-        }
-        
-        let contourLeft = function ()
-        {
-            graphics.lineStyle(1, bisBlockLineColor);
-            graphics.moveTo(x2 + 0.5, y2);
-            graphics.lineTo(x3 + 0.5, y3);
-            graphics.moveTo(x3, y3);
-            graphics.lineTo(x4, y4);
-            graphics.moveTo(x4 - 1, y4);
-            graphics.lineTo(x7 - 1, y7);
-        }
-        
-        // right
-        let fillRight = function () 
-        {
-            graphics.lineStyle(0, bisBlockLineColor);
-        
-            graphics.beginFill(nuanceColor(color, -64));
-            graphics.moveTo(x7, y7 - 1); // center
-            graphics.lineTo(x6, y6 - 1); // right
-            graphics.lineTo(x5, y5); // right
-            graphics.lineTo(x4, y4); // bottom
-            graphics.lineTo(x7, y7); // center
-            graphics.endFill();
-        }
-        
-        let contourRight = function ()
-        {
-            graphics.lineStyle(1, terBlockLineColor);
-            graphics.moveTo(x6 - 1, y6);
-            graphics.lineTo(x5 - 1, y5);
-            graphics.moveTo(x5, y5);
-            graphics.lineTo(x4, y4);
-            graphics.moveTo(x4, y4);
-            graphics.lineTo(x7, y7);
-        }
-        
-        fillTop();
-        fillLeft();
-        fillRight();
-        contourTop();
-        contourLeft();
-        contourRight();
-    }
-    
-    public.createTexture = function psetile_createTexture(color, margin, height, textureBaseSizeX, textureBaseSizeY)
+        let canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        return canvas;
+    };
+
+    public.setCanvasFactory = function psetile_setCanvasFactory(factory)
     {
-        let graphics = new PIXI.Graphics(false);
-        
-        let C_TEXTURE_BASE_SIZE_X = textureBaseSizeX;
-        let C_TEXTURE_BASE_SIZE_Y = textureBaseSizeY;
-        
-        // defining a rectangle
-        // is defining its base and height
-        // and top left offset
-    
-        let M = margin;
-        let H = height;
-        
-        let BW = C_TEXTURE_BASE_SIZE_X - M * 4;
-        let BWo = 0;
-        let BH = C_TEXTURE_BASE_SIZE_Y - M * 2;
-        let BHo = 0;
-        
-        public.drawBlock(graphics, color, BWo, BHo, BW, BH, H);
-        
-        return graphics;
+        _createCanvas = factory;
+    };
+
+    public.createCanvas = function psetile_createCanvas(w, h)
+    {
+        return _createCanvas(w, h);
+    };
+
+    // --- Tile canvas geometry ---
+
+    // All tile canvases share this fixed height.
+    // Local coordinate (0, 0) = center of isometric base diamond is placed at
+    // canvas y = C_TILE_CANVAS_HEIGHT - texSizeY/2, keeping bottom diamond vertex
+    // at the canvas bottom edge so sprites bottom-align correctly at screen position y.
+    // 100 comfortably exceeds the tallest tile (COMHIG level 5 ≈ 84px total height).
+    public.C_TILE_CANVAS_HEIGHT = 100;
+
+    // Draw an isometric box into a Canvas 2D context.
+    // ctx must already be translated so that local (0,0) = center of base diamond.
+    // BWo/BHo: offset of box center from origin. BW/BH: base width/height. H: extrusion height.
+    public.drawBlock = function psetile_drawBlock(ctx, color, BWo, BHo, BW, BH, H)
+    {
+        let hexColor = public.colorToHex(color);
+        let hexBlack = '#000000';
+
+        let x1 = BWo,          y1 = BHo - BH / 2 - H;
+        let x2 = BWo - BW / 2, y2 = BHo - H;
+        let x3 = x2,           y3 = y2 + H;
+        let x7 = x1,           y7 = BHo + BH / 2 - H;
+        let x4 = x1,           y4 = y7 + H;
+        let x6 = BWo + BW / 2, y6 = y2;
+        let x5 = x6,           y5 = y6 + H;
+
+        // top face — fill
+        ctx.beginPath();
+        ctx.fillStyle = hexColor;
+        ctx.moveTo(x1, y1 - 1);
+        ctx.lineTo(x2, y2 - 1);
+        ctx.lineTo(x7, y7 - 1);
+        ctx.lineTo(x6, y6 - 1);
+        ctx.closePath();
+        ctx.fill();
+
+        // top face — contour
+        ctx.beginPath();
+        ctx.strokeStyle = hexBlack;
+        ctx.lineWidth = 1;
+        ctx.moveTo(x1, y1 - 1);
+        ctx.lineTo(x2, y2 - 1);
+        ctx.moveTo(x2, y2 - 1);
+        ctx.lineTo(x7, y7 - 1);
+        ctx.moveTo(x7, y7 - 1);
+        ctx.lineTo(x6, y6 - 1);
+        ctx.moveTo(x6, y6 - 1);
+        ctx.lineTo(x1, y1 - 1);
+        ctx.stroke();
+
+        // left face — fill
+        ctx.beginPath();
+        ctx.fillStyle = public.colorToHex(nuanceColor(color, -32));
+        ctx.moveTo(x7, y7 - 1);
+        ctx.lineTo(x2, y2 - 1);
+        ctx.lineTo(x3, y3);
+        ctx.lineTo(x4, y4);
+        ctx.closePath();
+        ctx.fill();
+
+        // left face — contour
+        ctx.beginPath();
+        ctx.strokeStyle = hexBlack;
+        ctx.lineWidth = 1;
+        ctx.moveTo(x2 + 0.5, y2);
+        ctx.lineTo(x3 + 0.5, y3);
+        ctx.moveTo(x3, y3);
+        ctx.lineTo(x4, y4);
+        ctx.moveTo(x4 - 1, y4);
+        ctx.lineTo(x7 - 1, y7);
+        ctx.stroke();
+
+        // right face — fill
+        ctx.beginPath();
+        ctx.fillStyle = public.colorToHex(nuanceColor(color, -64));
+        ctx.moveTo(x7, y7 - 1);
+        ctx.lineTo(x6, y6 - 1);
+        ctx.lineTo(x5, y5);
+        ctx.lineTo(x4, y4);
+        ctx.closePath();
+        ctx.fill();
+
+        // right face — contour
+        ctx.beginPath();
+        ctx.strokeStyle = hexBlack;
+        ctx.lineWidth = 1;
+        ctx.moveTo(x6 - 1, y6);
+        ctx.lineTo(x5 - 1, y5);
+        ctx.moveTo(x5, y5);
+        ctx.lineTo(x4, y4);
+        ctx.moveTo(x4, y4);
+        ctx.lineTo(x7, y7);
+        ctx.stroke();
     }
-    
+
+    // Create a tile canvas containing a single isometric block.
+    // Returns an HTMLCanvasElement sized texSizeX × C_TILE_CANVAS_HEIGHT.
+    // The context is left translated so that subsequent drawBlock calls share the same origin.
+    public.createTexture = function psetile_createTexture(color, margin, height, texSizeX, texSizeY)
+    {
+        let canvas = _createCanvas(texSizeX, public.C_TILE_CANVAS_HEIGHT);
+        let ctx = canvas.getContext('2d');
+        // Place local (0,0) so that the bottom diamond vertex lands at canvas bottom.
+        ctx.translate(texSizeX / 2, public.C_TILE_CANVAS_HEIGHT - texSizeY / 2);
+
+        let BW = texSizeX - margin * 4;
+        let BH = texSizeY - margin * 2;
+        public.drawBlock(ctx, color, 0, 0, BW, BH, height);
+        return canvas;
+    }
+
+    // --- Texture name cache ---
+
     let m_tileIdToTextureNameCache = {};
-    
+
     let getTileTextureNameUnprotected = function psetile_getTileTextureNameUnprotected(tileId)
     {
-        return "TEXTURE-" + tileId;
+        return 'TEXTURE-' + tileId;
     }
-    
+
     public.getTileTextureName = function psetile_getTileTextureName(tileId)
     {
         let name = m_tileIdToTextureNameCache[tileId];
@@ -197,7 +199,12 @@ let PSETILE = (function ()
         }
         return name;
     }
-    
+
+    // --- Atlas collection and packing ---
+
+    let m_pendingTiles = []; // [{textureName, canvas}]
+
+    // Collect tile canvases from a library. Call buildAtlas() after all libraries are registered.
     public.initializeTextureFor = function psetile_initializeTextureFor(library)
     {
         let values = Object.values(library.C_TILEENUM);
@@ -208,18 +215,53 @@ let PSETILE = (function ()
             if (typeof textureMap === 'undefined' || typeof textureMap[tileId] === 'undefined')
             {
                 let textureName = getTileTextureNameUnprotected(tileId);
-                let graphics = library.createTexture(tileId);
-                let texture = g_app.renderer.generateTexture(graphics);
-                PIXI.utils.TextureCache[textureName] = texture;
+                let canvas = library.createTexture(tileId);
+                m_pendingTiles.push({textureName: textureName, canvas: canvas});
                 m_tileIdToTextureNameCache[tileId] = textureName;
             }
             else
             {
-                let textureName = textureMap[tileId];
-                m_tileIdToTextureNameCache[tileId] = textureName;
+                m_tileIdToTextureNameCache[tileId] = textureMap[tileId];
             }
         }
     }
-    
+
+    // Pack all pending tile canvases into a single atlas and register sub-textures with PIXI.
+    // tileW must equal the textureBaseSizeX used when creating tiles.
+    public.buildAtlas = function psetile_buildAtlas(tileW)
+    {
+        let tileH = public.C_TILE_CANVAS_HEIGHT;
+        let cols = 16;
+        let rows = Math.ceil(m_pendingTiles.length / cols);
+        let atlasW = cols * tileW;
+        let atlasH = rows * tileH;
+
+        let atlasCanvas = _createCanvas(atlasW, atlasH);
+        let atlasCtx = atlasCanvas.getContext('2d');
+
+        for (let i = 0; i < m_pendingTiles.length; i++)
+        {
+            let col = i % cols;
+            let row = Math.floor(i / cols);
+            let x = col * tileW;
+            let y = row * tileH;
+            atlasCtx.drawImage(m_pendingTiles[i].canvas, x, y);
+            m_pendingTiles[i].atlasX = x;
+            m_pendingTiles[i].atlasY = y;
+        }
+
+        let baseTexture = new PIXI.BaseTexture(atlasCanvas);
+        baseTexture.scaleMode = PIXI.SCALE_MODES.NEAREST;
+
+        for (let i = 0; i < m_pendingTiles.length; i++)
+        {
+            let entry = m_pendingTiles[i];
+            let frame = new PIXI.Rectangle(entry.atlasX, entry.atlasY, tileW, tileH);
+            PIXI.utils.TextureCache[entry.textureName] = new PIXI.Texture(baseTexture, frame);
+        }
+
+        m_pendingTiles = [];
+    }
+
     return public;
 })();

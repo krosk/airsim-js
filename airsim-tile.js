@@ -29,6 +29,7 @@ let ASTILE = (function ()
         PSETILE.initializeTextureFor(ASROAD_DISPLAY_TILE);
         PSETILE.initializeTextureFor(ASRICO_DENSITY_TILE);
         PSETILE.initializeTextureFor(ASRICO_DISPLAY_TILE);
+        PSETILE.buildAtlas(MMAPRENDER.getTextureBaseSizeX());
     }
     
     return public;
@@ -318,7 +319,8 @@ let ASRICO_DISPLAY_TILE = (function ()
         let zone = public.getDisplayIdZone(id);
         let level = public.getDisplayIdLevel(id);
         let variant = public.getDisplayIdVariant(id);
-        let graphics = public.addTileBase();
+        let canvas = public.addTileBase();
+        let ctx = canvas.getContext('2d');
         let baseHeight = public.getBaseHeight();
         let color = C_TILE_COLOR[zone];
         let height = C_TILE_HEIGHT_BASE[zone] + C_TILE_HEIGHT_FACTOR[zone] * level;
@@ -327,8 +329,8 @@ let ASRICO_DISPLAY_TILE = (function ()
         let sinTable = [0, 1, 0, -1];
         let offsetX = cosTable[variant] * (C_TEXTURE_BASE_SIZE_X - width) / 2;
         let offsetY = sinTable[variant] * (C_TEXTURE_BASE_SIZE_Y - width / 2) / 2 - 1;
-        PSETILE.drawBlock(graphics, color, offsetX, offsetY - baseHeight, width, width / 2, height);
-        return graphics;
+        PSETILE.drawBlock(ctx, color, offsetX, offsetY - baseHeight, width, width / 2, height);
+        return canvas;
     }
     
     return public;
@@ -411,150 +413,157 @@ let ASRICO_DENSITY_TILE = (function ()
 let ASICON_TILE = (function ()
 {
     let public = {};
-    
+
     public.C_TILEENUM = ASTILE_ID.C_TILE_ICON;
     const C = public.C_TILEENUM;
-    
+
     let getColor = PSETILE.getColor;
-    
+
     public.C_COLOR = {
-        [C.NONE] : getColor(64, 64, 64),
-        [C.VIEW] : getColor(0, 255, 255),
-        [C.ZONE] : getColor(0, 192, 0),
-        [C.SPED] : getColor(0, 192, 192),
-        [C.GAME] : getColor(0, 0, 192),
-        [C.PLAY] : getColor(0, 255, 0),
-        [C.PLAY2] : getColor(0, 255, 0),
-        [C.PLAY3] : getColor(0, 255, 0),
-        [C.STOP] : getColor(255, 0, 0),
-        [C.STEP] : getColor(255, 192, 0),
-        [C.SAVE] : getColor(64, 64, 255),
-        [C.LOAD] : getColor(64, 255, 64),
-        [C.BENC] : getColor(255, 64, 64)
+        [C.NONE]  : getColor(64,  64,  64),
+        [C.VIEW]  : getColor(0,   255, 255),
+        [C.ZONE]  : getColor(0,   192, 0),
+        [C.SPED]  : getColor(0,   192, 192),
+        [C.GAME]  : getColor(0,   0,   192),
+        [C.PLAY]  : getColor(0,   255, 0),
+        [C.PLAY2] : getColor(0,   255, 0),
+        [C.PLAY3] : getColor(0,   255, 0),
+        [C.STOP]  : getColor(255, 0,   0),
+        [C.STEP]  : getColor(255, 192, 0),
+        [C.SAVE]  : getColor(64,  64,  255),
+        [C.LOAD]  : getColor(64,  255, 64),
+        [C.BENC]  : getColor(255, 64,  64)
     }
-    
-    let addNothing = function asicon_addNothing(color, height)
-    {
-        let graphics = addTileBase(color);
-        return graphics;
-    }
-    
+
+    // Create a blank icon canvas with a white isometric base already drawn.
+    // ctx is left with the isometric coordinate translation applied.
     let addTileBase = function asicon_addTileBase(color)
     {
-        let margin = 0;
-        let height = 3;
-        let textureBaseSizeX = MMAPRENDER.getTextureBaseSizeX();
-        let textureBaseSizeY = MMAPRENDER.getTextureBaseSizeY();
-        let graphics = PSETILE.createTexture(0xFFFFFF, margin, height, textureBaseSizeX, textureBaseSizeY);
-        let black = 0x000000;
-        graphics.beginFill(color);
-        graphics.lineStyle(1, black);
-        return graphics;
+        let texSizeX = MMAPRENDER.getTextureBaseSizeX();
+        let texSizeY = MMAPRENDER.getTextureBaseSizeY();
+        return PSETILE.createTexture(0xFFFFFF, 0, 3, texSizeX, texSizeY);
     }
-    
-    let drawRectangle = function asicon_drawRectangle(graphics, topLeftX, topLeftY, sizeX, sizeY)
+
+    // Draw a filled+stroked rectangle into ctx (canvas coordinates, no transform assumed).
+    let drawRectangle = function asicon_drawRectangle(ctx, color, topLeftX, topLeftY, sizeX, sizeY)
     {
-        graphics.moveTo(topLeftX, topLeftY);
-        graphics.lineTo(topLeftX + sizeX, topLeftY);
-        graphics.lineTo(topLeftX + sizeX, topLeftY + sizeY);
-        graphics.lineTo(topLeftX, topLeftY + sizeY);
-        graphics.lineTo(topLeftX, topLeftY);
+        ctx.beginPath();
+        ctx.fillStyle = PSETILE.colorToHex(color);
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 1;
+        ctx.rect(topLeftX, topLeftY, sizeX, sizeY);
+        ctx.fill();
+        ctx.stroke();
     }
-    
-    let drawTriangleLeft = function asicon_drawTriangleLeft(graphics, topLeftX, topLeftY, sizeX, sizeY)
+
+    // Draw a filled+stroked left-pointing triangle into ctx.
+    let drawTriangleLeft = function asicon_drawTriangleLeft(ctx, color, topLeftX, topLeftY, sizeX, sizeY)
     {
-        graphics.moveTo(topLeftX, topLeftY);
-        graphics.lineTo(topLeftX + sizeX, topLeftY + sizeY / 2);
-        graphics.lineTo(topLeftX, topLeftY + sizeY);
-        graphics.lineTo(topLeftX, topLeftY);
+        ctx.beginPath();
+        ctx.fillStyle = PSETILE.colorToHex(color);
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 1;
+        ctx.moveTo(topLeftX, topLeftY);
+        ctx.lineTo(topLeftX + sizeX, topLeftY + sizeY / 2);
+        ctx.lineTo(topLeftX, topLeftY + sizeY);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
     }
-    
+
+    // Helpers that draw shapes in flat canvas space (reset transform, then restore).
+    let withFlatCoords = function asicon_withFlatCoords(canvas, drawFn)
+    {
+        let ctx = canvas.getContext('2d');
+        ctx.save();
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        drawFn(ctx);
+        ctx.restore();
+        return canvas;
+    }
+
+    let addNothing = function asicon_addNothing(color, height)
+    {
+        return addTileBase(color);
+    }
+
     let addSquare = function asicon_addSquare(color, height)
     {
-        let graphics = addTileBase(color);
-        
+        let canvas = addTileBase(color);
         let CX = MMAPRENDER.getTextureBaseSizeX() / 2;
-        let CY = MMAPRENDER.getTextureBaseSizeY() / 2;
-        let M = 0;
+        let CY = PSETILE.C_TILE_CANVAS_HEIGHT / 2;
         let H = height;
-        
-        drawRectangle(graphics, CX - H/2, CY - H/2, H, H);
-        
-        return graphics;
+        return withFlatCoords(canvas, function (ctx) {
+            drawRectangle(ctx, color, CX - H / 2, CY - H / 2, H, H);
+        });
     }
-    
+
     let addPlay = function asicon_addPlay(color, height)
     {
-        let graphics = addTileBase(color);
-        
+        let canvas = addTileBase(color);
         let CX = MMAPRENDER.getTextureBaseSizeX() / 2;
-        let CY = MMAPRENDER.getTextureBaseSizeY() / 2;
-        let M = 0;
+        let CY = PSETILE.C_TILE_CANVAS_HEIGHT / 2;
         let H = height;
-        
-        drawTriangleLeft(graphics, CX - H/2, CY - H/2, H, H);
-        
-        return graphics;
+        return withFlatCoords(canvas, function (ctx) {
+            drawTriangleLeft(ctx, color, CX - H / 2, CY - H / 2, H, H);
+        });
     }
-    
+
     let addPlay2 = function asicon_addPlay2(color, height)
     {
-        let graphics = addTileBase(color);
-        
+        let canvas = addTileBase(color);
         let CX = MMAPRENDER.getTextureBaseSizeX() / 2;
-        let CY = MMAPRENDER.getTextureBaseSizeY() / 2;
-        let M = 0;
+        let CY = PSETILE.C_TILE_CANVAS_HEIGHT / 2;
         let H = height;
-        
-        drawTriangleLeft(graphics, CX - H/2, CY - H/2, H/2, H);
-        drawTriangleLeft(graphics, CX, CY - H/2, H/2, H);
-        
-        return graphics;
+        return withFlatCoords(canvas, function (ctx) {
+            drawTriangleLeft(ctx, color, CX - H / 2,       CY - H / 2, H / 2, H);
+            drawTriangleLeft(ctx, color, CX,               CY - H / 2, H / 2, H);
+        });
     }
-    
+
     let addPlay3 = function asicon_addPlay3(color, height)
     {
-        let graphics = addTileBase(color);
-        
+        let canvas = addTileBase(color);
         let CX = MMAPRENDER.getTextureBaseSizeX() / 2;
-        let CY = MMAPRENDER.getTextureBaseSizeY() / 2;
-        let M = 0;
+        let CY = PSETILE.C_TILE_CANVAS_HEIGHT / 2;
         let H = height;
-        
-        drawTriangleLeft(graphics, CX - H/2, CY - H/2, H/3, H);
-        drawTriangleLeft(graphics, CX - H/2 + H/3, CY - H/2, H/3, H);
-        drawTriangleLeft(graphics, CX - H/2 + 2*H/3, CY - H/2, H/3, H);
-        
-        return graphics;
+        return withFlatCoords(canvas, function (ctx) {
+            drawTriangleLeft(ctx, color, CX - H / 2,           CY - H / 2, H / 3, H);
+            drawTriangleLeft(ctx, color, CX - H / 2 + H / 3,  CY - H / 2, H / 3, H);
+            drawTriangleLeft(ctx, color, CX - H / 2 + 2*H/3,  CY - H / 2, H / 3, H);
+        });
     }
-    
+
     let addTriangleBreak = function asicon_addTriangleBreak(color, height)
     {
-        let graphics = addTileBase(color);
-        
+        let canvas = addTileBase(color);
         let CX = MMAPRENDER.getTextureBaseSizeX() / 2;
-        let CY = MMAPRENDER.getTextureBaseSizeY() / 2;
-        let M = 0;
+        let CY = PSETILE.C_TILE_CANVAS_HEIGHT / 2;
         let H = height;
-        
-        drawTriangleLeft(graphics, CX - H / 2, CY - H / 2, 2*H/3, H);
-        drawRectangle(graphics, CX + H / 2 - H/3, CY - H / 2, H/3, H);
-        
-        return graphics;
+        return withFlatCoords(canvas, function (ctx) {
+            drawTriangleLeft(ctx, color, CX - H / 2,          CY - H / 2, 2 * H / 3, H);
+            drawRectangle(ctx, color,   CX + H / 2 - H / 3,  CY - H / 2, H / 3,     H);
+        });
     }
-    
+
     let addText = function asicon_addText(text)
     {
-        return function(color, height)
+        return function (color, height)
         {
             let CX = MMAPRENDER.getTextureBaseSizeX();
-            let CY = MMAPRENDER.getTextureBaseSizeY();
-            let string = new PIXI.Text(text, {fill:color});
-            string.width = CX; // works as minimal size only
-            return string;
+            let canvas = PSETILE.createCanvas(CX, PSETILE.C_TILE_CANVAS_HEIGHT);
+            let ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, CX, PSETILE.C_TILE_CANVAS_HEIGHT);
+            ctx.fillStyle = PSETILE.colorToHex(color);
+            ctx.font = 'bold 11px monospace';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(text, CX / 2, PSETILE.C_TILE_CANVAS_HEIGHT / 2);
+            return canvas;
         };
     }
-    
+
     public.createTexture = function asicon_createTexture(id)
     {
         let color = public.C_COLOR[id];
@@ -563,24 +572,23 @@ let ASICON_TILE = (function ()
         {
             throw public.C_NAME + " missing function id " + id;
         }
-        let displayObject = public.C_ICON[id](color, 16);
-        return displayObject;
+        return public.C_ICON[id](color, 16);
     }
-    
+
     public.C_ICON = {
-        [C.NONE] : addNothing,
-        [C.VIEW] : addText("VIEW"),
-        [C.ZONE] : addText("ZONE"),
-        [C.SPED] : addText("PLAY"),
-        [C.GAME] : addText("GAME"),
-        [C.PLAY] : addPlay,
+        [C.NONE]  : addNothing,
+        [C.VIEW]  : addText("VIEW"),
+        [C.ZONE]  : addText("ZONE"),
+        [C.SPED]  : addText("PLAY"),
+        [C.GAME]  : addText("GAME"),
+        [C.PLAY]  : addPlay,
         [C.PLAY2] : addPlay2,
         [C.PLAY3] : addPlay3,
-        [C.STOP] : addSquare,
-        [C.STEP] : addTriangleBreak,
-        [C.SAVE] : addText("SAVE"),
-        [C.LOAD] : addText("LOAD"),
-        [C.BENC] : addText("BENC")
+        [C.STOP]  : addSquare,
+        [C.STEP]  : addTriangleBreak,
+        [C.SAVE]  : addText("SAVE"),
+        [C.LOAD]  : addText("LOAD"),
+        [C.BENC]  : addText("BENC")
     }
 
     return public;

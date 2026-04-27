@@ -274,3 +274,80 @@ describe('atlas layout', () => {
         expect(unique.size).toBe(positions.length);
     });
 });
+
+// ---------------------------------------------------------------------------
+// 4. Full initializeTexture integration (all tile libraries + PIXI API)
+// ---------------------------------------------------------------------------
+
+describe('ASTILE.initializeTexture integration', () => {
+    let texCache;
+    let baseTextureCanvas;
+    let textureConstructorCalls;
+
+    beforeAll(() => {
+        const localCtx = createContext({
+            console,
+            Math,
+            G_CHECK: false,
+            MMAPRENDER: {
+                getTextureBaseSizeX: () => 64,
+                getTextureBaseSizeY: () => 32,
+            },
+        });
+
+        texCache = {};
+        baseTextureCanvas = null;
+        textureConstructorCalls = 0;
+
+        localCtx.PIXI = {
+            BaseTexture: class { constructor(canvas) { baseTextureCanvas = canvas; } },
+            Rectangle: class { constructor(x, y, w, h) { this.x = x; this.y = y; this.w = w; this.h = h; } },
+            Texture: class { constructor(base, frame) { textureConstructorCalls++; this.frame = frame; } },
+            utils: { TextureCache: texCache },
+            SCALE_MODES: { NEAREST: 0 },
+        };
+
+        function load(filePath) {
+            runInContext(readFileSync(filePath, 'utf8'), localCtx, { filename: filePath });
+        }
+
+        load(join(root, 'airsim-tile-const.js'));
+        load(join(root, 'pse-tile.js'));
+        load(join(root, 'airsim-tile.js'));
+
+        localCtx.PSETILE.setCanvasFactory(createCanvas);
+        localCtx.ASTILE.initializeTexture();
+    });
+
+    it('completes without throwing', () => {
+        // A throw in beforeAll would fail every test in this block.
+        expect(baseTextureCanvas).not.toBeNull();
+    });
+
+    it('passes a canvas of width 16*tileW to PIXI.BaseTexture', () => {
+        expect(baseTextureCanvas.width).toBe(16 * 64);
+        expect(baseTextureCanvas.height).toBeGreaterThan(0);
+    });
+
+    it('registers sub-textures in PIXI.utils.TextureCache for all procedural tiles', () => {
+        // Procedural tiles: ASICON(13) + ASZONE(~13) + terrain(1) + road congestion(5)
+        //   + RICO density(39) + RICO display(37) = ~108 (some dedup reduces this slightly)
+        expect(Object.keys(texCache).length).toBeGreaterThan(90);
+    });
+
+    it('PIXI.Texture is constructed at least once per cache entry', () => {
+        // constructor calls >= cache entries: duplicate tile IDs (e.g. DIRT=DEFAULT=10)
+        // produce multiple constructor calls that overwrite the same cache key.
+        expect(textureConstructorCalls).toBeGreaterThanOrEqual(Object.keys(texCache).length);
+    });
+
+    it('every TextureCache entry has a frame with non-negative coordinates', () => {
+        for (const name of Object.keys(texCache)) {
+            const frame = texCache[name].frame;
+            expect(frame.x).toBeGreaterThanOrEqual(0);
+            expect(frame.y).toBeGreaterThanOrEqual(0);
+            expect(frame.w).toBe(64);
+            expect(frame.h).toBe(100);
+        }
+    });
+});

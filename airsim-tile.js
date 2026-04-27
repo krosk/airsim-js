@@ -1,4 +1,4 @@
-let ASTILE = (function ()
+var ASTILE = (function ()
 {
     let public = {};
     

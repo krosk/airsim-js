@@ -160,4 +160,18 @@ When migrating a JS function to Rust: remove it from `airsim-module.js`, add the
 
 ## Map size
 
-The map is initialized at 16×16 in `StartState()` in `airsim.js:197`. This is hardcoded. `ASSTATE` supports arbitrary sizes (passed to `initialize(w, h)`), but the rendering layer has not been tested beyond small maps.
+The map is initialized at 16×16 in `StartState()` in `airsim.js:197`. This is the only hardcoded size. `ASSTATE`, `MMAPDATA`, and the batch renderer all accept arbitrary `w`/`h` — the rendering layer has not been tested beyond small maps but the architecture supports it.
+
+## Rendering architecture
+
+`MMAPBATCH` groups map tiles into 8×8 `PIXI.Container` batches. The project uses PIXI v4.7.0. Static batches set `cacheAsBitmap = true`, collapsing all 64 child sprites into a single draw call. When a tile changes: `cacheAsBitmap = false`, swap the sprite texture, set `cacheAsBitmap = true` — the batch rebuilds its cached texture on the next render. Batches that leave the viewport expire after 60 frames (`C_BATCH_LIFETIME`) and return to a pool. `C_MAX_BATCH_COUNT = 300` is declared in `MMAPBATCH` but never enforced.
+
+Viewport culling is implemented: `getBatchIndexInScreen2()` in `MMAPRENDER` (`airsim.js:2339`) enumerates only on-screen batches using isometric screen-to-tile mapping and `MMAPDATA.isValidCoordinates()`.
+
+**Texture situation.** Road display tiles (16 variants) are atlas-backed via `cityTiles_sheet.json`. All other procedural tiles — zones, congestion, RICO density, RICO display, terrain, icons — are generated at startup via `g_app.renderer.generateTexture()` and stored as individual GPU textures in `PIXI.utils.TextureCache` (named `TEXTURE-{id}`). Because these are separate GPU textures, PIXI cannot batch them automatically; when a batch re-renders, it issues one draw call per unique texture present in that batch.
+
+## Testing
+
+No JS test framework or test files exist. The Rust side has one live test (`basics` in `jsentry.rs`). The `tuto_list_*.rs` files contain tests but are not declared as modules in `lib.rs` and are never compiled.
+
+**JS testing constraints.** All engine modules are IIFEs that assign to globals — there is no `import`/`export`. Testing engine logic requires either a browser environment or loading the WASM runtime in Node.js. Setting `G_WORKER = false` in `pse-edit-modules.js` makes all dispatch synchronous, which is the easiest path for any automated test. `airsim-tile-const.js` and the ID arithmetic functions in `ASRICO_DISPLAY_TILE` (`getDisplayIdZone`, `getDisplayIdLevel`, `getDisplayIdVariant`) are dependency-free and testable in isolation. The rendering layer depends on `PIXI.Graphics` and `g_app.renderer` throughout — it cannot be tested without a real or mocked PIXI context.

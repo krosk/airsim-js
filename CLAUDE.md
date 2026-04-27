@@ -32,7 +32,7 @@ Three layers. Each layer only calls downward.
 `ASZONE`, `ASROAD`, `ASRICO`, `ASWENGINE` implement simulation logic by reading and writing `ASSTATE` through its scalar accessor API. `ASWENGINE` is the sequencer: each tick it calls `ASZONE.update` → `ASROAD.updateRoad` → `ASRICO.updateRico` in that order. These modules have no direct PIXI dependency.
 
 **Layer 3 — Rendering + UI (JS + PIXI, `airsim.js`, `airsim-tile.js`, `pse-tile.js`)**
-`MMAPRENDER` owns the camera, hit-testing, and the PIXI render loop. `ASTILE`/`PSETILE` create textures. `ASMAPUI` renders the toolbar. `MMAPDATA` maintains a JS-side dirty-cell list so only changed tiles are re-queried each frame. This layer never writes simulation state directly — it goes through `PSEENGINE`.
+`MMAPRENDER` owns the camera, hit-testing, and the PIXI render loop. `ASTILE`/`PSETILE` generate tile canvases via Canvas 2D and pack them into a single atlas texture handed to PIXI. `ASMAPUI` renders the toolbar. `MMAPDATA` maintains a JS-side dirty-cell list so only changed tiles are re-queried each frame. This layer never writes simulation state directly — it goes through `PSEENGINE`.
 
 **The bridge — `PSEENGINE` (`pse-engine.js`)**
 A JS `Proxy` between layer 3 and layer 2. Intercepts every method call and dispatches it to either a Web Worker (production) or WASM directly on the main thread (debug). The caller is unaware of which path is active. Callbacks are identified by `[moduleName, methodName, arg]` tuples so responses route back to the right JS module.
@@ -140,6 +140,33 @@ Road display IDs encode the 4-neighbour connection as a bitmask in the name: `NE
 **Serialization resets road state.** `setSerializable` restores ASSTATE from JSON and then calls `ASROAD.resetInternal()` because road adjacency structures in JS are derived from zone data and must be rebuilt, not stored.
 
 **`MMAPRENDER` must be initialized before `ASTILE.initializeTexture()`.** Tile texture creation now reads texture base dimensions via `MMAPRENDER.getTextureBaseSizeX/Y()` (decoupled in `b31890b`). If render is not initialized first, those calls return undefined and textures are created with zero dimensions silently.
+
+**`ASTILE.initializeTexture()` must call `buildAtlas` last.** All `PSETILE.initializeTextureFor(library)` calls collect tile canvases into a pending list. `PSETILE.buildAtlas(tileW)` packs them into one atlas and registers PIXI sub-textures. Calling `buildAtlas` before all libraries are registered silently omits later tiles.
+
+**`createTexture` in tile libraries must return a canvas.** `PSETILE.initializeTextureFor` passes the return value directly to `atlasCtx.drawImage`. Returning a non-canvas value (e.g., a PIXI.Graphics object from the old API) causes a silent failure at draw time with no error.
+
+## Testing
+
+```bash
+npm test   # vitest run — completes in under 500 ms, no browser required
+```
+
+Tests live in `test/`. The suite uses **vitest** and **node-canvas** (npm devDependencies). Tile generation code (`pse-tile.js`, `airsim-tile-const.js`, `airsim-tile.js`) is loaded into a Node.js `vm` context with `node-canvas` injected as the canvas factory via `PSETILE.setCanvasFactory`.
+
+Four test groups in `test/tile-generation.test.js`:
+
+| Group | What it covers |
+|---|---|
+| Pure math | `getColor`, `colorToHex`, RICO display ID arithmetic and uniqueness |
+| Canvas drawing | Pixel-level content of tile canvases via `getImageData` |
+| Atlas layout | UV grid positions, fixed dimensions, no overlapping entries |
+| Integration | `ASTILE.initializeTexture()` end-to-end with a recording PIXI stub |
+
+The integration group verifies the full pipeline: all tile libraries → `initializeTextureFor` → `buildAtlas` → PIXI stub receives a correctly-sized atlas canvas and populates `PIXI.utils.TextureCache` with sub-textures that have valid frame rectangles.
+
+**Not covered:** browser rendering correctness, PIXI WebGL texture upload, visual appearance of icon tiles.
+
+**vm context constraint:** Top-level module declarations in IIFE files must use `var` (not `let`) to become properties of the vm context sandbox. Currently `ASTILE` and `ASTILE_ID` and `PSETILE` use `var`; all others in `airsim-tile.js` use `let` and are only accessible within the same `runInContext` call.
 
 ## Known bug
 

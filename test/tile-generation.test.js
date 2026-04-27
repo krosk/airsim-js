@@ -278,6 +278,52 @@ describe('atlas layout', () => {
 // ---------------------------------------------------------------------------
 // 4. Full initializeTexture integration (all tile libraries + PIXI API)
 // ---------------------------------------------------------------------------
+// 4. Icon tile text visibility
+// ---------------------------------------------------------------------------
+
+describe('icon tile text visibility', () => {
+    // ASICON_TILE.createTexture for a text icon returns a canvas with colored
+    // text drawn on a white background. The text must span enough pixel rows
+    // to be legible when rendered as a sprite. This test catches font sizes
+    // that are too small relative to the canvas height.
+
+    let iconCanvas;
+
+    beforeAll(() => {
+        const localCtx = createContext({
+            console, Math,
+            MMAPRENDER: { getTextureBaseSizeX: () => 64, getTextureBaseSizeY: () => 32 },
+        });
+        function load(fp) { runInContext(readFileSync(fp, 'utf8'), localCtx, { filename: fp }); }
+        load(join(root, 'airsim-tile-const.js'));
+        load(join(root, 'pse-tile.js'));
+        load(join(root, 'airsim-tile.js'));
+        localCtx.PSETILE.setCanvasFactory(createCanvas);
+        // VIEW icon (id 910) uses addText — representative of all text icons
+        iconCanvas = localCtx.ASICON_TILE.createTexture(localCtx.ASTILE_ID.C_TILE_ICON.VIEW);
+    });
+
+    it('text spans at least 12 pixel rows (catches font too small for canvas)', () => {
+        const w = iconCanvas.width, h = iconCanvas.height;
+        const data = iconCanvas.getContext('2d').getImageData(0, 0, w, h).data;
+        let coloredRows = 0;
+        for (let y = 0; y < h; y++) {
+            for (let x = 0; x < w; x++) {
+                const i = (y * w + x) * 4;
+                // A clearly colored pixel: at least one channel well below white (255)
+                if (data[i] < 200 || data[i + 1] < 200 || data[i + 2] < 200) {
+                    coloredRows++;
+                    break;
+                }
+            }
+        }
+        expect(coloredRows).toBeGreaterThanOrEqual(12);
+    });
+});
+
+// ---------------------------------------------------------------------------
+// 5. Full initializeTexture integration (all tile libraries + PIXI API)
+// ---------------------------------------------------------------------------
 
 describe('ASTILE.initializeTexture integration', () => {
     let texCache;

@@ -410,7 +410,7 @@ let ASRICO_DENSITY_TILE = (function ()
     return public;
 })();
 
-let ASICON_TILE = (function ()
+var ASICON_TILE = (function ()
 {
     let public = {};
 
@@ -556,7 +556,7 @@ let ASICON_TILE = (function ()
             ctx.fillStyle = '#ffffff';
             ctx.fillRect(0, 0, CX, PSETILE.C_TILE_CANVAS_HEIGHT);
             ctx.fillStyle = PSETILE.colorToHex(color);
-            ctx.font = 'bold 11px monospace';
+            ctx.font = `bold ${Math.round(PSETILE.C_TILE_CANVAS_HEIGHT * 0.25)}px monospace`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText(text, CX / 2, PSETILE.C_TILE_CANVAS_HEIGHT / 2);

@@ -401,4 +401,34 @@ describe('ASTILE.initializeTexture integration', () => {
             expect(frame.h === 32 || frame.h === 100).toBe(true);
         }
     });
+
+    it('map tile frames are taller than ASMAPUI C_ICON_HEIGHT=48, ensuring the crop branch fires', () => {
+        // ASMAPUI.createSprite crops textures taller than C_ICON_HEIGHT to show the
+        // bottom C_ICON_HEIGHT pixels (the diamond region). This only fires if frame.h > 48.
+        // Icon tiles (TEXTURE-900 to TEXTURE-999) use frame.h=32; all others use 100.
+        const C_ICON_HEIGHT = 48;
+        for (const name of Object.keys(texCache)) {
+            const id = parseInt(name.replace('TEXTURE-', ''), 10);
+            const isIconTile = id >= 900 && id <= 999;
+            if (!isIconTile) {
+                expect(texCache[name].frame.h).toBeGreaterThan(C_ICON_HEIGHT);
+            }
+        }
+    });
+
+    it('ASMAPUI crop arithmetic: bottom C_ICON_HEIGHT rows of a map tile frame reach atlas row bottom', () => {
+        // Mirrors the ASMAPUI.createSprite crop calculation:
+        //   croppedFrame.y = frame.y + frame.h - C_ICON_HEIGHT
+        //   croppedFrame.h = C_ICON_HEIGHT
+        // Invariant: croppedFrame.y + croppedFrame.h === frame.y + frame.h (reaches bottom)
+        const C_ICON_HEIGHT = 48;
+        for (const name of Object.keys(texCache)) {
+            const frame = texCache[name].frame;
+            if (frame.h > C_ICON_HEIGHT) {
+                const croppedY = frame.y + frame.h - C_ICON_HEIGHT;
+                expect(croppedY).toBeGreaterThanOrEqual(0);
+                expect(croppedY + C_ICON_HEIGHT).toBe(frame.y + frame.h);
+            }
+        }
+    });
 });

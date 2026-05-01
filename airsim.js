@@ -783,20 +783,27 @@ let ASMAPUI = (function ()
     {
         let textureName = PSETILE.getTileTextureName(id);
         let textureCache = PIXI.utils.TextureCache[textureName];
-        let sprite = new PIXI.Sprite(textureCache);
-        
-        // fit to icon size
-        let ratio = sprite.width / sprite.height;
-        if (sprite.height > C_ICON_HEIGHT)
+
+        // Map tiles have tall canvases (100px) with content only in the bottom
+        // ~32px (the isometric diamond region). Crop to the bottom C_ICON_HEIGHT
+        // pixels so the icon shows the diamond at full width instead of being
+        // squeezed narrow by proportional height scaling.
+        let iconTexture = textureCache;
+        if (textureCache.height > C_ICON_HEIGHT)
         {
-            sprite.height = C_ICON_HEIGHT;
-            sprite.width = (C_ICON_HEIGHT * ratio) | 0;
+            iconTexture = new PIXI.Texture(
+                textureCache.baseTexture,
+                new PIXI.Rectangle(
+                    textureCache.frame.x,
+                    textureCache.frame.y + textureCache.frame.height - C_ICON_HEIGHT,
+                    C_ICON_WIDTH,
+                    C_ICON_HEIGHT
+                )
+            );
         }
-        else
-        {
-            sprite.height = textureCache.height;
-            sprite.width = textureCache.width;
-        }
+        let sprite = new PIXI.Sprite(iconTexture);
+        sprite.height = iconTexture.height;
+        sprite.width = iconTexture.width;
         
         sprite.interactive = true;
         sprite.on('pointerdown',

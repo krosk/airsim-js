@@ -145,6 +145,10 @@ Road display IDs encode the 4-neighbour connection as a bitmask in the name: `NE
 
 **`createTexture` in tile libraries must return a canvas.** `PSETILE.initializeTextureFor` passes the return value directly to `atlasCtx.drawImage`. Returning a non-canvas value (e.g., a PIXI.Graphics object from the old API) causes a silent failure at draw time with no error.
 
+**Icon tile canvases must have height = `texSizeY`.** `ASICON_TILE` functions pass `texSizeY` as the optional `canvasHeight` argument to `PSETILE.createTexture`, producing 64×32 canvases. This becomes the PIXI sub-texture `frameH`. Shape helpers (`addSquare`, `addPlay`, etc.) center geometry at `texSizeY / 2 = 16`, not `PSETILE.C_TILE_CANVAS_HEIGHT / 2 = 50`. Using 50 as the center places shapes outside the visible canvas area.
+
+**`ASMAPUI` crops map tile textures to `C_ICON_HEIGHT = 48` px.** When assembling toolbar sprites, `createSprite` checks `texture.height > C_ICON_HEIGHT`. If true (map tiles, frameH = 100), it creates a cropped `PIXI.Texture` showing the bottom 48 px of the atlas frame — the isometric diamond region. Icon tiles (frameH = 32 ≤ 48) are used as-is. If you add a new tile library whose atlas frames fall between 33 and 48 px, `createSprite` will use them unmodified; if frames exceed 100 px, the crop arithmetic still works but the visual result depends on the tile content.
+
 ## Testing
 
 ```bash
@@ -153,20 +157,21 @@ npm test   # vitest run — completes in under 500 ms, no browser required
 
 Tests live in `test/`. The suite uses **vitest** and **node-canvas** (npm devDependencies). Tile generation code (`pse-tile.js`, `airsim-tile-const.js`, `airsim-tile.js`) is loaded into a Node.js `vm` context with `node-canvas` injected as the canvas factory via `PSETILE.setCanvasFactory`.
 
-Four test groups in `test/tile-generation.test.js`:
+Test groups in `test/tile-generation.test.js`:
 
 | Group | What it covers |
 |---|---|
 | Pure math | `getColor`, `colorToHex`, RICO display ID arithmetic and uniqueness |
-| Canvas drawing | Pixel-level content of tile canvases via `getImageData` |
+| Canvas drawing | Pixel-level content of map tile canvases via `getImageData` |
 | Atlas layout | UV grid positions, fixed dimensions, no overlapping entries |
+| Icon tiles | Canvas height = 32, text visibility (colored rows), shape centering |
 | Integration | `ASTILE.initializeTexture()` end-to-end with a recording PIXI stub |
 
-The integration group verifies the full pipeline: all tile libraries → `initializeTextureFor` → `buildAtlas` → PIXI stub receives a correctly-sized atlas canvas and populates `PIXI.utils.TextureCache` with sub-textures that have valid frame rectangles.
+The integration group verifies the full pipeline: all tile libraries → `initializeTextureFor` → `buildAtlas` → PIXI stub receives a correctly-sized atlas canvas and populates `PIXI.utils.TextureCache` with sub-textures that have valid frame rectangles. Frames are checked: icon tiles must have `frame.h = 32`, map tiles must have `frame.h = 100` (> 48, so the ASMAPUI crop path is exercised).
 
-**Not covered:** browser rendering correctness, PIXI WebGL texture upload, visual appearance of icon tiles.
+**Not covered:** browser rendering correctness, PIXI WebGL texture upload, actual visual appearance.
 
-**vm context constraint:** Top-level module declarations in IIFE files must use `var` (not `let`) to become properties of the vm context sandbox. Currently `ASTILE` and `ASTILE_ID` and `PSETILE` use `var`; all others in `airsim-tile.js` use `let` and are only accessible within the same `runInContext` call.
+**vm context constraint:** Top-level module declarations in IIFE files must use `var` (not `let`) to become properties of the vm context sandbox. Currently `ASTILE`, `ASICON_TILE`, `ASTILE_ID`, and `PSETILE` use `var`; all others in `airsim-tile.js` use `let` and are only accessible within the same `runInContext` call.
 
 ## Known bug
 
@@ -195,10 +200,4 @@ The map is initialized at 16×16 in `StartState()` in `airsim.js:197`. This is t
 
 Viewport culling is implemented: `getBatchIndexInScreen2()` in `MMAPRENDER` (`airsim.js:2339`) enumerates only on-screen batches using isometric screen-to-tile mapping and `MMAPDATA.isValidCoordinates()`.
 
-**Texture situation.** Road display tiles (16 variants) are atlas-backed via `cityTiles_sheet.json`. All other procedural tiles — zones, congestion, RICO density, RICO display, terrain, icons — are generated at startup via `g_app.renderer.generateTexture()` and stored as individual GPU textures in `PIXI.utils.TextureCache` (named `TEXTURE-{id}`). Because these are separate GPU textures, PIXI cannot batch them automatically; when a batch re-renders, it issues one draw call per unique texture present in that batch.
-
-## Testing
-
-No JS test framework or test files exist. The Rust side has one live test (`basics` in `jsentry.rs`). The `tuto_list_*.rs` files contain tests but are not declared as modules in `lib.rs` and are never compiled.
-
-**JS testing constraints.** All engine modules are IIFEs that assign to globals — there is no `import`/`export`. Testing engine logic requires either a browser environment or loading the WASM runtime in Node.js. Setting `G_WORKER = false` in `pse-edit-modules.js` makes all dispatch synchronous, which is the easiest path for any automated test. `airsim-tile-const.js` and the ID arithmetic functions in `ASRICO_DISPLAY_TILE` (`getDisplayIdZone`, `getDisplayIdLevel`, `getDisplayIdVariant`) are dependency-free and testable in isolation. The rendering layer depends on `PIXI.Graphics` and `g_app.renderer` throughout — it cannot be tested without a real or mocked PIXI context.
+**Texture situation.** Road display tiles (16 variants) are atlas-backed via `cityTiles_sheet.json`. All other procedural tiles — zones, congestion, RICO density, RICO display, terrain, icons — are generated at startup by `ASTILE.initializeTexture()` using Canvas 2D drawing and packed into a single atlas texture registered with PIXI. One `PIXI.BaseTexture` covers all procedural tiles; PIXI can batch them automatically. See `docs/decisions/003-tile-rendering.md` for the full rationale.

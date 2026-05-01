@@ -303,7 +303,11 @@ describe('icon tile text visibility', () => {
         iconCanvas = localCtx.ASICON_TILE.createTexture(localCtx.ASTILE_ID.C_TILE_ICON.VIEW);
     });
 
-    it('text spans at least 12 pixel rows (catches font too small for canvas)', () => {
+    it('icon canvas is texSizeY tall (32px) so ASMAPUI renders it without downscaling', () => {
+        expect(iconCanvas.height).toBe(32);
+    });
+
+    it('text spans at least 8 pixel rows (catches font too small for 32px canvas)', () => {
         const w = iconCanvas.width, h = iconCanvas.height;
         const data = iconCanvas.getContext('2d').getImageData(0, 0, w, h).data;
         let coloredRows = 0;
@@ -317,7 +321,7 @@ describe('icon tile text visibility', () => {
                 }
             }
         }
-        expect(coloredRows).toBeGreaterThanOrEqual(12);
+        expect(coloredRows).toBeGreaterThanOrEqual(8);
     });
 });
 
@@ -387,13 +391,14 @@ describe('ASTILE.initializeTexture integration', () => {
         expect(textureConstructorCalls).toBeGreaterThanOrEqual(Object.keys(texCache).length);
     });
 
-    it('every TextureCache entry has a frame with non-negative coordinates', () => {
+    it('every TextureCache entry has a valid frame (icon tiles use texSizeY=32, map tiles use 100)', () => {
         for (const name of Object.keys(texCache)) {
             const frame = texCache[name].frame;
             expect(frame.x).toBeGreaterThanOrEqual(0);
             expect(frame.y).toBeGreaterThanOrEqual(0);
             expect(frame.w).toBe(64);
-            expect(frame.h).toBe(100);
+            // Icon tiles register with frameH=32; map tiles with frameH=100.
+            expect(frame.h === 32 || frame.h === 100).toBe(true);
         }
     });
 });

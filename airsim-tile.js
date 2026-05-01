@@ -435,13 +435,13 @@ var ASICON_TILE = (function ()
         [C.BENC]  : getColor(255, 64,  64)
     }
 
-    // Create a blank icon canvas with a white isometric base already drawn.
-    // ctx is left with the isometric coordinate translation applied.
+    // Create a blank icon canvas sized texSizeX × texSizeY with an isometric base drawn.
+    // Using texSizeY (32) keeps sprites below ASMAPUI's C_ICON_HEIGHT (48) so no scaling occurs.
     let addTileBase = function asicon_addTileBase(color)
     {
         let texSizeX = MMAPRENDER.getTextureBaseSizeX();
         let texSizeY = MMAPRENDER.getTextureBaseSizeY();
-        return PSETILE.createTexture(0xFFFFFF, 0, 3, texSizeX, texSizeY);
+        return PSETILE.createTexture(0xFFFFFF, 0, 3, texSizeX, texSizeY, texSizeY);
     }
 
     // Draw a filled+stroked rectangle into ctx (canvas coordinates, no transform assumed).
@@ -491,7 +491,7 @@ var ASICON_TILE = (function ()
     {
         let canvas = addTileBase(color);
         let CX = MMAPRENDER.getTextureBaseSizeX() / 2;
-        let CY = PSETILE.C_TILE_CANVAS_HEIGHT / 2;
+        let CY = MMAPRENDER.getTextureBaseSizeY() / 2;
         let H = height;
         return withFlatCoords(canvas, function (ctx) {
             drawRectangle(ctx, color, CX - H / 2, CY - H / 2, H, H);
@@ -502,7 +502,7 @@ var ASICON_TILE = (function ()
     {
         let canvas = addTileBase(color);
         let CX = MMAPRENDER.getTextureBaseSizeX() / 2;
-        let CY = PSETILE.C_TILE_CANVAS_HEIGHT / 2;
+        let CY = MMAPRENDER.getTextureBaseSizeY() / 2;
         let H = height;
         return withFlatCoords(canvas, function (ctx) {
             drawTriangleLeft(ctx, color, CX - H / 2, CY - H / 2, H, H);
@@ -513,7 +513,7 @@ var ASICON_TILE = (function ()
     {
         let canvas = addTileBase(color);
         let CX = MMAPRENDER.getTextureBaseSizeX() / 2;
-        let CY = PSETILE.C_TILE_CANVAS_HEIGHT / 2;
+        let CY = MMAPRENDER.getTextureBaseSizeY() / 2;
         let H = height;
         return withFlatCoords(canvas, function (ctx) {
             drawTriangleLeft(ctx, color, CX - H / 2,       CY - H / 2, H / 2, H);
@@ -525,7 +525,7 @@ var ASICON_TILE = (function ()
     {
         let canvas = addTileBase(color);
         let CX = MMAPRENDER.getTextureBaseSizeX() / 2;
-        let CY = PSETILE.C_TILE_CANVAS_HEIGHT / 2;
+        let CY = MMAPRENDER.getTextureBaseSizeY() / 2;
         let H = height;
         return withFlatCoords(canvas, function (ctx) {
             drawTriangleLeft(ctx, color, CX - H / 2,           CY - H / 2, H / 3, H);
@@ -538,7 +538,7 @@ var ASICON_TILE = (function ()
     {
         let canvas = addTileBase(color);
         let CX = MMAPRENDER.getTextureBaseSizeX() / 2;
-        let CY = PSETILE.C_TILE_CANVAS_HEIGHT / 2;
+        let CY = MMAPRENDER.getTextureBaseSizeY() / 2;
         let H = height;
         return withFlatCoords(canvas, function (ctx) {
             drawTriangleLeft(ctx, color, CX - H / 2,          CY - H / 2, 2 * H / 3, H);
@@ -550,16 +550,17 @@ var ASICON_TILE = (function ()
     {
         return function (color, height)
         {
-            let CX = MMAPRENDER.getTextureBaseSizeX();
-            let canvas = PSETILE.createCanvas(CX, PSETILE.C_TILE_CANVAS_HEIGHT);
+            let texSizeX = MMAPRENDER.getTextureBaseSizeX();
+            let texSizeY = MMAPRENDER.getTextureBaseSizeY();
+            let canvas = PSETILE.createCanvas(texSizeX, texSizeY);
             let ctx = canvas.getContext('2d');
             ctx.fillStyle = '#ffffff';
-            ctx.fillRect(0, 0, CX, PSETILE.C_TILE_CANVAS_HEIGHT);
+            ctx.fillRect(0, 0, texSizeX, texSizeY);
             ctx.fillStyle = PSETILE.colorToHex(color);
-            ctx.font = `bold ${Math.round(PSETILE.C_TILE_CANVAS_HEIGHT * 0.25)}px monospace`;
+            ctx.font = `bold ${Math.round(texSizeY * 0.6)}px monospace`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText(text, CX / 2, PSETILE.C_TILE_CANVAS_HEIGHT / 2);
+            ctx.fillText(text, texSizeX / 2, texSizeY / 2);
             return canvas;
         };
     }

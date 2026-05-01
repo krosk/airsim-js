@@ -165,14 +165,15 @@ var PSETILE = (function ()
     }
 
     // Create a tile canvas containing a single isometric block.
-    // Returns an HTMLCanvasElement sized texSizeX × C_TILE_CANVAS_HEIGHT.
-    // The context is left translated so that subsequent drawBlock calls share the same origin.
-    public.createTexture = function psetile_createTexture(color, margin, height, texSizeX, texSizeY)
+    // canvasHeight defaults to C_TILE_CANVAS_HEIGHT (map tiles); pass texSizeY for UI tiles
+    // that must fit within ASMAPUI's C_ICON_HEIGHT constraint without scaling.
+    public.createTexture = function psetile_createTexture(color, margin, height, texSizeX, texSizeY, canvasHeight)
     {
-        let canvas = _createCanvas(texSizeX, public.C_TILE_CANVAS_HEIGHT);
+        if (canvasHeight === undefined) canvasHeight = public.C_TILE_CANVAS_HEIGHT;
+        let canvas = _createCanvas(texSizeX, canvasHeight);
         let ctx = canvas.getContext('2d');
         // Place local (0,0) so that the bottom diamond vertex lands at canvas bottom.
-        ctx.translate(texSizeX / 2, public.C_TILE_CANVAS_HEIGHT - texSizeY / 2);
+        ctx.translate(texSizeX / 2, canvasHeight - texSizeY / 2);
 
         let BW = texSizeX - margin * 4;
         let BH = texSizeY - margin * 2;
@@ -202,7 +203,7 @@ var PSETILE = (function ()
 
     // --- Atlas collection and packing ---
 
-    let m_pendingTiles = []; // [{textureName, canvas}]
+    let m_pendingTiles = []; // [{textureName, canvas, frameH}]
 
     // Collect tile canvases from a library. Call buildAtlas() after all libraries are registered.
     public.initializeTextureFor = function psetile_initializeTextureFor(library)
@@ -216,7 +217,7 @@ var PSETILE = (function ()
             {
                 let textureName = getTileTextureNameUnprotected(tileId);
                 let canvas = library.createTexture(tileId);
-                m_pendingTiles.push({textureName: textureName, canvas: canvas});
+                m_pendingTiles.push({textureName: textureName, canvas: canvas, frameH: canvas.height});
                 m_tileIdToTextureNameCache[tileId] = textureName;
             }
             else
@@ -256,7 +257,7 @@ var PSETILE = (function ()
         for (let i = 0; i < m_pendingTiles.length; i++)
         {
             let entry = m_pendingTiles[i];
-            let frame = new PIXI.Rectangle(entry.atlasX, entry.atlasY, tileW, tileH);
+            let frame = new PIXI.Rectangle(entry.atlasX, entry.atlasY, tileW, entry.frameH);
             PIXI.utils.TextureCache[entry.textureName] = new PIXI.Texture(baseTexture, frame);
         }
 

@@ -785,6 +785,7 @@ let ASROAD = (function ()
         setTraversalStart(from);
         setTraversalCurrentIndex(-1);
         setTraversalEdgeCount(0);
+        m_openHeap = [];
         if (ASRICO.hasBuilding(from))
         {
             let nodeIndex = getTraversalEdgeCount();
@@ -840,6 +841,7 @@ let ASROAD = (function ()
             setTraversalAdded(node);
             ASSTATE.setRoadDebug(node, C_CONGESTION.MID);
             changeTraversalIndex(node);
+            heapPush(currentCost, node);
             if (G_CACHE_NODE)
             {
                 m_cacheNodeList.push(node);
@@ -864,6 +866,45 @@ let ASROAD = (function ()
     
     let m_cacheNodeList = [];
     let m_cacheNodeRefresh = true;
+
+    // min-heap open set for Dijkstra — entries are [cost, nodeIndex]
+    let m_openHeap = [];
+    let heapPush = function asroad_heapPush(cost, node)
+    {
+        m_openHeap.push([cost, node]);
+        let i = m_openHeap.length - 1;
+        while (i > 0)
+        {
+            let parent = (i - 1) >> 1;
+            if (m_openHeap[parent][0] <= m_openHeap[i][0]) break;
+            let tmp = m_openHeap[parent]; m_openHeap[parent] = m_openHeap[i]; m_openHeap[i] = tmp;
+            i = parent;
+        }
+    }
+    let heapPop = function asroad_heapPop()
+    {
+        if (m_openHeap.length === 0) return -1;
+        let top = m_openHeap[0][1];
+        let last = m_openHeap.pop();
+        if (m_openHeap.length > 0)
+        {
+            m_openHeap[0] = last;
+            let i = 0;
+            let n = m_openHeap.length;
+            while (true)
+            {
+                let l = 2 * i + 1;
+                let r = 2 * i + 2;
+                let s = i;
+                if (l < n && m_openHeap[l][0] < m_openHeap[s][0]) s = l;
+                if (r < n && m_openHeap[r][0] < m_openHeap[s][0]) s = r;
+                if (s === i) break;
+                let tmp = m_openHeap[s]; m_openHeap[s] = m_openHeap[i]; m_openHeap[i] = tmp;
+                i = s;
+            }
+        }
+        return top;
+    }
    
     let getCurrentNodeList = function asroad_getCurrentNodeList()
     {
@@ -895,23 +936,7 @@ let ASROAD = (function ()
     
     let identifyNextNode = function asroad_identifyNextNode()
     {
-        const nodeList = getCurrentNodeList();
-        let nodeCount = nodeList.length;
-        let minCost = -1;
-        let minNode = -1;
-        // skip the first node = a building
-        for (let i = 1; i < nodeCount; i++)
-        {
-            let node = nodeList[i];
-            let localCost = getTraversalCost(node);
-            let isAdded = isTraversalAdded(node);
-            if (isAdded && (minNode == -1 || localCost <= getTraversalCost(minNode)))
-            {
-                minNode = node;
-                minCost = localCost;
-            }
-        }
-        return minNode;
+        return heapPop();
     }
     
     let traverseNextNode = function (node)
@@ -1022,6 +1047,7 @@ let ASROAD = (function ()
             clearTraversal(node, i);
         }
         m_cacheNodeRefresh = true;
+        m_openHeap = [];
     }
     public.EXPORT.resetTraversalPath = public.resetTraversalPath;
     

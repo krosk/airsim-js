@@ -20,20 +20,10 @@ def get_git_version():
     except Exception:
         return "unknown"
 
-_version = get_git_version()
+with open('version.txt', 'w') as f:
+    f.write(get_git_version())
 
-class Handler(http.server.SimpleHTTPRequestHandler):
-    def do_GET(self):
-        if self.path == '/version':
-            body = _version.encode()
-            self.send_response(200)
-            self.send_header('Content-Type', 'text/plain')
-            self.send_header('Content-Length', len(body))
-            self.end_headers()
-            self.wfile.write(body)
-        else:
-            super().do_GET()
-
+Handler = http.server.SimpleHTTPRequestHandler
 Handler.extensions_map.update({
     '.wasm': 'application/wasm',
 })

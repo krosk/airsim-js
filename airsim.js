@@ -349,6 +349,8 @@ let ASMAP = (function ()
         }
         let infoCallbackData = [public.C_NAME, 'updateEngineInfo'];
         PSEENGINE.getInfoZone(infoCallbackData);
+        let timingCallbackData = [public.C_NAME, 'updateEngineTimingInfo'];
+        PSEENGINE.getInfoTiming(timingCallbackData);
     }
     
     let m_lastTick = 0;
@@ -373,10 +375,16 @@ let ASMAP = (function ()
     }
     
     let m_engineData = [];
-    
+    let m_engineTimingData = [0, 0, 0];
+
     public.updateEngineInfo = function asmap_updateEngineInfo(data)
     {
         m_engineData = data;
+    }
+
+    public.updateEngineTimingInfo = function asmap_updateEngineTimingInfo(data)
+    {
+        m_engineTimingData = data;
     }
     
     public.getDebugState = function asmap_getDebugState()
@@ -384,8 +392,9 @@ let ASMAP = (function ()
         let tickElapsed = 'k(' + m_lastTick + ') ';
         let tickSpeed = 'K(' + m_lastTickDelta + ') ';
         let computeTimeBudget = 'T(' + m_computeTimeBudget + ') ';
+        let timing = 'P(z' + m_engineTimingData[0] + '/r' + m_engineTimingData[1] + '/c' + m_engineTimingData[2] + ') ';
         let engineData = 'O(' + m_engineData + ') ';
-        return tickElapsed + tickSpeed + computeTimeBudget + engineData;
+        return tickElapsed + tickSpeed + computeTimeBudget + timing + engineData;
     }
     
     let doZoneViewSingleClick = function asmap_doZoneViewSingleClick(x, y)

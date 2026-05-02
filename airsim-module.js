@@ -222,7 +222,9 @@ var ASZONE = (function ()
     }
     
     let m_lastTickTime = 0;
-    
+    let m_accumZone = 0, m_accumRoad = 0, m_accumRico = 0;
+    let m_lastZone = 0, m_lastRoad = 0, m_lastRico = 0;
+
     public.update = function aszone_update(timeLimit, time)
     {
         const tickSpeed = ASSTATE.getTickSpeed();
@@ -233,12 +235,24 @@ var ASZONE = (function ()
         }
         const frame = ASSTATE.getFrame();
         let engineComplete = true;
+        let t0 = Date.now();
         engineComplete &= engineComplete ? public.updateZone(tick, timeLimit) : false;
+        m_accumZone += Date.now() - t0;
+        let t1 = Date.now();
         engineComplete &= engineComplete ? ASROAD.updateRoad(tick, timeLimit) : false;
+        m_accumRoad += Date.now() - t1;
+        let t2 = Date.now();
         engineComplete &= engineComplete ? ASRICO.updateRico(tick, timeLimit) : false;
+        m_accumRico += Date.now() - t2;
         const enoughTimeElapsed = Math.abs(time - m_lastTickTime) >= tickSpeed;
         if (engineComplete && enoughTimeElapsed)
         {
+            m_lastZone = m_accumZone;
+            m_lastRoad = m_accumRoad;
+            m_lastRico = m_accumRico;
+            m_accumZone = 0;
+            m_accumRoad = 0;
+            m_accumRico = 0;
             let newTick = tick + 1;
             commitStats();
             ASRICO.setNextTick(newTick);
@@ -253,6 +267,12 @@ var ASZONE = (function ()
         return tick;
     }
     public.EXPORT.update = public.update;
+
+    public.getInfoTiming = function aszone_getInfoTiming()
+    {
+        return [m_lastZone, m_lastRoad, m_lastRico];
+    }
+    public.EXPORT.getInfoTiming = public.getInfoTiming;
     
     let commitStats = function aszone_commitStats()
     {

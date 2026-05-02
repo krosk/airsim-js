@@ -581,6 +581,7 @@ let ASMAPUI = (function ()
     
     public.initialize = function asmapui_initialize()
     {
+        if (m_uiLayer) { g_app.stage.removeChild(m_uiLayer); }
         m_uiLayer = new PIXI.Container();
         g_app.stage.addChild(m_uiLayer);
         m_uiLayer.interactive = false;
@@ -1239,6 +1240,7 @@ let MMAPBATCH = (function ()
 
     public.initialize = function mmapbatch_initialize()
     {
+        if (m_mapLayer) { g_app.stage.removeChild(m_mapLayer); }
         m_mapLayer = new PIXI.Container();
         g_app.stage.addChild(m_mapLayer);
         m_mapLayer.interactive = true;

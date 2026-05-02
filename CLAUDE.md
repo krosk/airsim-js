@@ -171,13 +171,16 @@ Road display IDs encode the 4-neighbour connection as a bitmask in the name: `NE
 
 ## Testing
 
+WASM artifacts (`rust/asengine.js`, `rust/asengine_bg.wasm`) are gitignored and built by CI. Rebuild them before running tests:
+
 ```bash
-npm test   # vitest run — completes in under 500 ms, no browser required
+bash setup.sh   # builds WASM, checks wasm-bindgen-cli version, installs npm deps if absent
+npm test        # vitest run — completes in under 500 ms, no browser required
 ```
 
-Tests live in `test/`. The suite uses **vitest** and **node-canvas** (npm devDependencies). Tile generation code (`pse-tile.js`, `airsim-tile-const.js`, `airsim-tile.js`) is loaded into a Node.js `vm` context with `node-canvas` injected as the canvas factory via `PSETILE.setCanvasFactory`.
+Tests live in `test/`. The suite uses **vitest** and **node-canvas** (npm devDependencies).
 
-Test groups in `test/tile-generation.test.js`:
+**`test/tile-generation.test.js`** — loads tile code (`pse-tile.js`, `airsim-tile-const.js`, `airsim-tile.js`) into a Node.js `vm` context with `node-canvas` injected as the canvas factory via `PSETILE.setCanvasFactory`.
 
 | Group | What it covers |
 |---|---|
@@ -189,9 +192,20 @@ Test groups in `test/tile-generation.test.js`:
 
 The integration group verifies the full pipeline: all tile libraries → `initializeTextureFor` → `buildAtlas` → PIXI stub receives a correctly-sized atlas canvas and populates `PIXI.utils.TextureCache` with sub-textures that have valid frame rectangles. Frames are checked: icon tiles must have `frame.h = 32`, map tiles must have `frame.h = 100` (> 48, so the ASMAPUI crop path is exercised).
 
-**Not covered:** browser rendering correctness, PIXI WebGL texture upload, actual visual appearance.
+**`test/simulation-tick.test.js`** — loads the full engine stack (WASM + `airsim-module.js`) into a Node.js `vm` context and verifies single-tick behavior.
 
-**vm context constraint:** Top-level module declarations in IIFE files must use `var` (not `let`) to become properties of the vm context sandbox. Currently `ASTILE`, `ASICON_TILE`, `ASTILE_ID`, and `PSETILE` use `var`; all others in `airsim-tile.js` use `let` and are only accessible within the same `runInContext` call.
+| Group | What it covers |
+|---|---|
+| Zone request deferred | `setZone` writes request; zone reads as DIRT until tick fires |
+| Tick counter | `getTick()` starts at 0, increments by 1 per `ASZONE.update(-1, t)` call |
+| Road connectivity | Road-to-road connection sets `ROAD_CONNECT` bitmask; adjacent buildings inherit access |
+| RICO traversal | Demand/offer slots non-zero after one tick (traversal ran) |
+
+**Not covered:** browser rendering correctness, PIXI WebGL texture upload, actual visual appearance, multi-tick simulation progression.
+
+**vm context constraint:** Top-level module declarations in IIFE files must use `var` (not `let`) to become properties of the vm context sandbox. In `airsim-tile.js`: `ASTILE`, `ASICON_TILE`, `ASTILE_ID`, `PSETILE` use `var`; all others use `let` and are only accessible within the same `runInContext` call. In `airsim-module.js`: `ASSTATE`, `ASROADW`, `ASWENGINE`, `ASZONE`, `ASROAD`, `ASRICO`, `ASTILEVIEW` use `var`.
+
+**wasm-bindgen cross-realm constraint:** `wasm_bindgen.initSync({ module: bytes })` must be called from inside `runInContext`, not from the host. The host realm's `Object.prototype` differs from the vm realm's, so the plain-object argument fails the identity check inside `initSync` and causes `WebAssembly.Module()` to receive the whole object instead of the bytes. Inject raw bytes as a sandbox property and call `initSync` via `runInContext`.
 
 ## Known bug
 

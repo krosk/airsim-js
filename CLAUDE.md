@@ -151,6 +151,8 @@ Road display IDs encode the 4-neighbour connection as a bitmask in the name: `NE
 
 **`ASMAPUI` crops map tile textures to `C_ICON_HEIGHT = 48` px.** When assembling toolbar sprites, `createSprite` checks `texture.height > C_ICON_HEIGHT`. If true (map tiles, frameH = 100), it creates a cropped `PIXI.Texture` showing the bottom 48 px of the atlas frame — the isometric diamond region. Icon tiles (frameH = 32 ≤ 48) are used as-is. If you add a new tile library whose atlas frames fall between 33 and 48 px, `createSprite` will use them unmodified; if frames exceed 100 px, the crop arithmetic still works but the visual result depends on the tile content.
 
+**`setPreset` must include at least one `POWLOW` tile.** `POWLOW` at level 0 contributes `DEMAND_P = -200`, satisfying the power demand of all other zone types as they level up. A preset with no power source leaves every zone stuck at level 0 and the simulation makes no visible progress.
+
 **All `fetch()` calls in JS must use relative paths, not absolute paths.** The site is deployed at `https://krosk.github.io/airsim-js/` (a subdirectory, not the domain root). An absolute path like `/version.txt` resolves to `https://krosk.github.io/version.txt`, which 404s. Use `fetch('version.txt')` (no leading slash). This applies to any resource fetched at runtime: WASM, JSON, text files.
 
 ## Testing
@@ -197,6 +199,8 @@ When migrating a JS function to Rust: remove it from `airsim-module.js`, add the
 ## Map size
 
 The map is initialized at 16×16 in `StartState()` in `airsim.js:197`. This is the only hardcoded size. `ASSTATE`, `MMAPDATA`, and the batch renderer all accept arbitrary `w`/`h` — the rendering layer has not been tested beyond small maps but the architecture supports it.
+
+`ASZONE.setPreset()` (triggered by the BENC toolbar button) fills the 16×16 grid with a preset layout: road grid at every column/row where `x % 5 == 0` or `y % 5 == 0` (x, y ∈ {0, 5, 10, 15}); RESLOW in columns x=1–4; COMLOW in columns x=6–9; INDLOW in columns x=11–14; one POWLOW tile at (11, 1). The POWLOW tile is required — without it no zone can advance past level 0.
 
 ## Rendering architecture
 

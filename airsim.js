@@ -175,7 +175,7 @@ function InitializeDebugOverlay()
     g_version.style.top = 0 + "px";
     g_version.innerHTML = "...";
     document.body.appendChild(g_version);
-    fetch('version.txt').then(r => r.text()).then(v => { g_version.innerHTML = v; });
+    fetch('version.txt').then(r => r.ok ? r.text() : Promise.reject(r.status)).then(v => { g_version.textContent = v.trim(); }).catch(e => { g_version.textContent = 'v?'; });
 }
 
 function LoaderProgressHandler(loader, resource)

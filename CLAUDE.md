@@ -137,7 +137,13 @@ Road display IDs encode the 4-neighbour connection as a bitmask in the name: `NE
 
 **`setZone` is not immediate.** `ASZONE.setZone(x, y, zone)` writes a zone request into `ASSTATE_C::ZONE_REQUEST`. The request is applied during `updateZone` in the next tick cycle. Never read back the zone immediately after writing it and expect to see the new value.
 
-**`ASSTATE` is created once.** `ASWENGINE.initializeModule()` calls `ASSTATE.new()` and `ASROAD.new()`. These are Rust structs; calling `new()` again creates a second independent instance and discards the old one. There is no global singleton guard — don't call `initializeModule` more than once.
+**`ASSTATE` is replaced on reinit, not reset.** `ASWENGINE.initializeModule()` calls `ASSTATE.new()` and `ASROAD.new()`. These are Rust structs; calling `new()` again creates a second independent instance and discards the old one. `ASMAP.reinitialize(w, h)` intentionally calls `initializeModule` again to replace the engine with a new map — this is the supported path for runtime size changes. Do not call `initializeModule` in any other context.
+
+**`ASMAP.reinitialize` vs `ASMAP.initialize`.** `ASMAP.initialize` is for startup only — it sets up the PIXI renderer, atlas textures, and toolbar UI. `ASMAP.reinitialize(w, h)` is for runtime map replacement — it calls `PSEENGINE.initializeModule`, `MMAPDATA.initializeMapTableSize`, and `MMAPDATA.setTileView`. Never call `ASMAP.initialize` at runtime to resize the map; it will recreate the PIXI renderer and texture atlas, breaking the running session.
+
+**LOAD must extract map size from the serialized array before calling `setSerializable`.** Positions 0 and 1 of the `ASSTATE` flat array are `ASSTATE_G::SIZE_X` and `ASSTATE_G::SIZE_Y`. When loading a saved map, parse the JSON array, read `stateArray[0]` and `stateArray[1]` as `w` and `h`, call `MMAPDATA.initializeMapTableSize(w, h)`, then call `PSEENGINE.setSerializable`. Skipping the resize step leaves `MMAPDATA` sized for the previous map, causing out-of-bounds tile lookups on maps of different sizes.
+
+**Adding a toolbar menu group requires updating five tables.** Every new group needs an entry in: `C_TABLE` (tile ID array), `C_LEVEL` (depth 0/1/2), `C_STATEFUL` (alpha feedback on/off), `C_VISIBLE_BIND` (parent group + active index, or null for top-level), and a touch handler registered in `ASMAPUI.initialize` via `C_SPRITE_TOUCH`. Missing any one of these silently omits the group or breaks its visibility logic.
 
 **Serialization resets road state.** `setSerializable` restores ASSTATE from JSON and then calls `ASROAD.resetInternal()` because road adjacency structures in JS are derived from zone data and must be rebuilt, not stored.
 
@@ -200,7 +206,7 @@ When migrating a JS function to Rust: remove it from `airsim-module.js`, add the
 
 The map is initialized at 16×16 in `StartState()` in `airsim.js:197`. This is the only hardcoded size. `ASSTATE`, `MMAPDATA`, and the batch renderer all accept arbitrary `w`/`h` — the rendering layer has not been tested beyond small maps but the architecture supports it.
 
-`ASZONE.setPreset()` (triggered by the BENC toolbar button) fills the 16×16 grid with a preset layout: road grid at every column/row where `x % 5 == 0` or `y % 5 == 0` (x, y ∈ {0, 5, 10, 15}); RESLOW in columns x=1–4; COMLOW in columns x=6–9; INDLOW in columns x=11–14; POWLOW tiles at (11, 1) and (12, 1). At least one POWLOW tile is required — without it no zone can advance past level 0. Two are needed because power demand grows as buildings level up and a single tile is insufficient for a fully developed 16×16 map.
+`ASZONE.setPreset()` (triggered by the B16/B32/B64 benchmark buttons) fills the grid using a repeating 15-column pattern so the layout tiles correctly at any map size. For each cell `(x, y)`: road at every column/row where `x % 5 == 0` or `y % 5 == 0`; `xMod = x % 15`; RESLOW where `xMod ∈ [1,4]`; COMLOW where `xMod ∈ [6,9]`; POWLOW where `(xMod == 11 || xMod == 12) && y == 1`; INDLOW where `xMod ∈ [11,14]` (excluding POWLOW positions). Two POWLOW tiles per 15-column repeat are required — power demand grows as buildings level up and one tile is insufficient for a fully developed block.
 
 ## Rendering architecture
 

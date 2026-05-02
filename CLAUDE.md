@@ -109,6 +109,10 @@ The `ASSTATE_C` fields 5–10 are **aliased**: the same slots serve as road trav
 
 Returning a `Box<[i16]>` from Rust is slower than making N individual scalar calls and assembling the array in JS. This was measured and documented in `wasm_notes.txt` during development. The entire Rust API surface follows the scalar pattern as a result. Do not change this without re-benchmarking.
 
+### Known performance bottleneck: RICO traversal is O(R²)
+
+`identifyNextNode` in `ASROAD` (`airsim-module.js:896`) finds the minimum-cost unvisited node by scanning the entire road node list linearly — O(R) per Dijkstra step, O(R²) per building traversal. With B buildings and R road tiles both scaling with map area, total tick cost grows superlinearly. Benchmark: K≈140ms on 16×16, K≈1400ms on 32×32, K≈14000ms on 64×64. Two fixes are available and independent: replace the scan with a JS min-heap (no Rust rebuild), or move the traversal loop to Rust with `BinaryHeap` (eliminates JS↔WASM overhead too). See `docs/decisions/004-rico-traversal-performance.md` for full analysis.
+
 ### Tick and frame
 
 The simulation runs on ticks. A tick advances when all three subsystems (`updateZone`, `updateRoad`, `updateRico`) have fully processed every cell in the current tick within the time budget. If time runs out mid-tick, `ASSTATE_G::FRAME` increments and processing resumes next frame from where it left off (progress is tracked in `ASSTATE_G::TICK_PROGRESS`). A tick is never skipped; it just spans multiple frames under load.
@@ -201,6 +205,8 @@ The JS-to-WASM migration is in progress. Current state:
 | `ASRICO` (RCI demand/supply, density levels) | JS |
 
 When migrating a JS function to Rust: remove it from `airsim-module.js`, add the `#[wasm_bindgen]` impl in `jsentry.rs`, rebuild, and verify the no-worker path first before testing the worker path.
+
+**Next migration priority: ASRICO traversal + ASROAD Dijkstra loop.** All data they access (`ROAD_CONNECT_TO`, `ROAD_TRAVERSAL_*`, `RICO_DEMAND_OFFER_*`) already lives in `ASSTATE.cells`. Moving the traversal loop to Rust eliminates JS↔WASM boundary overhead per road step and enables a native `BinaryHeap`, fixing the O(R²) bottleneck. `RICO_STEP` in `ASSTATE` becomes unused once the state machine runs atomically in Rust. Interruptibility shifts from per-road-tile to per-building — acceptable given Rust traversal speed. `getRicoDemandOffer`/`setRicoDemandOffer` (Box<[i16]>) should be replaced with scalar field accessors at the same time.
 
 ## Map size
 

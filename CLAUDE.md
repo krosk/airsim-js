@@ -2,6 +2,10 @@
 
 SimCity-style city simulation running in the browser. Rust/WASM owns the authoritative state; JavaScript orchestrates rendering, UI, and game logic on top of it.
 
+## Git workflow
+
+Always work directly on `master`. Do not create feature branches. Commit and push to `master`.
+
 ## Running
 
 ```bash

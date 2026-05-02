@@ -9,6 +9,8 @@ python3 server.py   # required — plain file:// breaks WASM loading due to CORS
 # open http://localhost:8000
 ```
 
+`server.py` also writes `version.txt` (git short hash + commit date) to the project root on startup. The file is gitignored and served as a static file by `SimpleHTTPRequestHandler`. The deployed Pages build generates it via a step in `.github/workflows/deploy.yml` before uploading the artifact.
+
 No build step for JS. To rebuild WASM after editing `rust/src/jsentry.rs`:
 
 ```bash
@@ -148,6 +150,8 @@ Road display IDs encode the 4-neighbour connection as a bitmask in the name: `NE
 **Icon tile canvases must have height = `texSizeY`.** `ASICON_TILE` functions pass `texSizeY` as the optional `canvasHeight` argument to `PSETILE.createTexture`, producing 64×32 canvases. This becomes the PIXI sub-texture `frameH`. Shape helpers (`addSquare`, `addPlay`, etc.) center geometry at `texSizeY / 2 = 16`, not `PSETILE.C_TILE_CANVAS_HEIGHT / 2 = 50`. Using 50 as the center places shapes outside the visible canvas area.
 
 **`ASMAPUI` crops map tile textures to `C_ICON_HEIGHT = 48` px.** When assembling toolbar sprites, `createSprite` checks `texture.height > C_ICON_HEIGHT`. If true (map tiles, frameH = 100), it creates a cropped `PIXI.Texture` showing the bottom 48 px of the atlas frame — the isometric diamond region. Icon tiles (frameH = 32 ≤ 48) are used as-is. If you add a new tile library whose atlas frames fall between 33 and 48 px, `createSprite` will use them unmodified; if frames exceed 100 px, the crop arithmetic still works but the visual result depends on the tile content.
+
+**All `fetch()` calls in JS must use relative paths, not absolute paths.** The site is deployed at `https://krosk.github.io/airsim-js/` (a subdirectory, not the domain root). An absolute path like `/version.txt` resolves to `https://krosk.github.io/version.txt`, which 404s. Use `fetch('version.txt')` (no leading slash). This applies to any resource fetched at runtime: WASM, JSON, text files.
 
 ## Testing
 

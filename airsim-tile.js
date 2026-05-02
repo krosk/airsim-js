@@ -432,7 +432,10 @@ var ASICON_TILE = (function ()
         [C.STEP]  : getColor(255, 192, 0),
         [C.SAVE]  : getColor(64,  64,  255),
         [C.LOAD]  : getColor(64,  255, 64),
-        [C.BENC]  : getColor(255, 64,  64)
+        [C.BENC]  : getColor(255, 64,  64),
+        [C.B16]   : getColor(255, 128, 0),
+        [C.B32]   : getColor(255, 128, 0),
+        [C.B64]   : getColor(255, 128, 0)
     }
 
     // Create a blank icon canvas sized texSizeX × texSizeY with an isometric base drawn.
@@ -589,7 +592,10 @@ var ASICON_TILE = (function ()
         [C.STEP]  : addTriangleBreak,
         [C.SAVE]  : addText("SAVE"),
         [C.LOAD]  : addText("LOAD"),
-        [C.BENC]  : addText("BENC")
+        [C.BENC]  : addText("BENC"),
+        [C.B16]   : addText("B16"),
+        [C.B32]   : addText("B32"),
+        [C.B64]   : addText("B64")
     }
 
     return public;

@@ -305,23 +305,24 @@ let ASZONE = (function ()
                 let resId = C.RESLOW;
                 let comId = C.COMLOW;
                 let indId = C.INDLOW;
+                let xMod = x % 15;
                 if (x % 5 == 0 || y % 5 == 0)
                 {
                     paintZone(x, y, roadId);
                 }
-                else if (x < 5)
+                else if (xMod >= 1 && xMod <= 4)
                 {
-                    paintZone(x, y, resId)
+                    paintZone(x, y, resId);
                 }
-                else if (x < 10)
+                else if (xMod >= 6 && xMod <= 9)
                 {
                     paintZone(x, y, comId);
                 }
-                else if (x == 11 && y == 1 || x == 12 && y == 1)
+                else if ((xMod == 11 || xMod == 12) && y == 1)
                 {
                     paintZone(x, y, C.POWLOW);
                 }
-                else if (x < 15)
+                else if (xMod >= 11 && xMod <= 14)
                 {
                     paintZone(x, y, indId);
                 }

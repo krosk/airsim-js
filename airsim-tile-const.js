@@ -83,7 +83,10 @@ var ASTILE_ID = (function ()
         STEP: 935,
         SAVE: 941,
         LOAD: 942,
-        BENC: 943
+        BENC: 943,
+        B16: 944,
+        B32: 945,
+        B64: 946
     };
     
     public.C_TILE_DISPLAY_BASE_MODULO = 100;

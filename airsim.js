@@ -523,42 +523,53 @@ let ASMAPUI = (function ()
         C.LOAD,
         C.BENC
     ];
-    
+
+    const C_BENCH_DATA = [
+        C.B16,
+        C.B32,
+        C.B64
+    ];
+
     const C_TABLE = {
         0 : C_MAIN_DATA,
         1 : C_VIEW_DATA,
         2 : C_ZONE_DATA,
         3 : C_PLAY_DATA,
-        4 : C_SAVE_DATA
+        4 : C_SAVE_DATA,
+        5 : C_BENCH_DATA
     }
     const C_MAIN = 0;
     const C_VIEW = 1;
     const C_ZONE = 2;
     const C_PLAY = 3;
     const C_SAVE = 4;
-    
+    const C_BENCH = 5;
+
     let C_LEVEL = {
-        [C_MAIN] : 0,
-        [C_VIEW] : 1,
-        [C_ZONE] : 1,
-        [C_PLAY] : 1,
-        [C_SAVE] : 1
+        [C_MAIN]  : 0,
+        [C_VIEW]  : 1,
+        [C_ZONE]  : 1,
+        [C_PLAY]  : 1,
+        [C_SAVE]  : 1,
+        [C_BENCH] : 2
     };
-    
+
     let C_STATEFUL = {
-        [C_MAIN] : true,
-        [C_VIEW] : true,
-        [C_ZONE] : true,
-        [C_PLAY] : true,
-        [C_SAVE] : false
+        [C_MAIN]  : true,
+        [C_VIEW]  : true,
+        [C_ZONE]  : true,
+        [C_PLAY]  : true,
+        [C_SAVE]  : true,
+        [C_BENCH] : true
     };
-    
+
     let C_VISIBLE_BIND = {
-        [C_MAIN] : [-1, -1],
-        [C_VIEW] : [0, 0],
-        [C_ZONE] : [0, 1],
-        [C_PLAY] : [0, 2],
-        [C_SAVE] : [0, 3]
+        [C_MAIN]  : [-1, -1],
+        [C_VIEW]  : [0, 0],
+        [C_ZONE]  : [0, 1],
+        [C_PLAY]  : [0, 2],
+        [C_SAVE]  : [0, 3],
+        [C_BENCH] : [C_SAVE, 2]
     };
     
     let m_uiLayer;
@@ -1002,11 +1013,7 @@ let ASMAPUI = (function ()
             let callbackData = [ASMAPUI.C_NAME, 'loadDataResponse'];
             PSEENGINE.setSerializable(callbackData, stateData);
         }
-        else if (saveId == C_DEF.BENC)
-        {
-            let callbackData = [ASMAPUI.C_NAME, 'loadDataResponse'];
-            PSEENGINE.setPreset(callbackData);
-        }
+        // BENC reveals the C_BENCH size submenu; actual preset is triggered there
     }
     
     public.saveDataResponse = function asmapui_saveDataResponse(saveData)
@@ -1052,10 +1059,22 @@ let ASMAPUI = (function ()
         }
     }
     
+    let onBenchSpritePress = function asmapui_onBenchSpritePress(benchId)
+    {
+        let C_DEF = ASTILE_ID.C_TILE_ICON;
+        let size = 16;
+        if (benchId == C_DEF.B32) size = 32;
+        else if (benchId == C_DEF.B64) size = 64;
+        let callbackData = [ASMAPUI.C_NAME, 'loadDataResponse'];
+        ASMAP.initialize(size, size);
+        PSEENGINE.setPreset(callbackData);
+    }
+
     let C_SPRITE_TOUCH = {
-        [C_VIEW] : onViewSpritePress,
-        [C_SAVE] : onSaveSpritePress,
-        [C_PLAY] : onPlaySpritePress
+        [C_VIEW]  : onViewSpritePress,
+        [C_SAVE]  : onSaveSpritePress,
+        [C_PLAY]  : onPlaySpritePress,
+        [C_BENCH] : onBenchSpritePress
     };
     
     return public;

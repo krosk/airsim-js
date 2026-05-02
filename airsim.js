@@ -1017,6 +1017,10 @@ let ASMAPUI = (function ()
         else if (saveId == C_DEF.LOAD)
         {
             let stateData = localStorage.getItem('ASSTATE');
+            let stateArray = JSON.parse(stateData);
+            let w = stateArray[0];
+            let h = stateArray[1];
+            MMAPDATA.initializeMapTableSize(w, h);
             let callbackData = [ASMAPUI.C_NAME, 'loadDataResponse'];
             PSEENGINE.setSerializable(callbackData, stateData);
         }

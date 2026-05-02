@@ -1,7 +1,7 @@
 # ADR 004: RICO traversal performance — options analysis
 
 **Date:** 2026-05-02  
-**Status:** Under consideration
+**Status:** Option A implemented; Option C pending Rust migration
 
 ## Context
 
@@ -57,7 +57,9 @@ Move the Dijkstra loop into Rust and use `std::collections::BinaryHeap` for the 
 
 ## Decision
 
-Not yet made. Options A and C are not mutually exclusive: Option A can be implemented first as a measurable baseline without a Rust rebuild, then replaced by Option C as part of the ASRICO/ASROAD Rust migration.
+**Option A implemented** (`airsim-module.js`, commit `40f82b6`). `m_openHeap` is a JS binary min-heap holding `[cost, nodeIndex]` pairs. `expandTraversal` pushes to it; `identifyNextNode` pops. The heap is cleared in `initializeTraversal` and `resetTraversalPath`. `m_cacheNodeList` is unchanged — `resetTraversalPath` still uses it to iterate all visited nodes for cleanup.
+
+Option C remains the next step as part of the ASRICO/ASROAD Rust migration. Options A and C are not mutually exclusive: Option A serves as a measured baseline before the Rust rebuild.
 
 ## Granularity change (Options B and C)
 

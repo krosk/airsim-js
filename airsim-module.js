@@ -8,10 +8,10 @@
 const G_CHECK = true;
 const G_CACHE_NODE = true;
 
-let ASSTATE = {};
-let ASROADW = {};
+var ASSTATE = {};
+var ASROADW = {};
 
-let ASWENGINE = (function ()
+var ASWENGINE = (function ()
 {
     let public = {};
     public.EXPORT = {};
@@ -82,7 +82,7 @@ let ASWENGINE = (function ()
 })();
 
 // ---------------------
-let ASZONE = (function ()
+var ASZONE = (function ()
 {
     let public = {};
     public.EXPORT = {};
@@ -340,7 +340,7 @@ let ASZONE = (function ()
     return public;
 })();
 
-let ASROAD = (function ()
+var ASROAD = (function ()
 {
     let public = {};
     public.EXPORT = {};
@@ -1092,7 +1092,7 @@ let ASROAD = (function ()
     return public;
 })();
 
-let ASRICO = (function ()
+var ASRICO = (function ()
 {
     let public = {};
     public.EXPORT = {};
@@ -1825,7 +1825,7 @@ let ASRICO = (function ()
     return public;
 })();
 
-let ASTILEVIEW = (function ()
+var ASTILEVIEW = (function ()
 {
     let public = {};
     public.EXPORT = {};

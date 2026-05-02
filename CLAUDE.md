@@ -115,6 +115,29 @@ The `ASSTATE_C` fields 5–10 are **aliased**: the same slots serve as road trav
 
 Returning a `Box<[i16]>` from Rust is slower than making N individual scalar calls and assembling the array in JS. This was measured and documented in `wasm_notes.txt` during development. The entire Rust API surface follows the scalar pattern as a result. Do not change this without re-benchmarking.
 
+### RICO level system
+
+Each RICO building has a density level (0–5) stored in `ASSTATE_C::RICO_DENSITY_LEVEL`. Level 0 is the initial unpowered state. Levels 1–5 represent growth stages. `POWLOW` is the exception: it has only level 0 and never levels up.
+
+Each zone+level combination has a property row in `C_RICOPROPERTY` (in `airsim-module.js`) with the shape `[level, traffic, R, I, C, P]`. The sign convention: **negative value = offer** (supply dispatched outward); **positive value = demand** (supply must be received from outside). At level 0, all zones have all R/I/C/P slots at 0 except P=1 — every zone requires power to leave level 0.
+
+Resource flow between zone types at level 1+:
+
+| Zone | Offers | Demands |
+|---|---|---|
+| RESLOW/RESHIG | R (workers) | C (commercial), P (power) |
+| INDLOW/INDHIG | I (industrial goods) | R (workers), P (power) |
+| COMLOW/COMHIG | C (commercial supply) | R (workers), I (industrial goods), P (power) |
+| POWLOW | P (power, −200) | — |
+
+`canLevelUp(index)` returns true when: (1) the next level code exists, (2) `isDemandRicoFilled` — all demand slots ≤ 0, and (3) `isOfferRicoFilled` — all offer slots ≥ 0. Both conditions must hold simultaneously: incoming resources must be fully received and outgoing supply must be fully absorbed.
+
+`canLevelDown(index)` fires when the parent level's demand/offer balance would be unsatisfied at the current state — a building shrinks if it can no longer be supported.
+
+`setInitial(code, index)` is called at the start of each tick for every building (step 0 of `updateRicoTile`). It resets `RICO_DEMAND_OFFER_*` to the property row values for the current level. Demand/offer state therefore does not persist across ticks; it is refilled each tick by traversal.
+
+**All zones require P=1 at level 0.** Changing any zone's level-0 P value to 0 allows it to level up without infrastructure, which is unintended.
+
 ### RICO traversal performance
 
 `identifyNextNode` in `ASROAD` previously scanned the road node list linearly — O(R²) per building traversal, superlinear tick scaling. Replaced with a JS binary min-heap (`m_openHeap`) in `airsim-module.js`. Pre-heap benchmark: K≈140ms on 16×16, K≈1400ms on 32×32, K≈14000ms on 64×64. The remaining gain is moving the traversal loop to Rust with `std::collections::BinaryHeap`, which eliminates JS↔WASM boundary overhead entirely. See `docs/decisions/004-rico-traversal-performance.md` for full analysis and Option C plan.
@@ -203,8 +226,9 @@ The integration group verifies the full pipeline: all tile libraries → `initia
 | Road connectivity | Road-to-road connection sets `ROAD_CONNECT` bitmask; adjacent buildings inherit access |
 | RICO traversal | Demand/offer slots non-zero after one tick (traversal ran) |
 | Building level-up | Density advances when all demand/offer slots are satisfied; blocked without power source or unmet offer |
+| Industry level-up | INDLOW/INDHIG level progression; INDHIG blocked without power; INDLOW blocked without worker supply |
 
-**Not covered:** browser rendering correctness, PIXI WebGL texture upload, actual visual appearance, multi-tick multi-building level-up chains.
+**Not covered:** browser rendering correctness, PIXI WebGL texture upload, actual visual appearance, multi-zone supply chain level-up chains (e.g. RESLOW→INDLOW→COMLOW→RESLOW).
 
 **vm context constraint:** Top-level module declarations in IIFE files must use `var` (not `let`) to become properties of the vm context sandbox. In `airsim-tile.js`: `ASTILE`, `ASICON_TILE`, `ASTILE_ID`, `PSETILE` use `var`; all others use `let` and are only accessible within the same `runInContext` call. In `airsim-module.js`: `ASSTATE`, `ASROADW`, `ASWENGINE`, `ASZONE`, `ASROAD`, `ASRICO`, `ASTILEVIEW` use `var`.
 

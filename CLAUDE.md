@@ -138,7 +138,11 @@ Resource flow between zone types at level 1+:
 
 ### RICO traversal performance
 
-`identifyNextNode` in `ASROAD` previously scanned the road node list linearly — O(R²) per building traversal, superlinear tick scaling. Replaced with a JS binary min-heap (`m_openHeap`) in `airsim-module.js`. Pre-heap benchmark: K≈140ms on 16×16, K≈1400ms on 32×32, K≈14000ms on 64×64. The remaining gain is moving the traversal loop to Rust with `std::collections::BinaryHeap`, which eliminates JS↔WASM boundary overhead entirely. See `docs/decisions/004-rico-traversal-performance.md` for full analysis and Option C plan.
+`identifyNextNode` in `ASROAD` previously scanned the road node list linearly — O(R²) per building traversal, superlinear tick scaling. Replaced first with a JS binary min-heap (`m_openHeap`), then with a full Rust Dijkstra loop using `std::collections::BinaryHeap` in `ASROAD.runTraversal`. Pre-migration benchmark: K≈140ms on 16×16, K≈1400ms on 32×32, K≈14000ms on 64×64. See `docs/decisions/004-rico-traversal-performance.md` for full analysis.
+
+`ASROAD.runTraversal(state, fromX, fromY)` runs the complete Dijkstra for one building atomically and returns a flat `Box<[i32]>` of traversed road node indices. `ASROAD.resetTraversal(state)` clears traversal state for all visited nodes. Both are single WASM calls. The JS `updateRicoTile` step 1 calls `runTraversal`, loops over the returned nodes to dispatch offers, then calls `resetTraversal` — no JS↔WASM crossings inside the traversal loop itself.
+
+`RICO_STEP` in `ASSTATE_G` now has two values: 0 (level-up/down check and demand initialisation) and 1 (traversal and dispatch). The previous four-state machine (including per-road-tile interruption) is removed.
 
 ### Tick and frame
 
@@ -225,13 +229,13 @@ The JS-to-WASM migration is in progress. Current state:
 | Module | Location |
 |---|---|
 | `ASSTATE` (grid cell storage) | Rust — complete |
-| `ASROAD` (road adjacency, car flow, traversal) | Partially Rust — `hasRoad`, `getRoadMaximumCarFlow`, some utilities migrated; update loop still JS |
+| `ASROAD` (road adjacency, car flow, traversal) | Partially Rust — `hasRoad`, `getRoadMaximumCarFlow`, `runTraversal`, `resetTraversal` migrated; road update loop (`updateRoad`) still JS |
 | `ASZONE` (zone management, tick update) | JS |
 | `ASRICO` (RCI demand/supply, density levels) | JS |
 
 When migrating a JS function to Rust: remove it from `airsim-module.js`, add the `#[wasm_bindgen]` impl in `jsentry.rs`, rebuild, and verify the no-worker path first before testing the worker path.
 
-**Next migration priority: ASRICO traversal + ASROAD Dijkstra loop, toward a single-call tick.** All data they access (`ROAD_CONNECT_TO`, `ROAD_TRAVERSAL_*`, `RICO_DEMAND_OFFER_*`) already lives in `ASSTATE.cells`. Moving the traversal loop to Rust eliminates JS↔WASM boundary overhead per road step and enables a native `BinaryHeap`, fixing the O(R²) bottleneck. `RICO_STEP` in `ASSTATE` becomes unused once the state machine runs atomically in Rust. `getRicoDemandOffer`/`setRicoDemandOffer` (Box<[i16]>) should be replaced with scalar field accessors at the same time.
+**Next migration priority: scalar accessors for `getRicoDemandOffer`/`setRicoDemandOffer`, then single-call tick.** The traversal loop is now in Rust, but `dispatchOffer` still calls `getRicoDemandOffer`/`setRicoDemandOffer` O(R × buildings_per_node) times per tick — each call crosses the WASM boundary and allocates a `Box<[i16]>` on the WASM heap (the documented-slow path from `wasm_notes.txt`). Replacing them with four scalar field accessors (`getRicoDemandOfferR/I/C/P`, `setRicoDemandOfferR/I/C/P`) eliminates per-call allocation and is the next bottleneck to address.
 
 The end goal is a single `tick(...)` WASM call per frame that runs all three phases internally, yielding when its budget is exhausted. This eliminates all JS↔WASM boundary crossings during the tick. Interruptibility shifts to per-building granularity — acceptable given Rust traversal speed. The time budget mechanism inside that single call is an open design question; see `docs/decisions/005-simulation-time-budget.md`.
 

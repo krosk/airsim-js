@@ -1,7 +1,7 @@
 # ADR 004: RICO traversal performance — options analysis
 
 **Date:** 2026-05-02  
-**Status:** Option A implemented; Option C pending Rust migration
+**Status:** Option A and Option C implemented
 
 ## Context
 
@@ -57,9 +57,9 @@ Move the Dijkstra loop into Rust and use `std::collections::BinaryHeap` for the 
 
 ## Decision
 
-**Option A implemented** (`airsim-module.js`, commit `40f82b6`). `m_openHeap` is a JS binary min-heap holding `[cost, nodeIndex]` pairs. `expandTraversal` pushes to it; `identifyNextNode` pops. The heap is cleared in `initializeTraversal` and `resetTraversalPath`. `m_cacheNodeList` is unchanged — `resetTraversalPath` still uses it to iterate all visited nodes for cleanup.
+**Option A implemented** (`airsim-module.js`, commit `40f82b6`): JS binary min-heap replacing the linear scan.
 
-Option C remains the next step as part of the ASRICO/ASROAD Rust migration. Options A and C are not mutually exclusive: Option A serves as a measured baseline before the Rust rebuild.
+**Option C implemented** (`rust/src/jsentry.rs`, commit `c84029e`): `ASROAD.runTraversal(state, fromX, fromY) -> Box<[i32]>` runs the full Dijkstra atomically using `std::collections::BinaryHeap`. The visited list is held in a `thread_local! RefCell<Vec<i32>>` so `ASROAD.resetTraversal(state)` can clear state without storing it in `ASSTATE`. All JS traversal helpers (`initializeTraversal`, `expandTraversal`, `getNextStepTraversal`, the JS heap, and ~200 lines of state management) are removed. `updateRicoTile` collapses from four states to two: step 0 (level check and demand init) and step 1 (single `runTraversal` call, dispatch loop, `resetTraversal`).
 
 ## Granularity change (Options B and C)
 

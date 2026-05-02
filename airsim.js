@@ -1242,6 +1242,12 @@ let MMAPBATCH = (function ()
     {
         if (m_mapLayer) { g_app.stage.removeChild(m_mapLayer); }
         m_mapLayer = new PIXI.Container();
+        m_mapSpriteBatch = {};
+        m_mapSpriteBatchCount = 0;
+        m_mapSpriteBatchLifetime = {};
+        m_mapSpriteId = [];
+        m_buildBatchPool = [];
+        m_buildBatchTotalCount = 0;
         g_app.stage.addChild(m_mapLayer);
         m_mapLayer.interactive = true;
         m_mapLayer.on('pointerdown', MMAPTOUCH.onMapDisplayDragStart);

@@ -146,6 +146,8 @@ The simulation runs on ticks. A tick advances when all three subsystems (`update
 
 `tickSpeed = -1` pauses the simulation (zone update returns immediately).
 
+The debug overlay shows per-phase timing as `P(zX/rY/cZ)` — cumulative milliseconds spent in zone, road, and rico updates over the last completed tick. Values accumulate across frames and are snapshotted when the tick advances. Rico updates dominate on non-trivial maps.
+
 ### Tile ID namespaces
 
 Tile IDs are integers partitioned by range — different ranges mean different things and must not overlap:
@@ -229,7 +231,9 @@ The JS-to-WASM migration is in progress. Current state:
 
 When migrating a JS function to Rust: remove it from `airsim-module.js`, add the `#[wasm_bindgen]` impl in `jsentry.rs`, rebuild, and verify the no-worker path first before testing the worker path.
 
-**Next migration priority: ASRICO traversal + ASROAD Dijkstra loop.** All data they access (`ROAD_CONNECT_TO`, `ROAD_TRAVERSAL_*`, `RICO_DEMAND_OFFER_*`) already lives in `ASSTATE.cells`. Moving the traversal loop to Rust eliminates JS↔WASM boundary overhead per road step and enables a native `BinaryHeap`, fixing the O(R²) bottleneck. `RICO_STEP` in `ASSTATE` becomes unused once the state machine runs atomically in Rust. Interruptibility shifts from per-road-tile to per-building — acceptable given Rust traversal speed. `getRicoDemandOffer`/`setRicoDemandOffer` (Box<[i16]>) should be replaced with scalar field accessors at the same time.
+**Next migration priority: ASRICO traversal + ASROAD Dijkstra loop, toward a single-call tick.** All data they access (`ROAD_CONNECT_TO`, `ROAD_TRAVERSAL_*`, `RICO_DEMAND_OFFER_*`) already lives in `ASSTATE.cells`. Moving the traversal loop to Rust eliminates JS↔WASM boundary overhead per road step and enables a native `BinaryHeap`, fixing the O(R²) bottleneck. `RICO_STEP` in `ASSTATE` becomes unused once the state machine runs atomically in Rust. `getRicoDemandOffer`/`setRicoDemandOffer` (Box<[i16]>) should be replaced with scalar field accessors at the same time.
+
+The end goal is a single `tick(...)` WASM call per frame that runs all three phases internally, yielding when its budget is exhausted. This eliminates all JS↔WASM boundary crossings during the tick. Interruptibility shifts to per-building granularity — acceptable given Rust traversal speed. The time budget mechanism inside that single call is an open design question; see `docs/decisions/005-simulation-time-budget.md`.
 
 ## Map size
 

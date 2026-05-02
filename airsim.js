@@ -261,6 +261,13 @@ let ASMAP = (function ()
         ASMAPUI.initialize();
     }
 
+    public.reinitialize = function asmap_reinitialize(w, h)
+    {
+        PSEENGINE.initializeModule(undefined, w, h);
+        MMAPDATA.initializeMapTableSize(w, h);
+        MMAPDATA.setTileView(ASTILEVIEW.C_TILEVIEW.ZONE);
+    }
+
     let m_computeTimeBudget = 1;
     // ideally this only process
     // mmaprender.update
@@ -581,7 +588,6 @@ let ASMAPUI = (function ()
     
     public.initialize = function asmapui_initialize()
     {
-        if (m_uiLayer) { g_app.stage.removeChild(m_uiLayer); }
         m_uiLayer = new PIXI.Container();
         g_app.stage.addChild(m_uiLayer);
         m_uiLayer.interactive = false;
@@ -1067,7 +1073,7 @@ let ASMAPUI = (function ()
         if (benchId == C_DEF.B32) size = 32;
         else if (benchId == C_DEF.B64) size = 64;
         let callbackData = [ASMAPUI.C_NAME, 'loadDataResponse'];
-        ASMAP.initialize(size, size);
+        ASMAP.reinitialize(size, size);
         PSEENGINE.setPreset(callbackData);
     }
 
@@ -1242,12 +1248,6 @@ let MMAPBATCH = (function ()
     {
         if (m_mapLayer) { g_app.stage.removeChild(m_mapLayer); }
         m_mapLayer = new PIXI.Container();
-        m_mapSpriteBatch = {};
-        m_mapSpriteBatchCount = 0;
-        m_mapSpriteBatchLifetime = {};
-        m_mapSpriteId = [];
-        m_buildBatchPool = [];
-        m_buildBatchTotalCount = 0;
         g_app.stage.addChild(m_mapLayer);
         m_mapLayer.interactive = true;
         m_mapLayer.on('pointerdown', MMAPTOUCH.onMapDisplayDragStart);

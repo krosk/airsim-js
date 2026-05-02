@@ -6,6 +6,8 @@ SimCity-style city simulation running in the browser. Rust/WASM owns the authori
 
 Always work directly on `master`. Do not create feature branches. Commit and push to `master`.
 
+Every commit must use `--author="Alexis He <alexis.yuhe@gmail.com>"` and include a `Co-authored-by: Claude <noreply@anthropic.com>` trailer in the message body. Do not append a session URL to commit messages.
+
 ## Running
 
 ```bash

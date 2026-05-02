@@ -166,16 +166,7 @@ function InitializeDebugOverlay()
     g_counter.style.left = 100 + "px";
     g_counter.style.top = 0 + "px";
 
-    let g_version = document.createElement("div");
-    g_version.style.position = "absolute";
-    g_version.style.color = "#0ff";
-    g_version.style.fontSize = "12px";
-    g_version.style.userSelect = "none";
-    g_version.style.left = 0 + "px";
-    g_version.style.top = 0 + "px";
-    g_version.innerHTML = "...";
-    document.body.appendChild(g_version);
-    fetch('version.txt').then(r => r.ok ? r.text() : Promise.reject(r.status)).then(v => { g_version.textContent = v.trim(); }).catch(e => { g_version.textContent = 'v?'; });
+    fetch('version.txt').then(r => r.ok ? r.text() : Promise.reject(r.status)).then(v => { console.log(v.trim()); }).catch(e => { console.log('v?'); });
 }
 
 function LoaderProgressHandler(loader, resource)

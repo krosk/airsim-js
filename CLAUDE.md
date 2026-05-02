@@ -200,7 +200,7 @@ When migrating a JS function to Rust: remove it from `airsim-module.js`, add the
 
 The map is initialized at 16×16 in `StartState()` in `airsim.js:197`. This is the only hardcoded size. `ASSTATE`, `MMAPDATA`, and the batch renderer all accept arbitrary `w`/`h` — the rendering layer has not been tested beyond small maps but the architecture supports it.
 
-`ASZONE.setPreset()` (triggered by the BENC toolbar button) fills the 16×16 grid with a preset layout: road grid at every column/row where `x % 5 == 0` or `y % 5 == 0` (x, y ∈ {0, 5, 10, 15}); RESLOW in columns x=1–4; COMLOW in columns x=6–9; INDLOW in columns x=11–14; one POWLOW tile at (11, 1). The POWLOW tile is required — without it no zone can advance past level 0.
+`ASZONE.setPreset()` (triggered by the BENC toolbar button) fills the 16×16 grid with a preset layout: road grid at every column/row where `x % 5 == 0` or `y % 5 == 0` (x, y ∈ {0, 5, 10, 15}); RESLOW in columns x=1–4; COMLOW in columns x=6–9; INDLOW in columns x=11–14; POWLOW tiles at (11, 1) and (12, 1). At least one POWLOW tile is required — without it no zone can advance past level 0. Two are needed because power demand grows as buildings level up and a single tile is insufficient for a fully developed 16×16 map.
 
 ## Rendering architecture
 

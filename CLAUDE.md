@@ -107,6 +107,8 @@ Every engine module must have `C_NAME` (string) and `EXPORT` (object). Functions
 
 Cell index is 1-based. Index 0 is invalid and panics on access (`rc`/`wc` check this). `getIndex(x, y)` returns -1 for out-of-bounds coordinates — callers must check before using the result as a cell index.
 
+`getIndex` uses **column-major order**: `index = x * sizeY + y + 1`. Cells with smaller x are processed first by `updateZone`, `updateRoad`, and `updateRico`. A building at (0, y) is always processed before one at (1, y'), regardless of y and y'. This matters for same-tick demand fulfillment: if a supplier has a lower index than its consumer, supply is dispatched and the consumer can level up within the same tick.
+
 The `ASSTATE_C` fields 5–10 are **aliased**: the same slots serve as road traversal fields (`ROAD_CAR_FLOW`, `ROAD_TRAVERSAL_*`) and RICO demand fields (`RICO_DEMAND_OFFER_R/I/C/P`). This works because only one subsystem is active on a given cell at a time (a cell is either a road or a RICO building, not both). If you add a system that needs to coexist with both, you must extend `ASSTATE_C::END` and resize the cell layout.
 
 ### Performance constraint: prefer scalar calls over TypedArray returns
@@ -200,8 +202,9 @@ The integration group verifies the full pipeline: all tile libraries → `initia
 | Tick counter | `getTick()` starts at 0, increments by 1 per `ASZONE.update(-1, t)` call |
 | Road connectivity | Road-to-road connection sets `ROAD_CONNECT` bitmask; adjacent buildings inherit access |
 | RICO traversal | Demand/offer slots non-zero after one tick (traversal ran) |
+| Building level-up | Density advances when all demand/offer slots are satisfied; blocked without power source or unmet offer |
 
-**Not covered:** browser rendering correctness, PIXI WebGL texture upload, actual visual appearance, multi-tick simulation progression.
+**Not covered:** browser rendering correctness, PIXI WebGL texture upload, actual visual appearance, multi-tick multi-building level-up chains.
 
 **vm context constraint:** Top-level module declarations in IIFE files must use `var` (not `let`) to become properties of the vm context sandbox. In `airsim-tile.js`: `ASTILE`, `ASICON_TILE`, `ASTILE_ID`, `PSETILE` use `var`; all others use `let` and are only accessible within the same `runInContext` call. In `airsim-module.js`: `ASSTATE`, `ASROADW`, `ASWENGINE`, `ASZONE`, `ASROAD`, `ASRICO`, `ASTILEVIEW` use `var`.
 

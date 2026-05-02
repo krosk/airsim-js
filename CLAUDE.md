@@ -88,13 +88,9 @@ Steps 4 and 5 are ordered counter-intuitively: `MMAPRENDER.initialize` must run 
 
 Any function registered with `EXPORT` must work correctly on both paths. The no-worker path is the easier one to debug. Switching `G_WORKER` to `false` in `pse-edit-modules.js` is the fastest way to get synchronous stack traces.
 
-The dispatch message format is `[moduleName, methodName, arg0, arg1, arg2]` — hard-capped at three positional arguments. Adding a fourth argument to an engine function requires updating both the worker dispatcher (`pse-worker.js:43`) and the main-thread fallback in `pse-engine.js:132`.
-
 ### Module registration
 
-Every engine module must have `C_NAME` (string) and `EXPORT` (object). Functions listed in `EXPORT` get registered in `G_METHOD_TO_MODULE_TABLE`, which is how the dispatcher resolves a method name to a module when no module name is given. Registering two modules that export a method with the same name silently overwrites the mapping — this has caused bugs before (`614441d`).
-
-`G_MODULE_INT` in `pse-edit-modules.js` is the authoritative registry. Adding a new engine module means adding it there.
+Every engine module must have `C_NAME` (string) and `EXPORT` (object). `G_MODULE_INT` in `pse-edit-modules.js` is the authoritative registry. Adding a new engine module means adding it there.
 
 ### ASSTATE memory layout
 
@@ -176,21 +172,7 @@ Road display IDs encode the 4-neighbour connection as a bitmask in the name: `NE
 
 **LOAD must extract map size from the serialized array before calling `setSerializable`.** Positions 0 and 1 of the `ASSTATE` flat array are `ASSTATE_G::SIZE_X` and `ASSTATE_G::SIZE_Y`. When loading a saved map, parse the JSON array, read `stateArray[0]` and `stateArray[1]` as `w` and `h`, call `MMAPDATA.initializeMapTableSize(w, h)`, then call `PSEENGINE.setSerializable`. Skipping the resize step leaves `MMAPDATA` sized for the previous map, causing out-of-bounds tile lookups on maps of different sizes.
 
-**Adding a toolbar menu group requires updating five tables.** Every new group needs an entry in: `C_TABLE` (tile ID array), `C_LEVEL` (depth 0/1/2), `C_STATEFUL` (alpha feedback on/off), `C_VISIBLE_BIND` (parent group + active index, or null for top-level), and a touch handler registered in `ASMAPUI.initialize` via `C_SPRITE_TOUCH`. Missing any one of these silently omits the group or breaks its visibility logic.
-
 **Serialization resets road state.** `setSerializable` restores ASSTATE from JSON and then calls `ASROAD.resetInternal()` because road adjacency structures in JS are derived from zone data and must be rebuilt, not stored.
-
-**`MMAPRENDER` must be initialized before `ASTILE.initializeTexture()`.** Tile texture creation now reads texture base dimensions via `MMAPRENDER.getTextureBaseSizeX/Y()` (decoupled in `b31890b`). If render is not initialized first, those calls return undefined and textures are created with zero dimensions silently.
-
-**`ASTILE.initializeTexture()` must call `buildAtlas` last.** All `PSETILE.initializeTextureFor(library)` calls collect tile canvases into a pending list. `PSETILE.buildAtlas(tileW)` packs them into one atlas and registers PIXI sub-textures. Calling `buildAtlas` before all libraries are registered silently omits later tiles.
-
-**`createTexture` in tile libraries must return a canvas.** `PSETILE.initializeTextureFor` passes the return value directly to `atlasCtx.drawImage`. Returning a non-canvas value (e.g., a PIXI.Graphics object from the old API) causes a silent failure at draw time with no error.
-
-**Icon tile canvases must have height = `texSizeY`.** `ASICON_TILE` functions pass `texSizeY` as the optional `canvasHeight` argument to `PSETILE.createTexture`, producing 64×32 canvases. This becomes the PIXI sub-texture `frameH`. Shape helpers (`addSquare`, `addPlay`, etc.) center geometry at `texSizeY / 2 = 16`, not `PSETILE.C_TILE_CANVAS_HEIGHT / 2 = 50`. Using 50 as the center places shapes outside the visible canvas area.
-
-**`ASMAPUI` crops map tile textures to `C_ICON_HEIGHT = 48` px.** When assembling toolbar sprites, `createSprite` checks `texture.height > C_ICON_HEIGHT`. If true (map tiles, frameH = 100), it creates a cropped `PIXI.Texture` showing the bottom 48 px of the atlas frame — the isometric diamond region. Icon tiles (frameH = 32 ≤ 48) are used as-is. If you add a new tile library whose atlas frames fall between 33 and 48 px, `createSprite` will use them unmodified; if frames exceed 100 px, the crop arithmetic still works but the visual result depends on the tile content.
-
-**`setPreset` must include enough `POWLOW` tiles to cover peak demand.** `POWLOW` at level 0 contributes `DEMAND_P = -200`. One tile is insufficient for a fully developed 16×16 map — power demand grows as buildings level up and a single tile will eventually be exhausted, stalling further growth. The current preset uses two tiles at (11, 1) and (12, 1). A preset with no power source leaves every zone stuck at level 0 immediately.
 
 **All `fetch()` calls in JS must use relative paths, not absolute paths.** The site is deployed at `https://krosk.github.io/airsim-js/` (a subdirectory, not the domain root). An absolute path like `/version.txt` resolves to `https://krosk.github.io/version.txt`, which 404s. Use `fetch('version.txt')` (no leading slash). This applies to any resource fetched at runtime: WASM, JSON, text files.
 
@@ -215,8 +197,6 @@ Tests live in `test/`. The suite uses **vitest** and **node-canvas** (npm devDep
 | Icon tiles | Canvas height = 32, text visibility (colored rows), shape centering |
 | Integration | `ASTILE.initializeTexture()` end-to-end with a recording PIXI stub |
 
-The integration group verifies the full pipeline: all tile libraries → `initializeTextureFor` → `buildAtlas` → PIXI stub receives a correctly-sized atlas canvas and populates `PIXI.utils.TextureCache` with sub-textures that have valid frame rectangles. Frames are checked: icon tiles must have `frame.h = 32`, map tiles must have `frame.h = 100` (> 48, so the ASMAPUI crop path is exercised).
-
 **`test/simulation-tick.test.js`** — loads the full engine stack (WASM + `airsim-module.js`) into a Node.js `vm` context and verifies single-tick behavior.
 
 | Group | What it covers |
@@ -229,10 +209,6 @@ The integration group verifies the full pipeline: all tile libraries → `initia
 | Industry level-up | INDLOW/INDHIG level progression; INDHIG blocked without power; INDLOW blocked without worker supply |
 
 **Not covered:** browser rendering correctness, PIXI WebGL texture upload, actual visual appearance, multi-zone supply chain level-up chains (e.g. RESLOW→INDLOW→COMLOW→RESLOW).
-
-**vm context constraint:** Top-level module declarations in IIFE files must use `var` (not `let`) to become properties of the vm context sandbox. In `airsim-tile.js`: `ASTILE`, `ASICON_TILE`, `ASTILE_ID`, `PSETILE` use `var`; all others use `let` and are only accessible within the same `runInContext` call. In `airsim-module.js`: `ASSTATE`, `ASROADW`, `ASWENGINE`, `ASZONE`, `ASROAD`, `ASRICO`, `ASTILEVIEW` use `var`.
-
-**wasm-bindgen cross-realm constraint:** `wasm_bindgen.initSync({ module: bytes })` must be called from inside `runInContext`, not from the host. The host realm's `Object.prototype` differs from the vm realm's, so the plain-object argument fails the identity check inside `initSync` and causes `WebAssembly.Module()` to receive the whole object instead of the bytes. Inject raw bytes as a sandbox property and call `initSync` via `runInContext`.
 
 ## Known bug
 

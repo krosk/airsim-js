@@ -251,7 +251,7 @@ describe('building level-up', () => {
 
 // INDLOW level 0: [R=0, I=0, C=0, P=1] — same power requirement as RESLOW.
 // INDLOW level 1: [R=2, I=-2, C=0, P=2] — demands workers (R), offers industrial (I).
-// INDHIG level 0: [R=0, I=0, C=0, P=0] — no demands, levels up in one tick with no prerequisites.
+// INDHIG level 0: [R=0, I=0, C=0, P=1] — same power requirement as all other zones.
 
 describe('industry level-up', () => {
     it('INDLOW advances from density 0 to 1 in one tick when power demand is satisfied', () => {
@@ -293,16 +293,27 @@ describe('industry level-up', () => {
         expect(ctx.ASSTATE.getRicoDensity(idx)).toBe(1);
     });
 
-    it('INDHIG advances from density 0 to 1 in one tick with no prerequisites', () => {
-        // INDHIG level 0 has all demand/offer slots at 0 — canLevelUp is true
-        // immediately, no power source required.
+    it('INDHIG advances from density 0 to 1 in one tick when power demand is satisfied', () => {
+        const ctx = makeEngineContext();
+        ctx.ASWENGINE.initializeModule(3, 3);
+        const C = ctx.ASTILE_ID.C_TILE_ZONE;
+        ctx.ASZONE.setZone(0, 0, C.ROAD);
+        ctx.ASZONE.setZone(1, 0, C.INDHIG);
+        ctx.ASZONE.setZone(0, 1, C.POWLOW);
+        runOneTick(ctx);
+        const idx = ctx.ASSTATE.getIndex(1, 0);
+        expect(ctx.ASSTATE.getRicoDensity(idx)).toBe(1);
+    });
+
+    it('INDHIG stays at density 0 without a power source', () => {
         const ctx = makeEngineContext();
         ctx.ASWENGINE.initializeModule(3, 3);
         const C = ctx.ASTILE_ID.C_TILE_ZONE;
         ctx.ASZONE.setZone(0, 0, C.ROAD);
         ctx.ASZONE.setZone(1, 0, C.INDHIG);
         runOneTick(ctx);
+        runOneTick(ctx, 1);
         const idx = ctx.ASSTATE.getIndex(1, 0);
-        expect(ctx.ASSTATE.getRicoDensity(idx)).toBe(1);
+        expect(ctx.ASSTATE.getRicoDensity(idx)).toBe(0);
     });
 });

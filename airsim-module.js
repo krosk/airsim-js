@@ -1148,7 +1148,7 @@ var ASRICO = (function ()
         [getCode(C_Z.INDLOW, 3)] : [3,  3,   6,  -6,   0,   3],
         [getCode(C_Z.INDLOW, 4)] : [4,  3,   8,  -8,   0,   3],
         [getCode(C_Z.INDLOW, 5)] : [5,  3,  10, -10,   0,   4],
-        [getCode(C_Z.INDHIG, 0)] : [0,  5,   0,   0,   0,   0],
+        [getCode(C_Z.INDHIG, 0)] : [0,  5,   0,   0,   0,   1],
         [getCode(C_Z.INDHIG, 1)] : [1,  5,  10, -10,   0,   5],
         [getCode(C_Z.INDHIG, 2)] : [2,  5,  16, -16,   0,   8],
         [getCode(C_Z.INDHIG, 3)] : [3,  5,  24, -24,   0,  12],

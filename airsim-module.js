@@ -317,6 +317,10 @@ let ASZONE = (function ()
                 {
                     paintZone(x, y, comId);
                 }
+                else if (x == 11 && y == 1)
+                {
+                    paintZone(x, y, C.POWLOW);
+                }
                 else if (x < 15)
                 {
                     paintZone(x, y, indId);

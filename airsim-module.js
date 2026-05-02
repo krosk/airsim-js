@@ -599,8 +599,6 @@ var ASROAD = (function ()
             ASSTATE.setRoadCarFlow(index, 0);
             ASSTATE.setRoadDebug(index, C_CONGESTION.LOW);
             ASSTATE.setDisplayId(index, C_DISPLAY.____);
-            m_cacheNodeRefresh = true;
-            // traversal v2 related
             ASSTATE.setRoadTraversalCost(index, 0);
         }
         public.disconnectAll(x, y);
@@ -615,7 +613,6 @@ var ASROAD = (function ()
             return;
         }
         public.disconnectAll(x, y);
-        m_cacheNodeRefresh = true;
     }
     public.EXPORT.removeRoad = public.removeRoad;
     
@@ -711,388 +708,46 @@ var ASROAD = (function ()
         ASSTATE.setRoadCarFlow(index, carFlow);
     }
     
-    // struct is
-    // array = [
-    //   from of starting point
-    //   last explored index,
-    //   number of edges,
-    //   collection of edges * 5
-    //   ]
-    let getTraversalStart = function asroad_getTraversalStart()
-    {
-        return ASSTATE.getRoadTraversalStart();
-    }
-    let setTraversalStart = function asroad_setTraversalStart(value)
-    {
-        ASSTATE.setRoadTraversalStart(value);
-    }
-    let getTraversalCurrentIndex = function asroad_getTraversalCurrentIndex()
-    {
-        return ASSTATE.getRoadTraversalCurrentIndex();
-    }
-    let setTraversalCurrentIndex = function asroad_setTraversalCurrentIndex(value)
-    {
-        ASSTATE.setRoadTraversalCurrentIndex(value);
-    }
-    let getTraversalEdgeCount = function asroad_getTraversalEdgeCount()
-    {
-        return ASSTATE.getRoadTraversalEdgeCount();
-    }
-    let setTraversalEdgeCount = function asroad_setTraversalEdgeCount(value)
-    {
-        ASSTATE.setRoadTraversalEdgeCount(value);
-    }
-    let incrementTraversalEdgeCount = function asroad_incrementTraversalEdgeCount()
-    {
-        setTraversalEdgeCount(getTraversalEdgeCount() + 1);
-    }
-    let getTraversalCost = function asroad_getTraversalCost(node)
-    {
-        return ASSTATE.getRoadTraversalCost(node);
-    }
-    let setTraversalCost = function asroad_setTraversalCost(node, value)
-    {
-        if (value > ASSTATE.getMaximumValue())
-        {
-            value = ASSTATE.getMaximumValue();
-        }
-        ASSTATE.setRoadTraversalCost(node, value);
-    }
-    let setTraversalAdded = function asroad_setTraversalAdded(node)
-    {
-        ASSTATE.setRoadTraversalProcessed(node, 1);
-    }
-    let setTraversalProcessed = function asroad_setTraversalProcessed(node)
-    {
-        ASSTATE.setRoadTraversalProcessed(node, 2);
-    }
-    let setTraversalProcessedNot = function asroad_setTraversalProcessedNot(node)
-    {
-        ASSTATE.setRoadTraversalProcessed(node, 0);
-    }
-    let isTraversalProcessedNot = function asroad_isTraversalProcessedNot(node)
-    {
-        let v = ASSTATE.getRoadTraversalProcessed(node);
-        return v != 1 && v != 2; // warning, 0 is not a better indicator
-    }
-    let isTraversalAdded = function asroad_isTraversalAdded(node)
-    {
-        return ASSTATE.getRoadTraversalProcessed(node) == 1;
-    }
-    let isTraversalProcessed = function asroad_isTraversalProcessed(node)
-    {
-        return ASSTATE.getRoadTraversalProcessed(node) == 2;
-    }
-    let getTraversalParent = function asroad_getTraversalParent(node)
-    {
-        return ASSTATE.getRoadTraversalParent(node);
-    }
-    let setTraversalParent = function asroad_setTraversalParent(node, value)
-    {
-        ASSTATE.setRoadTraversalParent(node, value);
-    }
-    let clearTraversal = function asroad_clearTraversal(node, index)
-    {
-        setTraversalProcessedNot(node, index);
-        setTraversalParent(node, -1);
-        setTraversalCost(node, 0);
-        changeTraversalIndex(node);
-    }
-    
-    public.initializeTraversal = function asroad_initializeTraversal(fromX, fromY)
-    {
-        let from = ASSTATE.getIndex(fromX, fromY);
-        setTraversalStart(from);
-        setTraversalCurrentIndex(-1);
-        setTraversalEdgeCount(0);
-        m_openHeap = [];
-        if (ASRICO.hasBuilding(from))
-        {
-            let nodeIndex = getTraversalEdgeCount();
-            incrementTraversalEdgeCount();
-            setTraversalCurrentIndex(from);
-            //let cost = getTraversalCostIncrease(from);
-            //setTraversalCost(from, cost);
-            //setTraversalParent(from, -1);
-            //setTraversalProcessed(from);
-            expandTraversal(from, isConnectedTo(from, C_TO.N));
-            expandTraversal(from, isConnectedTo(from, C_TO.E));
-            expandTraversal(from, isConnectedTo(from, C_TO.S));
-            expandTraversal(from, isConnectedTo(from, C_TO.W));
-            expandTraversal(from, isConnectedTo(from, C_TO.NN));
-            expandTraversal(from, isConnectedTo(from, C_TO.EE));
-            expandTraversal(from, isConnectedTo(from, C_TO.SS));
-            expandTraversal(from, isConnectedTo(from, C_TO.WW));
-            //ASSTATE.setRoadDebug(from, C.HIG);
-            //changeTraversalIndex(from);
-            m_cacheNodeRefresh = true;
-        }
-    }
-    public.EXPORT.initializeTraversal = public.initializeTraversal;
-    
-    const C_TR = {
-        FROM: 1,
-        COST: 2,
-        PARENT: 3,
-        PROCESSED: 4
-    };
-    
-    let getTraversalCostIncrease = function asroad_getTraversalCostIncrease(roadIndex)
-    {
-        let speed = getRoadSpeed(roadIndex);
-        return speed > 0 ? 200 / speed : ASSTATE.getMaximumValue();
-    }
-    
-    let expandTraversal = function asroad_expandTraversal(parent, node)
-    {
-        //console.log('expandTraversal f' + parent + 't' + node);
-        if (hasRoad(node))
-        {
-            let currentCost = getTraversalCostIncrease(node);
-            if (parent >= 0 && hasRoad(parent))
-            {
-                let previousCost = getTraversalCost(parent);
-                currentCost += previousCost;
-            }
-            let edgeIndex = getTraversalEdgeCount();
-            incrementTraversalEdgeCount();
-            setTraversalCost(node, currentCost);
-            setTraversalParent(node, parent);
-            setTraversalAdded(node);
-            ASSTATE.setRoadDebug(node, C_CONGESTION.MID);
-            changeTraversalIndex(node);
-            heapPush(currentCost, node);
-            if (G_CACHE_NODE)
-            {
-                m_cacheNodeList.push(node);
-            }
-        }
-    }
-    
-    let addToNodeList = function asroad_addToNodeList(parentNode, dir, nodeList)
-    {
-        let childNode = isConnectedTo(parentNode, dir);
-        if (!hasRoad(childNode))
-        {
-            return;
-        }
-        let isParentNode = getTraversalParent(childNode) == parentNode;
-        if (!isParentNode)
-        {
-            return;
-        }
-        nodeList.push(childNode);
-    }
-    
-    let m_cacheNodeList = [];
-    let m_cacheNodeRefresh = true;
-
-    // min-heap open set for Dijkstra — entries are [cost, nodeIndex]
-    let m_openHeap = [];
-    let heapPush = function asroad_heapPush(cost, node)
-    {
-        m_openHeap.push([cost, node]);
-        let i = m_openHeap.length - 1;
-        while (i > 0)
-        {
-            let parent = (i - 1) >> 1;
-            if (m_openHeap[parent][0] <= m_openHeap[i][0]) break;
-            let tmp = m_openHeap[parent]; m_openHeap[parent] = m_openHeap[i]; m_openHeap[i] = tmp;
-            i = parent;
-        }
-    }
-    let heapPop = function asroad_heapPop()
-    {
-        if (m_openHeap.length === 0) return -1;
-        let top = m_openHeap[0][1];
-        let last = m_openHeap.pop();
-        if (m_openHeap.length > 0)
-        {
-            m_openHeap[0] = last;
-            let i = 0;
-            let n = m_openHeap.length;
-            while (true)
-            {
-                let l = 2 * i + 1;
-                let r = 2 * i + 2;
-                let s = i;
-                if (l < n && m_openHeap[l][0] < m_openHeap[s][0]) s = l;
-                if (r < n && m_openHeap[r][0] < m_openHeap[s][0]) s = r;
-                if (s === i) break;
-                let tmp = m_openHeap[s]; m_openHeap[s] = m_openHeap[i]; m_openHeap[i] = tmp;
-                i = s;
-            }
-        }
-        return top;
-    }
-   
-    let getCurrentNodeList = function asroad_getCurrentNodeList()
-    {
-        if (m_cacheNodeRefresh == false && G_CACHE_NODE)
-        {
-            //console.log(m_cacheNodeList);
-            return m_cacheNodeList;
-        }
-        let startNode = getTraversalStart();
-        m_cacheNodeList = [startNode];
-        let i = 0;
-        while (i < m_cacheNodeList.length)
-        {
-            let parentNode = m_cacheNodeList[i];
-            addToNodeList(parentNode, C_TO.N, m_cacheNodeList);
-            addToNodeList(parentNode, C_TO.E, m_cacheNodeList);
-            addToNodeList(parentNode, C_TO.S, m_cacheNodeList);
-            addToNodeList(parentNode, C_TO.W, m_cacheNodeList);
-            addToNodeList(parentNode, C_TO.NN, m_cacheNodeList);
-            addToNodeList(parentNode, C_TO.EE, m_cacheNodeList);
-            addToNodeList(parentNode, C_TO.SS, m_cacheNodeList);
-            addToNodeList(parentNode, C_TO.WW, m_cacheNodeList);
-            i++;
-        }
-        //console.log(m_cacheNodeList);
-        m_cacheNodeRefresh = false;
-        return m_cacheNodeList;
-    }
-    
-    let identifyNextNode = function asroad_identifyNextNode()
-    {
-        return heapPop();
-    }
-    
-    let traverseNextNode = function (node)
-    {
-        if (!hasRoad(node))
-        {
-            console.log('traversal wrong target');
-            throw 'traversal wrong target';
-            return [-1, -1];
-        }
-        setTraversalCurrentIndex(node);
-        setTraversalProcessed(node);
-        let expandIfNotTraversed = function (from, d)
-        {
-            let to = isConnectedTo(from, d);
-            if (to >= 0)
-            {
-                let isProcessedNot = isTraversalProcessedNot(to);
-                if (isProcessedNot)
-                {
-                    expandTraversal(from, to);
-                }
-                else
-                {
-                    // reached by another tile
-                    // in theory, the other tile is
-                    // the fastest way to reach toTo 
-                    // so no need to expand, except
-                    // if congestion of already
-                    // traversed tiles have been
-                    // altered
-                    //console.log('Already reached by another ' + toTo);
-                }
-            }
-        }
-        ASSTATE.setRoadDebug(node, C_CONGESTION.HIG);
-        expandIfNotTraversed(node, C_TO.N);
-        expandIfNotTraversed(node, C_TO.E);
-        expandIfNotTraversed(node, C_TO.S);
-        expandIfNotTraversed(node, C_TO.W);
-        expandIfNotTraversed(node, C_TO.NN);
-        expandIfNotTraversed(node, C_TO.EE);
-        expandIfNotTraversed(node, C_TO.SS);
-        expandIfNotTraversed(node, C_TO.WW);
-        changeTraversalIndex(node);
-        return ASSTATE.getXYFromIndex(node);
-    }
-    
-    public.getNextStepTraversal = function asroad_getNextStepTraversal()
-    {
-        // start explore
-        let minNode = identifyNextNode();
-        if (minNode > 0)
-        {
-            return traverseNextNode(minNode);
-        }
-        else
-        {
-            //console.log('end');
-            return [-1, -1];
-        }
-    }
-    public.EXPORT.getNextStepTraversal = public.getNextStepTraversal;
-    
     public.getTraversalPath = function asroad_getTraversalPath()
     {
-        let lastNode = getTraversalCurrentIndex();
+        let lastNode = ASSTATE.getRoadTraversalCurrentIndex();
         if (!ASSTATE.isValidIndex(lastNode))
         {
-            console.log('invalid');
             return [-1, -1];
         }
-        else
+        let reversePathNode = [];
+        while (!ASRICO.hasBuilding(lastNode))
         {
-            let reversePathNode = [];
-            while (!ASRICO.hasBuilding(lastNode))
-            {
-                reversePathNode.push(lastNode);
-                lastNode = getTraversalParent(lastNode);
-            }
-            //reversePathNode.push(node);
-            let pathNodeXY = [];
-            while (reversePathNode.length > 0)
-            {
-                let node = reversePathNode.pop();
-                let xy = ASSTATE.getXYFromIndex(node);
-                pathNodeXY.push(xy[0]);
-                pathNodeXY.push(xy[1]);
-            }
-            return pathNodeXY;
+            reversePathNode.push(lastNode);
+            lastNode = ASSTATE.getRoadTraversalParent(lastNode);
         }
+        let pathNodeXY = [];
+        while (reversePathNode.length > 0)
+        {
+            let node = reversePathNode.pop();
+            let xy = ASSTATE.getXYFromIndex(node);
+            pathNodeXY.push(xy[0]);
+            pathNodeXY.push(xy[1]);
+        }
+        return pathNodeXY;
     }
     public.EXPORT.getTraversalPath = public.getTraversalPath;
-    
+
     public.resetTraversalPath = function asroad_resetTraversalPath()
     {
-        let nodeList = getCurrentNodeList();
-        let edgeCount = nodeList.length;
-        // first index is building
-        for (let i = 1; i < edgeCount; i++)
-        {
-            let node = nodeList[i];
-            if (hasRoad(node))
-            {
-                ASSTATE.setRoadDebug(node, C_CONGESTION.LOW);
-                changeTraversalIndex(node);
-            }
-            clearTraversal(node, i);
-        }
-        m_cacheNodeRefresh = true;
-        m_openHeap = [];
+        ASROADW.resetTraversal(ASSTATE);
     }
     public.EXPORT.resetTraversalPath = public.resetTraversalPath;
-    
+
     public.resetInternal = function asroad_resetInternal()
     {
-        m_cacheNodeRefresh = true;
     }
-    
+
     public.printTraversal = function asroad_printTraversal()
     {
         console.log();
-        //console.log(data[0]);
     }
     public.EXPORT.printTraversal = public.printTraversal;
-
-    public.assessRoad = function asroad_assessroad(costMax, roadX, roadY)
-    {
-        let roadIndex = ASSTATE.getIndex(roadX, roadY);
-        if (!hasRoad(roadIndex))
-        {
-            return false;
-        }
-        let costSoFar = getTraversalCost(roadIndex);
-        return costSoFar < costMax;
-    }
     
     public.getInfoRoad = function asroad_getInfoRoad(x, y)
     {
@@ -1600,12 +1255,10 @@ var ASRICO = (function ()
     // because it binds to asroad
     let updateRicoTile = function asrico_updateRicoTile(index)
     {
-        // machine state
         if (!hasBuilding(index))
         {
             return true;
         }
-        
         let step = ASSTATE.getRicoStep();
         if (step == 0)
         {
@@ -1617,7 +1270,6 @@ var ASRICO = (function ()
             {
                 levelDensityDown(index);
             }
-            // reset
             let code = getDataIdByDensityLevel(index);
             setInitial(code, index);
             incrementStatOfferTotal(index);
@@ -1625,56 +1277,25 @@ var ASRICO = (function ()
             ASSTATE.setRicoStep(1);
             return false;
         }
-        else if (step == 1)
-        {
-            // process offer
-            // initialize traversal
-            // risk of unsync if interaction
-            // happen at the same time
-            let isConnected = ASSTATE.getRoadConnected(index);
-            if (!isConnected)
-            {
-                ASSTATE.setRicoStep(0);
-                return true;
-            }
-            else
-            {
-                let xy = ASSTATE.getXYFromIndex(index);
-                let x = xy[0];
-                let y = xy[1];
-                ASROAD.initializeTraversal(x, y);
-                ASSTATE.setRicoStep(2);
-                return false;
-            }
-        }
-        else if (step == 2)
-        {
-            // process offer
-            // run traversal
-            let offerSum = getRicoOfferSum(index);
-            if (offerSum >= 0)
-            {
-                ASSTATE.setRicoStep(3);
-                return false;
-            }
-            let costMax = getDistanceMax(index);
-            let next = ASROAD.getNextStepTraversal();
-            let nx = next[0];
-            let ny = next[1];
-            let traversed = ASROAD.assessRoad(costMax, nx, ny);
-            if (!traversed) // traversal finished
-            {
-                ASSTATE.setRicoStep(3);
-                return false;
-            }
-            let filledOffer = dispatchOffer(index, nx, ny);
-            let additionalCongestion = convertFlowTypeToCongestion(index, filledOffer);
-            increaseCongestion(additionalCongestion);
-            return false;
-        }
         else
         {
-            ASROAD.resetTraversalPath();
+            let isConnected = ASSTATE.getRoadConnected(index);
+            if (isConnected && getRicoOfferSum(index) < 0)
+            {
+                let xy = ASSTATE.getXYFromIndex(index);
+                let nodeList = ASROADW.runTraversal(ASSTATE, xy[0], xy[1]);
+                for (let i = 0; i < nodeList.length; i++)
+                {
+                    if (getRicoOfferSum(index) >= 0) break;
+                    let node = nodeList[i];
+                    let nxy = ASSTATE.getXYFromIndex(node);
+                    ASSTATE.setRoadTraversalCurrentIndex(node);
+                    let filledOffer = dispatchOffer(index, nxy[0], nxy[1]);
+                    let additionalCongestion = convertFlowTypeToCongestion(index, filledOffer);
+                    increaseCongestion(additionalCongestion);
+                }
+                ASROAD.resetTraversalPath();
+            }
             ASSTATE.setRicoStep(0);
             return true;
         }

@@ -12,6 +12,11 @@ pub extern fn rust_r(index: i32, field: i32) -> i32 {
 use wasm_bindgen::prelude::*;
 use json::stringify;
 use serde_json;
+use std::cell::RefCell;
+
+thread_local! {
+    static TRAVERSAL_VISITED: RefCell<Vec<i32>> = RefCell::new(Vec::new());
+}
 
 #[wasm_bindgen]
 pub struct ASSTATE {
@@ -138,6 +143,22 @@ impl ASSTATE {
     
     fn wg(&mut self, field: ASSTATE_G, data: i16) {
         self.cells[field as usize] = data;
+    }
+
+    fn get_index_to(&self, from: i32, d: usize) -> i32 {
+        const C_XOFFSET: [i32; 8] = [-1, 0, 1, 0, -2, 0, 2, 0];
+        const C_YOFFSET: [i32; 8] = [0, -1, 0, 1, 0, -2, 0, 2];
+        let size_y = self.rg(ASSTATE_G::SIZE_Y) as i32;
+        let size_x = self.rg(ASSTATE_G::SIZE_X) as i32;
+        let i = from - 1;
+        let x = i / size_y;
+        let y = i % size_y;
+        let xd = x + C_XOFFSET[d];
+        let yd = y + C_YOFFSET[d];
+        if xd < 0 || xd >= size_x || yd < 0 || yd >= size_y {
+            return -1;
+        }
+        return xd * size_y + yd + 1;
     }
 }
 
@@ -715,6 +736,25 @@ impl ASROAD {
         }
         return C_TILE_ZONE::NONE;
     }
+
+    fn get_road_max_flow(&self, state: &ASSTATE, index: i32) -> i32 {
+        let road_type = self.getRoadTypeEnum(state, index);
+        let max_speed = road_type.C_TYPE_SPEED();
+        let lanes = road_type.C_TYPE_LANE();
+        if max_speed == 0 { return 1; }
+        (lanes as f32 * Self::C_DAY_DURATION as f32 /
+            (Self::C_CAR_LENGTH as f32 / max_speed as f32 + Self::C_INTER_CAR as f32)) as i32
+    }
+
+    fn get_traversal_cost_increase(&self, state: &ASSTATE, index: i32) -> i16 {
+        let road_type = self.getRoadTypeEnum(state, index);
+        let max_speed = road_type.C_TYPE_SPEED();
+        let max_flow = self.get_road_max_flow(state, index);
+        let car_flow = state.getRoadCarFlow(index) as i32;
+        let ratio = car_flow as f32 / max_flow as f32;
+        let speed = if ratio >= 1.0 { 0 } else { max_speed };
+        if speed > 0 { (200 / speed) as i16 } else { i16::MAX }
+    }
 }
 
 #[wasm_bindgen]
@@ -858,6 +898,85 @@ impl ASROAD {
         let car_flow: i16 = state.getRoadCarFlow(index);
         let decay: f32 = (lane_count as f32 / car_flow as f32 / Self::C_INTER_CAR as f32 * Self::C_DAY_DURATION as f32);
         return decay;
+    }
+
+    pub fn runTraversal(&self, state: &mut ASSTATE, fromX: i32, fromY: i32) -> Box<[i32]> {
+        use std::collections::BinaryHeap;
+        use std::cmp::Reverse;
+
+        let from = state.getIndex(fromX, fromY) as i32;
+        if !state.isValidIndex(from) {
+            return Box::new([]);
+        }
+
+        const COST_MAX: i16 = 1000;
+        const ADDED: i16 = 1;
+        const PROCESSED: i16 = 2;
+
+        let mut heap: BinaryHeap<(Reverse<i16>, i32)> = BinaryHeap::new();
+        let mut result: Vec<i32> = Vec::new();
+
+        TRAVERSAL_VISITED.with(|v| v.borrow_mut().clear());
+
+        for d in 0..8usize {
+            if state.getRoadConnectTo(from, d as i32) == 0 { continue; }
+            let to = state.get_index_to(from, d);
+            if to <= 0 || !self.hasRoad(state, to) { continue; }
+
+            let cost = self.get_traversal_cost_increase(state, to);
+            if cost >= COST_MAX { continue; }
+
+            state.setRoadTraversalCost(to, cost);
+            state.setRoadTraversalParent(to, from as i16);
+            state.setRoadTraversalProcessed(to, ADDED);
+            state.setRoadDebug(to, C_TILE_ROAD_CONGESTION::LOW as i16);
+            state.notifyChange(to);
+            heap.push((Reverse(cost), to));
+            TRAVERSAL_VISITED.with(|v| v.borrow_mut().push(to));
+        }
+
+        while let Some((Reverse(cost), node)) = heap.pop() {
+            if state.getRoadTraversalProcessed(node) == PROCESSED { continue; }
+
+            state.setRoadTraversalProcessed(node, PROCESSED);
+            state.setRoadDebug(node, C_TILE_ROAD_CONGESTION::HIG as i16);
+            state.notifyChange(node);
+            result.push(node);
+
+            for d in 0..8usize {
+                if state.getRoadConnectTo(node, d as i32) == 0 { continue; }
+                let to = state.get_index_to(node, d);
+                if to <= 0 || !self.hasRoad(state, to) { continue; }
+                if state.getRoadTraversalProcessed(to) != 0 { continue; }
+
+                let new_cost = cost.saturating_add(self.get_traversal_cost_increase(state, to));
+                if new_cost >= COST_MAX { continue; }
+
+                state.setRoadTraversalCost(to, new_cost);
+                state.setRoadTraversalParent(to, node as i16);
+                state.setRoadTraversalProcessed(to, ADDED);
+                state.setRoadDebug(to, C_TILE_ROAD_CONGESTION::LOW as i16);
+                state.notifyChange(to);
+                heap.push((Reverse(new_cost), to));
+                TRAVERSAL_VISITED.with(|v| v.borrow_mut().push(to));
+            }
+        }
+
+        result.into_boxed_slice()
+    }
+
+    pub fn resetTraversal(&self, state: &mut ASSTATE) {
+        let nodes: Vec<i32> = TRAVERSAL_VISITED.with(|v| v.borrow().clone());
+        for node in &nodes {
+            if self.hasRoad(state, *node) {
+                state.setRoadDebug(*node, C_TILE_ROAD_CONGESTION::LOW as i16);
+                state.notifyChange(*node);
+            }
+            state.setRoadTraversalProcessed(*node, 0);
+            state.setRoadTraversalParent(*node, -1);
+            state.setRoadTraversalCost(*node, 0);
+        }
+        TRAVERSAL_VISITED.with(|v| v.borrow_mut().clear());
     }
 }
 

@@ -193,3 +193,54 @@ describe('RICO traversal', () => {
         expect(allZero).toBe(false);
     });
 });
+
+// ---------------------------------------------------------------------------
+// 5. Building level-up
+// ---------------------------------------------------------------------------
+
+// Cell indexing is column-major: index = x * sizeY + y + 1.
+// POWLOW at (0,1) → index 2; RESLOW at (1,0) → index 4.
+// updateRico processes cells in index order, so POWLOW runs before RESLOW
+// in the same tick — it dispatches power and RESLOW levels up immediately.
+
+describe('building level-up', () => {
+    it('RESLOW advances from density 0 to 1 in one tick when power demand is satisfied', () => {
+        const ctx = makeEngineContext();
+        ctx.ASWENGINE.initializeModule(3, 3);
+        const C = ctx.ASTILE_ID.C_TILE_ZONE;
+        ctx.ASZONE.setZone(0, 0, C.ROAD);
+        ctx.ASZONE.setZone(1, 0, C.RESLOW);
+        ctx.ASZONE.setZone(0, 1, C.POWLOW);
+        runOneTick(ctx);
+        const idx = ctx.ASSTATE.getIndex(1, 0);
+        expect(ctx.ASSTATE.getRicoDensity(idx)).toBe(1);
+    });
+
+    it('RESLOW stays at density 0 without a power source', () => {
+        const ctx = makeEngineContext();
+        ctx.ASWENGINE.initializeModule(3, 3);
+        const C = ctx.ASTILE_ID.C_TILE_ZONE;
+        ctx.ASZONE.setZone(0, 0, C.ROAD);
+        ctx.ASZONE.setZone(1, 0, C.RESLOW);
+        // no POWLOW — P demand slot stays at 1, canLevelUp returns false
+        runOneTick(ctx);
+        runOneTick(ctx, 1);
+        const idx = ctx.ASSTATE.getIndex(1, 0);
+        expect(ctx.ASSTATE.getRicoDensity(idx)).toBe(0);
+    });
+
+    it('RESLOW stays at density 1 when commercial demand is absent (R offer unmet)', () => {
+        // RESLOW level 1 offers R=-2 and needs C=2. Without COMLOW to absorb R,
+        // isOfferRicoFilled returns false and level-up to 2 is blocked.
+        const ctx = makeEngineContext();
+        ctx.ASWENGINE.initializeModule(3, 3);
+        const C = ctx.ASTILE_ID.C_TILE_ZONE;
+        ctx.ASZONE.setZone(0, 0, C.ROAD);
+        ctx.ASZONE.setZone(1, 0, C.RESLOW);
+        ctx.ASZONE.setZone(0, 1, C.POWLOW);
+        runOneTick(ctx);      // tick 1: RESLOW levels up to 1
+        runOneTick(ctx, 1);   // tick 2: R offer unmet — density stays at 1
+        const idx = ctx.ASSTATE.getIndex(1, 0);
+        expect(ctx.ASSTATE.getRicoDensity(idx)).toBe(1);
+    });
+});

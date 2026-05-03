@@ -105,7 +105,7 @@ Every engine module must have `C_NAME` (string) and `EXPORT` (object). `G_MODULE
 
 Cell index is 1-based. Index 0 is invalid and panics on access (`rc`/`wc` check this). `getIndex(x, y)` returns -1 for out-of-bounds coordinates — callers must check before using the result as a cell index.
 
-`getIndex` uses **column-major order**: `index = x * sizeY + y + 1`. Cells with smaller x are processed first by `updateZone`, `updateRoad`, and `updateRico`. A building at (0, y) is always processed before one at (1, y'), regardless of y and y'. This matters for same-tick demand fulfillment: if a supplier has a lower index than its consumer, supply is dispatched and the consumer can level up within the same tick.
+`getIndex` uses **column-major order**: `index = x * sizeY + y + 1`. Cells with smaller x are processed first by `updateZone`, `updateRoad`, and `updateRico`. A building at (0, y) is always processed before one at (1, y'), regardless of y and y'. Column-major order determines which buildings **dispatch** first within a tick. Who actually **receives** supply is determined by Dijkstra cost (road distance + congestion) from the dispatching building — proximity dominates over index order. Index order is a tiebreaker, not the primary allocation factor.
 
 The `ASSTATE_C` fields 5–10 are **aliased**: the same slots serve as road traversal fields (`ROAD_CAR_FLOW`, `ROAD_TRAVERSAL_*`) and RICO demand fields (`RICO_DEMAND_OFFER_R/I/C/P`). This works because only one subsystem is active on a given cell at a time (a cell is either a road or a RICO building, not both). If you add a system that needs to coexist with both, you must extend `ASSTATE_C::END` and resize the cell layout.
 
@@ -135,6 +135,18 @@ Resource flow between zone types at level 1+:
 `setInitial(code, index)` is called at the start of each tick for every building (step 0 of `updateRicoTile`). It resets `RICO_DEMAND_OFFER_*` to the property row values for the current level. Demand/offer state therefore does not persist across ticks; it is refilled each tick by traversal.
 
 **All zones require P=1 at level 0.** Changing any zone's level-0 P value to 0 allows it to level up without infrastructure, which is unintended.
+
+### RICO dispatch model
+
+The RICO supply system uses a **sequential greedy allocation** model. Each building's `RICO_DEMAND_OFFER_*` slots are reset by `setInitial` at step 0 to property row values. During step 1, each building with a non-zero offer runs Dijkstra traversal and calls `dispatchOffer` per road node. `dispatchOffer` mutates the building's local `offer` array in place as it fills each adjacent building's demand. After each road node, the depleted offer is written back to ASSTATE — the next road node call reads the remaining capacity. Offer is a finite quantity that exhausts as consumers are filled.
+
+**Spatial locality is emergent.** Dijkstra expands road nodes in order of cost (distance + congestion). A supplier fills its nearest consumers first. When its offer is exhausted, distant buildings go without. Buildings close to a supply source — measured along the road network — receive supply more reliably than distant ones.
+
+**Congestion feedback loop.** `increaseCongestion` adds congestion to every road node on the Dijkstra path when a delivery occurs (`filledOffer > 0`). Congested roads raise traversal cost in the next tick's Dijkstra, causing supply to route around them. This creates a negative feedback: heavily-used delivery routes become progressively more expensive, encouraging the pathfinder to seek alternatives. Road network design directly affects supply reliability.
+
+**Incompatibility with parallel dispatch.** Because offer depletion is the scarcity mechanism, parallel dispatch across buildings is not correct with a double-buffer scheme. Two suppliers reading the same initial demand values from a read-only buffer would each independently compute fills for the same consumers, over-filling those consumers and over-depleting their own offers. Fixing this requires a different allocation model (proportional sharing or network flow) — it is not a drop-in change.
+
+**Contrast with global aggregate pool.** A global model (sum all supply city-wide, sum all demand, compare totals) has no spatial component and no road routing. The current model rewards road network investment: well-connected, uncongested routes deliver supply reliably; poor or congested networks leave distant buildings undersupplied.
 
 ### RICO traversal performance
 

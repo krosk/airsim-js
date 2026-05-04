@@ -980,6 +980,12 @@ var ASRICO = (function ()
     {
         let index = ASSTATE.getIndex(x, y);
         setInitial(code, index);
+        let demandProp = getInitialDemandOffer(code);
+        ASSTATE.setRicoMaxReceivedR(index, demandProp[0]);
+        ASSTATE.setRicoMaxReceivedI(index, demandProp[1]);
+        ASSTATE.setRicoMaxReceivedC(index, demandProp[2]);
+        ASSTATE.setRicoMaxReceivedP(index, demandProp[3]);
+        ASSTATE.setRicoLevelStreak(index, 0);
         ASROAD.disconnectAll(x, y);
         ASROAD.connectAll(x, y);
     }
@@ -1015,6 +1021,10 @@ var ASRICO = (function ()
         ASSTATE.setRicoDemandOfferI(index, demandOffer[1]);
         ASSTATE.setRicoDemandOfferC(index, demandOffer[2]);
         ASSTATE.setRicoDemandOfferP(index, demandOffer[3]);
+        ASSTATE.setRicoTotalReceivedR(index, 0);
+        ASSTATE.setRicoTotalReceivedI(index, 0);
+        ASSTATE.setRicoTotalReceivedC(index, 0);
+        ASSTATE.setRicoTotalReceivedP(index, 0);
         changeDataIndex(index);
         updateDisplayId(index, code);
     }

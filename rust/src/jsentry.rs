@@ -48,21 +48,19 @@ enum ASSTATE_C {
     _8 = 8,
     _9 = 9,
     _10 = 10,
-    
-    //ROAD_CAR_FLOW = 5,
-    //ROAD_CAR_LAST_FLOW = 6,
-    //ROAD_TRAVERSAL_PROCESSED = 7,
-    //ROAD_TRAVERSAL_COST = 8,
-    //ROAD_TRAVERSAL_PARENT = 9,
-    //ROAD_DEBUG = 10,
-    
-    //RICO_DENSITY_LEVEL = 5,
-    //RICO_DEMAND_OFFER_R = 6,
-    //RICO_DEMAND_OFFER_I = 7,
-    //RICO_DEMAND_OFFER_C = 8,
-    //RICO_DEMAND_OFFER_P = 9,
-    
-    END = 11
+
+    // RICO-only fields (not aliased with road fields)
+    _11 = 11,
+    _12 = 12,
+    _13 = 13,
+    _14 = 14,
+    _15 = 15,
+    _16 = 16,
+    _17 = 17,
+    _18 = 18,
+    _19 = 19,
+
+    END = 20
 }
 
 impl ASSTATE_C {
@@ -80,6 +78,18 @@ impl ASSTATE_C {
     pub const RICO_DEMAND_OFFER_I: ASSTATE_C = ASSTATE_C::_7;
     pub const RICO_DEMAND_OFFER_C: ASSTATE_C = ASSTATE_C::_8;
     pub const RICO_DEMAND_OFFER_P: ASSTATE_C = ASSTATE_C::_9;
+
+    pub const RICO_MAX_RECEIVED_R: ASSTATE_C = ASSTATE_C::_11;
+    pub const RICO_MAX_RECEIVED_I: ASSTATE_C = ASSTATE_C::_12;
+    pub const RICO_MAX_RECEIVED_C: ASSTATE_C = ASSTATE_C::_13;
+    pub const RICO_MAX_RECEIVED_P: ASSTATE_C = ASSTATE_C::_14;
+
+    pub const RICO_TOTAL_RECEIVED_R: ASSTATE_C = ASSTATE_C::_15;
+    pub const RICO_TOTAL_RECEIVED_I: ASSTATE_C = ASSTATE_C::_16;
+    pub const RICO_TOTAL_RECEIVED_C: ASSTATE_C = ASSTATE_C::_17;
+    pub const RICO_TOTAL_RECEIVED_P: ASSTATE_C = ASSTATE_C::_18;
+
+    pub const RICO_LEVEL_STREAK: ASSTATE_C = ASSTATE_C::_19;
 }
 
 enum ASSTATE_G {
@@ -382,6 +392,27 @@ impl ASSTATE {
     pub fn setRicoDemandOfferP(&mut self, index: i32, value: i16) {
         self.wc(index, ASSTATE_C::RICO_DEMAND_OFFER_P, value);
     }
+
+    pub fn getRicoMaxReceivedR(&self, index: i32) -> i16 { self.rc(index, ASSTATE_C::RICO_MAX_RECEIVED_R) }
+    pub fn getRicoMaxReceivedI(&self, index: i32) -> i16 { self.rc(index, ASSTATE_C::RICO_MAX_RECEIVED_I) }
+    pub fn getRicoMaxReceivedC(&self, index: i32) -> i16 { self.rc(index, ASSTATE_C::RICO_MAX_RECEIVED_C) }
+    pub fn getRicoMaxReceivedP(&self, index: i32) -> i16 { self.rc(index, ASSTATE_C::RICO_MAX_RECEIVED_P) }
+    pub fn setRicoMaxReceivedR(&mut self, index: i32, value: i16) { self.wc(index, ASSTATE_C::RICO_MAX_RECEIVED_R, value); }
+    pub fn setRicoMaxReceivedI(&mut self, index: i32, value: i16) { self.wc(index, ASSTATE_C::RICO_MAX_RECEIVED_I, value); }
+    pub fn setRicoMaxReceivedC(&mut self, index: i32, value: i16) { self.wc(index, ASSTATE_C::RICO_MAX_RECEIVED_C, value); }
+    pub fn setRicoMaxReceivedP(&mut self, index: i32, value: i16) { self.wc(index, ASSTATE_C::RICO_MAX_RECEIVED_P, value); }
+
+    pub fn getRicoTotalReceivedR(&self, index: i32) -> i16 { self.rc(index, ASSTATE_C::RICO_TOTAL_RECEIVED_R) }
+    pub fn getRicoTotalReceivedI(&self, index: i32) -> i16 { self.rc(index, ASSTATE_C::RICO_TOTAL_RECEIVED_I) }
+    pub fn getRicoTotalReceivedC(&self, index: i32) -> i16 { self.rc(index, ASSTATE_C::RICO_TOTAL_RECEIVED_C) }
+    pub fn getRicoTotalReceivedP(&self, index: i32) -> i16 { self.rc(index, ASSTATE_C::RICO_TOTAL_RECEIVED_P) }
+    pub fn setRicoTotalReceivedR(&mut self, index: i32, value: i16) { self.wc(index, ASSTATE_C::RICO_TOTAL_RECEIVED_R, value); }
+    pub fn setRicoTotalReceivedI(&mut self, index: i32, value: i16) { self.wc(index, ASSTATE_C::RICO_TOTAL_RECEIVED_I, value); }
+    pub fn setRicoTotalReceivedC(&mut self, index: i32, value: i16) { self.wc(index, ASSTATE_C::RICO_TOTAL_RECEIVED_C, value); }
+    pub fn setRicoTotalReceivedP(&mut self, index: i32, value: i16) { self.wc(index, ASSTATE_C::RICO_TOTAL_RECEIVED_P, value); }
+
+    pub fn getRicoLevelStreak(&self, index: i32) -> i16 { self.rc(index, ASSTATE_C::RICO_LEVEL_STREAK) }
+    pub fn setRicoLevelStreak(&mut self, index: i32, value: i16) { self.wc(index, ASSTATE_C::RICO_LEVEL_STREAK, value); }
 
     pub fn getRicoDensity(&self, index: i32) -> i16 {
         return self.rc(index, ASSTATE_C::RICO_DENSITY_LEVEL);

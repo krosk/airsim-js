@@ -804,44 +804,45 @@ var ASRICO = (function ()
         DEMAND_P : 5,
     };
     const C_RM = C_RICOPROPERTY_MAP;
+    const C_RICO_SCALE = 100;
     const C_RICOPROPERTY = {
-        [getCode(C_Z.RESLOW, 0)] : [0,  1,   0,   0,   0,   1],
-        [getCode(C_Z.RESLOW, 1)] : [1,  1,  -2,   0,   2,   1],
-        [getCode(C_Z.RESLOW, 2)] : [2,  1,  -4,   0,   4,   1],
-        [getCode(C_Z.RESLOW, 3)] : [3,  1,  -6,   0,   6,   1],
-        [getCode(C_Z.RESLOW, 4)] : [4,  1,  -8,   0,   8,   1],
-        [getCode(C_Z.RESLOW, 5)] : [5,  1, -10,   0,  10,   2],
-        [getCode(C_Z.RESHIG, 0)] : [0,  2,   0,   0,   0,   1],
-        [getCode(C_Z.RESHIG, 1)] : [1,  2, -10,   0,  10,   2],
-        [getCode(C_Z.RESHIG, 2)] : [2,  2, -16,   0,  16,   2],
-        [getCode(C_Z.RESHIG, 3)] : [3,  2, -24,   0,  24,   3],
-        [getCode(C_Z.RESHIG, 4)] : [4,  2, -34,   0,  34,   4],
-        [getCode(C_Z.RESHIG, 5)] : [5,  2, -50,   0,  50,   5],
-        [getCode(C_Z.INDLOW, 0)] : [0,  3,   0,   0,   0,   1],
-        [getCode(C_Z.INDLOW, 1)] : [1,  3,   2,  -2,   0,   2],
-        [getCode(C_Z.INDLOW, 2)] : [2,  3,   4,  -4,   0,   2],
-        [getCode(C_Z.INDLOW, 3)] : [3,  3,   6,  -6,   0,   3],
-        [getCode(C_Z.INDLOW, 4)] : [4,  3,   8,  -8,   0,   3],
-        [getCode(C_Z.INDLOW, 5)] : [5,  3,  10, -10,   0,   4],
-        [getCode(C_Z.INDHIG, 0)] : [0,  5,   0,   0,   0,   1],
-        [getCode(C_Z.INDHIG, 1)] : [1,  5,  10, -10,   0,   5],
-        [getCode(C_Z.INDHIG, 2)] : [2,  5,  16, -16,   0,   8],
-        [getCode(C_Z.INDHIG, 3)] : [3,  5,  24, -24,   0,  12],
-        [getCode(C_Z.INDHIG, 4)] : [4,  5,  34, -34,   0,  17],
-        [getCode(C_Z.INDHIG, 5)] : [5,  5,  50, -50,   0,  25],
-        [getCode(C_Z.COMLOW, 0)] : [0,  2,   0,   0,   0,   1],
-        [getCode(C_Z.COMLOW, 1)] : [1,  2,   1,   1,  -2,   2],
-        [getCode(C_Z.COMLOW, 2)] : [2,  2,   2,   2,  -4,   2],
-        [getCode(C_Z.COMLOW, 3)] : [3,  2,   3,   3,  -6,   3],
-        [getCode(C_Z.COMLOW, 4)] : [4,  2,   4,   4,  -8,   3],
-        [getCode(C_Z.COMLOW, 5)] : [5,  2,   5,   5, -10,   4],
-        [getCode(C_Z.COMHIG, 0)] : [0,  3,   0,   0,   0,   1],
-        [getCode(C_Z.COMHIG, 1)] : [1,  3,   5,   5, -10,   5],
-        [getCode(C_Z.COMHIG, 2)] : [2,  3,   8,   8, -16,   7],
-        [getCode(C_Z.COMHIG, 3)] : [3,  3,  12,  12, -24,   9],
-        [getCode(C_Z.COMHIG, 4)] : [4,  3,  17,  17, -34,  11],
-        [getCode(C_Z.COMHIG, 5)] : [5,  3,  25,  25, -50,  13],
-        [getCode(C_Z.POWLOW, 0)] : [0,  0,   0,   0,   0,-200]
+        [getCode(C_Z.RESLOW, 0)] : [0,  1,     0,     0,     0,   100],
+        [getCode(C_Z.RESLOW, 1)] : [1,  1,  -200,     0,   200,   100],
+        [getCode(C_Z.RESLOW, 2)] : [2,  1,  -400,     0,   400,   100],
+        [getCode(C_Z.RESLOW, 3)] : [3,  1,  -600,     0,   600,   100],
+        [getCode(C_Z.RESLOW, 4)] : [4,  1,  -800,     0,   800,   100],
+        [getCode(C_Z.RESLOW, 5)] : [5,  1, -1000,     0,  1000,   200],
+        [getCode(C_Z.RESHIG, 0)] : [0,  2,     0,     0,     0,   100],
+        [getCode(C_Z.RESHIG, 1)] : [1,  2, -1000,     0,  1000,   200],
+        [getCode(C_Z.RESHIG, 2)] : [2,  2, -1600,     0,  1600,   200],
+        [getCode(C_Z.RESHIG, 3)] : [3,  2, -2400,     0,  2400,   300],
+        [getCode(C_Z.RESHIG, 4)] : [4,  2, -3400,     0,  3400,   400],
+        [getCode(C_Z.RESHIG, 5)] : [5,  2, -5000,     0,  5000,   500],
+        [getCode(C_Z.INDLOW, 0)] : [0,  3,     0,     0,     0,   100],
+        [getCode(C_Z.INDLOW, 1)] : [1,  3,   200,  -200,     0,   200],
+        [getCode(C_Z.INDLOW, 2)] : [2,  3,   400,  -400,     0,   200],
+        [getCode(C_Z.INDLOW, 3)] : [3,  3,   600,  -600,     0,   300],
+        [getCode(C_Z.INDLOW, 4)] : [4,  3,   800,  -800,     0,   300],
+        [getCode(C_Z.INDLOW, 5)] : [5,  3,  1000, -1000,     0,   400],
+        [getCode(C_Z.INDHIG, 0)] : [0,  5,     0,     0,     0,   100],
+        [getCode(C_Z.INDHIG, 1)] : [1,  5,  1000, -1000,     0,   500],
+        [getCode(C_Z.INDHIG, 2)] : [2,  5,  1600, -1600,     0,   800],
+        [getCode(C_Z.INDHIG, 3)] : [3,  5,  2400, -2400,     0,  1200],
+        [getCode(C_Z.INDHIG, 4)] : [4,  5,  3400, -3400,     0,  1700],
+        [getCode(C_Z.INDHIG, 5)] : [5,  5,  5000, -5000,     0,  2500],
+        [getCode(C_Z.COMLOW, 0)] : [0,  2,     0,     0,     0,   100],
+        [getCode(C_Z.COMLOW, 1)] : [1,  2,   100,   100,  -200,   200],
+        [getCode(C_Z.COMLOW, 2)] : [2,  2,   200,   200,  -400,   200],
+        [getCode(C_Z.COMLOW, 3)] : [3,  2,   300,   300,  -600,   300],
+        [getCode(C_Z.COMLOW, 4)] : [4,  2,   400,   400,  -800,   300],
+        [getCode(C_Z.COMLOW, 5)] : [5,  2,   500,   500, -1000,   400],
+        [getCode(C_Z.COMHIG, 0)] : [0,  3,     0,     0,     0,   100],
+        [getCode(C_Z.COMHIG, 1)] : [1,  3,   500,   500, -1000,   500],
+        [getCode(C_Z.COMHIG, 2)] : [2,  3,   800,   800, -1600,   700],
+        [getCode(C_Z.COMHIG, 3)] : [3,  3,  1200,  1200, -2400,   900],
+        [getCode(C_Z.COMHIG, 4)] : [4,  3,  1700,  1700, -3400,  1100],
+        [getCode(C_Z.COMHIG, 5)] : [5,  3,  2500,  2500, -5000,  1300],
+        [getCode(C_Z.POWLOW, 0)] : [0,  0,     0,     0,     0, -20000]
     };
     const C_R = C_RICOPROPERTY;
     
@@ -1314,7 +1315,7 @@ var ASRICO = (function ()
         let zone = ASSTATE.getZoneId(index);
         let level = ASSTATE.getRicoDensity(index);
         let code = getCode(zone, level);
-        return C_R[code][C_RM.TRAFFIC] * filledOffer;
+        return (C_R[code][C_RM.TRAFFIC] * filledOffer / C_RICO_SCALE) | 0;
     }
     
     let incrementStatOfferTotal = function asrico_incrementStatOfferTotal(index)

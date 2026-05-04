@@ -247,7 +247,9 @@ The JS-to-WASM migration is in progress. Current state:
 
 When migrating a JS function to Rust: remove it from `airsim-module.js`, add the `#[wasm_bindgen]` impl in `jsentry.rs`, rebuild, and verify the no-worker path first before testing the worker path.
 
-**Next migration priority: scalar accessors for `getRicoDemandOffer`/`setRicoDemandOffer`, then single-call tick.** The traversal loop is now in Rust, but `dispatchOffer` still calls `getRicoDemandOffer`/`setRicoDemandOffer` O(R × buildings_per_node) times per tick — each call crosses the WASM boundary and allocates a `Box<[i16]>` on the WASM heap (the documented-slow path from `wasm_notes.txt`). Replacing them with four scalar field accessors (`getRicoDemandOfferR/I/C/P`, `setRicoDemandOfferR/I/C/P`) eliminates per-call allocation and is the next bottleneck to address.
+Scalar `getRicoDemandOfferR/I/C/P` / `setRicoDemandOfferR/I/C/P` accessors replaced the `Box<[i16]>` array API (commit 9c17084). All `dispatchOffer` and level-check call sites in `airsim-module.js` use scalar calls; no WASM heap allocation occurs per RICO demand/offer crossing.
+
+**Next priority: ADR 006 Phase 1 — scale `C_RICOPROPERTY` demand/offer values by ×100.** Required prerequisite for the acceptance ratio throttle model (parallel dispatch). See `docs/decisions/006-parallel-rico-dispatch.md`.
 
 The end goal is a single `tick(...)` WASM call per frame that runs all three phases internally, yielding when its budget is exhausted. This eliminates all JS↔WASM boundary crossings during the tick. Interruptibility shifts to per-building granularity — acceptable given Rust traversal speed. The time budget mechanism inside that single call is an open design question; see `docs/decisions/005-simulation-time-budget.md`.
 

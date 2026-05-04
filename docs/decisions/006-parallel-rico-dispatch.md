@@ -2,7 +2,7 @@
 
 ## Status
 
-Planned — not yet implemented.
+In progress — Phase 0 complete (commit 9c17084).
 
 ## Context
 
@@ -97,17 +97,11 @@ This is an `i16x4` multiply-divide-add. Intermediate `demand * offer` may exceed
 
 ## Implementation Phases
 
-### Phase 0 — Prerequisites (already planned, not yet done)
+### Phase 0 — Prerequisites ✓ complete (commit 9c17084)
 
 **Goal:** Scalar RICO demand/offer accessors replacing `Box<[i16]>` API.
 
-**Why:** Every `getRicoDemandOffer`/`setRicoDemandOffer` call crosses the WASM boundary and allocates on the WASM heap. The new model adds `max_received` and `total_received` slots — making the array API even more expensive. Scalar accessors are the foundation.
-
-**Files to change:**
-- `rust/src/jsentry.rs`: add `getRicoDemandOfferR(index)`, `getRicoDemandOfferI(index)`, `getRicoDemandOfferC(index)`, `getRicoDemandOfferP(index)` and setters
-- `airsim-module.js`: replace all `getRicoDemandOffer` / `setRicoDemandOffer` call sites with 4 scalar calls
-
-**Done when:** `npm test` passes, no `getRicoDemandOffer`/`setRicoDemandOffer` calls remain in JS.
+`getRicoDemandOfferR/I/C/P` and `setRicoDemandOfferR/I/C/P` added to `rust/src/jsentry.rs`. All call sites in `airsim-module.js` (`setInitial`, `getRicoOfferSum`, `canLevelUp`, `canLevelDown`, `dispatchOffer`, `getInfoRico`) and `test/simulation-tick.test.js` updated. No `getRicoDemandOffer`/`setRicoDemandOffer` calls remain.
 
 ---
 

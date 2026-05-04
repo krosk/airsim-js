@@ -83,7 +83,7 @@ A double-buffer scheme (scatter reads from Buffer 1, writes fills to Buffer 2) d
 
 - **Scatter phase**: embarrassingly parallel across buildings. Currently sequential (WASM single-threaded). Architecture is parallel-ready.
 - **Gather phase**: parallel across buildings (each building writes only to its own state).
-- **Actual parallelism**: blocked. WASM threads require `SharedArrayBuffer` which requires COOP/COEP headers, blocked on GitHub Pages deployment. No code changes needed when this constraint is resolved — the scatter-gather architecture already handles it.
+- **Actual parallelism**: currently blocked on GitHub Pages (see Phase 6). The scatter-gather architecture is parallel-ready; no further code changes are needed once the hosting constraint is resolved.
 
 ### SIMD
 
@@ -276,15 +276,20 @@ Start with `THRESHOLD_UP = 3`, `THRESHOLD_DOWN = 5`. Tune against B16 preset.
 
 ---
 
-### Phase 6 — Cross-building parallelism (blocked, future)
+### Phase 6 — Cross-building parallelism (future)
 
-**Prerequisite:** SharedArrayBuffer available — requires COOP/COEP headers (`Cross-Origin-Opener-Policy: same-origin`, `Cross-Origin-Embedder-Policy: require-corp`). Currently blocked on GitHub Pages.
+**Prerequisite:** `crossOriginIsolated = true` in the browser, which requires COOP/COEP headers (`Cross-Origin-Opener-Policy: same-origin`, `Cross-Origin-Embedder-Policy: require-corp`). Without these, browsers block `postMessage` of shared `WebAssembly.Memory` to Workers (throws `DataCloneError` on Chrome 92+), making WASM threads impossible regardless of whether `SharedArrayBuffer` is constructible.
 
-**No code changes needed.** The scatter-gather architecture from Phase 3 is already parallel-safe:
-- Scatter: atomic `fetch_add` on `RICO_TOTAL_RECEIVED_*[target]`
-- Gather: each building writes only its own state
+**GitHub Pages workaround:** GitHub Pages does not serve COOP/COEP headers and cannot be configured to do so. However, a ServiceWorker can inject them on every response. `coi-serviceworker` (https://github.com/gzuidhof/coi-serviceworker) is the established one-script-tag solution used by projects such as SQLite WASM on GitHub Pages. Adding it to `index.html` sets `crossOriginIsolated = true`, restores `globalThis.SharedArrayBuffer`, and enables WASM threads with full `Atomics.wait`/`notify` support.
 
-When hosting constraint is resolved, enable WASM threads and remove sequential building loop.
+**Note on `WebReflection/shared-array-buffer`:** This library recovers the `SharedArrayBuffer` constructor via `new WebAssembly.Memory({shared:true}).buffer.constructor` in non-isolated contexts. It does not inject headers, does not set `crossOriginIsolated`, and does not unblock `postMessage` of shared memory to Workers. It is not a solution for WASM threads.
+
+**Simulation code changes needed (once isolated):**
+- Enable WASM threads: add `atomics` and `bulk-memory` target features in `rust/Cargo.toml`
+- Scatter loop: replace sequential building iteration with parallel dispatch using atomic `fetch_add` on `RICO_TOTAL_RECEIVED_*[target]`
+- Gather loop: can run in parallel (each building writes only its own state)
+
+**No scatter-gather architecture changes needed** — the Phase 3 design is already parallel-safe.
 
 ---
 

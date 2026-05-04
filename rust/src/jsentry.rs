@@ -357,19 +357,30 @@ impl ASSTATE {
         self.wc(index, ASSTATE_C::ROAD_DEBUG, data);
     }
 
-    pub fn getRicoDemandOffer(&self, index: i32) -> Box<[i16]> {
-        let dor = self.rc(index, ASSTATE_C::RICO_DEMAND_OFFER_R);
-        let doi = self.rc(index, ASSTATE_C::RICO_DEMAND_OFFER_I);
-        let doc = self.rc(index, ASSTATE_C::RICO_DEMAND_OFFER_C);
-        let dop = self.rc(index, ASSTATE_C::RICO_DEMAND_OFFER_P);
-        return Box::new([dor, doi, doc, dop]);
+    pub fn getRicoDemandOfferR(&self, index: i32) -> i16 {
+        self.rc(index, ASSTATE_C::RICO_DEMAND_OFFER_R)
+    }
+    pub fn getRicoDemandOfferI(&self, index: i32) -> i16 {
+        self.rc(index, ASSTATE_C::RICO_DEMAND_OFFER_I)
+    }
+    pub fn getRicoDemandOfferC(&self, index: i32) -> i16 {
+        self.rc(index, ASSTATE_C::RICO_DEMAND_OFFER_C)
+    }
+    pub fn getRicoDemandOfferP(&self, index: i32) -> i16 {
+        self.rc(index, ASSTATE_C::RICO_DEMAND_OFFER_P)
     }
 
-    pub fn setRicoDemandOffer(&mut self, index: i32, demand_offer: Box<[i16]>) {
-        self.wc(index, ASSTATE_C::RICO_DEMAND_OFFER_R, demand_offer[0]);
-        self.wc(index, ASSTATE_C::RICO_DEMAND_OFFER_I, demand_offer[1]);
-        self.wc(index, ASSTATE_C::RICO_DEMAND_OFFER_C, demand_offer[2]);
-        self.wc(index, ASSTATE_C::RICO_DEMAND_OFFER_P, demand_offer[3]);
+    pub fn setRicoDemandOfferR(&mut self, index: i32, value: i16) {
+        self.wc(index, ASSTATE_C::RICO_DEMAND_OFFER_R, value);
+    }
+    pub fn setRicoDemandOfferI(&mut self, index: i32, value: i16) {
+        self.wc(index, ASSTATE_C::RICO_DEMAND_OFFER_I, value);
+    }
+    pub fn setRicoDemandOfferC(&mut self, index: i32, value: i16) {
+        self.wc(index, ASSTATE_C::RICO_DEMAND_OFFER_C, value);
+    }
+    pub fn setRicoDemandOfferP(&mut self, index: i32, value: i16) {
+        self.wc(index, ASSTATE_C::RICO_DEMAND_OFFER_P, value);
     }
 
     pub fn getRicoDensity(&self, index: i32) -> i16 {

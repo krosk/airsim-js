@@ -188,8 +188,13 @@ describe('RICO traversal', () => {
         // dispatched at least some of it to COMLOW (which demands R).
         // If all slots are still 0, the traversal did not run.
         const reslowIdx = ctx.ASSTATE.getIndex(1, 0);
-        const offer = ctx.ASSTATE.getRicoDemandOffer(reslowIdx);
-        const allZero = Array.from(offer).every(v => v === 0);
+        const offer = [
+            ctx.ASSTATE.getRicoDemandOfferR(reslowIdx),
+            ctx.ASSTATE.getRicoDemandOfferI(reslowIdx),
+            ctx.ASSTATE.getRicoDemandOfferC(reslowIdx),
+            ctx.ASSTATE.getRicoDemandOfferP(reslowIdx)
+        ];
+        const allZero = offer.every(v => v === 0);
         expect(allZero).toBe(false);
     });
 });

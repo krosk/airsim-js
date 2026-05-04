@@ -1010,7 +1010,10 @@ var ASRICO = (function ()
         }
         ASSTATE.setRicoDensity(index, C_R[code][C_RM.LEVEL]);
         let demandOffer = getInitialDemandOffer(code);
-        ASSTATE.setRicoDemandOffer(index, demandOffer);
+        ASSTATE.setRicoDemandOfferR(index, demandOffer[0]);
+        ASSTATE.setRicoDemandOfferI(index, demandOffer[1]);
+        ASSTATE.setRicoDemandOfferC(index, demandOffer[2]);
+        ASSTATE.setRicoDemandOfferP(index, demandOffer[3]);
         changeDataIndex(index);
         updateDisplayId(index, code);
     }
@@ -1191,16 +1194,11 @@ var ASRICO = (function ()
     
     let getRicoOfferSum = function asrico_getRicoOfferSum(offerIndex)
     {
-        let demandOffer = ASSTATE.getRicoDemandOffer(offerIndex);
-        let sum = 0;
-        for (let i in demandOffer)
-        {
-            if (demandOffer[i] < 0)
-            {
-                sum += demandOffer[i];
-            }
-        }
-        return sum;
+        let r = ASSTATE.getRicoDemandOfferR(offerIndex);
+        let i = ASSTATE.getRicoDemandOfferI(offerIndex);
+        let c = ASSTATE.getRicoDemandOfferC(offerIndex);
+        let p = ASSTATE.getRicoDemandOfferP(offerIndex);
+        return (r < 0 ? r : 0) + (i < 0 ? i : 0) + (c < 0 ? c : 0) + (p < 0 ? p : 0);
     }
     
     let canLevelUp = function asrico_canLevelUp(index)
@@ -1209,7 +1207,12 @@ var ASRICO = (function ()
         let level = ASSTATE.getRicoDensity(index);
         let code = getCode(zone, level + 1);
         let flag = isCodeValid(code);
-        let demandOffer = ASSTATE.getRicoDemandOffer(index);
+        let demandOffer = [
+            ASSTATE.getRicoDemandOfferR(index),
+            ASSTATE.getRicoDemandOfferI(index),
+            ASSTATE.getRicoDemandOfferC(index),
+            ASSTATE.getRicoDemandOfferP(index)
+        ];
         flag &= isDemandRicoFilled(demandOffer);
         flag &= isOfferRicoFilled(demandOffer);
         return flag;
@@ -1233,8 +1236,13 @@ var ASRICO = (function ()
         let parentDemandInitial = getInitialDemand(parentCode);
         let parentOfferInitial = getInitialOffer(parentCode);
         
-        let demandOffer = ASSTATE.getRicoDemandOffer(index);
-        
+        let demandOffer = [
+            ASSTATE.getRicoDemandOfferR(index),
+            ASSTATE.getRicoDemandOfferI(index),
+            ASSTATE.getRicoDemandOfferC(index),
+            ASSTATE.getRicoDemandOfferP(index)
+        ];
+
         for (let i in parentDemandInitial)
         {
             //if (i == 3) continue; // temp
@@ -1345,12 +1353,22 @@ var ASRICO = (function ()
     let dispatchOffer = function asrico_dispatchOffer(offerIndex, roadX, roadY)
     {
         let demandIndexList = findNearestBuilding(roadX, roadY);
-        let offer = ASSTATE.getRicoDemandOffer(offerIndex);
+        let offer = [
+            ASSTATE.getRicoDemandOfferR(offerIndex),
+            ASSTATE.getRicoDemandOfferI(offerIndex),
+            ASSTATE.getRicoDemandOfferC(offerIndex),
+            ASSTATE.getRicoDemandOfferP(offerIndex)
+        ];
         let filledOffer = 0;
         for (let i in demandIndexList)
         {
             let demandIndex = demandIndexList[i];
-            let demand = ASSTATE.getRicoDemandOffer(demandIndex);
+            let demand = [
+                ASSTATE.getRicoDemandOfferR(demandIndex),
+                ASSTATE.getRicoDemandOfferI(demandIndex),
+                ASSTATE.getRicoDemandOfferC(demandIndex),
+                ASSTATE.getRicoDemandOfferP(demandIndex)
+            ];
             for (let j in demand)
             {
                 if (demand[j] < 0 || offer[j] > 0)
@@ -1370,9 +1388,15 @@ var ASRICO = (function ()
                     demand[j] = 0;
                 }
             }
-            ASSTATE.setRicoDemandOffer(demandIndex, demand);
+            ASSTATE.setRicoDemandOfferR(demandIndex, demand[0]);
+            ASSTATE.setRicoDemandOfferI(demandIndex, demand[1]);
+            ASSTATE.setRicoDemandOfferC(demandIndex, demand[2]);
+            ASSTATE.setRicoDemandOfferP(demandIndex, demand[3]);
         }
-        ASSTATE.setRicoDemandOffer(offerIndex, offer);
+        ASSTATE.setRicoDemandOfferR(offerIndex, offer[0]);
+        ASSTATE.setRicoDemandOfferI(offerIndex, offer[1]);
+        ASSTATE.setRicoDemandOfferC(offerIndex, offer[2]);
+        ASSTATE.setRicoDemandOfferP(offerIndex, offer[3]);
         return filledOffer;
     }
     
@@ -1457,7 +1481,7 @@ var ASRICO = (function ()
         }
         let code = getDataIdByDensityLevel(index);
         return public.C_NAME + " " + index + " C:" + code +
-            " D:" + ASSTATE.getRicoDemandOffer(index) +
+            " D:" + [ASSTATE.getRicoDemandOfferR(index), ASSTATE.getRicoDemandOfferI(index), ASSTATE.getRicoDemandOfferC(index), ASSTATE.getRicoDemandOfferP(index)] +
             " " + getInitialDemand(code) +
             " " + getInitialOffer(code);
     }

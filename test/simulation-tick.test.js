@@ -322,3 +322,68 @@ describe('industry level-up', () => {
         expect(ctx.ASSTATE.getRicoDensity(idx)).toBe(0);
     });
 });
+
+// ---------------------------------------------------------------------------
+// 7. Phase 2 parallel dispatch fields
+// ---------------------------------------------------------------------------
+
+// RESLOW level 0 property (×100 scale): R=0, I=0, C=0, P=100
+// POWLOW level 0 property (×100 scale): R=0, I=0, C=0, P=-20000
+// max_received is initialised to the raw property values in addRico.
+// total_received is reset to 0 in setInitial (step 0 of every tick).
+// level_streak is initialised to 0 in addRico.
+
+describe('parallel dispatch fields (Phase 2)', () => {
+    let ctx, reslowIdx, powlowIdx;
+
+    beforeAll(() => {
+        ctx = makeEngineContext();
+        ctx.ASWENGINE.initializeModule(3, 3);
+        const C = ctx.ASTILE_ID.C_TILE_ZONE;
+        ctx.ASZONE.setZone(0, 0, C.ROAD);
+        ctx.ASZONE.setZone(1, 0, C.RESLOW);
+        ctx.ASZONE.setZone(0, 1, C.POWLOW);
+        runOneTick(ctx);  // zones applied, addRico called, one full tick run
+        reslowIdx = ctx.ASSTATE.getIndex(1, 0);
+        powlowIdx = ctx.ASSTATE.getIndex(0, 1);
+    });
+
+    it('RESLOW max_received_P initialised to property demand value (100)', () => {
+        expect(ctx.ASSTATE.getRicoMaxReceivedP(reslowIdx)).toBe(100);
+    });
+
+    it('RESLOW max_received_R/I/C initialised to 0 (unused slots)', () => {
+        expect(ctx.ASSTATE.getRicoMaxReceivedR(reslowIdx)).toBe(0);
+        expect(ctx.ASSTATE.getRicoMaxReceivedI(reslowIdx)).toBe(0);
+        expect(ctx.ASSTATE.getRicoMaxReceivedC(reslowIdx)).toBe(0);
+    });
+
+    it('POWLOW max_received_P initialised to property value (-20000)', () => {
+        expect(ctx.ASSTATE.getRicoMaxReceivedP(powlowIdx)).toBe(-20000);
+    });
+
+    it('RESLOW level_streak initialised to 0', () => {
+        expect(ctx.ASSTATE.getRicoLevelStreak(reslowIdx)).toBe(0);
+    });
+
+    it('total_received slots are 0 after a tick (reset by setInitial)', () => {
+        expect(ctx.ASSTATE.getRicoTotalReceivedR(reslowIdx)).toBe(0);
+        expect(ctx.ASSTATE.getRicoTotalReceivedI(reslowIdx)).toBe(0);
+        expect(ctx.ASSTATE.getRicoTotalReceivedC(reslowIdx)).toBe(0);
+        expect(ctx.ASSTATE.getRicoTotalReceivedP(reslowIdx)).toBe(0);
+    });
+
+    it('total_received slots are still 0 after a second tick', () => {
+        runOneTick(ctx, 1);
+        expect(ctx.ASSTATE.getRicoTotalReceivedR(reslowIdx)).toBe(0);
+        expect(ctx.ASSTATE.getRicoTotalReceivedI(reslowIdx)).toBe(0);
+        expect(ctx.ASSTATE.getRicoTotalReceivedC(reslowIdx)).toBe(0);
+        expect(ctx.ASSTATE.getRicoTotalReceivedP(reslowIdx)).toBe(0);
+    });
+
+    it('max_received persists across ticks (not reset by setInitial)', () => {
+        // After tick 1 RESLOW levelled up to density 1; setInitial ran with the
+        // new code but max_received must not be touched until the gather phase.
+        expect(ctx.ASSTATE.getRicoMaxReceivedP(reslowIdx)).toBe(100);
+    });
+});
